@@ -1,0 +1,22 @@
+language: java
+
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+
+jdk:  
+  - oraclejdk8
+
+cache:
+  directories:
+    - $HOME/.gradle
+
+before_install:
+  - chmod a+x ./travis-build.sh
+  - chmod a+x ./gradlew
+
+script:
+  - ./travis-build.sh
