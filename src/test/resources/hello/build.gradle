@@ -6,8 +6,6 @@ repositories {
     mavenCentral()
 }
 
-apply plugin: 'application'
-
 sourceCompatibility = 10
 targetCompatibility = 10
 
