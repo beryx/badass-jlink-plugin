@@ -2,15 +2,14 @@ language: java
 
 sudo: false
 
-before_install:
-  - wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
-  - chmod a+x ./gradlew
+before_install: wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
 
 install:
   - . ./install-jdk.sh -F 10 -L BCL
+  - chmod a+x ./gradlew
 
 cache:
   directories:
     - $HOME/.gradle
 
-script: ./gradlew --no-daemon -i -s build
+script: ./gradlew --no-daemon --info --stacktrace build
