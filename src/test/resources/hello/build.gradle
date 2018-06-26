@@ -1,0 +1,31 @@
+plugins {
+    id 'org.beryx.jlink'
+}
+
+repositories {
+    mavenCentral()
+}
+
+apply plugin: 'application'
+
+sourceCompatibility = 10
+targetCompatibility = 10
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.25'
+    compile 'ch.qos.logback:logback-classic:1.2.3'
+}
+
+mainClassName = 'org.example.modular.Hello'
+jar {
+    manifest {
+        attributes 'Implementation-Title': "modular-hello",
+                'Main-Class': mainClassName
+    }
+}
+
+compileJava {
+    options.compilerArgs = ['--module-path', classpath.asPath]
+    classpath = files()
+}
+

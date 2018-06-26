@@ -2,21 +2,16 @@ language: java
 
 sudo: false
 
-addons:
-  apt:
-    packages:
-      - oracle-java8-installer
+before_install:
+  - wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
+  - chmod a+x ./travis-build.sh
+  - chmod a+x ./gradlew
 
-jdk:  
-  - oraclejdk8
+install:
+  - . ./install-jdk.sh -F 10 -L BCL
 
 cache:
   directories:
     - $HOME/.gradle
 
-before_install:
-  - chmod a+x ./travis-build.sh
-  - chmod a+x ./gradlew
-
-script:
-  - ./travis-build.sh
+script: ./gradlew --no-daemon -i -s build

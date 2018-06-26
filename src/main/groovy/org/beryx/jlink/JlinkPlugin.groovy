@@ -23,10 +23,14 @@ class JlinkPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        project.getPluginManager().apply('application');
         def extension = project.extensions.create('jlink', JlinkPluginExtension, project)
         project.getTasks().create(TASK_NAME, JlinkTask, { JlinkTask task ->
-            task.jlinkInputProperty = extension.jlinkInputProperty
-            task.jlinkOutputProperty = extension.jlinkOutputProperty
+            task.launcherName = extension.launcherName
+            task.mainClass = extension.mainClass
+            task.mergedModuleName = extension.mergedModuleName
+            task.javaHome = extension.javaHome
+            task.mergedModuleInfo = extension.mergedModuleInfo
         })
     }
 }

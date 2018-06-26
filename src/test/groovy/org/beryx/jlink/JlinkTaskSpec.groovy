@@ -15,25 +15,31 @@
  */
 package org.beryx.jlink
 
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 import spock.lang.Unroll
-import org.beryx.jlink.impl.JlinkTaskImpl
 
 class JlinkTaskSpec extends Specification {
-    @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
+    @Unroll
+    def "toModuleName(#name) should be #moduleName"() {
+        expect:
+        JlinkTask.toModuleName(name) == moduleName
+
+        where:
+        name | moduleName
+        'a' | 'a'
+        'org.xyz' | 'org.xyz'
+        '?org.!!x+-yz!!=...' | 'org.x.yz'
+    }
 
     @Unroll
-    def "should create the correct output"() {
-        given:
-        def input = 'my-input'
-        def output = testProjectDir.newFile('my-output.txt')
+    def "getModuleNameFrom(#text) should be #moduleName"() {
+        expect:
+        JlinkTask.getModuleNameFrom(text) == moduleName
 
-        when:
-        new JlinkTaskImpl(input, output).execute()
-
-        then:
-        output.text == "$JlinkPlugin.TASK_NAME: jlinkInputProperty = $input"
+        where:
+        text                                                 | moduleName
+        'module a.b.c{'                                      | 'a.b.c'
+        '  \tmodule a.b.c\t { '                              | 'a.b.c'
+        '/*my module*/\nmodule a.b.c {\n  exports a.b.c;\n}' | 'a.b.c'
     }
 }

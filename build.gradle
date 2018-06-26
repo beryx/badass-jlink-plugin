@@ -70,3 +70,9 @@ jar {
                 'Implementation-Version': badassJlinkPluginVersion
     }
 }
+
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}

@@ -22,55 +22,66 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 import spock.lang.Unroll
+import spock.util.environment.OperatingSystem
 
 class JlinkPluginSpec extends Specification {
-    String createBuildContent(String input, String output) {
-        def inputCfg = input ? "jlinkInputProperty = \"$input\"" : ''
-        def outputCfg = output ? "jlinkOutputProperty = file(\"$output\")" : ''
-        def extension = (inputCfg || outputCfg) ?
-            """
-            jlink {
-                $inputCfg
-                $outputCfg
-            }
-            """ : ''
-        return """
-            plugins {
-                id 'org.beryx.jlink'
-            }
-            $extension
-        """.stripIndent()
-    }
+    @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
 
-    def setUpBuild(String input = null, String output = null) {
-        File buildFile = testProjectDir.newFile("build.gradle")
-        buildFile.text = createBuildContent(input, output)
+    def setUpBuild(String moduleName, String launcherName, String mainClass, String mergedModuleName) {
+        new AntBuilder().copy( todir: testProjectDir.root ) {
+            fileset( dir: 'src/test/resources/hello' )
+        }
+
+        File buildFile = new File(testProjectDir.root, "build.gradle")
+        buildFile << 'jlink {\n'
+        if(moduleName) buildFile << "    moduleName = '$moduleName'\n"
+        if(launcherName) buildFile << "    launcherName = '$launcherName'\n"
+        if(mainClass) buildFile << "    mainClass = '$mainClass'\n"
+        if(mergedModuleName) buildFile << "    mergedModuleName = '$mergedModuleName'\n"
+        buildFile <<
+        ''' |    mergedModule {
+            |        requires 'java.naming';
+            |        requires 'java.xml';
+            |        requires 'java.xml.bind';
+            |    }
+        |'''.stripMargin()
+        buildFile << '}\n'
         println "Executing build script:\n${buildFile.text}"
     }
 
-    @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
-
     @Unroll
-    def "should execute task with input=#input and output=#output"() {
+    def "should execute task with moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
         when:
-        setUpBuild(input, output)
+        setUpBuild(moduleName, launcherName, mainClass, mergedModuleName)
         BuildResult result = GradleRunner.create()
+                .withDebug(true)
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME, "-is")
                 .build();
-        def expectedOutputFile = new File("$testProjectDir.root.path/build/$expectedOutputFilePath")
+        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
+        def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
+        def imageLauncher = new File(imageBinDir, "$expectedLauncherName$launcherExt")
 
         then:
         result.task(":$JlinkPlugin.TASK_NAME").outcome == TaskOutcome.SUCCESS
-        expectedOutputFile.text == "jlink: jlinkInputProperty = $expectedInputVal"
+        imageLauncher.exists()
+
+        when:
+        imageLauncher.setExecutable(true)
+        def process = imageLauncher.absolutePath.execute([], imageBinDir)
+        def out = new ByteArrayOutputStream(2048)
+        process.waitForProcessOutput(out, out)
+        def outputText = out.toString()
+
+        then:
+        outputText.trim() == 'LOG: Hello, modular Java!'
 
         where:
-        input  | output                    || expectedInputVal                             | expectedOutputFilePath
-        null   | null                      || 'jlinkInputProperty-default-val' | "jlink/jlink-out.txt"
-        'val1' | null                      || 'val1'                                       | "jlink/jlink-out.txt"
-        null   | '$buildDir/dir2/out2.txt' || 'jlinkInputProperty-default-val' | "dir2/out2.txt"
-        'val3' | '$buildDir/dir3/out3.txt' || 'val3'                                       | "dir3/out3.txt"
+        moduleName              | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
+        null                    | null         | null                        | null                                | 'modular-hello'
+        'modular.example.hello' | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
+        null                    | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
     }
 
 }
