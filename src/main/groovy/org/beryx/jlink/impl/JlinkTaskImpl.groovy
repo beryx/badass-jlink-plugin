@@ -32,6 +32,7 @@ class JlinkTaskImpl {
     final String mainClass
     final String mergedModuleName
     final String javaHome
+    final boolean jdepsEnabled
 
     final String jlinkBasePath
     final String nonModularJarsDirPath
@@ -43,16 +44,16 @@ class JlinkTaskImpl {
 
     final ModuleInfo mergedModuleInfo
 
-    JlinkTaskImpl(Project project, File imageDir, String moduleName, String launcherName,
-                  String mainClass, String mergedModuleName, String javaHome, ModuleInfo mergedModuleInfo) {
+    JlinkTaskImpl(Project project, JlinkTaskData taskData) {
         this.project = project
-        this.imageDir = imageDir
-        this.moduleName = moduleName
-        this.launcherName = launcherName
-        this.mainClass = mainClass
-        this.mergedModuleName = mergedModuleName
-        this.javaHome = javaHome
-        this.mergedModuleInfo = mergedModuleInfo
+        this.imageDir = taskData.imageDir
+        this.moduleName = taskData.moduleName
+        this.launcherName = taskData.launcherName
+        this.mainClass = taskData.mainClass
+        this.mergedModuleName = taskData.mergedModuleName
+        this.javaHome = taskData.javaHome
+        this.mergedModuleInfo = taskData.mergedModuleInfo
+        this.jdepsEnabled = taskData.jdepsEnabled
 
         jlinkBasePath = "$project.buildDir/jlinkbase"
         nonModularJarsDirPath = "$jlinkBasePath/nonmodjars"
@@ -99,19 +100,20 @@ class JlinkTaskImpl {
     File genModuleInfo(File jarFile, File targetDir) {
         log.info("Generating module-info in ${targetDir}...")
         project.delete(targetDir)
-        project.exec {
-            ignoreExitValue = true
-            commandLine "$javaHome/bin/jdeps",
-                    '-v',
-                    '--generate-module-info',
-                    targetDir.path,
-                    '--module-path',
-                    "$javaHome/jmods/$SEP$jlinkJarsDirPath",
-                    jarFile.path
+        if(jdepsEnabled) {
+            project.exec {
+                ignoreExitValue = true
+                commandLine "$javaHome/bin/jdeps",
+                        '-v',
+                        '--generate-module-info',
+                        targetDir.path,
+                        '--module-path',
+                        "$javaHome/jmods/$SEP$jlinkJarsDirPath",
+                        jarFile.path
+            }
         }
         def files = targetDir.listFiles()
         return files?.length ? files[0] : genDummyModuleInfo(jarFile, targetDir)
-//        return genDummyModuleInfo(jarFile, targetDir)
     }
 
     File genDummyModuleInfo(File jarFile, File targetDir) {

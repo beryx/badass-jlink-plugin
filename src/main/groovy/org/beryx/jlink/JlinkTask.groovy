@@ -15,20 +15,17 @@
  */
 package org.beryx.jlink
 
+import org.beryx.jlink.impl.JlinkTaskData
+import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.impl.ModuleInfo
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.GradleScriptException
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-import org.beryx.jlink.impl.JlinkTaskImpl
 
 class JlinkTask extends DefaultTask {
     @Input @Optional
@@ -49,6 +46,9 @@ class JlinkTask extends DefaultTask {
     @Input @Optional
     Property<ModuleInfo> mergedModuleInfo
 
+    @Input @Optional
+    Property<String> jdepsEnabled = project.objects.property(Boolean)
+
     @OutputDirectory @Optional
     DirectoryProperty imageDir = project.layout.directoryProperty()
 
@@ -58,17 +58,18 @@ class JlinkTask extends DefaultTask {
         description = 'Creates modular runtime image with jlink'
     }
 
-
     @TaskAction
     void jlinkTaskAction() {
-        File fImageDir = imageDir.present ? imageDir.get().asFile : new File(project.buildDir, 'image')
-        String sModuleName = moduleName.present ? moduleName.get() : getDefaultModuleName()
-        String sLauncherName = launcherName.present ? launcherName.get() : project.name
-        String sMainClass = mainClass.present ? mainClass.get() : project.mainClassName
-        String sMergedModuleName = mergedModuleName.present ? mergedModuleName.get() : getDefaultMergedModuleName()
-        String sJavaHome = javaHome.present ? javaHome.get() : System.getenv('JAVA_HOME')
-        def taskImpl = new JlinkTaskImpl(project, fImageDir,
-                sModuleName, sLauncherName, sMainClass, sMergedModuleName, sJavaHome, mergedModuleInfo.get())
+        def taskData = new JlinkTaskData()
+        taskData.imageDir = imageDir.present ? imageDir.get().asFile : new File(project.buildDir, 'image')
+        taskData.moduleName = moduleName.present ? moduleName.get() : getDefaultModuleName()
+        taskData.launcherName = launcherName.present ? launcherName.get() : project.name
+        taskData.mainClass = mainClass.present ? mainClass.get() : project.mainClassName
+        taskData.mergedModuleName = mergedModuleName.present ? mergedModuleName.get() : getDefaultMergedModuleName()
+        taskData.javaHome = javaHome.present ? javaHome.get() : System.getenv('JAVA_HOME')
+        taskData.mergedModuleInfo = mergedModuleInfo.get()
+        taskData.jdepsEnabled = jdepsEnabled.getOrElse(true)
+        def taskImpl = new JlinkTaskImpl(project, taskData)
         taskImpl.execute()
     }
 

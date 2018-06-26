@@ -28,6 +28,7 @@ class JlinkPluginExtension {
     final Property<String> mergedModuleName
     final Property<String> javaHome
     final Property<ModuleInfo> mergedModuleInfo
+    final Property<Boolean> jdepsEnabled
 
     JlinkPluginExtension(Project project) {
         imageDir = project.layout.directoryProperty()
@@ -38,6 +39,7 @@ class JlinkPluginExtension {
         javaHome = project.objects.property(String)
         mergedModuleInfo = project.objects.property(ModuleInfo)
         mergedModuleInfo.set(new ModuleInfo())
+        jdepsEnabled = project.objects.property(Boolean)
     }
 
     void mergedModule(Closure closure) {

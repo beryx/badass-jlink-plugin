@@ -31,6 +31,7 @@ class JlinkPlugin implements Plugin<Project> {
             task.mergedModuleName = extension.mergedModuleName
             task.javaHome = extension.javaHome
             task.mergedModuleInfo = extension.mergedModuleInfo
+            task.jdepsEnabled = extension.jdepsEnabled
         })
     }
 }
