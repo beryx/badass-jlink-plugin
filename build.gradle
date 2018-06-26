@@ -5,6 +5,7 @@ plugins {
     id "com.github.ethankhall.semantic-versioning" version "1.1.0"
     id "com.github.ben-manes.versions" version "0.13.0"
     id 'com.github.jk1.dependency-license-report' version '0.3.8'
+    id "com.github.hierynomus.license" version "0.14.0"
 }
 
 project.version.with {
@@ -35,8 +36,16 @@ def defaultEncoding = 'UTF-8'
 [compileGroovy, compileTestGroovy]*.options*.encoding = defaultEncoding
 [compileGroovy, compileTestGroovy]*.groovyOptions*.encoding = defaultEncoding
 
-sourceSets.main.java.srcDirs = []
-sourceSets.main.groovy.srcDirs = ["src/main/java", "src/main/groovy"]
+task licenseCheckGroovy(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {
+    source = fileTree(dir: "src").include("**/*.groovy")
+}
+tasks.license.dependsOn licenseCheckGroovy
+
+license {
+    header rootProject.file("license-header.txt")
+    skipExistingHeaders true
+    ignoreFailures false
+}
 
 configurations {
     compile {transitive = true}
