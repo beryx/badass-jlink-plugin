@@ -73,6 +73,20 @@ gradlePlugin {
         }
     }
 }
+pluginBundle {
+    website = 'https://github.com/beryx/badass-jlink-plugin/'
+    vcsUrl = 'https://github.com/beryx/badass-jlink-plugin'
+    description = 'A Gradle plugin that assembles your modules into a custom runtime image'
+    tags = ['jlink', 'jpms', 'image']
+
+    plugins {
+        jlink {
+            id = 'org.beryx.jlink'
+            displayName = 'Badass JLink Plugin'
+        }
+    }
+}
+
 
 jar {
     manifest {
