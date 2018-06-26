@@ -12,7 +12,4 @@ cache:
   directories:
     - $HOME/.gradle
 
-script:
-  - java -version
-  - ls -al
-  - ./gradlew --info --stacktrace build
+script: ./gradlew --info --stacktrace build
