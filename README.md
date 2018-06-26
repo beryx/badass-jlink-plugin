@@ -10,7 +10,7 @@ Example `build.gradle` configuration:
 
 ```
 plugins {
-    id 'org.beryx.jlink' version '1.0.0'
+    id 'org.beryx.jlink' version '1.0.1'
 }
 
 jlink {
@@ -22,3 +22,5 @@ jlink {
     }
 }
 ```
+
+Check [this simple application](https://github.com/beryx-gist/badass-jlink-example), which shows how to use the plugin to create a custom runtime image.
