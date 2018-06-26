@@ -23,34 +23,33 @@ import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
 class JlinkTask extends DefaultTask {
-    @Input @Optional
-    Property<String> moduleName = project.objects.property(String)
+    @Input
+    Property<String> moduleName
 
-    @Input @Optional
-    Property<String> launcherName = project.objects.property(String)
+    @Input
+    Property<String> launcherName
 
-    @Input @Optional
-    Property<String> mainClass = project.objects.property(String)
+    @Input
+    Property<String> mainClass
 
-    @Input @Optional
-    Property<String> mergedModuleName = project.objects.property(String)
+    @Input
+    Property<String> mergedModuleName
 
-    @Input @Optional
-    Property<String> javaHome = project.objects.property(String)
+    @Input
+    Property<String> javaHome
 
-    @Input @Optional
+    @Input
     Property<ModuleInfo> mergedModuleInfo
 
-    @Input @Optional
-    Property<String> jdepsEnabled = project.objects.property(Boolean)
+    @Input
+    Property<String> jdepsEnabled
 
-    @OutputDirectory @Optional
-    DirectoryProperty imageDir = project.layout.directoryProperty()
+    @OutputDirectory
+    DirectoryProperty imageDir
 
     JlinkTask() {
         dependsOn('jar')
@@ -61,14 +60,14 @@ class JlinkTask extends DefaultTask {
     @TaskAction
     void jlinkTaskAction() {
         def taskData = new JlinkTaskData()
-        taskData.imageDir = imageDir.present ? imageDir.get().asFile : new File(project.buildDir, 'image')
-        taskData.moduleName = moduleName.present ? moduleName.get() : getDefaultModuleName()
-        taskData.launcherName = launcherName.present ? launcherName.get() : project.name
-        taskData.mainClass = mainClass.present ? mainClass.get() : project.mainClassName
-        taskData.mergedModuleName = mergedModuleName.present ? mergedModuleName.get() : getDefaultMergedModuleName()
-        taskData.javaHome = javaHome.present ? javaHome.get() : System.getenv('JAVA_HOME')
+        taskData.imageDir = imageDir.get().asFile
+        taskData.moduleName = moduleName.get() ?: getDefaultModuleName()
+        taskData.launcherName = launcherName.get() ?: project.name
+        taskData.mainClass = mainClass.get() ?: project.mainClassName
+        taskData.mergedModuleName = mergedModuleName.get() ?: getDefaultMergedModuleName()
+        taskData.javaHome = javaHome.get() ?: System.getenv('JAVA_HOME')
         taskData.mergedModuleInfo = mergedModuleInfo.get()
-        taskData.jdepsEnabled = jdepsEnabled.getOrElse(true)
+        taskData.jdepsEnabled = jdepsEnabled.get()
         def taskImpl = new JlinkTaskImpl(project, taskData)
         taskImpl.execute()
     }

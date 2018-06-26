@@ -32,14 +32,28 @@ class JlinkPluginExtension {
 
     JlinkPluginExtension(Project project) {
         imageDir = project.layout.directoryProperty()
+        imageDir.set(new File(project.buildDir, 'image'))
+
         moduleName = project.objects.property(String)
+        moduleName.set('')
+
         launcherName = project.objects.property(String)
+        launcherName.set('')
+
         mainClass = project.objects.property(String)
+        mainClass.set('')
+
         mergedModuleName = project.objects.property(String)
+        mergedModuleName.set('')
+
         javaHome = project.objects.property(String)
+        javaHome.set('')
+
         mergedModuleInfo = project.objects.property(ModuleInfo)
         mergedModuleInfo.set(new ModuleInfo())
+
         jdepsEnabled = project.objects.property(Boolean)
+        jdepsEnabled.set(true)
     }
 
     void mergedModule(Closure closure) {

@@ -28,10 +28,12 @@ class JlinkPlugin implements Plugin<Project> {
         project.getTasks().create(TASK_NAME, JlinkTask, { JlinkTask task ->
             task.launcherName = extension.launcherName
             task.mainClass = extension.mainClass
+            task.moduleName = extension.moduleName
             task.mergedModuleName = extension.mergedModuleName
             task.javaHome = extension.javaHome
             task.mergedModuleInfo = extension.mergedModuleInfo
             task.jdepsEnabled = extension.jdepsEnabled
+            task.imageDir = extension.imageDir
         })
     }
 }
