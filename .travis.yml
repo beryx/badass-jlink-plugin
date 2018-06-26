@@ -4,7 +4,6 @@ sudo: false
 
 before_install:
   - wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
-  - chmod a+x ./travis-build.sh
   - chmod a+x ./gradlew
 
 install:
