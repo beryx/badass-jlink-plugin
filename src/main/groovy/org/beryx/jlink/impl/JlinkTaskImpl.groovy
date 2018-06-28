@@ -249,7 +249,7 @@ class JlinkTaskImpl {
         project.exec {
             commandLine "$javaHome/bin/javac",
                     '-p',
-                    moduleJar.parentFile,
+                    "$moduleJar.parentFile$SEP$jlinkJarsDirPath",
                     '-d',
                     targetDir.path,
                     "$moduleInfoJavaDir/module-info.java"
