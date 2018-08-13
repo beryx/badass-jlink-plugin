@@ -34,6 +34,8 @@ class JlinkPlugin implements Plugin<Project> {
             task.mergedModuleInfo = extension.mergedModuleInfo
             task.jdepsEnabled = extension.jdepsEnabled
             task.imageDir = extension.imageDir
+            task.imageZip = extension.imageZip
+            task.beforeZipClosure = extension.beforeZipClosure
         })
     }
 }

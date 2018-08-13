@@ -21,9 +21,11 @@ import org.beryx.jlink.impl.ModuleInfo
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 class JlinkTask extends DefaultTask {
@@ -51,6 +53,11 @@ class JlinkTask extends DefaultTask {
     @OutputDirectory
     DirectoryProperty imageDir
 
+    @OutputFile
+    RegularFileProperty imageZip
+
+    Property<Closure> beforeZipClosure
+
     JlinkTask() {
         dependsOn('jar')
         group = 'build'
@@ -61,6 +68,12 @@ class JlinkTask extends DefaultTask {
     void jlinkTaskAction() {
         def taskData = new JlinkTaskData()
         taskData.imageDir = imageDir.get().asFile
+        taskData.imageZip = imageZip.get().asFile
+        taskData.beforeZip = beforeZipClosure.get()
+        if(taskData.beforeZip) {
+            taskData.beforeZip.setDelegate(this)
+            taskData.beforeZip.setResolveStrategy(Closure.DELEGATE_FIRST)
+        }
         taskData.moduleName = moduleName.get() ?: getDefaultModuleName()
         taskData.launcherName = launcherName.get() ?: project.name
         taskData.mainClass = mainClass.get() ?: project.mainClassName

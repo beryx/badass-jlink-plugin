@@ -33,7 +33,15 @@ class JlinkPluginSpec extends Specification {
         }
 
         File buildFile = new File(testProjectDir.root, "build.gradle")
-        buildFile << 'jlink {\n'
+        buildFile << '''
+            jlink {
+                beforeZip {
+                    copy {
+                        from('src/main/resources')
+                        into("$buildDir/image/bin")
+                    }
+                }
+        '''.stripMargin()
         if(moduleName) buildFile << "    moduleName = '$moduleName'\n"
         if(launcherName) buildFile << "    launcherName = '$launcherName'\n"
         if(mainClass) buildFile << "    mainClass = '$mainClass'\n"
@@ -62,10 +70,12 @@ class JlinkPluginSpec extends Specification {
         def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
         def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
         def imageLauncher = new File(imageBinDir, "$expectedLauncherName$launcherExt")
+        def logbackXml = new File(imageBinDir, "logback.xml")
 
         then:
         result.task(":$JlinkPlugin.TASK_NAME").outcome == TaskOutcome.SUCCESS
         imageLauncher.exists()
+        logbackXml.exists()
 
         when:
         imageLauncher.setExecutable(true)

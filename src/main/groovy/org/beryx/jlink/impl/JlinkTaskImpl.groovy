@@ -27,6 +27,8 @@ class JlinkTaskImpl {
 
     final Project project
     final File imageDir
+    final File imageZip
+    final Closure beforeZip
     final String moduleName
     final String launcherName
     final String mainClass
@@ -47,6 +49,8 @@ class JlinkTaskImpl {
     JlinkTaskImpl(Project project, JlinkTaskData taskData) {
         this.project = project
         this.imageDir = taskData.imageDir
+        this.imageZip = taskData.imageZip
+        this.beforeZip = taskData.beforeZip
         this.moduleName = taskData.moduleName
         this.launcherName = taskData.launcherName
         this.mainClass = taskData.mainClass
@@ -72,11 +76,17 @@ class JlinkTaskImpl {
     }
 
     void execute() {
-        project.delete(imageDir, jlinkBasePath)
+        project.delete(imageDir, imageZip, jlinkBasePath)
         copyRuntimeJars()
         createMergedModule(new File(nonModularJarsDirPath).listFiles() as List)
         createDelegatedModules()
         jlink(project.file(jlinkJarsDirPath))
+        if(beforeZip) {
+            beforeZip()
+        }
+        project.ant.zip(destfile: imageZip) {
+            fileset(dir: imageDir)
+        }
     }
 
     static boolean hasModuleInfo(File f) {
@@ -271,6 +281,7 @@ class JlinkTaskImpl {
 
     def jlink(File modjarsDir) {
         project.delete(imageDir)
+        project.delete(imageZip)
         project.exec {
             commandLine "$javaHome/bin/jlink",
                     '-v',

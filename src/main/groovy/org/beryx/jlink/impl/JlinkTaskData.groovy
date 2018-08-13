@@ -17,6 +17,8 @@ package org.beryx.jlink.impl
 
 class JlinkTaskData {
     File imageDir
+    File imageZip
+    Closure beforeZip
     String moduleName
     String launcherName
     String mainClass

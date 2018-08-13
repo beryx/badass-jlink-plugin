@@ -18,10 +18,12 @@ package org.beryx.jlink
 import org.beryx.jlink.impl.ModuleInfo
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 
 class JlinkPluginExtension {
     final DirectoryProperty imageDir
+    final RegularFileProperty imageZip
     final Property<String> moduleName
     final Property<String> launcherName
     final Property<String> mainClass
@@ -29,10 +31,16 @@ class JlinkPluginExtension {
     final Property<String> javaHome
     final Property<ModuleInfo> mergedModuleInfo
     final Property<Boolean> jdepsEnabled
+    final Property<Closure> beforeZipClosure
 
     JlinkPluginExtension(Project project) {
         imageDir = project.layout.directoryProperty()
         imageDir.set(new File(project.buildDir, 'image'))
+
+        imageZip = project.layout.fileProperty()
+        imageZip.set(new File(project.buildDir, 'image.zip'))
+
+        beforeZipClosure = project.objects.property(Closure)
 
         moduleName = project.objects.property(String)
         moduleName.set('')
@@ -60,5 +68,9 @@ class JlinkPluginExtension {
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = mergedModuleInfo.get()
         closure()
+    }
+
+    void beforeZip(Closure closure) {
+        this.beforeZipClosure.set(closure)
     }
 }
