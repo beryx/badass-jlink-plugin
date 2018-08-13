@@ -85,8 +85,8 @@ class JlinkTaskImpl {
             beforeZip()
         }
         project.ant.zip(destfile: imageZip, duplicate: 'fail') {
-            zipfileset(dir: imageDir, excludes: 'bin/**')
-            zipfileset(dir: imageDir, includes: 'bin/**', filemode: 755)
+            zipfileset(dir: imageDir.parentFile, includes: "$imageDir.name/**", excludes: "$imageDir.name/bin/**")
+            zipfileset(dir: imageDir.parentFile, includes: "$imageDir.name/bin/**", filemode: 755)
         }
     }
 
