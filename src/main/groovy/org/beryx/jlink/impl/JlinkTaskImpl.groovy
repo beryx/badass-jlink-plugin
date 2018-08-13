@@ -84,8 +84,9 @@ class JlinkTaskImpl {
         if(beforeZip) {
             beforeZip()
         }
-        project.ant.zip(destfile: imageZip) {
-            fileset(dir: imageDir)
+        project.ant.zip(destfile: imageZip, duplicate: 'fail') {
+            zipfileset(dir: imageDir, excludes: 'bin/**')
+            zipfileset(dir: imageDir, includes: 'bin/**', filemode: 755)
         }
     }
 
