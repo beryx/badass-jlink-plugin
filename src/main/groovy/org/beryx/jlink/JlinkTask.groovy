@@ -56,7 +56,7 @@ class JlinkTask extends DefaultTask {
     @OutputFile
     RegularFileProperty imageZip
 
-    Property<Closure> beforeZipClosure
+    private Property<Closure> beforeZipClosure
 
     JlinkTask() {
         dependsOn('jar')
@@ -69,8 +69,8 @@ class JlinkTask extends DefaultTask {
         def taskData = new JlinkTaskData()
         taskData.imageDir = imageDir.get().asFile
         taskData.imageZip = imageZip.get().asFile
-        taskData.beforeZip = beforeZipClosure.get()
-        if(taskData.beforeZip) {
+        if(beforeZipClosure.present) {
+            taskData.beforeZip = beforeZipClosure.get()
             taskData.beforeZip.setDelegate(this)
             taskData.beforeZip.setResolveStrategy(Closure.DELEGATE_FIRST)
         }
@@ -96,6 +96,10 @@ class JlinkTask extends DefaultTask {
     private String getDefaultMergedModuleName() {
         String name = (project.group ?: project.name) as String
         "${toModuleName(name)}.merged.module"
+    }
+
+    void configureBeforeZipClosure(closure) {
+        this.beforeZipClosure = closure
     }
 
     static String toModuleName(String s) {

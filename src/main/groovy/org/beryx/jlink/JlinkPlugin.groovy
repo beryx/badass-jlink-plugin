@@ -35,7 +35,7 @@ class JlinkPlugin implements Plugin<Project> {
             task.jdepsEnabled = extension.jdepsEnabled
             task.imageDir = extension.imageDir
             task.imageZip = extension.imageZip
-            task.beforeZipClosure = extension.beforeZipClosure
+            task.configureBeforeZipClosure(extension.beforeZipClosure)
         })
     }
 }

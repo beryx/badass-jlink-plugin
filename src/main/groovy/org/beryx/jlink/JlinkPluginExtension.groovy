@@ -41,6 +41,7 @@ class JlinkPluginExtension {
         imageZip.set(new File(project.buildDir, 'image.zip'))
 
         beforeZipClosure = project.objects.property(Closure)
+        beforeZipClosure.set(null)
 
         moduleName = project.objects.property(String)
         moduleName.set('')

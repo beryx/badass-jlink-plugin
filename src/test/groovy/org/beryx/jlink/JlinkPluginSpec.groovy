@@ -27,13 +27,16 @@ import spock.util.environment.OperatingSystem
 class JlinkPluginSpec extends Specification {
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
 
-    def setUpBuild(String moduleName, String launcherName, String mainClass, String mergedModuleName) {
+    def setUpBuild(boolean withBeforeZip, String moduleName, String launcherName, String mainClass, String mergedModuleName) {
         new AntBuilder().copy( todir: testProjectDir.root ) {
             fileset( dir: 'src/test/resources/hello' )
         }
 
         File buildFile = new File(testProjectDir.root, "build.gradle")
-        buildFile << '''
+        if(!withBeforeZip) {
+            buildFile << 'jlink {\n'
+        } else {
+            buildFile << '''
             jlink {
                 beforeZip {
                     copy {
@@ -41,7 +44,8 @@ class JlinkPluginSpec extends Specification {
                         into("$buildDir/image/bin")
                     }
                 }
-        '''.stripMargin()
+        '''.stripIndent()
+        }
         if(moduleName) buildFile << "    moduleName = '$moduleName'\n"
         if(launcherName) buildFile << "    launcherName = '$launcherName'\n"
         if(mainClass) buildFile << "    mainClass = '$mainClass'\n"
@@ -58,9 +62,9 @@ class JlinkPluginSpec extends Specification {
     }
 
     @Unroll
-    def "should execute task with moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
+    def "should execute task with useBeforeZip=#useBeforeZip, moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
         when:
-        setUpBuild(moduleName, launcherName, mainClass, mergedModuleName)
+        setUpBuild(useBeforeZip, moduleName, launcherName, mainClass, mergedModuleName)
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
                 .withProjectDir(testProjectDir.root)
@@ -75,7 +79,7 @@ class JlinkPluginSpec extends Specification {
         then:
         result.task(":$JlinkPlugin.TASK_NAME").outcome == TaskOutcome.SUCCESS
         imageLauncher.exists()
-        logbackXml.exists()
+        useBeforeZip == logbackXml.exists()
 
         when:
         imageLauncher.setExecutable(true)
@@ -88,10 +92,10 @@ class JlinkPluginSpec extends Specification {
         outputText.trim() == 'LOG: Hello, modular Java!'
 
         where:
-        moduleName              | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
-        null                    | null         | null                        | null                                | 'modular-hello'
-        'modular.example.hello' | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
-        null                    | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
+        useBeforeZip | moduleName              | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
+        false        | null                    | null         | null                        | null                                | 'modular-hello'
+        true         | 'modular.example.hello' | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
+        true         | null                    | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
     }
 
 }
