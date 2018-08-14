@@ -61,7 +61,7 @@ class JlinkPluginExtension {
         mergedModuleInfo.set(new ModuleInfo())
 
         jdepsEnabled = project.objects.property(Boolean)
-        jdepsEnabled.set(true)
+        jdepsEnabled.set(false)
     }
 
     void mergedModule(Closure closure) {
