@@ -283,7 +283,12 @@ class JlinkTaskImpl {
     def jlink(File modjarsDir) {
         project.delete(imageDir)
         project.delete(imageZip)
-        project.exec {
+        def result = project.exec {
+            ignoreExitValue = true
+            standardOutput = new ByteArrayOutputStream()
+            project.ext.jlinkOutput = {
+                return standardOutput.toString()
+            }
             commandLine "$javaHome/bin/jlink",
                     '-v',
                     '--module-path',
@@ -292,5 +297,12 @@ class JlinkTaskImpl {
                     '--output', imageDir,
                     '--launcher', "$launcherName=$moduleName/$mainClass"
         }
+        if(result.exitValue != 0) {
+            log.error(project.ext.jlinkOutput())
+        } else {
+          log.info(project.ext.jlinkOutput())
+        }
+        result.assertNormalExitValue()
+        result.rethrowFailure()
     }
 }
