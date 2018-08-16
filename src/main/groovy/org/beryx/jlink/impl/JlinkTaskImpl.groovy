@@ -134,7 +134,7 @@ class JlinkTaskImpl {
     File genDummyModuleInfo(File jarFile, File targetDir) {
         def packages = new TreeSet<String>()
         new ZipFile(jarFile).entries().each { entry ->
-            if(entry.name.endsWith('.class')) {
+            if(!entry.name.contains('META-INF') && entry.name.endsWith('.class')) {
                 int pos = entry.name.lastIndexOf('/')
                 if(pos > 0) {
                     packages << entry.name.substring(0, pos).replace('/', '.')
