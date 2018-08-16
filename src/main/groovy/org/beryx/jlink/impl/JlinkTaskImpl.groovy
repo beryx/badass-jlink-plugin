@@ -168,7 +168,7 @@ class JlinkTaskImpl {
         }
     }
 
-    String genDelegatedModuleInfo(File jarFile, String targetDirPath) {
+    File genDelegatedModuleInfo(File jarFile, String targetDirPath) {
         def moduleName = getModuleName(jarFile)
         def modinfoDir = new File(targetDirPath, moduleName)
         modinfoDir.mkdirs()
@@ -178,7 +178,7 @@ class JlinkTaskImpl {
             requires transitive $mergedModuleName;
         }
         """.stripIndent()
-        modinfoDir.path
+        modinfoDir
     }
 
     def createJar(String jarFilePath, String contentDirPath) {
@@ -195,17 +195,31 @@ class JlinkTaskImpl {
     }
 
     def createDelegatedModule(File jarFile, String tmpDirPath, String targetDirPath) {
-        def moduleDirPath = genDelegatedModuleInfo(jarFile, tmpDirPath)
+        def moduleDir = genDelegatedModuleInfo(jarFile, tmpDirPath)
         project.delete(tmpModuleInfoDirPath)
         createManifest(tmpModuleInfoDirPath)
-        project.exec {
+        log.info("Compiling delegate module $moduleDir.name ...")
+        def result = project.exec {
+            ignoreExitValue = true
+            standardOutput = new ByteArrayOutputStream()
+            project.ext.javacOutput = {
+                return standardOutput.toString()
+            }
             commandLine "$javaHome/bin/javac",
                     '-p',
                     jlinkJarsDirPath,
                     '-d',
                     tmpModuleInfoDirPath,
-                    "$moduleDirPath/module-info.java"
+                    "${moduleDir.path}/module-info.java"
         }
+        if(result.exitValue != 0) {
+            log.error(project.ext.javacOutput())
+        } else {
+            log.info(project.ext.javacOutput())
+        }
+        result.assertNormalExitValue()
+        result.rethrowFailure()
+
         def targetJarPath = new File(targetDirPath, jarFile.name).path
         createJar(targetJarPath, tmpModuleInfoDirPath)
     }
