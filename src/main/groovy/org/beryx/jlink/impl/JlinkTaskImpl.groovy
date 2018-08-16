@@ -33,6 +33,7 @@ class JlinkTaskImpl {
     final String launcherName
     final String mainClass
     final String mergedModuleName
+    final List<String> forceMergedJarPrefixes
     final String javaHome
     final boolean jdepsEnabled
 
@@ -55,6 +56,7 @@ class JlinkTaskImpl {
         this.launcherName = taskData.launcherName
         this.mainClass = taskData.mainClass
         this.mergedModuleName = taskData.mergedModuleName
+        this.forceMergedJarPrefixes = taskData.forceMergedJarPrefixes
         this.javaHome = taskData.javaHome
         this.mergedModuleInfo = taskData.mergedModuleInfo
         this.jdepsEnabled = taskData.jdepsEnabled
@@ -71,6 +73,7 @@ class JlinkTaskImpl {
         log.info("launcherName: $launcherName")
         log.info("mainClass: $mainClass")
         log.info("mergedModuleName: $mergedModuleName")
+        log.info("forceMergedJarPrefixes: $forceMergedJarPrefixes")
         log.info("javaHome: $javaHome")
         log.info("mergedModuleInfo: $mergedModuleInfo")
     }
@@ -90,7 +93,8 @@ class JlinkTaskImpl {
         }
     }
 
-    static boolean hasModuleInfo(File f) {
+    boolean hasModuleInfo(File f) {
+        if(forceMergedJarPrefixes.any {f.name.startsWith(it)}) return false
         new ZipFile(f).entries().any {it.name == 'module-info.class'}
     }
 
@@ -104,7 +108,7 @@ class JlinkTaskImpl {
         return s.substring(0, len - tokens[-1].length() - 2).replace('-', '.')
     }
 
-    static Collection<File> getNonModularJars(File[] allJars) {
+    Collection<File> getNonModularJars(File[] allJars) {
         allJars.findAll {!hasModuleInfo(it)}
     }
 

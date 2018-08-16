@@ -42,6 +42,9 @@ class JlinkTask extends DefaultTask {
     Property<String> mergedModuleName
 
     @Input
+    Property<List<String>> forceMergedJarPrefixes
+
+    @Input
     Property<String> javaHome
 
     @Input
@@ -78,6 +81,7 @@ class JlinkTask extends DefaultTask {
         taskData.launcherName = launcherName.get() ?: project.name
         taskData.mainClass = mainClass.get() ?: project.mainClassName
         taskData.mergedModuleName = mergedModuleName.get() ?: getDefaultMergedModuleName()
+        taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
         taskData.javaHome = javaHome.get() ?: System.getenv('JAVA_HOME')
         taskData.mergedModuleInfo = mergedModuleInfo.get()
         taskData.jdepsEnabled = jdepsEnabled.get()

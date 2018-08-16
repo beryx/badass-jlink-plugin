@@ -23,6 +23,7 @@ class JlinkTaskData {
     String launcherName
     String mainClass
     String mergedModuleName
+    List<String> forceMergedJarPrefixes
     String javaHome
     ModuleInfo mergedModuleInfo
     boolean jdepsEnabled
