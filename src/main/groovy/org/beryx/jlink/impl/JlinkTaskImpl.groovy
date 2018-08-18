@@ -17,6 +17,7 @@ package org.beryx.jlink.impl
 
 import org.gradle.api.Project
 
+import java.lang.module.ModuleFinder
 import java.util.jar.JarFile
 import java.util.zip.ZipFile
 
@@ -101,7 +102,17 @@ class JlinkTaskImpl {
         }
     }
 
-    static String getModuleName(File f) {
+    String getModuleName(File f) {
+        try {
+            return ModuleFinder.of(f.toPath()).findAll().first().descriptor().name()
+        } catch (Exception e) {
+            def modName = getFallbackModuleName(f)
+            project.logger.warn("Cannot retrieve the module name of $f. Using falback value: $modName.", e)
+            return modName
+        }
+    }
+
+    String getFallbackModuleName(File f) {
         def modName = new JarFile(f).getManifest()?.mainAttributes.getValue('Automatic-Module-Name')
         if(modName) return modName
         def s = f.name
