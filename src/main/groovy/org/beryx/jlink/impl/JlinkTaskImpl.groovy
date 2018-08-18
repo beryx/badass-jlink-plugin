@@ -15,13 +15,11 @@
  */
 package org.beryx.jlink.impl
 
-import groovy.util.logging.Slf4j
 import org.gradle.api.Project
 
 import java.util.jar.JarFile
 import java.util.zip.ZipFile
 
-@Slf4j
 class JlinkTaskImpl {
     static String SEP = File.pathSeparatorChar
 
@@ -69,20 +67,27 @@ class JlinkTaskImpl {
         tmpJarsDirPath = "$jlinkBasePath/tmpjars"
         tmpModuleInfoDirPath = "$jlinkBasePath/tmpmodinfo"
 
-        log.info("moduleName: $moduleName")
-        log.info("launcherName: $launcherName")
-        log.info("mainClass: $mainClass")
-        log.info("mergedModuleName: $mergedModuleName")
-        log.info("forceMergedJarPrefixes: $forceMergedJarPrefixes")
-        log.info("javaHome: $javaHome")
-        log.info("mergedModuleInfo: $mergedModuleInfo")
+        project.logger.info("moduleName: $moduleName")
+        project.logger.info("launcherName: $launcherName")
+        project.logger.info("mainClass: $mainClass")
+        project.logger.info("mergedModuleName: $mergedModuleName")
+        project.logger.info("forceMergedJarPrefixes: $forceMergedJarPrefixes")
+        project.logger.info("javaHome: $javaHome")
+        project.logger.info("mergedModuleInfo: $mergedModuleInfo")
     }
 
     void execute() {
         project.delete(imageDir, imageZip, jlinkBasePath)
-        copyRuntimeJars()
+        def depMgr = new DependencyManager(project, forceMergedJarPrefixes)
+        copyRuntimeJars(depMgr)
         createMergedModule(new File(nonModularJarsDirPath).listFiles() as List)
         createDelegatedModules()
+
+        project.logger.info("Copying modular jars not required by non-modular jars to ${jlinkJarsDirPath}...")
+        project.copy {
+            into jlinkJarsDirPath
+            from (depMgr.modularJars - depMgr.modularJarsRequiredByNonModularJars)
+        }
         jlink(project.file(jlinkJarsDirPath))
         if(beforeZip) {
             beforeZip()
@@ -91,11 +96,6 @@ class JlinkTaskImpl {
             zipfileset(dir: imageDir.parentFile, includes: "$imageDir.name/**", excludes: "$imageDir.name/bin/**")
             zipfileset(dir: imageDir.parentFile, includes: "$imageDir.name/bin/**", filemode: 755)
         }
-    }
-
-    boolean hasModuleInfo(File f) {
-        if(forceMergedJarPrefixes.any {f.name.startsWith(it)}) return false
-        new ZipFile(f).entries().any {it.name == 'module-info.class'}
     }
 
     static String getModuleName(File f) {
@@ -108,12 +108,8 @@ class JlinkTaskImpl {
         return s.substring(0, len - tokens[-1].length() - 2).replace('-', '.')
     }
 
-    Collection<File> getNonModularJars(File[] allJars) {
-        allJars.findAll {!hasModuleInfo(it)}
-    }
-
     File genModuleInfo(File jarFile, File targetDir) {
-        log.info("Generating module-info in ${targetDir}...")
+        project.logger.info("Generating module-info in ${targetDir}...")
         project.delete(targetDir)
         if(jdepsEnabled) {
             project.exec {
@@ -154,17 +150,22 @@ class JlinkTaskImpl {
         modinfoDir
     }
 
-    def copyRuntimeJars() {
+    def copyRuntimeJars(DependencyManager depMgr) {
         project.delete(jlinkJarsDirPath, nonModularJarsDirPath)
-        log.info("Copying modular jars to ${jlinkJarsDirPath}...")
-        project.copy {
-            into jlinkJarsDirPath
-            from project.configurations.runtimeClasspath.filter {hasModuleInfo(it)}
+        project.logger.info("Copying modular jars required by non-modular jars to ${jlinkJarsDirPath}...")
+        depMgr.modularJarsRequiredByNonModularJars.each { jar ->
+            project.logger.debug("\t... from $jar ...")
+            project.copy {
+                into jlinkJarsDirPath
+                from jar
+            }
         }
-        log.info("Copying mon-modular jars to ${nonModularJarsDirPath}...")
-        project.copy {
-            into nonModularJarsDirPath
-            from project.configurations.runtimeClasspath.filter {!hasModuleInfo(it)}
+        project.logger.info("Copying mon-modular jars to ${nonModularJarsDirPath}...")
+        depMgr.nonModularJars.each { jar ->
+            project.copy {
+                into nonModularJarsDirPath
+                from jar
+            }
         }
     }
 
@@ -198,7 +199,7 @@ class JlinkTaskImpl {
         def moduleDir = genDelegatedModuleInfo(jarFile, tmpDirPath)
         project.delete(tmpModuleInfoDirPath)
         createManifest(tmpModuleInfoDirPath)
-        log.info("Compiling delegate module $moduleDir.name ...")
+        project.logger.info("Compiling delegate module $moduleDir.name ...")
         def result = project.exec {
             ignoreExitValue = true
             standardOutput = new ByteArrayOutputStream()
@@ -213,9 +214,9 @@ class JlinkTaskImpl {
                     "${moduleDir.path}/module-info.java"
         }
         if(result.exitValue != 0) {
-            log.error(project.ext.javacOutput())
+            project.logger.error(project.ext.javacOutput())
         } else {
-            log.info(project.ext.javacOutput())
+            project.logger.info(project.ext.javacOutput())
         }
         result.assertNormalExitValue()
         result.rethrowFailure()
@@ -225,7 +226,7 @@ class JlinkTaskImpl {
     }
 
     def createDelegatedModules() {
-        log.info("Creating delegated modules...")
+        project.logger.info("Creating delegated modules...")
         project.delete(tmpJarsDirPath)
         new File(nonModularJarsDirPath).eachFile { jarFile ->
             createDelegatedModule(jarFile, tmpJarsDirPath, jlinkJarsDirPath)
@@ -246,7 +247,7 @@ class JlinkTaskImpl {
 
     def createMergedModule(Collection<File> jars) {
         if(jars.empty) return
-        log.info("Creating merged module...")
+        project.logger.info("Creating merged module...")
         mergeUnpackedContents(jars, mergedJarsDirPath)
         def jarFilePath = "$tmpMergedModuleDirPath/${mergedModuleName}.jar"
         createJar(jarFilePath, mergedJarsDirPath)
@@ -260,7 +261,7 @@ class JlinkTaskImpl {
     }
 
     def mergeUnpackedContents(Collection<File> jars, String tmpDirPath) {
-        log.info("Merging content into ${tmpDirPath}...")
+        project.logger.info("Merging content into ${tmpDirPath}...")
         project.copy {
             jars.each {from(project.zipTree(it))}
             into(tmpDirPath)
@@ -269,7 +270,7 @@ class JlinkTaskImpl {
     }
 
     def compileModuleInfo(File moduleInfoJavaDir, File moduleJar, File targetDir) {
-        log.info("Compiling module-info from ${moduleInfoJavaDir}...")
+        project.logger.info("Compiling module-info from ${moduleInfoJavaDir}...")
         project.delete(targetDir)
         project.copy {
             from(project.zipTree(moduleJar))
@@ -286,7 +287,7 @@ class JlinkTaskImpl {
     }
 
     def insertModuleInfo(File moduleJar, File moduleInfoClassDir) {
-        log.info("Inserting module-info into ${moduleJar}...")
+        project.logger.info("Inserting module-info into ${moduleJar}...")
         project.exec {
             commandLine "$javaHome/bin/jar",
                     '--update',
@@ -316,9 +317,9 @@ class JlinkTaskImpl {
                     '--launcher', "$launcherName=$moduleName/$mainClass"
         }
         if(result.exitValue != 0) {
-            log.error(project.ext.jlinkOutput())
+            project.logger.error(project.ext.jlinkOutput())
         } else {
-          log.info(project.ext.jlinkOutput())
+            project.logger.info(project.ext.jlinkOutput())
         }
         result.assertNormalExitValue()
         result.rethrowFailure()
