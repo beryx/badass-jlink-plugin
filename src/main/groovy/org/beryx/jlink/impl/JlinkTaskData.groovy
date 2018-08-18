@@ -24,6 +24,7 @@ class JlinkTaskData {
     String mainClass
     String mergedModuleName
     List<String> forceMergedJarPrefixes
+    List<String> options
     String javaHome
     ModuleInfo mergedModuleInfo
     boolean jdepsEnabled

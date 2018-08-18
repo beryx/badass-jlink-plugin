@@ -29,6 +29,7 @@ class JlinkPluginExtension {
     final Property<String> mainClass
     final Property<String> mergedModuleName
     final Property<List<String>> forceMergedJarPrefixes
+    final Property<List<String>> options
     final Property<String> javaHome
     final Property<ModuleInfo> mergedModuleInfo
     final Property<Boolean> jdepsEnabled
@@ -59,6 +60,9 @@ class JlinkPluginExtension {
         forceMergedJarPrefixes = project.objects.property(List)
         forceMergedJarPrefixes.set(new ArrayList<String>())
 
+        options = project.objects.property(List)
+        options.set(new ArrayList<String>())
+
         javaHome = project.objects.property(String)
         javaHome.set('')
 
@@ -71,6 +75,10 @@ class JlinkPluginExtension {
 
     void forceMerge(String... jarPrefixes) {
         forceMergedJarPrefixes.get().addAll(jarPrefixes)
+    }
+
+    void addOptions(String... jarPrefixes) {
+        options.get().addAll(jarPrefixes)
     }
 
     void mergedModule(Closure closure) {

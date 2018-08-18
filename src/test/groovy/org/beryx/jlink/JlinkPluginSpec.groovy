@@ -38,6 +38,7 @@ class JlinkPluginSpec extends Specification {
         } else {
             buildFile << '''
             jlink {
+                options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
                 beforeZip {
                     copy {
                         from('src/main/resources')

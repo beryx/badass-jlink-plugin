@@ -31,6 +31,7 @@ class JlinkPlugin implements Plugin<Project> {
             task.moduleName = extension.moduleName
             task.mergedModuleName = extension.mergedModuleName
             task.forceMergedJarPrefixes = extension.forceMergedJarPrefixes
+            task.options = extension.options
             task.javaHome = extension.javaHome
             task.mergedModuleInfo = extension.mergedModuleInfo
             task.jdepsEnabled = extension.jdepsEnabled

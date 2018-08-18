@@ -32,6 +32,7 @@ class JlinkTaskImpl {
     final String mainClass
     final String mergedModuleName
     final List<String> forceMergedJarPrefixes
+    final List<String> options
     final String javaHome
     final boolean jdepsEnabled
 
@@ -55,6 +56,7 @@ class JlinkTaskImpl {
         this.mainClass = taskData.mainClass
         this.mergedModuleName = taskData.mergedModuleName
         this.forceMergedJarPrefixes = taskData.forceMergedJarPrefixes
+        this.options = taskData.options
         this.javaHome = taskData.javaHome
         this.mergedModuleInfo = taskData.mergedModuleInfo
         this.jdepsEnabled = taskData.jdepsEnabled
@@ -72,6 +74,7 @@ class JlinkTaskImpl {
         project.logger.info("mainClass: $mainClass")
         project.logger.info("mergedModuleName: $mergedModuleName")
         project.logger.info("forceMergedJarPrefixes: $forceMergedJarPrefixes")
+        project.logger.info("options: $options")
         project.logger.info("javaHome: $javaHome")
         project.logger.info("mergedModuleInfo: $mergedModuleInfo")
     }
@@ -308,13 +311,14 @@ class JlinkTaskImpl {
             project.ext.jlinkOutput = {
                 return standardOutput.toString()
             }
-            commandLine "$javaHome/bin/jlink",
+            commandLine = ["$javaHome/bin/jlink",
                     '-v',
+                    *options,
                     '--module-path',
                     "$javaHome/jmods/$SEP${project.files(modjarsDir).asPath}$SEP${project.jar.archivePath}",
                     '--add-modules', moduleName,
                     '--output', imageDir,
-                    '--launcher', "$launcherName=$moduleName/$mainClass"
+                    '--launcher', "$launcherName=$moduleName/$mainClass"]
         }
         if(result.exitValue != 0) {
             project.logger.error(project.ext.jlinkOutput())
