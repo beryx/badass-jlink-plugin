@@ -17,6 +17,7 @@ package org.beryx.jlink
 
 import org.beryx.jlink.taskdata.JlinkTaskData
 import org.beryx.jlink.impl.JlinkTaskImpl
+import org.beryx.jlink.util.Util
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property

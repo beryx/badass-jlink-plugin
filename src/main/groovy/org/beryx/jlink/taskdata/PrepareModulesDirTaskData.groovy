@@ -15,8 +15,6 @@
  */
 package org.beryx.jlink.taskdata
 
-import org.beryx.jlink.impl.ModuleInfo
-
 class PrepareModulesDirTaskData {
     List<String> forceMergedJarPrefixes
 }

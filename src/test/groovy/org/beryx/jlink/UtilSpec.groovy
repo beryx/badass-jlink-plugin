@@ -15,7 +15,8 @@
  */
 package org.beryx.jlink
 
-import org.beryx.jlink.impl.JlinkTaskImpl
+
+import org.beryx.jlink.util.Util
 import spock.lang.Specification
 import spock.lang.Unroll
 

@@ -15,7 +15,7 @@
  */
 package org.beryx.jlink
 
-import org.beryx.jlink.impl.ModuleInfo
+import org.beryx.jlink.taskdata.ModuleInfo
 import spock.lang.Specification
 
 class ModuleInfoSpec extends Specification {

@@ -15,7 +15,8 @@
  */
 package org.beryx.jlink.impl
 
-import org.beryx.jlink.Util
+import org.beryx.jlink.taskdata.ModuleInfo
+import org.beryx.jlink.util.Util
 import org.beryx.jlink.taskdata.CreateMergedModuleTaskData
 import org.gradle.api.Project
 

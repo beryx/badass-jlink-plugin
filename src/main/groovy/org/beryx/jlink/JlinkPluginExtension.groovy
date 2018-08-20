@@ -15,7 +15,7 @@
  */
 package org.beryx.jlink
 
-import org.beryx.jlink.impl.ModuleInfo
+import org.beryx.jlink.taskdata.ModuleInfo
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
