@@ -144,12 +144,8 @@ class JlinkTaskImpl {
     File genDummyModuleInfo(File jarFile, File targetDir) {
         def packages = new TreeSet<String>()
         new ZipFile(jarFile).entries().each { entry ->
-            if(!entry.name.contains('META-INF') && entry.name.endsWith('.class')) {
-                int pos = entry.name.lastIndexOf('/')
-                if(pos > 0) {
-                    packages << entry.name.substring(0, pos).replace('/', '.')
-                }
-            }
+            def pkgName = getPackage(entry.name)
+            if(pkgName) packages << pkgName
         }
         def moduleName = getModuleName(jarFile)
         def modinfoDir = new File(targetDir, moduleName)
@@ -163,6 +159,25 @@ class JlinkTaskImpl {
 
         modinfoDir
     }
+
+    static String getPackage(String entryName) {
+        if(!entryName.endsWith('.class')) return null;
+        int pos = entryName.lastIndexOf('/')
+        if(pos <= 0) return null
+        def pkgName = entryName.substring(0, pos).replace('/', '.')
+        boolean valid = pkgName.split('\\.').every {isValidIdentifier(it)}
+        return valid ? pkgName : null
+    }
+
+    static boolean isValidIdentifier(String name) {
+        if (!name) return false
+        if (!Character.isJavaIdentifierStart(name.charAt(0))) return false
+        for (int i = 1; i < name.length(); i++) {
+            if (!Character.isJavaIdentifierPart(name.charAt(i))) return false
+        }
+        true
+    }
+
 
     def copyRuntimeJars(DependencyManager depMgr) {
         project.delete(jlinkJarsDirPath, nonModularJarsDirPath)
