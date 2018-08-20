@@ -13,19 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.beryx.jlink.impl
+package org.beryx.jlink.taskdata
 
-class JlinkTaskData {
-    File imageDir
-    File imageZip
-    Closure beforeZip
-    String moduleName
-    String launcherName
-    String mainClass
-    String mergedModuleName
+import org.beryx.jlink.impl.ModuleInfo
+
+class PrepareModulesDirTaskData {
     List<String> forceMergedJarPrefixes
-    List<String> options
-    String javaHome
-    ModuleInfo mergedModuleInfo
-    boolean jdepsEnabled
 }

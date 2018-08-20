@@ -27,26 +27,16 @@ import spock.util.environment.OperatingSystem
 class JlinkPluginSpec extends Specification {
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
 
-    def setUpBuild(boolean withBeforeZip, String moduleName, String launcherName, String mainClass, String mergedModuleName) {
+    def setUpBuild(String moduleName, String launcherName, String mainClass, String mergedModuleName) {
         new AntBuilder().copy( todir: testProjectDir.root ) {
             fileset( dir: 'src/test/resources/hello' )
         }
 
         File buildFile = new File(testProjectDir.root, "build.gradle")
-        if(!withBeforeZip) {
-            buildFile << 'jlink {\n'
-        } else {
-            buildFile << '''
+        buildFile << '''
             jlink {
-                options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
-                beforeZip {
-                    copy {
-                        from('src/main/resources')
-                        into("$buildDir/image/bin")
-                    }
-                }
+                options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']                
         '''.stripIndent()
-        }
         if(moduleName) buildFile << "    moduleName = '$moduleName'\n"
         if(launcherName) buildFile << "    launcherName = '$launcherName'\n"
         if(mainClass) buildFile << "    mainClass = '$mainClass'\n"
@@ -63,14 +53,14 @@ class JlinkPluginSpec extends Specification {
     }
 
     @Unroll
-    def "should execute task with useBeforeZip=#useBeforeZip, moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
+    def "should execute task with moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
         when:
-        setUpBuild(useBeforeZip, moduleName, launcherName, mainClass, mergedModuleName)
+        setUpBuild(moduleName, launcherName, mainClass, mergedModuleName)
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
-                .withArguments(JlinkPlugin.TASK_NAME, "-is")
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
         def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
         def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
@@ -78,9 +68,8 @@ class JlinkPluginSpec extends Specification {
         def logbackXml = new File(imageBinDir, "logback.xml")
 
         then:
-        result.task(":$JlinkPlugin.TASK_NAME").outcome == TaskOutcome.SUCCESS
+        result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
         imageLauncher.exists()
-        useBeforeZip == logbackXml.exists()
 
         when:
         imageLauncher.setExecutable(true)
@@ -93,10 +82,10 @@ class JlinkPluginSpec extends Specification {
         outputText.trim() == 'LOG: Hello, modular Java!'
 
         where:
-        useBeforeZip | moduleName              | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
-        false        | null                    | null         | null                        | null                                | 'modular-hello'
-        true         | 'modular.example.hello' | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
-        true         | null                    | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
+        moduleName              | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
+        null                    | null         | null                        | null                                | 'modular-hello'
+        'modular.example.hello' | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
+        null                    | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
     }
 
 }

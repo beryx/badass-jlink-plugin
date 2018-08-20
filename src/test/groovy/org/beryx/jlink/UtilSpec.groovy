@@ -19,11 +19,35 @@ import org.beryx.jlink.impl.JlinkTaskImpl
 import spock.lang.Specification
 import spock.lang.Unroll
 
-class JlinkTaskImplSpec extends Specification {
+class UtilSpec extends Specification {
+    @Unroll
+    def "toModuleName(#name) should be #moduleName"() {
+        expect:
+        Util.toModuleName(name) == moduleName
+
+        where:
+        name | moduleName
+        'a' | 'a'
+        'org.xyz' | 'org.xyz'
+        '?org.!!x+-yz!!=...' | 'org.x.yz'
+    }
+
+    @Unroll
+    def "getModuleNameFrom(#text) should be #moduleName"() {
+        expect:
+        Util.getModuleNameFrom(text) == moduleName
+
+        where:
+        text                                                 | moduleName
+        'module a.b.c{'                                      | 'a.b.c'
+        '  \tmodule a.b.c\t { '                              | 'a.b.c'
+        '/*my module*/\nmodule a.b.c {\n  exports a.b.c;\n}' | 'a.b.c'
+    }
+
     @Unroll
     def "should get package #pkgName from jar entry #entry"() {
         expect:
-        JlinkTaskImpl.getPackage(entry) == pkgName
+        Util.getPackage(entry) == pkgName
 
         where:
         entry                            | pkgName

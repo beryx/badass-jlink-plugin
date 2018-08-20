@@ -19,25 +19,46 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 class JlinkPlugin implements Plugin<Project> {
-    final static TASK_NAME = 'jlink'
+    final static TASK_NAME_CREATE_MERGED_MODULE = 'createMergedModule'
+    final static TASK_NAME_CREATE_DELEGATED_MODULES = 'createDelegatedModules'
+    final static TASK_NAME_PREPARE_MODULES_DIR = 'ptepareModulesDir'
+    final static TASK_NAME_JLINK = 'jlink'
+    final static TASK_NAME_JLINK_ZIP = 'jlinkZip'
 
     @Override
     void apply(Project project) {
         project.getPluginManager().apply('application');
         def extension = project.extensions.create('jlink', JlinkPluginExtension, project)
-        project.getTasks().create(TASK_NAME, JlinkTask, { JlinkTask task ->
-            task.launcherName = extension.launcherName
-            task.mainClass = extension.mainClass
-            task.moduleName = extension.moduleName
+
+        project.getTasks().create(TASK_NAME_CREATE_MERGED_MODULE, CreateMergedModuleTask, { CreateMergedModuleTask task ->
             task.mergedModuleName = extension.mergedModuleName
             task.forceMergedJarPrefixes = extension.forceMergedJarPrefixes
-            task.options = extension.options
             task.javaHome = extension.javaHome
             task.mergedModuleInfo = extension.mergedModuleInfo
             task.jdepsEnabled = extension.jdepsEnabled
+        })
+
+        project.getTasks().create(TASK_NAME_CREATE_DELEGATED_MODULES, CreateDelegatedModulesTask, { CreateDelegatedModulesTask task ->
+            task.mergedModuleName = extension.mergedModuleName
+            task.javaHome = extension.javaHome
+        })
+
+        project.getTasks().create(TASK_NAME_PREPARE_MODULES_DIR, PrepareModulesDirTask, { PrepareModulesDirTask task ->
+            task.forceMergedJarPrefixes = extension.forceMergedJarPrefixes
+        })
+
+        project.getTasks().create(TASK_NAME_JLINK, JlinkTask, { JlinkTask task ->
+            task.launcherName = extension.launcherName
+            task.mainClass = extension.mainClass
+            task.moduleName = extension.moduleName
+            task.options = extension.options
+            task.javaHome = extension.javaHome
+            task.imageDir = extension.imageDir
+        })
+
+        project.getTasks().create(TASK_NAME_JLINK_ZIP, JlinkZipTask, { JlinkZipTask task ->
             task.imageDir = extension.imageDir
             task.imageZip = extension.imageZip
-            task.configureBeforeZipClosure(extension.beforeZipClosure)
         })
     }
 }

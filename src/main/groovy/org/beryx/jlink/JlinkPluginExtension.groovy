@@ -33,7 +33,6 @@ class JlinkPluginExtension {
     final Property<String> javaHome
     final Property<ModuleInfo> mergedModuleInfo
     final Property<Boolean> jdepsEnabled
-    final Property<Closure> beforeZipClosure
 
     JlinkPluginExtension(Project project) {
         imageDir = project.layout.directoryProperty()
@@ -41,9 +40,6 @@ class JlinkPluginExtension {
 
         imageZip = project.layout.fileProperty()
         imageZip.set(new File(project.buildDir, 'image.zip'))
-
-        beforeZipClosure = project.objects.property(Closure)
-        beforeZipClosure.set(null)
 
         moduleName = project.objects.property(String)
         moduleName.set('')
@@ -85,9 +81,5 @@ class JlinkPluginExtension {
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = mergedModuleInfo.get()
         closure()
-    }
-
-    void beforeZip(Closure closure) {
-        this.beforeZipClosure.set(closure)
     }
 }
