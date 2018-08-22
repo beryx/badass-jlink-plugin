@@ -13,9 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.beryx.jlink.taskdata
+package org.beryx.jlink.data
 
-class CreateDelegatedModulesTaskData {
-    String mergedModuleName
+class JlinkTaskData extends BaseTaskData {
+    File imageDir
+    String moduleName
+    String launcherName
+    String mainClass
+    List<String> options
     String javaHome
+    File jlinkJarsDir
 }

@@ -15,23 +15,18 @@
  */
 package org.beryx.jlink.impl
 
-import org.beryx.jlink.taskdata.JlinkZipTaskData
+import org.beryx.jlink.data.JlinkZipTaskData
 import org.gradle.api.Project
 
 class JlinkZipTaskImpl extends BaseTaskImpl {
-    final File imageDir
-    final File imageZip
-
     JlinkZipTaskImpl(Project project, JlinkZipTaskData taskData) {
-        super(project)
-        this.imageDir = taskData.imageDir
-        this.imageZip = taskData.imageZip
+        super(project, taskData)
     }
 
     void execute() {
-        project.ant.zip(destfile: imageZip, duplicate: 'fail') {
-            zipfileset(dir: imageDir.parentFile, includes: "$imageDir.name/**", excludes: "$imageDir.name/bin/**")
-            zipfileset(dir: imageDir.parentFile, includes: "$imageDir.name/bin/**", filemode: 755)
+        project.ant.zip(destfile: td.imageZip, duplicate: 'fail') {
+            zipfileset(dir: td.imageDir.parentFile, includes: "$td.imageDir.name/**", excludes: "$td.imageDir.name/bin/**")
+            zipfileset(dir: td.imageDir.parentFile, includes: "$td.imageDir.name/bin/**", filemode: 755)
         }
     }
 }

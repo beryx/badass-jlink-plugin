@@ -74,7 +74,7 @@ class Util {
             return ModuleFinder.of(f.toPath()).findAll().first().descriptor().name()
         } catch (Exception e) {
             def modName = getFallbackModuleName(f)
-            project.logger.warn("Cannot retrieve the module name of $f. Using falback value: $modName.", e)
+            project.logger.warn("Cannot retrieve the module name of $f. Using fallback value: $modName.", e)
             return modName
         }
     }
@@ -87,6 +87,31 @@ class Util {
         if(tokens.length < 2) return s - '.jar'
         def len = s.length()
         return s.substring(0, len - tokens[-1].length() - 2).replace('-', '.')
+    }
+
+    static void createManifest(String targetDirPath) {
+        def mfdir = new File(targetDirPath, 'META-INF')
+        mfdir.mkdirs()
+        def mf = new File(mfdir, 'MANIFEST.MF')
+        mf.delete()
+        mf << """
+        Manifest-Version: 1.0
+        Created-By: Badass-JLink Plugin
+        Built-By: gradle
+        """.stripMargin()
+    }
+
+    static void createJar(Project project, String javaHome, String jarFilePath, String contentDirPath) {
+        project.file(jarFilePath).parentFile.mkdirs()
+        project.exec {
+            commandLine "$javaHome/bin/jar",
+                    '--create',
+                    '--file',
+                    jarFilePath,
+                    '-C',
+                    contentDirPath,
+                    '.'
+        }
     }
 
 }

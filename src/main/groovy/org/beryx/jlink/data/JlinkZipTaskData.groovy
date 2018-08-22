@@ -13,19 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.beryx.jlink.impl
+package org.beryx.jlink.data
 
-import org.beryx.jlink.data.BaseTaskData
-import org.gradle.api.Project
-
-class BaseTaskImpl<DATA extends BaseTaskData> {
-    static String SEP = File.pathSeparatorChar
-
-    final Project project
-    final DATA td
-
-    BaseTaskImpl(Project project, DATA td) {
-        this.project = project
-        this.td = td
-    }
+class JlinkZipTaskData extends BaseTaskData {
+    File imageDir
+    File imageZip
 }

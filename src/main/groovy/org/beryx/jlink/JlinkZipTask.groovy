@@ -15,16 +15,16 @@
  */
 package org.beryx.jlink
 
+import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.impl.JlinkZipTaskImpl
-import org.beryx.jlink.taskdata.JlinkZipTaskData
-import org.gradle.api.DefaultTask
+import org.beryx.jlink.data.JlinkZipTaskData
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
-class JlinkZipTask extends DefaultTask {
+class JlinkZipTask extends BaseTask {
     @OutputDirectory
     DirectoryProperty imageDir
 
@@ -33,13 +33,20 @@ class JlinkZipTask extends DefaultTask {
 
     JlinkZipTask() {
         dependsOn(JlinkPlugin.TASK_NAME_JLINK)
-        group = 'build'
         description = 'Creates a zip of the modular runtime image'
+    }
+
+    @Override
+    void init(JlinkPluginExtension extension) {
+        super.init(extension)
+        imageDir = extension.imageDir
+        imageZip = extension.imageZip
     }
 
     @TaskAction
     void jlinkTaskAction() {
         def taskData = new JlinkZipTaskData()
+        taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.imageDir = imageDir.get().asFile
         taskData.imageZip = imageZip.get().asFile
         def taskImpl = new JlinkZipTaskImpl(project, taskData)

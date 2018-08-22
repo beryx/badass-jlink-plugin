@@ -13,19 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.beryx.jlink.impl
+package org.beryx.jlink.data
 
-import org.beryx.jlink.data.BaseTaskData
-import org.gradle.api.Project
+class CreateDelegatedModulesTaskData extends BaseTaskData {
+    String mergedModuleName
+    String javaHome
 
-class BaseTaskImpl<DATA extends BaseTaskData> {
-    static String SEP = File.pathSeparatorChar
-
-    final Project project
-    final DATA td
-
-    BaseTaskImpl(Project project, DATA td) {
-        this.project = project
-        this.td = td
-    }
+    File nonModularJarsDir
+    File delegatedModulesDir
+    String jlinkJarsDirPath
+    String tmpModuleInfoDirPath
+    String tmpJarsDirPath
 }

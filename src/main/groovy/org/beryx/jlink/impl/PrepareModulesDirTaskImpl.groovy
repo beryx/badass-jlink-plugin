@@ -15,23 +15,25 @@
  */
 package org.beryx.jlink.impl
 
-import org.beryx.jlink.taskdata.PrepareModulesDirTaskData
+import org.beryx.jlink.data.PrepareModulesDirTaskData
 import org.gradle.api.Project
 
-class PrepareModulesDirTaskImpl extends BaseTaskImpl {
-    final List<String> forceMergedJarPrefixes
-
+class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> {
     PrepareModulesDirTaskImpl(Project project, PrepareModulesDirTaskData taskData) {
-        super(project)
-
-        this.forceMergedJarPrefixes = taskData.forceMergedJarPrefixes
+        super(project, taskData)
     }
 
     void execute() {
-        project.logger.info("Copying modular jars not required by non-modular jars to ${jlinkJarsDirPath}...")
-        def depMgr = new DependencyManager(project, forceMergedJarPrefixes)
+        project.logger.info("Copying delegated modules to ${td.jlinkJarsDir}...")
         project.copy {
-            into jlinkJarsDirPath
+            into td.jlinkJarsDir
+            from td.delegatedModulesDir
+        }
+
+        project.logger.info("Copying modular jars not required by non-modular jars to ${td.jlinkJarsDir}...")
+        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes)
+        project.copy {
+            into td.jlinkJarsDir
             from (depMgr.modularJars - depMgr.modularJarsRequiredByNonModularJars)
         }
     }

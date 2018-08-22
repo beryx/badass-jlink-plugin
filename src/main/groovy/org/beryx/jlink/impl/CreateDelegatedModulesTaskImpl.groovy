@@ -16,58 +16,27 @@
 package org.beryx.jlink.impl
 
 import org.beryx.jlink.util.Util
-import org.beryx.jlink.taskdata.CreateDelegatedModulesTaskData
+import org.beryx.jlink.data.CreateDelegatedModulesTaskData
 import org.gradle.api.Project
 
-class CreateDelegatedModulesTaskImpl extends BaseTaskImpl {
-    final String mergedModuleName
-    final String javaHome
-
+class CreateDelegatedModulesTaskImpl extends BaseTaskImpl<CreateDelegatedModulesTaskData> {
     CreateDelegatedModulesTaskImpl(Project project, CreateDelegatedModulesTaskData taskData) {
-        super(project)
-
-        this.mergedModuleName = taskData.mergedModuleName
-        this.javaHome = taskData.javaHome
+        super(project, taskData)
     }
 
     void execute() {
         project.logger.info("Creating delegated modules...")
-        project.delete(tmpJarsDirPath)
-        new File(nonModularJarsDirPath).eachFile { jarFile ->
-            createDelegatedModule(jarFile, tmpJarsDirPath, jlinkJarsDirPath)
+        project.delete(td.tmpJarsDirPath)
+
+        td.nonModularJarsDir.eachFile { jarFile ->
+            createDelegatedModule(jarFile, td.tmpJarsDirPath, td.delegatedModulesDir)
         }
     }
 
-    File genDelegatedModuleInfo(File jarFile, String targetDirPath) {
-        def moduleName = Util.getModuleName(jarFile, project)
-        def modinfoDir = new File(targetDirPath, moduleName)
-        modinfoDir.mkdirs()
-        def modInfoJava = new File(modinfoDir, 'module-info.java')
-        modInfoJava << """
-        open module $moduleName {
-            requires transitive $mergedModuleName;
-        }
-        """.stripIndent()
-        modinfoDir
-    }
-
-    def createJar(String jarFilePath, String contentDirPath) {
-        project.file(jarFilePath).parentFile.mkdirs()
-        project.exec {
-            commandLine "$javaHome/bin/jar",
-                    '--create',
-                    '--file',
-                    jarFilePath,
-                    '-C',
-                    contentDirPath,
-                    '.'
-        }
-    }
-
-    def createDelegatedModule(File jarFile, String tmpDirPath, String targetDirPath) {
+    def createDelegatedModule(File jarFile, String tmpDirPath, File targetDir) {
         def moduleDir = genDelegatedModuleInfo(jarFile, tmpDirPath)
-        project.delete(tmpModuleInfoDirPath)
-        createManifest(tmpModuleInfoDirPath)
+        project.delete(td.tmpModuleInfoDirPath)
+        Util.createManifest(td.tmpModuleInfoDirPath)
         project.logger.info("Compiling delegate module $moduleDir.name ...")
         def result = project.exec {
             ignoreExitValue = true
@@ -75,11 +44,11 @@ class CreateDelegatedModulesTaskImpl extends BaseTaskImpl {
             project.ext.javacOutput = {
                 return standardOutput.toString()
             }
-            commandLine "$javaHome/bin/javac",
+            commandLine "$td.javaHome/bin/javac",
                     '-p',
-                    jlinkJarsDirPath,
+                    td.jlinkJarsDirPath,
                     '-d',
-                    tmpModuleInfoDirPath,
+                    td.tmpModuleInfoDirPath,
                     "${moduleDir.path}/module-info.java"
         }
         if(result.exitValue != 0) {
@@ -90,19 +59,20 @@ class CreateDelegatedModulesTaskImpl extends BaseTaskImpl {
         result.assertNormalExitValue()
         result.rethrowFailure()
 
-        def targetJarPath = new File(targetDirPath, jarFile.name).path
-        createJar(targetJarPath, tmpModuleInfoDirPath)
+        def targetJarPath = new File(targetDir, jarFile.name).path
+        Util.createJar(project, td.javaHome, targetJarPath, td.tmpModuleInfoDirPath)
     }
 
-    def createManifest(String targetDirPath) {
-        def mfdir = new File(targetDirPath, 'META-INF')
-        mfdir.mkdirs()
-        def mf = new File(mfdir, 'MANIFEST.MF')
-        mf.delete()
-        mf << """
-        Manifest-Version: 1.0
-        Created-By: Badass-JLink Plugin
-        Built-By: gradle
-        """.stripMargin()
+    File genDelegatedModuleInfo(File jarFile, String targetDirPath) {
+        def moduleName = Util.getModuleName(jarFile, project)
+        def modinfoDir = new File(targetDirPath, moduleName)
+        modinfoDir.mkdirs()
+        def modInfoJava = new File(modinfoDir, 'module-info.java')
+        modInfoJava << """
+        open module $moduleName {
+            requires transitive $td.mergedModuleName;
+        }
+        """.stripIndent()
+        modinfoDir
     }
 }

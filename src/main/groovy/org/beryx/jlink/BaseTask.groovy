@@ -13,9 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.beryx.jlink.taskdata
+package org.beryx.jlink
 
-class JlinkZipTaskData {
-    File imageDir
-    File imageZip
+
+import org.beryx.jlink.data.JlinkPluginExtension
+import org.gradle.api.DefaultTask
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
+
+class BaseTask extends DefaultTask {
+    @Input
+    Property<String> jlinkBasePath
+
+    BaseTask() {
+        group = 'build'
+    }
+
+    void init(JlinkPluginExtension extension) {
+        jlinkBasePath = extension.jlinkBasePath
+    }
 }

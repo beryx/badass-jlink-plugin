@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.beryx.jlink.taskdata
+package org.beryx.jlink.data
 
 class ModuleInfo implements Serializable {
     List<RequiresBuilder> requiresBuilders = []

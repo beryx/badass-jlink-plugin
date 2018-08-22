@@ -45,7 +45,6 @@ class JlinkPluginSpec extends Specification {
         ''' |    mergedModule {
             |        requires 'java.naming';
             |        requires 'java.xml';
-            |        requires 'java.xml.bind';
             |    }
         |'''.stripMargin()
         buildFile << '}\n'

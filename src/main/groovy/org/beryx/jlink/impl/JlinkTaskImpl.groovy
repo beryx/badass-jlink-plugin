@@ -15,45 +15,30 @@
  */
 package org.beryx.jlink.impl
 
-import org.beryx.jlink.taskdata.JlinkTaskData
+import org.beryx.jlink.data.JlinkTaskData
 import org.gradle.api.Project
 
-class JlinkTaskImpl extends BaseTaskImpl {
-    final File imageDir
-    final String moduleName
-    final String launcherName
-    final String mainClass
-    final List<String> options
-    final String javaHome
-
+class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     JlinkTaskImpl(Project project, JlinkTaskData taskData) {
-        super(project)
-
-        this.imageDir = taskData.imageDir
-        this.moduleName = taskData.moduleName
-        this.launcherName = taskData.launcherName
-        this.mainClass = taskData.mainClass
-        this.options = taskData.options
-        this.javaHome = taskData.javaHome
+        super(project, taskData)
     }
 
     void execute() {
-        project.delete(imageDir)
-        def modJarsDir = project.file(jlinkJarsDirPath)
+        project.delete(td.imageDir)
         def result = project.exec {
             ignoreExitValue = true
             standardOutput = new ByteArrayOutputStream()
             project.ext.jlinkOutput = {
                 return standardOutput.toString()
             }
-            commandLine = ["$javaHome/bin/jlink",
+            commandLine = ["$td.javaHome/bin/jlink",
                            '-v',
-                           *options,
+                           *td.options,
                            '--module-path',
-                           "$javaHome/jmods/$SEP${project.files(modJarsDir).asPath}$SEP${project.jar.archivePath}",
-                           '--add-modules', moduleName,
-                           '--output', imageDir,
-                           '--launcher', "$launcherName=$moduleName/$mainClass"]
+                           "$td.javaHome/jmods/$SEP${project.files(td.jlinkJarsDir).asPath}$SEP${project.jar.archivePath}",
+                           '--add-modules', td.moduleName,
+                           '--output', td.imageDir,
+                           '--launcher', "$td.launcherName=$td.moduleName/$td.mainClass"]
         }
         if(result.exitValue != 0) {
             project.logger.error(project.ext.jlinkOutput())

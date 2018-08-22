@@ -15,17 +15,19 @@
  */
 package org.beryx.jlink
 
-import org.beryx.jlink.taskdata.JlinkTaskData
+import org.beryx.jlink.data.JlinkPluginExtension
+import org.beryx.jlink.data.JlinkTaskData
 import org.beryx.jlink.impl.JlinkTaskImpl
+import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
-import org.gradle.api.DefaultTask
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
-class JlinkTask extends DefaultTask {
+class JlinkTask extends BaseTask {
     @Input
     Property<String> moduleName
 
@@ -41,24 +43,43 @@ class JlinkTask extends DefaultTask {
     @Input
     Property<String> javaHome
 
+    @InputDirectory
+    DirectoryProperty jlinkJarsDir
+
     @OutputDirectory
     DirectoryProperty imageDir
 
     JlinkTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MODULES_DIR)
-        group = 'build'
         description = 'Creates a modular runtime image with jlink'
+    }
+
+    @Override
+    void init(JlinkPluginExtension extension) {
+        super.init(extension)
+        launcherName = extension.launcherName
+        mainClass = extension.mainClass
+        moduleName = extension.moduleName
+        options = extension.options
+        javaHome = extension.javaHome
+        imageDir = extension.imageDir
+
+        jlinkJarsDir = project.layout.directoryProperty()
+        jlinkJarsDir.set(new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get())))
     }
 
     @TaskAction
     void jlinkTaskAction() {
         def taskData = new JlinkTaskData()
+        taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.imageDir = imageDir.get().asFile
-        taskData.moduleName = moduleName.get() ?: Util.getDefaultModuleName(project)
-        taskData.launcherName = launcherName.get() ?: project.name
+        taskData.moduleName = moduleName.get()
+        taskData.launcherName = launcherName.get()
         taskData.mainClass = mainClass.get() ?: project.mainClassName
         taskData.options = options.get()
-        taskData.javaHome = javaHome.get() ?: System.getenv('JAVA_HOME')
+        taskData.javaHome = javaHome.get()
+        taskData.jlinkJarsDir = jlinkJarsDir.get().asFile
+
         def taskImpl = new JlinkTaskImpl(project, taskData)
         taskImpl.execute()
     }

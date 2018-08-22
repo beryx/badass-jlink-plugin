@@ -13,12 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.beryx.jlink.taskdata
+package org.beryx.jlink.data
 
-class CreateMergedModuleTaskData {
+class CreateMergedModuleTaskData extends BaseTaskData {
     String mergedModuleName
     List<String> forceMergedJarPrefixes
     String javaHome
     ModuleInfo mergedModuleInfo
     boolean jdepsEnabled
+
+    File mergedModuleJar
+    String nonModularJarsDirPath
+    String mergedJarsDirPath
+    String jlinkJarsDirPath
+    String tmpMergedModuleDirPath
+    String tmpModuleInfoDirPath
+    String tmpJarsDirPath
 }

@@ -15,50 +15,82 @@
  */
 package org.beryx.jlink.impl
 
-import org.beryx.jlink.taskdata.ModuleInfo
+import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.util.Util
-import org.beryx.jlink.taskdata.CreateMergedModuleTaskData
+import org.beryx.jlink.data.CreateMergedModuleTaskData
 import org.gradle.api.Project
 
 import java.util.zip.ZipFile
 
-class CreateMergedModuleTaskImpl extends BaseTaskImpl {
-    final String mergedModuleName
-    final List<String> forceMergedJarPrefixes
-    final String javaHome
-    final boolean jdepsEnabled
-
-    final ModuleInfo mergedModuleInfo
-
+class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData> {
     CreateMergedModuleTaskImpl(Project project, CreateMergedModuleTaskData taskData) {
-        super(project)
-
-        this.mergedModuleName = taskData.mergedModuleName
-        this.forceMergedJarPrefixes = taskData.forceMergedJarPrefixes
-        this.javaHome = taskData.javaHome
-        this.mergedModuleInfo = taskData.mergedModuleInfo
-        this.jdepsEnabled = taskData.jdepsEnabled
+        super(project, taskData)
     }
 
     void execute() {
-        project.delete(jlinkBasePath)
-        def depMgr = new DependencyManager(project, forceMergedJarPrefixes)
+        project.delete(td.jlinkBasePath)
+        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes)
         copyRuntimeJars(depMgr)
-        createMergedModule(new File(nonModularJarsDirPath).listFiles() as List)
+        createMergedModule(new File(td.nonModularJarsDirPath).listFiles() as List)
+    }
+
+    def copyRuntimeJars(DependencyManager depMgr) {
+        project.delete(td.jlinkJarsDirPath, td.nonModularJarsDirPath)
+        project.logger.info("Copying modular jars required by non-modular jars to ${td.jlinkJarsDirPath}...")
+        depMgr.modularJarsRequiredByNonModularJars.each { jar ->
+            project.logger.debug("\t... from $jar ...")
+            project.copy {
+                into td.jlinkJarsDirPath
+                from jar
+            }
+        }
+        project.logger.info("Copying mon-modular jars to ${td.nonModularJarsDirPath}...")
+        depMgr.nonModularJars.each { jar ->
+            project.copy {
+                into td.nonModularJarsDirPath
+                from jar
+            }
+        }
+    }
+
+    def createMergedModule(Collection<File> jars) {
+        if(jars.empty) return
+        project.logger.info("Creating merged module ${td.mergedModuleJar}...")
+        mergeUnpackedContents(jars, td.mergedJarsDirPath)
+        def jarFilePath = "$td.tmpMergedModuleDirPath/${td.mergedModuleName}.jar"
+        Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDirPath)
+        def modInfoDir = genModuleInfo(project.file(jarFilePath), project.file(td.tmpJarsDirPath))
+        compileModuleInfo(project.file(modInfoDir), project.file(jarFilePath), project.file(td.tmpModuleInfoDirPath))
+        project.logger.info("Copy from $jarFilePath into ${td.mergedModuleJar}...")
+        project.copy {
+            from jarFilePath
+            into td.jlinkJarsDirPath
+        }
+        project.logger.info("Insert module-info from $td.tmpModuleInfoDirPath into ${td.mergedModuleJar}...")
+        insertModuleInfo(td.mergedModuleJar, project.file(td.tmpModuleInfoDirPath))
+    }
+
+    def mergeUnpackedContents(Collection<File> jars, String tmpDirPath) {
+        project.logger.info("Merging content into ${tmpDirPath}...")
+        project.copy {
+            jars.each {from(project.zipTree(it))}
+            into(tmpDirPath)
+        }
+        Util.createManifest(tmpDirPath)
     }
 
     File genModuleInfo(File jarFile, File targetDir) {
         project.logger.info("Generating module-info in ${targetDir}...")
         project.delete(targetDir)
-        if(jdepsEnabled) {
+        if(td.jdepsEnabled) {
             project.exec {
                 ignoreExitValue = true
-                commandLine "$javaHome/bin/jdeps",
+                commandLine "$td.javaHome/bin/jdeps",
                         '-v',
                         '--generate-module-info',
                         targetDir.path,
                         '--module-path',
-                        "$javaHome/jmods/$SEP$jlinkJarsDirPath",
+                        "$td.javaHome/jmods/$SEP$td.jlinkJarsDirPath",
                         jarFile.path
             }
         }
@@ -80,77 +112,9 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl {
         packages.each {
             modInfoJava << "    exports $it;\n"
         }
-        modInfoJava << mergedModuleInfo.toString(4) << '\n}\n'
+        modInfoJava << td.mergedModuleInfo.toString(4) << '\n}\n'
 
         modinfoDir
-    }
-
-    def copyRuntimeJars(DependencyManager depMgr) {
-        project.delete(jlinkJarsDirPath, nonModularJarsDirPath)
-        project.logger.info("Copying modular jars required by non-modular jars to ${jlinkJarsDirPath}...")
-        depMgr.modularJarsRequiredByNonModularJars.each { jar ->
-            project.logger.debug("\t... from $jar ...")
-            project.copy {
-                into jlinkJarsDirPath
-                from jar
-            }
-        }
-        project.logger.info("Copying mon-modular jars to ${nonModularJarsDirPath}...")
-        depMgr.nonModularJars.each { jar ->
-            project.copy {
-                into nonModularJarsDirPath
-                from jar
-            }
-        }
-    }
-
-    def createJar(String jarFilePath, String contentDirPath) {
-        project.file(jarFilePath).parentFile.mkdirs()
-        project.exec {
-            commandLine "$javaHome/bin/jar",
-                    '--create',
-                    '--file',
-                    jarFilePath,
-                    '-C',
-                    contentDirPath,
-                    '.'
-        }
-    }
-
-    def createManifest(String targetDirPath) {
-        def mfdir = new File(targetDirPath, 'META-INF')
-        mfdir.mkdirs()
-        def mf = new File(mfdir, 'MANIFEST.MF')
-        mf.delete()
-        mf << """
-        Manifest-Version: 1.0
-        Created-By: Badass-JLink Plugin
-        Built-By: gradle
-        """.stripMargin()
-    }
-
-    def createMergedModule(Collection<File> jars) {
-        if(jars.empty) return
-        project.logger.info("Creating merged module...")
-        mergeUnpackedContents(jars, mergedJarsDirPath)
-        def jarFilePath = "$tmpMergedModuleDirPath/${mergedModuleName}.jar"
-        createJar(jarFilePath, mergedJarsDirPath)
-        def modInfoDir = genModuleInfo(project.file(jarFilePath), project.file(tmpJarsDirPath))
-        compileModuleInfo(project.file(modInfoDir), project.file(jarFilePath), project.file(tmpModuleInfoDirPath))
-        project.copy {
-            from jarFilePath
-            into jlinkJarsDirPath
-        }
-        insertModuleInfo(project.file("$jlinkJarsDirPath/${mergedModuleName}.jar"), project.file(tmpModuleInfoDirPath))
-    }
-
-    def mergeUnpackedContents(Collection<File> jars, String tmpDirPath) {
-        project.logger.info("Merging content into ${tmpDirPath}...")
-        project.copy {
-            jars.each {from(project.zipTree(it))}
-            into(tmpDirPath)
-        }
-        createManifest(tmpDirPath)
     }
 
     def compileModuleInfo(File moduleInfoJavaDir, File moduleJar, File targetDir) {
@@ -161,9 +125,9 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl {
             into(targetDir)
         }
         project.exec {
-            commandLine "$javaHome/bin/javac",
+            commandLine "$td.javaHome/bin/javac",
                     '-p',
-                    "$moduleJar.parentFile$SEP$jlinkJarsDirPath",
+                    "$moduleJar.parentFile$SEP$td.jlinkJarsDirPath",
                     '-d',
                     targetDir.path,
                     "$moduleInfoJavaDir/module-info.java"
@@ -173,7 +137,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl {
     def insertModuleInfo(File moduleJar, File moduleInfoClassDir) {
         project.logger.info("Inserting module-info into ${moduleJar}...")
         project.exec {
-            commandLine "$javaHome/bin/jar",
+            commandLine "$td.javaHome/bin/jar",
                     '--update',
                     '--file',
                     moduleJar.path,
