@@ -22,6 +22,7 @@ import org.gradle.api.Project
 class CreateDelegatedModulesTaskImpl extends BaseTaskImpl<CreateDelegatedModulesTaskData> {
     CreateDelegatedModulesTaskImpl(Project project, CreateDelegatedModulesTaskData taskData) {
         super(project, taskData)
+        project.logger.info("taskData: $taskData")
     }
 
     void execute() {

@@ -21,6 +21,7 @@ import org.gradle.api.Project
 class JlinkZipTaskImpl extends BaseTaskImpl {
     JlinkZipTaskImpl(Project project, JlinkZipTaskData taskData) {
         super(project, taskData)
+        project.logger.info("taskData: $taskData")
     }
 
     void execute() {

@@ -89,8 +89,8 @@ class Util {
         return s.substring(0, len - tokens[-1].length() - 2).replace('-', '.')
     }
 
-    static void createManifest(String targetDirPath) {
-        def mfdir = new File(targetDirPath, 'META-INF')
+    static void createManifest(Object targetDir) {
+        def mfdir = new File(targetDir, 'META-INF')
         mfdir.mkdirs()
         def mf = new File(mfdir, 'MANIFEST.MF')
         mf.delete()
@@ -101,7 +101,7 @@ class Util {
         """.stripMargin()
     }
 
-    static void createJar(Project project, String javaHome, String jarFilePath, String contentDirPath) {
+    static void createJar(Project project, String javaHome, String jarFilePath, Object contentDir) {
         project.file(jarFilePath).parentFile.mkdirs()
         project.exec {
             commandLine "$javaHome/bin/jar",
@@ -109,7 +109,7 @@ class Util {
                     '--file',
                     jarFilePath,
                     '-C',
-                    contentDirPath,
+                    contentDir,
                     '.'
         }
     }

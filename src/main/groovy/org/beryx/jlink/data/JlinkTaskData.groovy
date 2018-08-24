@@ -15,6 +15,9 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.ToString
+
+@ToString(includeNames = true)
 class JlinkTaskData extends BaseTaskData {
     File imageDir
     String moduleName

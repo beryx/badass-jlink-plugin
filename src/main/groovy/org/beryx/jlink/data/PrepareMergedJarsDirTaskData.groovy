@@ -18,9 +18,9 @@ package org.beryx.jlink.data
 import groovy.transform.ToString
 
 @ToString(includeNames = true)
-class PrepareModulesDirTaskData extends BaseTaskData {
+class PrepareMergedJarsDirTaskData extends BaseTaskData {
     List<String> forceMergedJarPrefixes
-
-    File delegatedModulesDir
-    File jlinkJarsDir
+    File mergedJarsDir
+    String jlinkJarsDirPath
+    String nonModularJarsDirPath
 }

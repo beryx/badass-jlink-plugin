@@ -21,6 +21,7 @@ import org.gradle.api.Project
 class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     JlinkTaskImpl(Project project, JlinkTaskData taskData) {
         super(project, taskData)
+        project.logger.info("taskData: $taskData")
     }
 
     void execute() {

@@ -15,7 +15,6 @@
  */
 package org.beryx.jlink.impl
 
-import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateMergedModuleTaskData
 import org.gradle.api.Project
@@ -25,40 +24,12 @@ import java.util.zip.ZipFile
 class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData> {
     CreateMergedModuleTaskImpl(Project project, CreateMergedModuleTaskData taskData) {
         super(project, taskData)
+        project.logger.info("taskData: $taskData")
     }
 
     void execute() {
-        project.delete(td.jlinkBasePath)
-        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes)
-        copyRuntimeJars(depMgr)
-        createMergedModule(new File(td.nonModularJarsDirPath).listFiles() as List)
-    }
-
-    def copyRuntimeJars(DependencyManager depMgr) {
-        project.delete(td.jlinkJarsDirPath, td.nonModularJarsDirPath)
-        project.logger.info("Copying modular jars required by non-modular jars to ${td.jlinkJarsDirPath}...")
-        depMgr.modularJarsRequiredByNonModularJars.each { jar ->
-            project.logger.debug("\t... from $jar ...")
-            project.copy {
-                into td.jlinkJarsDirPath
-                from jar
-            }
-        }
-        project.logger.info("Copying mon-modular jars to ${td.nonModularJarsDirPath}...")
-        depMgr.nonModularJars.each { jar ->
-            project.copy {
-                into td.nonModularJarsDirPath
-                from jar
-            }
-        }
-    }
-
-    def createMergedModule(Collection<File> jars) {
-        if(jars.empty) return
-        project.logger.info("Creating merged module ${td.mergedModuleJar}...")
-        mergeUnpackedContents(jars, td.mergedJarsDirPath)
         def jarFilePath = "$td.tmpMergedModuleDirPath/${td.mergedModuleName}.jar"
-        Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDirPath)
+        Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDir)
         def modInfoDir = genModuleInfo(project.file(jarFilePath), project.file(td.tmpJarsDirPath))
         compileModuleInfo(project.file(modInfoDir), project.file(jarFilePath), project.file(td.tmpModuleInfoDirPath))
         project.logger.info("Copy from $jarFilePath into ${td.mergedModuleJar}...")
@@ -68,15 +39,6 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         }
         project.logger.info("Insert module-info from $td.tmpModuleInfoDirPath into ${td.mergedModuleJar}...")
         insertModuleInfo(td.mergedModuleJar, project.file(td.tmpModuleInfoDirPath))
-    }
-
-    def mergeUnpackedContents(Collection<File> jars, String tmpDirPath) {
-        project.logger.info("Merging content into ${tmpDirPath}...")
-        project.copy {
-            jars.each {from(project.zipTree(it))}
-            into(tmpDirPath)
-        }
-        Util.createManifest(tmpDirPath)
     }
 
     File genModuleInfo(File jarFile, File targetDir) {

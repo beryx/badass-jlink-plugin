@@ -21,6 +21,7 @@ import org.gradle.api.Project
 
 class JlinkPlugin implements Plugin<Project> {
     final static EXTENSION_NAME = 'jlink'
+    final static TASK_NAME_PREPARE_MERGED_JARS_DIR = 'prepareMergedJarsDir'
     final static TASK_NAME_CREATE_MERGED_MODULE = 'createMergedModule'
     final static TASK_NAME_CREATE_DELEGATED_MODULES = 'createDelegatedModules'
     final static TASK_NAME_PREPARE_MODULES_DIR = 'ptepareModulesDir'
@@ -31,6 +32,7 @@ class JlinkPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.getPluginManager().apply('application');
         def extension = project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)
+        project.getTasks().create(TASK_NAME_PREPARE_MERGED_JARS_DIR, PrepareMergedJarsDirTask, { it.init(extension) })
         project.getTasks().create(TASK_NAME_CREATE_MERGED_MODULE, CreateMergedModuleTask, { it.init(extension) })
         project.getTasks().create(TASK_NAME_CREATE_DELEGATED_MODULES, CreateDelegatedModulesTask, { it.init(extension) })
         project.getTasks().create(TASK_NAME_PREPARE_MODULES_DIR, PrepareModulesDirTask, { it.init(extension) })

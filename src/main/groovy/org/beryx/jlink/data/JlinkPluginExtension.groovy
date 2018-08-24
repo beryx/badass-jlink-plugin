@@ -15,20 +15,23 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.ToString
 import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 
+@ToString(includeNames = true)
 class JlinkPluginExtension {
     final Property<String> jlinkBasePath
     final DirectoryProperty imageDir
     final RegularFileProperty imageZip
     final Property<String> moduleName
+    final Property<String> mergedModuleName
+
     final Property<String> launcherName
     final Property<String> mainClass
-    final Property<String> mergedModuleName
     final Property<List<String>> forceMergedJarPrefixes
     final Property<List<String>> options
     final Property<String> javaHome
@@ -36,26 +39,27 @@ class JlinkPluginExtension {
     final Property<Boolean> jdepsEnabled
 
     JlinkPluginExtension(Project project) {
+        project.provider{}
         jlinkBasePath = project.objects.property(String)
-        jlinkBasePath.set("$project.buildDir/jlinkbase" as String)
+        jlinkBasePath.set(project.provider{"$project.buildDir/jlinkbase" as String})
 
         imageDir = project.layout.directoryProperty()
-        imageDir.set(new File(project.buildDir, 'image'))
+        imageDir.set(project.layout.buildDirectory.dir('image'))
 
         imageZip = project.layout.fileProperty()
-        imageZip.set(new File(project.buildDir, 'image.zip'))
+        imageZip.set(project.layout.buildDirectory.file('image.zip'))
 
         moduleName = project.objects.property(String)
-        moduleName.set(Util.getDefaultModuleName(project))
+        moduleName.set(project.provider{Util.getDefaultModuleName(project)})
+
+        mergedModuleName = project.objects.property(String)
+        mergedModuleName.set(project.provider{Util.getDefaultMergedModuleName(project)})
 
         launcherName = project.objects.property(String)
         launcherName.set(project.name)
 
         mainClass = project.objects.property(String)
         mainClass.set('')
-
-        mergedModuleName = project.objects.property(String)
-        mergedModuleName.set(Util.getDefaultMergedModuleName(project))
 
         forceMergedJarPrefixes = project.objects.property(List)
         forceMergedJarPrefixes.set(new ArrayList<String>())

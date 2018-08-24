@@ -21,6 +21,7 @@ import org.gradle.api.Project
 class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> {
     PrepareModulesDirTaskImpl(Project project, PrepareModulesDirTaskData taskData) {
         super(project, taskData)
+        project.logger.info("taskData: $taskData")
     }
 
     void execute() {

@@ -15,6 +15,9 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.ToString
+
+@ToString(includeNames = true)
 class ModuleInfo implements Serializable {
     List<RequiresBuilder> requiresBuilders = []
     List<UsesBuilder> usesBuilders = []
