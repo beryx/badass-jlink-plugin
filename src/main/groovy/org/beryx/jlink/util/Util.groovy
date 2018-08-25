@@ -33,7 +33,7 @@ class Util {
     }
 
     static String getModuleNameFrom(String moduleInfoText) {
-        def matcher = moduleInfoText.readLines().collect {it =~ /\s*module\s+(\S+)\s*\{.*/}.find {it.matches()}
+        def matcher = moduleInfoText.readLines().collect {it =~ /\s*(?:open\s+)?module\s+(\S+)\s*\{.*/}.find {it.matches()}
         if(matcher == null) throw new GradleException("Cannot retrieve module name from module-info.java")
         matcher[0][1]
     }

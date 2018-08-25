@@ -41,7 +41,8 @@ class UtilSpec extends Specification {
         where:
         text                                                 | moduleName
         'module a.b.c{'                                      | 'a.b.c'
-        '  \tmodule a.b.c\t { '                              | 'a.b.c'
+        'open module a.b.c{'                                 | 'a.b.c'
+        '  \t  open\t  \tmodule \ta.b.c\t { '                | 'a.b.c'
         '/*my module*/\nmodule a.b.c {\n  exports a.b.c;\n}' | 'a.b.c'
     }
 
