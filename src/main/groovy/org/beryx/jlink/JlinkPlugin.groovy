@@ -24,7 +24,7 @@ class JlinkPlugin implements Plugin<Project> {
     final static TASK_NAME_PREPARE_MERGED_JARS_DIR = 'prepareMergedJarsDir'
     final static TASK_NAME_CREATE_MERGED_MODULE = 'createMergedModule'
     final static TASK_NAME_CREATE_DELEGATED_MODULES = 'createDelegatedModules'
-    final static TASK_NAME_PREPARE_MODULES_DIR = 'ptepareModulesDir'
+    final static TASK_NAME_PREPARE_MODULES_DIR = 'prepareModulesDir'
     final static TASK_NAME_JLINK = 'jlink'
     final static TASK_NAME_JLINK_ZIP = 'jlinkZip'
 
