@@ -55,9 +55,11 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         if(jars.empty) return
         project.logger.info("Merging content into ${tmpDir}...")
         project.copy {
-            jars.each {from(project.zipTree(it))}
-            into(tmpDir)
+            jars.each { from project.zipTree(it) }
+            into tmpDir
+            exclude 'module-info.class'
         }
-        Util.createManifest(tmpDir)
+        boolean multiRelease = new File("$td.mergedJarsDir/META-INF/versions").directory
+        Util.createManifest(tmpDir, multiRelease)
     }
 }

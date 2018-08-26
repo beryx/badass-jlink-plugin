@@ -27,6 +27,10 @@ import spock.util.environment.OperatingSystem
 class JlinkPluginSpec extends Specification {
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
 
+    def cleanup() {
+        println "CLEANUP"
+    }
+
     def setUpBuild(String moduleName, String launcherName, String mainClass, String mergedModuleName) {
         new AntBuilder().copy( todir: testProjectDir.root ) {
             fileset( dir: 'src/test/resources/hello' )
@@ -64,7 +68,6 @@ class JlinkPluginSpec extends Specification {
         def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
         def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
         def imageLauncher = new File(imageBinDir, "$expectedLauncherName$launcherExt")
-        def logbackXml = new File(imageBinDir, "logback.xml")
 
         then:
         result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS

@@ -89,16 +89,16 @@ class Util {
         return s.substring(0, len - tokens[-1].length() - 2).replace('-', '.')
     }
 
-    static void createManifest(Object targetDir) {
+    static void createManifest(Object targetDir, boolean multiRelease) {
         def mfdir = new File(targetDir, 'META-INF')
         mfdir.mkdirs()
         def mf = new File(mfdir, 'MANIFEST.MF')
         mf.delete()
-        mf << """
-        Manifest-Version: 1.0
-        Created-By: Badass-JLink Plugin
-        Built-By: gradle
-        """.stripMargin()
+        mf << """Manifest-Version: 1.0
+            Created-By: Badass-JLink Plugin
+            Built-By: gradle
+        """.stripIndent()
+        if(multiRelease) mf << 'Multi-Release: true\n'
     }
 
     static void createJar(Project project, String javaHome, String jarFilePath, Object contentDir) {
@@ -108,6 +108,7 @@ class Util {
                     '--create',
                     '--file',
                     jarFilePath,
+                    '--no-manifest',
                     '-C',
                     contentDir,
                     '.'
