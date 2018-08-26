@@ -101,24 +101,24 @@ class ModuleInfo implements Serializable {
 
     static class ProvidesBuilder implements Serializable {
         final String service
-        String implementation
+        String[] implementations
 
         ProvidesBuilder(String service) {
             this.service = service
         }
 
-        ProvidesBuilder with(String implementation) {
-            this.implementation = implementation
+        ProvidesBuilder with(String... implementations) {
+            this.implementations = implementations
             this
         }
 
         String toString() {
-            "provides $service with $implementation;"
+            "provides $service with ${implementations.join(', ')};"
         }
 
         String get() {
             if(!service) throw new IllegalStateException("No service provided")
-            if(!implementation) throw new IllegalStateException("No implementation provided for service $service")
+            if(!implementations) throw new IllegalStateException("No implementations provided for service $service")
             toString()
         }
     }
