@@ -24,5 +24,5 @@ jlink {
 
 The following projects illustrate how to use this plugin to create custom runtime images:
 - [badass-jlink-example](https://github.com/beryx-gist/badass-jlink-example) - a 'Hello world' application using slf4j and logback.
-- [badass-jlink-spring-petclinic](https://github.com/beryx-gist/badass-jlink-spring-petclinic) - creates a custom runtime image of the [Sprng PetClinic](https://github.com/spring-projects/spring-petclinic) application.
+- [badass-jlink-spring-petclinic](https://github.com/beryx-gist/badass-jlink-spring-petclinic) - creates a custom runtime image of the [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) application.
 - [copper-modular-demo](https://github.com/copper-engine/copper-modular-demo) - creates a custom runtime image of a [COPPER 5](http://copper-engine.org/) modular application. 
