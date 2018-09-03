@@ -10,7 +10,7 @@ Example `build.gradle` configuration:
 
 ```
 plugins {
-    id 'org.beryx.jlink' version '1.0.2'
+    id 'org.beryx.jlink' version '1.4.2'
 }
 
 jlink {
@@ -18,9 +18,11 @@ jlink {
     mergedModule {
         requires 'java.naming';
         requires 'java.xml';
-        requires 'java.xml.bind';
     }
 }
-```
+``` 
 
-Check [this simple application](https://github.com/beryx-gist/badass-jlink-example), which shows how to use the plugin to create a custom runtime image.
+The following projects illustrate how to use this plugin to create custom runtime images:
+- [badass-jlink-example](https://github.com/beryx-gist/badass-jlink-example) - a 'Hello world' application using slf4j and logback.
+- [badass-jlink-spring-petclinic](https://github.com/beryx-gist/badass-jlink-spring-petclinic) - creates a custom runtime image of the [Sprng PetClinic](https://github.com/spring-projects/spring-petclinic) application.
+- [copper-modular-demo](https://github.com/copper-engine/copper-modular-demo) - creates a custom runtime image of a [COPPER 5](http://copper-engine.org/) modular application. 
