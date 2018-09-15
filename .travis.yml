@@ -7,9 +7,11 @@ before_install: wget https://raw.githubusercontent.com/sormuras/bach/master/inst
 install:
   - . ./install-jdk.sh -F 10 -L BCL
   - chmod a+x ./gradlew
+  - chmod a+x ./travis-build.sh
 
 cache:
   directories:
     - $HOME/.gradle
 
-script: ./gradlew --info --stacktrace build
+script:
+  - ./travis-build.sh
