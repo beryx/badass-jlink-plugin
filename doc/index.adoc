@@ -1,0 +1,22 @@
+= BootHub
+:author: Serban Iordache
+:revnumber: {project-version}
+:toc: left
+:toclevels: 3
+:imagesdir: img
+:data-uri:
+:caption:
+:last-update-label!:
+:linkattrs:
+
+:leveloffset: +1
+
+:toc!:
+
+include::introduction.adoc[]
+
+include::user_guide.adoc[]
+
+include::examples.adoc[]
+
+:leveloffset: -1

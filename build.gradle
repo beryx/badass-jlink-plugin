@@ -6,6 +6,8 @@ plugins {
     id "com.github.ben-manes.versions" version "0.13.0"
     id 'com.github.jk1.dependency-license-report' version '0.3.8'
     id "com.github.hierynomus.license" version "0.14.0"
+    id "org.asciidoctor.convert" version "1.5.8.1"
+    id "org.ajoberstar.git-publish" version "1.0.1"
 }
 
 project.version.with {
@@ -98,5 +100,62 @@ jar {
 test {
     testLogging {
         exceptionFormat = 'full'
+    }
+}
+
+asciidoctor {
+    sourceDir = file("doc")
+    sources {include 'index.adoc'}
+    logDocuments = true
+    attributes 'source-highlighter': 'coderay',
+            'coderay-linenums-mode': 'table',
+            icons: 'font',
+            imagesdir: 'img',
+            'data-uri': '',
+            linkattrs: true,
+            linkcss: true,
+            'git-tag': badassJlinkPluginTag,
+            'blob-root': "https://github.com/beryx/badass-jlink/blob/$badassJlinkPluginTag"
+}
+
+gitPublish {
+    repoUri = 'https://github.com/beryx/badass-jlink.git'
+    branch = 'gh-pages'
+
+    contents {
+        def pgType = project.hasProperty('ghPageType') ? ghPageType : 'latest'
+        if(pgType == 'init') {
+            from file("ghpages")
+        } else if(pgType == 'list') {
+            from file("build/release-list")
+        } else {
+            from file("${asciidoctor.outputDir.path}/html5")
+            from file("build/docs")
+        }
+        def docDir = Boolean.valueOf(badassJlinkPluginReleaseBuild) ? 'releases' : 'snapshots'
+        if(pgType == 'init') {
+            into "."
+        } else if(pgType == 'list') {
+            into "."
+            preserve {
+                include '**'
+                exclude "releases.md"
+            }
+        } else if(pgType == 'version') {
+            gitPublishPush.enabled = (docDir != 'snapshots')
+            into "$docDir/$badassJlinkPluginVersion"
+
+            preserve {
+                include '**'
+                exclude "$docDir/$badassJlinkPluginVersion"
+            }
+        } else {
+            into "$docDir/latest"
+
+            preserve {
+                include '**'
+                exclude "$docDir/latest"
+            }
+        }
     }
 }

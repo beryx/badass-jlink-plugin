@@ -1,0 +1,6 @@
+[[introduction]]
+= Introduction
+
+TBD
+
+NOTE: The source code is available on https://github.com/boothub-org/boothub[GitHub] and is licensed under the {blob-root}/LICENSE[Apache-2.0 license].
