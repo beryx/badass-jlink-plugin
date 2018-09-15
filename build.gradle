@@ -115,11 +115,11 @@ asciidoctor {
             linkattrs: true,
             linkcss: true,
             'git-tag': badassJlinkPluginTag,
-            'blob-root': "https://github.com/beryx/badass-jlink/blob/$badassJlinkPluginTag"
+            'blob-root': "https://github.com/beryx/badass-jlink-plugin/blob/$badassJlinkPluginTag"
 }
 
 gitPublish {
-    repoUri = 'https://github.com/beryx/badass-jlink.git'
+    repoUri = 'https://github.com/beryx/badass-jlink-plugin.git'
     branch = 'gh-pages'
 
     contents {
