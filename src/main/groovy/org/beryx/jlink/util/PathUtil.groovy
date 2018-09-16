@@ -22,5 +22,5 @@ class PathUtil {
     static String getJlinkJarsDirPath(String jlinkBasePath) { "$jlinkBasePath/jlinkjars" }
     static String getTmpJarsDirPath(String jlinkBasePath) { "$jlinkBasePath/tmpjars" }
     static String getTmpModuleInfoDirPath(String jlinkBasePath) { "$jlinkBasePath/tmpmodinfo" }
-    static String getDelegatedModulesDirPath(String jlinkBasePath) { "$jlinkBasePath/delegated" }
+    static String getDelegatingModulesDirPath(String jlinkBasePath) { "$jlinkBasePath/delegating" }
 }

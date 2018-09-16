@@ -31,13 +31,13 @@ class PrepareModulesDirTask extends BaseTask {
     Property<List<String>> forceMergedJarPrefixes
 
     @InputDirectory
-    DirectoryProperty delegatedModulesDir
+    DirectoryProperty delegatingModulesDir
 
     @OutputDirectory
     DirectoryProperty jlinkJarsDir
 
     PrepareModulesDirTask() {
-        dependsOn(JlinkPlugin.TASK_NAME_CREATE_DELEGATED_MODULES)
+        dependsOn(JlinkPlugin.TASK_NAME_CREATE_DELEGATING_MODULES)
         description = 'Prepares the directory containing modules required by the application'
     }
 
@@ -46,8 +46,8 @@ class PrepareModulesDirTask extends BaseTask {
         super.init(extension)
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
 
-        delegatedModulesDir = project.layout.directoryProperty()
-        delegatedModulesDir.set(new File(PathUtil.getDelegatedModulesDirPath(jlinkBasePath.get())))
+        delegatingModulesDir = project.layout.directoryProperty()
+        delegatingModulesDir.set(new File(PathUtil.getDelegatingModulesDirPath(jlinkBasePath.get())))
 
         jlinkJarsDir = project.layout.directoryProperty()
         jlinkJarsDir.set(new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get())))
@@ -58,7 +58,7 @@ class PrepareModulesDirTask extends BaseTask {
         def taskData = new PrepareModulesDirTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
-        taskData.delegatedModulesDir = delegatedModulesDir.get().asFile
+        taskData.delegatingModulesDir = delegatingModulesDir.get().asFile
         taskData.jlinkJarsDir = jlinkJarsDir.get().asFile
 
         def taskImpl = new PrepareModulesDirTaskImpl(project, taskData)

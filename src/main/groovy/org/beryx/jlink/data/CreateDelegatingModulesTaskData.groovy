@@ -18,12 +18,12 @@ package org.beryx.jlink.data
 import groovy.transform.ToString
 
 @ToString(includeNames = true)
-class CreateDelegatedModulesTaskData extends BaseTaskData {
+class CreateDelegatingModulesTaskData extends BaseTaskData {
     String mergedModuleName
     String javaHome
 
     File nonModularJarsDir
-    File delegatedModulesDir
+    File delegatingModulesDir
     String jlinkJarsDirPath
     String tmpModuleInfoDirPath
     String tmpJarsDirPath

@@ -21,6 +21,6 @@ import groovy.transform.ToString
 class PrepareModulesDirTaskData extends BaseTaskData {
     List<String> forceMergedJarPrefixes
 
-    File delegatedModulesDir
+    File delegatingModulesDir
     File jlinkJarsDir
 }

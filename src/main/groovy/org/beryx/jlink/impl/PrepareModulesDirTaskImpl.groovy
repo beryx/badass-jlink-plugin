@@ -25,10 +25,10 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
     }
 
     void execute() {
-        project.logger.info("Copying delegated modules to ${td.jlinkJarsDir}...")
+        project.logger.info("Copying delegating modules to ${td.jlinkJarsDir}...")
         project.copy {
             into td.jlinkJarsDir
-            from td.delegatedModulesDir
+            from td.delegatingModulesDir
         }
 
         project.logger.info("Copying modular jars not required by non-modular jars to ${td.jlinkJarsDir}...")

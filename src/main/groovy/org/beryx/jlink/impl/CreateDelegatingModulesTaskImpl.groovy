@@ -16,26 +16,26 @@
 package org.beryx.jlink.impl
 
 import org.beryx.jlink.util.Util
-import org.beryx.jlink.data.CreateDelegatedModulesTaskData
+import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.gradle.api.Project
 
-class CreateDelegatedModulesTaskImpl extends BaseTaskImpl<CreateDelegatedModulesTaskData> {
-    CreateDelegatedModulesTaskImpl(Project project, CreateDelegatedModulesTaskData taskData) {
+class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModulesTaskData> {
+    CreateDelegatingModulesTaskImpl(Project project, CreateDelegatingModulesTaskData taskData) {
         super(project, taskData)
         project.logger.info("taskData: $taskData")
     }
 
     void execute() {
-        project.logger.info("Creating delegated modules...")
+        project.logger.info("Creating delegating modules...")
         project.delete(td.tmpJarsDirPath)
 
         td.nonModularJarsDir.eachFile { jarFile ->
-            createDelegatedModule(jarFile, td.tmpJarsDirPath, td.delegatedModulesDir)
+            createDelegatingModule(jarFile, td.tmpJarsDirPath, td.delegatingModulesDir)
         }
     }
 
-    def createDelegatedModule(File jarFile, String tmpDirPath, File targetDir) {
-        def moduleDir = genDelegatedModuleInfo(jarFile, tmpDirPath)
+    def createDelegatingModule(File jarFile, String tmpDirPath, File targetDir) {
+        def moduleDir = genDelegatingModuleInfo(jarFile, tmpDirPath)
         project.delete(td.tmpModuleInfoDirPath)
         Util.createManifest(td.tmpModuleInfoDirPath, false)
         project.logger.info("Compiling delegate module $moduleDir.name ...")
@@ -64,7 +64,7 @@ class CreateDelegatedModulesTaskImpl extends BaseTaskImpl<CreateDelegatedModules
         Util.createJar(project, td.javaHome, targetJarPath, td.tmpModuleInfoDirPath)
     }
 
-    File genDelegatedModuleInfo(File jarFile, String targetDirPath) {
+    File genDelegatingModuleInfo(File jarFile, String targetDirPath) {
         def moduleName = Util.getModuleName(jarFile, project)
         def modinfoDir = new File(targetDirPath, moduleName)
         modinfoDir.mkdirs()

@@ -81,8 +81,8 @@ class JlinkPluginExtension {
         forceMergedJarPrefixes.get().addAll(jarPrefixes)
     }
 
-    void addOptions(String... jarPrefixes) {
-        options.get().addAll(jarPrefixes)
+    void addOptions(String... options) {
+        this.options.get().addAll(options)
     }
 
     void mergedModule(Closure closure) {

@@ -16,8 +16,8 @@
 package org.beryx.jlink
 
 import org.beryx.jlink.data.JlinkPluginExtension
-import org.beryx.jlink.impl.CreateDelegatedModulesTaskImpl
-import org.beryx.jlink.data.CreateDelegatedModulesTaskData
+import org.beryx.jlink.impl.CreateDelegatingModulesTaskImpl
+import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.beryx.jlink.util.PathUtil
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
@@ -26,7 +26,7 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
-class CreateDelegatedModulesTask extends BaseTask {
+class CreateDelegatingModulesTask extends BaseTask {
     @Input
     Property<String> mergedModuleName
 
@@ -37,11 +37,11 @@ class CreateDelegatedModulesTask extends BaseTask {
     DirectoryProperty nonModularJarsDir
 
     @OutputDirectory
-    DirectoryProperty delegatedModulesDir
+    DirectoryProperty delegatingModulesDir
 
-    CreateDelegatedModulesTask() {
+    CreateDelegatingModulesTask() {
         dependsOn(JlinkPlugin.TASK_NAME_CREATE_MERGED_MODULE)
-        description = 'Creates delegated modules for the jars that have been merged into a single module'
+        description = 'Creates delegating modules for the jars that have been merged into a single module'
     }
 
     @Override
@@ -53,24 +53,24 @@ class CreateDelegatedModulesTask extends BaseTask {
         nonModularJarsDir = project.layout.directoryProperty()
         nonModularJarsDir.set(new File(PathUtil.getNonModularJarsDirPath(jlinkBasePath.get())))
 
-        delegatedModulesDir = project.layout.directoryProperty()
-        delegatedModulesDir.set(new File(PathUtil.getDelegatedModulesDirPath(jlinkBasePath.get())))
+        delegatingModulesDir = project.layout.directoryProperty()
+        delegatingModulesDir.set(new File(PathUtil.getDelegatingModulesDirPath(jlinkBasePath.get())))
     }
 
     @TaskAction
-    void createDelegatedModulesAction() {
-        def taskData = new CreateDelegatedModulesTaskData()
+    void createDelegatingModulesAction() {
+        def taskData = new CreateDelegatingModulesTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.mergedModuleName = mergedModuleName.get()
         taskData.javaHome = javaHome.get()
         taskData.nonModularJarsDir = nonModularJarsDir.get().asFile
-        taskData.delegatedModulesDir = delegatedModulesDir.get().asFile
+        taskData.delegatingModulesDir = delegatingModulesDir.get().asFile
 
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpModuleInfoDirPath = PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)
 
-        def taskImpl = new CreateDelegatedModulesTaskImpl(project, taskData)
+        def taskImpl = new CreateDelegatingModulesTaskImpl(project, taskData)
         taskImpl.execute()
     }
 }

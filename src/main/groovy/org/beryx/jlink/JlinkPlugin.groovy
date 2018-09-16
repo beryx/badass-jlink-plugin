@@ -23,7 +23,7 @@ class JlinkPlugin implements Plugin<Project> {
     final static EXTENSION_NAME = 'jlink'
     final static TASK_NAME_PREPARE_MERGED_JARS_DIR = 'prepareMergedJarsDir'
     final static TASK_NAME_CREATE_MERGED_MODULE = 'createMergedModule'
-    final static TASK_NAME_CREATE_DELEGATED_MODULES = 'createDelegatedModules'
+    final static TASK_NAME_CREATE_DELEGATING_MODULES = 'createDelegatingModules'
     final static TASK_NAME_PREPARE_MODULES_DIR = 'prepareModulesDir'
     final static TASK_NAME_JLINK = 'jlink'
     final static TASK_NAME_JLINK_ZIP = 'jlinkZip'
@@ -34,7 +34,7 @@ class JlinkPlugin implements Plugin<Project> {
         def extension = project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)
         project.getTasks().create(TASK_NAME_PREPARE_MERGED_JARS_DIR, PrepareMergedJarsDirTask, { it.init(extension) })
         project.getTasks().create(TASK_NAME_CREATE_MERGED_MODULE, CreateMergedModuleTask, { it.init(extension) })
-        project.getTasks().create(TASK_NAME_CREATE_DELEGATED_MODULES, CreateDelegatedModulesTask, { it.init(extension) })
+        project.getTasks().create(TASK_NAME_CREATE_DELEGATING_MODULES, CreateDelegatingModulesTask, { it.init(extension) })
         project.getTasks().create(TASK_NAME_PREPARE_MODULES_DIR, PrepareModulesDirTask, { it.init(extension) })
         project.getTasks().create(TASK_NAME_JLINK, JlinkTask, { it.init(extension) })
         project.getTasks().create(TASK_NAME_JLINK_ZIP, JlinkZipTask, { it.init(extension) })
