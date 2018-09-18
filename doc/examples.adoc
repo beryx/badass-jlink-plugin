@@ -1,4 +1,8 @@
 [[examples]]
 = Examples
 
-TBD
+The following projects illustrate how to use this plugin to create custom runtime images:
+
+* https://github.com/beryx-gist/badass-jlink-example[badass-jlink-example] - a 'Hello world' application using slf4j and logback.
+* https://github.com/beryx-gist/badass-jlink-spring-petclinic[badass-jlink-spring-petclinic] - creates a custom runtime image of the https://github.com/spring-projects/spring-petclinic[Spring PetClinic] application.
+* https://github.com/copper-engine/copper-modular-demo[copper-modular-demo] - creates a custom runtime image of a http://copper-engine.org/[COPPER 5] modular application.

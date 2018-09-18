@@ -1,4 +1,4 @@
-= BootHub
+= The Badass JLink Plugin
 :author: Serban Iordache
 :revnumber: {project-version}
 :toc: left

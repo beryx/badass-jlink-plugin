@@ -1,4 +1,226 @@
 [[user_guide]]
 = User Guide
 
-TBD
+Creating a custom runtime image can be a challenging task if your application has many non-modular dependencies.
+To let you address all possible issues, badass-jlink allows you to configure the `jlink` extension using various properties, methods and script blocks.
+
+The operations required to create a custom runtime image are grouped in several tasks.
+This gives you the possibility to tweak a particular step by hooking into the corresponding task
+(via `doFirst`, `doLast`, `TaskExecutionListener` or `TaskActionListener`).
+
+== Tasks
+<<prepareMergedJarsDir>>:: Unpacks all non-modular dependencies in a designated directory. +
+    _depends on_: `jar`
+<<createMergedModule>>:: Creates the merged module using the content of the directory prepared by the previous task and adding a module descriptor to it. +
+    _depends on_: `prepareMergedJarsDir`
+<<createDelegatingModules>>:: For each non-modular dependency, it creates a delegating module, which is an open module
+consisting only of a module descriptor. The module descriptor specifies that the delegating module `requires transitive` the merged module. +
+    _depends on_: `createMergedModule`
+<<prepareModulesDir>>:: Copies all modules needed by _jlink_ to a designated directory. +
+    _depends on_: `createDelegatingModules`
+<<jlink>>:: Uses the _jlink_ tool to create the custom runtime image.  +
+    _depends on_: `prepareModulesDir`
+<<jlinkZip>>:: Creates a zip archive of the custom runtime image. +
+    _depends on_: `jlink`
+
+A detailed description of these tasks is given in <<taskDetails>>
+
+== Properties
+imageDir:: The directory into which the custom runtime image should be generated. +
+    _defaultValue_: `_buildDir_/image` +
+    _usage example_: `imageDir = file("$buildDir/myapp-image")`
+imageZip:: The file into which a zip archive of the custom runtime image should be created. +
+    _defaultValue_: `_buildDir_/image.zip"` +
+    _usage example_: `imageZip = file("$buildDir/myapp-image.zip")`
+jlinkBasePath:: The path to the base directory that will be used by the plugin to store intermediate outputs. +
+    _defaultValue_: `_buildDir_/jlinkbase` +
+    _usage example_: `jlinkBasePath = "$buildDir/my-jlinkbase"`
+mainClass:: The main class to be provided as part of the `--launcher` option of _jlink_. +
+    _defaultValue_: `project.mainClassName` (from the https://docs.gradle.org/current/userguide/application_plugin.html[Application plugin]) +
+    _usage example_: `mainClass = 'org.example.MyApp'`
+launcherName:: The launcher command name to be provided as part of the `--launcher` option of _jlink_. +
+    _defaultValue_: `project.name` +
+    _usage example_: `launcherName = 'my-app'`
+moduleName:: The module name of this application. +
+    _defaultValue_: the module name specified in this application's _module-info.java_ +
+    _usage example_: `moduleName = 'org.example.myapp'`
+mergedModuleName:: The name of the merged module. +
+    _defaultValue_: `_moduleName_.merged.module"` +
+    _usage example_: `mergedModuleName = 'org.example.myapp.merged.module'`
+options:: A list of options to be passed to _jlink_. +
+    _defaultValue_: empty list +
+    _usage example_: `options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']`
+javaHome:: The path to the JDK providing the tools needed by the plugin (_javac_, _jar_, _jdeps_, _jlink_ etc.). +
+    _defaultValue_: the value of the `JAVA_HOME` environment variable. +
+    _usage example_: `javaHome = '/usr/lib/jvm/open-jdk'`
+jdepsEnabled:: Boolean specifying whether to use _jdeps_ to generate the _module-info.java_ of the merged module. +
+    If this property is false or the _jdeps_ command fails, the _module-info.java_ will be created taking into account
+    the configuration provided in the `mergedModule` block (see <<scriptBlocks>>). +
+    _defaultValue_: `false` +
+    _usage example_: `jdepsEnabled = true`
+
+
+== Methods
+
+addOptions(String... options):: Adds options to be passed to _jlink_.
+It is an alternative way of setting the `options` property.
+You can call this method multiple times. +
+    _usage example_: `addOptions '--no-header-files', '--no-man-pages'`
+
+forceMerge(String... jarPrefixes):: Instructs the plugin to include all dependencies matching the given prefixes into the merged module.
+This method is useful when the plugin should handle one or more modular jars as non-modular.
+You can call this method multiple times. +
+    _usage example_: `forceMerge 'jaxb-api'`
+
+[[scriptBlocks]]
+== Script blocks
+
+The `mergedModule` block allows you to configure the module descriptor of the merged module.
+It provides a DSL that matches the syntax of the directives in a module declaration file (_module-info.java_),
+but it requires quotes around the names of modules, services, and service implementation classes.
+
+The plugin automatically exports all packages found in the merged module, therefore the DSL does not support `exports` directives.
+
+.Usage example
+[source,groovy]
+----
+jlink {
+    ...
+    mergedModule {
+        requires 'java.desktop'
+        requires transitive 'java.sql'
+        uses 'java.sql.Driver'
+        provides 'java.sql.Driver' with 'org.hsqldb.jdbc.JDBCDriver'
+    }
+    ...
+}
+----
+
+
+== How it works
+
+The plugin combines all non-modular dependencies into a single jar to which it adds a module descriptor
+(configured in accordance with the `mergedModule` block).
+The non-modular dependencies appears as automatic modules in the original module graph.
+The plugin replaces them with _delegating modules_, which are dummy modules containing only a module descriptor that
+`requires transitive` the  merged module.
+
+The figure below illustrates this process.
+
+image::merging.png[]
+
+In some situations, the above approach would lead to cyclic dependencies between modules.
+For example, in the module graph below the automatic module _org.example.mod1_ requires the proper module _org.example.mod2_.
+Because the content of _org.example.mod1_ gets merged into the merged module, the merged module must require _org.example.mod2_.
+This in turn requires the delegating module _org.example.mod3_ and hence the merged module.
+
+image::merging.cycle.png[]
+
+
+To prevent such problems, the plugin automatically detects the modular jars that would be involved in a cycle and treats them
+as if they were non-modular.
+This means that it also merges these modular jars into the merged module and replaces them with delegating modules.
+The figure below shows the resulting module graph.
+
+image::merging.no-cycle.png[]
+
+Sometimes, you may want to have a modular jar treated as non-modular, even if it is not affected by a cyclic dependency problem.
+You can do this using the `forceMerge` method.
+
+[[taskDetails]]
+=== Task details
+
+The following properties denote files and directories used by the plugin tasks:
+
+* [green]##imageDir## - the directory into which the custom runtime image should be generated.
+* [olive]##imageZip## - the file into which a zip archive of the custom runtime image should be created.
+* [purple]##jlinkBasePath## - the path to the base working directory of the plugin.
+The table below shows the variable names of the subdirectories created here and their relative path to the base working directory:
+
++++
+<div style="margin-left: 30px;">
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 30%;">
+<col style="width: 70%;">
+</colgroup>
+<tr><td><b>Variable name</b></td><td><b>Path relative to <i>jlinkBasePath<i></b></td></tr>
+<tr><td class="maroon">mergedJarsDir</td><td><code>mergedjars</code></td></tr>
+<tr><td class="aqua">tmpMergedModuleDir</td><td><code>tmpmerged</code></td></tr>
+<tr><td class="teal">jlinkJarsDir</td><td><code>jlinkjars</code></td></tr>
+<tr><td class="navy">tmpJarsDir</td><td><code>tmpjars</code></td></tr>
+<tr><td class="fuchsia">tmpModuleInfoDir</td><td><code>tmpmodinfo</code></td></tr>
+<tr><td class="blue">delegatingModulesDir</td><td><code>delegating</code></td></tr>
+</table>
+</div>
++++
+
+[[prepareMergedJarsDir]]
+=== prepareMergedJarsDir
+
+[subs="attributes",options="nowrap"]
+----
+- delete <span class="purple">jlinkBasePath</span>
+- delete <span class="teal"><b>jlinkJarsDir</b></span>
+- delete <span class="red">nonModularJarsDir</span>
+- copy modular jars required by non-modular jars to <span class="teal">jlinkJarsDir</span>
+- copy non-modular jars to <span class="red">nonModularJarsDir</span>
+- unpack all jars from <span class="red">nonModularJarsDir</span> into <span class="maroon">mergedJarsDir</span>
+- create MANIFEST.MF in <span class="maroon">mergedJarsDir</span>
+----
+
+
+[[createMergedModule]]
+=== createMergedModule
+[subs="attributes",options="nowrap"]
+----
+- archive <span class="maron">mergedJarsDir</span> into <span class="aqua">tmpMergedModuleDir</span>/<i>mergedModuleName</i>.jar
+- generate module-info.java for the above merged jar into <span class="navy">tmpJarsDir</span>
+- clean <span class="fuchsia">tmpModuleInfoDir</span> and unpack the merged jar in it
+- compile the generated module-info.java into <span class="fuchsia">tmpModuleInfoDir</span>
+        using <span class="teal">jlinkJarsDir</span> as module-path
+- copy the merged jar into <span class="teal">jlinkJarsDir</span>
+        (the copied jar will have the path: <i>mergedModuleJar</i>)
+- insert the module-info.class from <span class="fuchsia">tmpModuleInfoDir</span> into <i>mergedModuleJar</i>
+----
+
+
+[[createDelegatingModules]]
+=== createDelegatingModules
+[subs="attributes",options="nowrap"]
+----
+- delete <span class="navy">tmpJarsDir</span>
+- for each file in <span class="red">nonModularJarsDir</span>:
+    - create delegating module-info.java into <span class="navy">tmpJarsDir</span>/&lt;current-module-name&gt;
+    - clean <span class="fuchsia">tmpModuleInfoDir</span> and create MANIFEST.MF in it
+    - compile module-info.java into
+            <span class="fuchsia">tmpModuleInfoDir</span> with <span class="teal">jlinkJarsDir</span> as module-path
+    - create a jar of <span class="fuchsia">tmpModuleInfoDir</span> into <span class="blue">delegatingModulesDir</span>
+----
+
+
+[[prepareModulesDir]]
+=== prepareModulesDir
+[subs="attributes",options="nowrap"]
+----
+- copy delegating modules from <span class="blue">delegatingModulesDir</span> to <span class="teal">jlinkJarsDir</span>
+- copy modular jars not required by non-modular jars to <span class="teal">jlinkJarsDir</span>
+----
+
+
+[[jlink]]
+=== jlink
+[subs="attributes",options="nowrap"]
+----
+- delete <span class="green">imageDir</span>
+- create custom runtime image in <span class="green">imageDir</span> by executing <i>jlink</i>
+        with modules from <span class="teal">jlinkJarsDir</span> and <i>project.jar.archivePath</i>
+----
+
+
+[[jlinkZip]]
+=== jlinkZip
+[subs="attributes",options="nowrap"]
+----
+- zip <span class="green">imageDir</span> to <span class="olive">imageZip</span>
+----

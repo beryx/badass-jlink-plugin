@@ -1,6 +1,46 @@
 [[introduction]]
 = Introduction
 
-TBD
+The badass-jlink plugin helps you create custom runtime images using jlink.
 
-NOTE: The source code is available on https://github.com/boothub-org/boothub[GitHub] and is licensed under the {blob-root}/LICENSE[Apache-2.0 license].
+Many modular applications have one or more non-modular dependencies, which are treated as automatic modules by the Java platform.
+However, jlink cannot work with automatic modules.
+The typical way to solve this problem is to convert the non-modular jars to explicit modules, by adding an appropriate module descriptor to each non-modular jar.
+This is a tedious process if your application has lots of non-modular dependencies.
+
+The badass-jlink plugin takes a more pragmatic approach by combining all non-modular dependencies into a single jar.
+This way, only the resulting merged module needs a module descriptor.
+
+The plugin provides several tasks. The most frequently used are `jlink`, which creates a custom runtime image in a given directory,
+and `jlinkZip`, which in addition creates a zip archive of the custom runtime image.
+
+To use the badass-jlink plugin, include the following in your build script:
+
+[source,groovy]
+[subs="attributes",options="nowrap"]
+----
+plugins {
+    id 'org.beryx.jlink' version '{project-version}'
+}
+----
+
+Applying the Badass-JLink plugin also implicitly applies the https://docs.gradle.org/current/userguide/application_plugin.html[Application plugin].
+
+The plugin uses an extension named `jlink`.
+The sample below shows a few configuration options.
+
+[source,groovy]
+----
+jlink {
+    launcherName = 'hello'
+    mergedModule {
+        requires 'java.naming';
+        requires 'java.xml';
+    }
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+}
+----
+
+The next sections provide detailed information on how to configure the plugin.
+
+NOTE: The source code is available on https://github.com/beryx/badass-jlink-plugin[GitHub] and is licensed under the {blob-root}/LICENSE[Apache-2.0 license].
