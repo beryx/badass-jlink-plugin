@@ -4,21 +4,21 @@
 
 ## Badass JLink Plugin ##
 
-A Gradle plugin that provides a `jlink` task, which can be configured using the `jlink` extension.
+Using this Gradle plugin you can create a custom runtime image of your application, 
+even if it depends on automatic modules. 
 
-Example `build.gradle` configuration:
+Badass-JLink exposes an extension with the name `jlink` to let you configure various
+aspects of its operation.
+A simple example configuration is shown below:
 
 ```
-plugins {
-    id 'org.beryx.jlink' version '1.4.2'
-}
-
 jlink {
     launcherName = 'hello'
     mergedModule {
         requires 'java.naming';
         requires 'java.xml';
     }
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
 }
 ``` 
 
@@ -26,3 +26,5 @@ The following projects illustrate how to use this plugin to create custom runtim
 - [badass-jlink-example](https://github.com/beryx-gist/badass-jlink-example) - a 'Hello world' application using slf4j and logback.
 - [badass-jlink-spring-petclinic](https://github.com/beryx-gist/badass-jlink-spring-petclinic) - creates a custom runtime image of the [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) application.
 - [copper-modular-demo](https://github.com/copper-engine/copper-modular-demo) - creates a custom runtime image of a [COPPER 5](http://copper-engine.org/) modular application. 
+
+**This is a complex plugin. Please [read the documentation](https://badass-jlink-plugin.beryx.org/releases/latest/) before using it.**
