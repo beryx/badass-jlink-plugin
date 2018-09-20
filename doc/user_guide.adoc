@@ -160,9 +160,7 @@ The table below shows the variable names of the subdirectories created here and 
 
 [subs="attributes",options="nowrap"]
 ----
-- delete <span class="purple">jlinkBasePath</span>
-- delete <span class="teal"><b>jlinkJarsDir</b></span>
-- delete <span class="red">nonModularJarsDir</span>
+- clean <span class="purple">jlinkBasePath</span>
 - copy modular jars required by non-modular jars to <span class="teal">jlinkJarsDir</span>
 - copy non-modular jars to <span class="red">nonModularJarsDir</span>
 - unpack all jars from <span class="red">nonModularJarsDir</span> into <span class="maroon">mergedJarsDir</span>
