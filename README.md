@@ -27,4 +27,4 @@ The following projects illustrate how to use this plugin to create custom runtim
 - [badass-jlink-spring-petclinic](https://github.com/beryx-gist/badass-jlink-spring-petclinic) - creates a custom runtime image of the [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) application.
 - [copper-modular-demo](https://github.com/copper-engine/copper-modular-demo) - creates a custom runtime image of a [COPPER 5](http://copper-engine.org/) modular application. 
 
-**This is a complex plugin. Please [read the documentation](https://badass-jlink-plugin.beryx.org/releases/latest/) before using it.**
+### This is a complex plugin. Please [read the documentation](https://badass-jlink-plugin.beryx.org/releases/latest/) before using it.
