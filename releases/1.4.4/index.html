@@ -287,7 +287,7 @@ but it requires quotes around the names of modules, services, and service implem
 <div class="paragraph">
 <p>The plugin combines all non-modular dependencies into a single jar to which it adds a module descriptor
 (configured in accordance with the <code>mergedModule</code> block).
-The non-modular dependencies appears as automatic modules in the original module graph.
+The non-modular dependencies appear as automatic modules in the original module graph.
 The plugin replaces them with <em>delegating modules</em>, which are dummy modules containing only a module descriptor that
 <code>requires transitive</code> the  merged module.</p>
 </div>
@@ -444,6 +444,9 @@ The table below shows the variable names of the subdirectories created here and 
 <ul>
 <li>
 <p><a href="https://github.com/beryx-gist/badass-jlink-example">badass-jlink-example</a> - a 'Hello world' application using slf4j and logback.</p>
+</li>
+<li>
+<p><a href="https://github.com/beryx-gist/badass-jlink-example-kotlin-javafx">badass-jlink-example-kotlin-javafx</a> - a 'Hello world' JavaFX application written in Kotlin.</p>
 </li>
 <li>
 <p><a href="https://github.com/beryx-gist/badass-jlink-spring-petclinic">badass-jlink-spring-petclinic</a> - creates a custom runtime image of the <a href="https://github.com/spring-projects/spring-petclinic">Spring PetClinic</a> application.</p>
