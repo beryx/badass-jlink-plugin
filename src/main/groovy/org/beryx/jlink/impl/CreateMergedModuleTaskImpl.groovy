@@ -44,6 +44,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
     File genModuleInfo(File jarFile, File targetDir) {
         project.logger.info("Generating module-info in ${targetDir}...")
         project.delete(targetDir)
+        targetDir.mkdirs()
         if(td.jdepsEnabled) {
             project.exec {
                 ignoreExitValue = true

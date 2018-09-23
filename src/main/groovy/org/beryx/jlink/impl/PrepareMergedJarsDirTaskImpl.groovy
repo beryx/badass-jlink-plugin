@@ -27,6 +27,7 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
 
     void execute() {
         project.delete(td.jlinkBasePath)
+        td.mergedJarsDir.mkdirs()
         def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes)
         copyRuntimeJars(depMgr)
         mergeUnpackedContents(new File(td.nonModularJarsDirPath).listFiles() as List, td.mergedJarsDir)
@@ -34,6 +35,8 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
 
     def copyRuntimeJars(DependencyManager depMgr) {
         project.delete(td.jlinkJarsDirPath, td.nonModularJarsDirPath)
+        new File(td.jlinkJarsDirPath).mkdirs()
+        new File(td.nonModularJarsDirPath).mkdirs()
         project.logger.info("Copying modular jars required by non-modular jars to ${td.jlinkJarsDirPath}...")
         depMgr.modularJarsRequiredByNonModularJars.each { jar ->
             project.logger.debug("\t... from $jar ...")
