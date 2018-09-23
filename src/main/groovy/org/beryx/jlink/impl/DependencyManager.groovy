@@ -60,7 +60,7 @@ class DependencyManager {
 
     private Set<ResolvedDependency> collectDeps(Predicate<ResolvedDependency> filter) {
         Set<ResolvedDependency> deps = []
-        for(ResolvedDependency dep: project.configurations.runtime.resolvedConfiguration.firstLevelModuleDependencies) {
+        for(ResolvedDependency dep: project.configurations.runtimeClasspath.resolvedConfiguration.firstLevelModuleDependencies) {
             if(filter.test(dep)) deps << dep
             deps.addAll(getDescendants(dep, filter))
         }
