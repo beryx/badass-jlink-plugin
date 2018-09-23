@@ -101,7 +101,7 @@ jlink {
 
 The plugin combines all non-modular dependencies into a single jar to which it adds a module descriptor
 (configured in accordance with the `mergedModule` block).
-The non-modular dependencies appears as automatic modules in the original module graph.
+The non-modular dependencies appear as automatic modules in the original module graph.
 The plugin replaces them with _delegating modules_, which are dummy modules containing only a module descriptor that
 `requires transitive` the  merged module.
 
