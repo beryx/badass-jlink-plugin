@@ -287,7 +287,7 @@ but it requires quotes around the names of modules, services, and service implem
 <div class="paragraph">
 <p>The plugin combines all non-modular dependencies into a single jar to which it adds a module descriptor
 (configured in accordance with the <code>mergedModule</code> block).
-The non-modular dependencies appears as automatic modules in the original module graph.
+The non-modular dependencies appear as automatic modules in the original module graph.
 The plugin replaces them with <em>delegating modules</em>, which are dummy modules containing only a module descriptor that
 <code>requires transitive</code> the  merged module.</p>
 </div>
