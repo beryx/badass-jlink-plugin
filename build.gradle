@@ -25,6 +25,8 @@ ext.badassJlinkPluginTag = Boolean.valueOf(badassJlinkPluginReleaseBuild) ? "v$e
 group = 'org.beryx'
 version = badassJlinkPluginVersion
 
+ext.asmVersion = '6.2.1'
+
 repositories {
     jcenter()
     mavenCentral()
@@ -58,6 +60,12 @@ dependencies {
     compile gradleTestKit()
     compile localGroovy()
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+
+    compile "org.ow2.asm:asm:$asmVersion"
+    compile "org.ow2.asm:asm-commons:$asmVersion"
+    compile "org.ow2.asm:asm-tree:$asmVersion"
+    compile "org.ow2.asm:asm-util:$asmVersion"
+    compile "org.ow2.asm:asm-analysis:$asmVersion"
 
     testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
         exclude module: 'groovy-all'
