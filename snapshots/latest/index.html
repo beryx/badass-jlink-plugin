@@ -224,13 +224,13 @@ consisting only of a module descriptor. The module descriptor specifies that the
 <em>defaultValue</em>: the value of the <code>JAVA_HOME</code> environment variable.<br>
 <em>usage example</em>: <code>javaHome = '/usr/lib/jvm/open-jdk'</code></p>
 </dd>
-<dt class="hdlist1">jdepsEnabled</dt>
+<dt class="hdlist1">useJdeps</dt>
 <dd>
 <p>Boolean specifying whether to use <em>jdeps</em> to generate the <em>module-info.java</em> of the merged module.<br>
 If this property is false or the <em>jdeps</em> command fails, the <em>module-info.java</em> will be created taking into account
 the configuration provided in the <code>mergedModule</code> block (see <a href="#scriptBlocks">Script blocks</a>).<br>
 <em>defaultValue</em>: <code>false</code><br>
-<em>usage example</em>: <code>jdepsEnabled = true</code></p>
+<em>usage example</em>: <code>useJdeps = true</code></p>
 </dd>
 </dl>
 </div>
