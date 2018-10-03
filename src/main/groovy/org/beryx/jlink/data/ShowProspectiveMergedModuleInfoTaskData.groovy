@@ -15,21 +15,16 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.CompileStatic
 import groovy.transform.ToString
 
+@CompileStatic
 @ToString(includeNames = true)
 class ShowProspectiveMergedModuleInfoTaskData extends BaseTaskData {
     List<String> forceMergedJarPrefixes
-    String mergedModuleName
-    String javaHome
-    ModuleInfo mergedModuleInfo
-    boolean jdepsEnabled
     File mergedJarsDir
-
-    File mergedModuleJar
-    String nonModularJarsDirPath
+    String javaHome
+    JdepsUsage useJdeps
     String jlinkJarsDirPath
-    String tmpMergedModuleDirPath
-    String tmpModuleInfoDirPath
     String tmpJarsDirPath
 }

@@ -36,7 +36,7 @@ class JlinkPluginExtension {
     final Property<List<String>> options
     final Property<String> javaHome
     final Property<ModuleInfo> mergedModuleInfo
-    final Property<Boolean> jdepsEnabled
+    final Property<JdepsUsage> useJdeps
 
     JlinkPluginExtension(Project project) {
         project.provider{}
@@ -73,8 +73,8 @@ class JlinkPluginExtension {
         mergedModuleInfo = project.objects.property(ModuleInfo)
         mergedModuleInfo.set(new ModuleInfo())
 
-        jdepsEnabled = project.objects.property(Boolean)
-        jdepsEnabled.set(false)
+        useJdeps = project.objects.property(JdepsUsage)
+        useJdeps.set(JdepsUsage.no)
     }
 
     void forceMerge(String... jarPrefixes) {
@@ -88,6 +88,7 @@ class JlinkPluginExtension {
     void mergedModule(Closure closure) {
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = mergedModuleInfo.get()
+        mergedModuleInfo.get().enabled = true
         closure()
     }
 }

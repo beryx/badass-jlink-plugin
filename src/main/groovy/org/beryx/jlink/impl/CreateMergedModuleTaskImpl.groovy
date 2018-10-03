@@ -15,8 +15,12 @@
  */
 package org.beryx.jlink.impl
 
+import org.beryx.jlink.data.JdepsUsage
+import org.beryx.jlink.util.JdepsExecutor
+import org.beryx.jlink.util.ProspectiveMergedModuleInfoBuilder
 import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateMergedModuleTaskData
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 import java.util.zip.ZipFile
@@ -45,23 +49,30 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         project.logger.info("Generating module-info in ${targetDir}...")
         project.delete(targetDir)
         targetDir.mkdirs()
-        if(td.jdepsEnabled) {
-            project.exec {
-                ignoreExitValue = true
-                commandLine "$td.javaHome/bin/jdeps",
-                        '-v',
-                        '--generate-module-info',
-                        targetDir.path,
-                        '--module-path',
-                        "$td.javaHome/jmods/$SEP$td.jlinkJarsDirPath",
-                        jarFile.path
-            }
+        def moduleInfoFile = genModuleInfoJdeps(jarFile, targetDir)
+        if(!moduleInfoFile) {
+            moduleInfoFile = genModuleInfoBadass(jarFile, targetDir)
         }
-        def files = targetDir.listFiles()
-        return files?.length ? files[0] : genDummyModuleInfo(jarFile, targetDir)
+        moduleInfoFile
     }
 
-    File genDummyModuleInfo(File jarFile, File targetDir) {
+    File genModuleInfoJdeps(File jarFile, File targetDir) {
+        if(td.useJdeps != JdepsUsage.no) {
+            def result = new JdepsExecutor(project).genModuleInfo(jarFile, targetDir, td.jlinkJarsDirPath, td.javaHome)
+            if(result.exitValue) {
+                if(td.useJdeps != JdepsUsage.exclusively) {
+                    throw new GradleException("jdeps exited with return code $result.exitValue")
+                }
+            } else {
+                def files = targetDir.listFiles{File dir, String name -> name == 'module-info.java'}
+                if(files?.length) return files[0]
+                project.logger.warn("jdeps terminated successfully but the module declaration file cannot be found.")
+            }
+        }
+        null
+    }
+
+    File genModuleInfoBadass(File jarFile, File targetDir) {
         def packages = new TreeSet<String>()
         new ZipFile(jarFile).entries().each { entry ->
             def pkgName = Util.getPackage(entry.name)
@@ -71,12 +82,18 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         def modinfoDir = new File(targetDir, moduleName)
         modinfoDir.mkdirs()
         def modInfoJava = new File(modinfoDir, 'module-info.java')
+        modInfoJava.delete()
         modInfoJava << "open module $moduleName {\n"
         packages.each {
             modInfoJava << "    exports $it;\n"
         }
-        modInfoJava << td.mergedModuleInfo.toString(4) << '\n}\n'
-
+        if(td.mergedModuleInfo.enabled) {
+            modInfoJava << td.mergedModuleInfo.toString(4)
+        } else {
+            def builder = new ProspectiveMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes)
+            modInfoJava << builder.moduleInfo.toString(4)
+        }
+        modInfoJava << '\n}\n'
         modinfoDir
     }
 

@@ -53,11 +53,11 @@ options:: A list of options to be passed to _jlink_. +
 javaHome:: The path to the JDK providing the tools needed by the plugin (_javac_, _jar_, _jdeps_, _jlink_ etc.). +
     _defaultValue_: the value of the `JAVA_HOME` environment variable. +
     _usage example_: `javaHome = '/usr/lib/jvm/open-jdk'`
-jdepsEnabled:: Boolean specifying whether to use _jdeps_ to generate the _module-info.java_ of the merged module. +
+useJdeps:: Boolean specifying whether to use _jdeps_ to generate the _module-info.java_ of the merged module. +
     If this property is false or the _jdeps_ command fails, the _module-info.java_ will be created taking into account
     the configuration provided in the `mergedModule` block (see <<scriptBlocks>>). +
     _defaultValue_: `false` +
-    _usage example_: `jdepsEnabled = true`
+    _usage example_: `useJdeps = true`
 
 
 == Methods

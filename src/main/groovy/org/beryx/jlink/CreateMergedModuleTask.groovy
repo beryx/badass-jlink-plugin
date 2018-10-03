@@ -16,6 +16,7 @@
 package org.beryx.jlink
 
 import org.beryx.jlink.data.CreateMergedModuleTaskData
+import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.impl.CreateMergedModuleTaskImpl
@@ -30,6 +31,9 @@ import org.gradle.api.tasks.TaskAction
 
 class CreateMergedModuleTask extends BaseTask {
     @Input
+    Property<List<String>> forceMergedJarPrefixes
+
+    @Input
     Property<String> mergedModuleName
 
     @InputDirectory
@@ -42,7 +46,7 @@ class CreateMergedModuleTask extends BaseTask {
     Property<ModuleInfo> mergedModuleInfo
 
     @Input
-    Property<String> jdepsEnabled
+    Property<JdepsUsage> useJdeps
 
     @OutputFile
     File getMergedModuleJar() {
@@ -57,10 +61,11 @@ class CreateMergedModuleTask extends BaseTask {
     @Override
     void init(JlinkPluginExtension extension) {
         super.init(extension)
+        forceMergedJarPrefixes = extension.forceMergedJarPrefixes
         mergedModuleName = extension.mergedModuleName
         javaHome = extension.javaHome
         mergedModuleInfo = extension.mergedModuleInfo
-        jdepsEnabled = extension.jdepsEnabled
+        useJdeps = extension.useJdeps
 
         mergedJarsDir = project.layout.directoryProperty()
         mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
@@ -70,10 +75,11 @@ class CreateMergedModuleTask extends BaseTask {
     void createMergedModuleAction() {
         def taskData = new CreateMergedModuleTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
+        taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
         taskData.mergedModuleName = mergedModuleName.get()
         taskData.javaHome = javaHome.get()
         taskData.mergedModuleInfo = mergedModuleInfo.get()
-        taskData.jdepsEnabled = jdepsEnabled.get()
+        taskData.useJdeps = useJdeps.get()
         taskData.mergedModuleJar = mergedModuleJar
         taskData.mergedJarsDir = mergedJarsDir.get().asFile
 

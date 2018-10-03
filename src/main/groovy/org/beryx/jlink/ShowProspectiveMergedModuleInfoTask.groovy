@@ -15,25 +15,24 @@
  */
 package org.beryx.jlink
 
-
+import groovy.transform.CompileStatic
+import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.JlinkPluginExtension
-import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.data.ShowProspectiveMergedModuleInfoTaskData
 import org.beryx.jlink.impl.ShowProspectiveMergedModuleInfoTaskImpl
 import org.beryx.jlink.util.PathUtil
+import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.options.Option
 
+@CompileStatic
 class ShowProspectiveMergedModuleInfoTask extends BaseTask {
     @Input
     Property<List<String>> forceMergedJarPrefixes
-
-    @Input
-    Property<String> mergedModuleName
 
     @InputDirectory
     DirectoryProperty mergedJarsDir
@@ -42,29 +41,20 @@ class ShowProspectiveMergedModuleInfoTask extends BaseTask {
     Property<String> javaHome
 
     @Input
-    Property<ModuleInfo> mergedModuleInfo
-
-    @Input
-    Property<String> jdepsEnabled
-
-    @OutputFile
-    File getMergedModuleJar() {
-        new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get()), "${mergedModuleName.get()}.jar")
-    }
+    Property<JdepsUsage> useJdeps
 
     ShowProspectiveMergedModuleInfoTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MERGED_JARS_DIR)
         description = 'Unpacks all non-modularized jars into a single directory'
+        outputs.upToDateWhen { false }
     }
 
     @Override
     void init(JlinkPluginExtension extension) {
         super.init(extension)
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
-        mergedModuleName = extension.mergedModuleName
         javaHome = extension.javaHome
-        mergedModuleInfo = extension.mergedModuleInfo
-        jdepsEnabled = extension.jdepsEnabled
+        useJdeps = extension.useJdeps
 
         mergedJarsDir = project.layout.directoryProperty()
         mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
@@ -75,20 +65,22 @@ class ShowProspectiveMergedModuleInfoTask extends BaseTask {
         def taskData = new ShowProspectiveMergedModuleInfoTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
-        taskData.mergedModuleName = mergedModuleName.get()
         taskData.javaHome = javaHome.get()
-        taskData.mergedModuleInfo = mergedModuleInfo.get()
-        taskData.jdepsEnabled = jdepsEnabled.get()
-        taskData.mergedModuleJar = mergedModuleJar
+        taskData.useJdeps = useJdeps.get()
         taskData.mergedJarsDir = mergedJarsDir.get().asFile
-
-        taskData.nonModularJarsDirPath = PathUtil.getNonModularJarsDirPath(taskData.jlinkBasePath)
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
-        taskData.tmpMergedModuleDirPath = PathUtil.getTmpMergedModuleDirPath(taskData.jlinkBasePath)
-        taskData.tmpModuleInfoDirPath = PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
 
         def taskImpl = new ShowProspectiveMergedModuleInfoTaskImpl(project, taskData)
         taskImpl.execute()
+    }
+
+    @Option(option = 'useJdeps', description = "Specifies whether jdeps should be used to generate the prospective module info. Accepted values: 'yes', 'no', 'exclusively'.")
+    void setUseJdeps(String useJdeps) {
+        try {
+            this.useJdeps.set(JdepsUsage.valueOf(useJdeps))
+        } catch (Exception e) {
+            throw new GradleException("Unknown value for option 'useJdeps': $useJdeps. Accepted values: ${JdepsUsage.values()*.name().join(' / ')}.")
+        }
     }
 }

@@ -15,8 +15,12 @@
  */
 package org.beryx.jlink.impl
 
+import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.ShowProspectiveMergedModuleInfoTaskData
+import org.beryx.jlink.util.JdepsExecutor
 import org.beryx.jlink.util.ProspectiveMergedModuleInfoBuilder
+import org.beryx.jlink.util.Util
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 class ShowProspectiveMergedModuleInfoTaskImpl extends BaseTaskImpl<ShowProspectiveMergedModuleInfoTaskData> {
@@ -26,7 +30,37 @@ class ShowProspectiveMergedModuleInfoTaskImpl extends BaseTaskImpl<ShowProspecti
     }
 
     void execute() {
+        project.logger.info("Executing showProspectiveMergedModuleInfo with useJdeps = $td.useJdeps")
+        if(td.useJdeps != JdepsUsage.no) {
+            try {
+                def jarFilePath = "$td.jlinkBasePath/prospectiveMergedModule.jar"
+                new File(jarFilePath).delete()
+                Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDir)
+                def result = new JdepsExecutor(project).genModuleInfo(project.file(jarFilePath),
+                        project.file(td.tmpJarsDirPath), td.jlinkJarsDirPath, td.javaHome)
+                def loggerFun = result.exitValue ? (td.useJdeps == JdepsUsage.yes) ? 'warn' : 'error' : 'info'
+                project.logger."$loggerFun"(result.output)
+                if(result.exitValue) {
+                    if(td.useJdeps == JdepsUsage.exclusively) {
+                        throw new GradleException("jdeps exited with return code $result.exitValue")
+                    }
+                } else {
+                    println "jdeps generated module-info.java:\n${result.moduleInfoFile?.text}"
+                    return
+                }
+            } catch(Exception e) {
+                if(td.useJdeps == JdepsUsage.exclusively) {
+                    throw new GradleException("jdeps failed", e)
+                }
+                if(project.logger.infoEnabled) {
+                    project.logger.info("jdeps failed.", e)
+                } else {
+                    project.logger.warn("jdeps failed: $e")
+                }
+            }
+            if(td.useJdeps == JdepsUsage.exclusively) return
+        }
         def builder = new ProspectiveMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes)
-        println "mergedModule{\n" + builder.moduleInfo.toString(4) + "\n}"
+        println "mergedModule {\n" + builder.moduleInfo.toString(4, true) + "\n}"
     }
 }

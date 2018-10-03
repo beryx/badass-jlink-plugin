@@ -15,16 +15,19 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
 @ToString(includeNames = true)
 class ModuleInfo implements Serializable {
+    boolean enabled
     List<RequiresBuilder> requiresBuilders = []
     List<UsesBuilder> usesBuilders = []
     List<ProvidesBuilder> providesBuilders = []
 
     private boolean afterRequiresTransitive = false
 
+    @EqualsAndHashCode
     static class RequiresBuilder implements Serializable {
         final String module
         boolean transitive = false
@@ -40,7 +43,11 @@ class ModuleInfo implements Serializable {
 
         @Override
         String toString() {
-            return "requires ${transitive ? 'transitive ' : ''}$module;"
+            toString(false)
+        }
+        String toString(boolean quoted) {
+            def q = quoted ? "'" : ""
+            "requires ${transitive ? 'transitive ' : ''}$q$module$q;"
         }
 
         String get() {
@@ -74,16 +81,21 @@ class ModuleInfo implements Serializable {
     }
 
 
+    @EqualsAndHashCode
     static class UsesBuilder implements Serializable {
         final String service
 
         UsesBuilder(String service) {
-            this.service = service
+            this.service = service.replace('$', '.')
         }
 
         @Override
         String toString() {
-            return "uses $service;"
+            toString(false)
+        }
+        String toString(boolean quoted) {
+            def q = quoted ? "'" : ""
+            "uses $q$service$q;"
         }
 
         String get() {
@@ -99,21 +111,27 @@ class ModuleInfo implements Serializable {
         builder
     }
 
+    @EqualsAndHashCode
     static class ProvidesBuilder implements Serializable {
         final String service
         final List<String> implementations = []
 
         ProvidesBuilder(String service) {
-            this.service = service
+            this.service = service.replace('$', '.')
         }
 
         ProvidesBuilder with(String... implementations) {
-            this.implementations.addAll(implementations as List)
+            this.implementations.addAll(implementations.each {it.replace('$', '.')} as List)
             this
         }
 
+        @Override
         String toString() {
-            "provides $service with ${implementations.join(',\n\t\t\t\t')};"
+            toString(false)
+        }
+        String toString(boolean quoted) {
+            def q = quoted ? "'" : ""
+            "provides $q$service$q with $q${implementations.join(',\n\t\t\t\t')}$q;"
         }
 
         String get() {
@@ -135,9 +153,9 @@ class ModuleInfo implements Serializable {
         return toString(0)
     }
 
-    String toString(int indent) {
-        (requiresBuilders.collect {b -> (' ' * indent) + b} +
-        usesBuilders.collect {b -> (' ' * indent) + b} +
-        providesBuilders.collect {b -> (' ' * indent) + b}).join('\n')
+    String toString(int indent, boolean quoted = false) {
+        (requiresBuilders.collect {b -> (' ' * indent) + b.toString(quoted)} +
+        usesBuilders.collect {b -> (' ' * indent) + b.toString(quoted)} +
+        providesBuilders.collect {b -> (' ' * indent) + b.toString(quoted)}).join('\n')
     }
 }

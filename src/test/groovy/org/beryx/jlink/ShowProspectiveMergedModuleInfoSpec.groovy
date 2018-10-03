@@ -22,6 +22,8 @@ import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
+import java.util.stream.Collectors
+
 class ShowProspectiveMergedModuleInfoSpec extends Specification {
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
 
@@ -43,15 +45,46 @@ class ShowProspectiveMergedModuleInfoSpec extends Specification {
                 .forwardStdOutput(outputWriter)
                 .withProjectDir(buildFile.parentFile)
                 .withPluginClasspath()
-                .withArguments(JlinkPlugin.TASK_NAME_SHOW_PROSPECTIVE_MERGED_MODULE_INFO, "-is")
+                .withArguments("-is", JlinkPlugin.TASK_NAME_SHOW_PROSPECTIVE_MERGED_MODULE_INFO, '--useJdeps=no')
                 .build();
         def task = result.task(":$JlinkPlugin.TASK_NAME_SHOW_PROSPECTIVE_MERGED_MODULE_INFO")
         println outputWriter
 
         then:
         task.outcome == TaskOutcome.SUCCESS
-        // TODO
-        // outputWriter.toString() == 'TODO'
+
+        when:
+        def taskOutput = outputWriter.toString()
+        def directives = getDirectives(taskOutput)
+
+        then:
+        directives.size() == 14
+        directives as Set == [
+                "requires 'java.sql';",
+                "requires 'java.naming';",
+                "requires 'java.desktop';",
+                "requires 'java.rmi';",
+                "requires 'java.logging';",
+                "requires 'java.compiler';",
+                "requires 'java.scripting';",
+                "requires 'java.xml';",
+                "requires 'java.management';",
+                "uses 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory';",
+                "uses 'org.apache.logging.log4j.spi.Provider';",
+                "provides 'javax.annotation.processing.Processor' with 'org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor';",
+                "provides 'org.apache.logging.log4j.spi.Provider' with 'org.apache.logging.log4j.core.impl.Log4jProvider';",
+                "provides 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory' with 'org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory';",
+        ] as Set
     }
 
+    List<String> getDirectives(String taskOutput) {
+        def blockStart = 'mergedModule {'
+        int startPos = taskOutput.indexOf(blockStart)
+        assert startPos >= 0
+        startPos += blockStart.length()
+        int endPos = taskOutput.indexOf('}', startPos)
+        assert endPos >= 0
+        def content = taskOutput.substring(startPos, endPos)
+        content.lines().map{it.trim()}.filter{!it.empty}.collect(Collectors.toList())
+    }
 }
