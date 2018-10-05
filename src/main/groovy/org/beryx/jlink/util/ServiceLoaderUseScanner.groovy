@@ -37,10 +37,12 @@
 
 package org.beryx.jlink.util
 
+import groovy.transform.CompileStatic
 import org.gradle.api.Project
 import org.objectweb.asm.*
 import static org.beryx.jlink.data.ModuleInfo.UsesBuilder
 
+@CompileStatic
 class ServiceLoaderUseScanner {
     final Project project
     final Set<UsesBuilder> builders = new HashSet<>()
@@ -52,7 +54,7 @@ class ServiceLoaderUseScanner {
 
     List<String> scan(File file) {
         def invalidEntries = []
-        Util.scan(file) { basePath, path, inputStream ->
+        Util.scan(file, { String basePath, String path, InputStream inputStream ->
             if(Util.isValidClassFileReference(path)) {
                 if(project) project.logger.trace("scanning ServiceLoader use in: $path")
                 try {
@@ -64,7 +66,7 @@ class ServiceLoaderUseScanner {
                     invalidEntries << "${basePath}/${path}"
                 }
             }
-        }
+        } as Closure)
         invalidEntries
     }
 

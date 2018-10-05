@@ -15,13 +15,16 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 
+@CompileStatic
 @ToString(includeNames = true)
 class JlinkPluginExtension {
     final Property<String> jlinkBasePath
@@ -34,19 +37,21 @@ class JlinkPluginExtension {
     final Property<String> mainClass
     final Property<List<String>> forceMergedJarPrefixes
     final Property<List<String>> options
-    final Property<String> javaHome
     final Property<ModuleInfo> mergedModuleInfo
     final Property<JdepsUsage> useJdeps
+    final Property<String> javaHome
+    final Property<Integer> jvmVersion
+
 
     JlinkPluginExtension(Project project) {
         project.provider{}
         jlinkBasePath = project.objects.property(String)
         jlinkBasePath.set(project.provider{"$project.buildDir/jlinkbase" as String})
 
-        imageDir = project.layout.directoryProperty()
+        imageDir = project.objects.directoryProperty()
         imageDir.set(project.layout.buildDirectory.dir('image'))
 
-        imageZip = project.layout.fileProperty()
+        imageZip = project.objects.fileProperty()
         imageZip.set(project.layout.buildDirectory.file('image.zip'))
 
         moduleName = project.objects.property(String)
@@ -61,20 +66,22 @@ class JlinkPluginExtension {
         mainClass = project.objects.property(String)
         mainClass.set('')
 
-        forceMergedJarPrefixes = project.objects.property(List)
+        forceMergedJarPrefixes = (Property)project.objects.property(List)
         forceMergedJarPrefixes.set(new ArrayList<String>())
 
-        options = project.objects.property(List)
+        options = (Property)project.objects.property(List)
         options.set(new ArrayList<String>())
-
-        javaHome = project.objects.property(String)
-        javaHome.set(System.getenv('JAVA_HOME'))
 
         mergedModuleInfo = project.objects.property(ModuleInfo)
         mergedModuleInfo.set(new ModuleInfo())
 
         useJdeps = project.objects.property(JdepsUsage)
         useJdeps.set(JdepsUsage.no)
+
+        javaHome = project.objects.property(String)
+        javaHome.set(System.getenv('JAVA_HOME'))
+
+        jvmVersion = project.objects.property(Integer)
     }
 
     void forceMerge(String... jarPrefixes) {

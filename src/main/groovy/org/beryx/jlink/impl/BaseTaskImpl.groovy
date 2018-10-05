@@ -15,9 +15,11 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.BaseTaskData
 import org.gradle.api.Project
 
+@CompileStatic
 class BaseTaskImpl<DATA extends BaseTaskData> {
     static String SEP = File.pathSeparatorChar
 

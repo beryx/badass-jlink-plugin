@@ -18,7 +18,7 @@ package org.beryx.jlink.util
 import jdk.internal.org.objectweb.asm.Type
 
 class PackageCollection {
-    final packages = new TreeSet<String>()
+    final TreeSet<String> packages = []
 
     void addPackage(String pkg) {
         packages << adjust(pkg)
@@ -29,7 +29,7 @@ class PackageCollection {
     }
 
     void addTypes(Type... types) {
-        types.each { type ->
+        types.each { Type type ->
             switch(type.sort) {
                 case Type.ARRAY: addTypes(type.elementType); break
                 case Type.OBJECT: addClass(type.className); break;

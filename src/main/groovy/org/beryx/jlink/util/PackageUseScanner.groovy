@@ -15,6 +15,7 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.CompileStatic
 import jdk.internal.org.objectweb.asm.Opcodes
 import org.gradle.api.Project
 import org.objectweb.asm.ClassReader
@@ -22,6 +23,7 @@ import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.MethodVisitor
 
+@CompileStatic
 class PackageUseScanner extends ClassVisitor {
     final Project project
     final PackageCollection usedPackages = new PackageCollection()
@@ -40,7 +42,7 @@ class PackageUseScanner extends ClassVisitor {
     void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         ownPackages.addClass(name)
         if(superName) usedPackages.addClass(superName)
-        interfaces.each {usedPackages.addClass(it)}
+        interfaces.each {usedPackages.addClass(it as String)}
         super.visit(version, access, name, signature, superName, interfaces)
     }
 
@@ -52,14 +54,14 @@ class PackageUseScanner extends ClassVisitor {
 
     @Override
     MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-        exceptions.each {usedPackages.addClass(it)}
+        exceptions?.each {usedPackages.addClass(it as String)}
         usedPackages.addDescriptor(descriptor)
         return super.visitMethod(access, name, descriptor, signature, exceptions)
     }
 
     List<String> scan(File file) {
         def invalidEntries = []
-        Util.scan(file) { basePath, path, inputStream ->
+        Util.scan(file, { String basePath, String path, InputStream inputStream ->
             if(Util.isValidClassFileReference(path)) {
                 if(project) project.logger.trace("processing: $path")
                 try {
@@ -70,7 +72,7 @@ class PackageUseScanner extends ClassVisitor {
                     invalidEntries << "${basePath}/${path}"
                 }
             }
-        }
+        } as Closure)
         invalidEntries
     }
 }

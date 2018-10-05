@@ -15,19 +15,21 @@
  */
 package org.beryx.jlink
 
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
+@CompileStatic
 class JlinkPlugin implements Plugin<Project> {
-    final static EXTENSION_NAME = 'jlink'
-    final static TASK_NAME_PREPARE_MERGED_JARS_DIR = 'prepareMergedJarsDir'
-    final static TASK_NAME_CREATE_MERGED_MODULE = 'createMergedModule'
-    final static TASK_NAME_CREATE_DELEGATING_MODULES = 'createDelegatingModules'
-    final static TASK_NAME_PREPARE_MODULES_DIR = 'prepareModulesDir'
-    final static TASK_NAME_JLINK = 'jlink'
-    final static TASK_NAME_JLINK_ZIP = 'jlinkZip'
-    final static TASK_NAME_SHOW_PROSPECTIVE_MERGED_MODULE_INFO = 'showProspectiveMergedModuleInfo'
+    final static String EXTENSION_NAME = 'jlink'
+    final static String TASK_NAME_PREPARE_MERGED_JARS_DIR = 'prepareMergedJarsDir'
+    final static String TASK_NAME_CREATE_MERGED_MODULE = 'createMergedModule'
+    final static String TASK_NAME_CREATE_DELEGATING_MODULES = 'createDelegatingModules'
+    final static String TASK_NAME_PREPARE_MODULES_DIR = 'prepareModulesDir'
+    final static String TASK_NAME_JLINK = 'jlink'
+    final static String TASK_NAME_JLINK_ZIP = 'jlinkZip'
+    final static String TASK_NAME_SHOW_PROSPECTIVE_MERGED_MODULE_INFO = 'showProspectiveMergedModuleInfo'
 
     @Override
     void apply(Project project) {

@@ -15,6 +15,7 @@
  */
 package org.beryx.jlink
 
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.impl.JlinkZipTaskImpl
 import org.beryx.jlink.data.JlinkZipTaskData
@@ -24,6 +25,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
+@CompileStatic
 class JlinkZipTask extends BaseTask {
     @OutputDirectory
     DirectoryProperty imageDir

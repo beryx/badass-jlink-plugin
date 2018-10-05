@@ -15,6 +15,7 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileStatic
 import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.gradle.api.Project

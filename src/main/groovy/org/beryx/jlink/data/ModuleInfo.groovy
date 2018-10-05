@@ -15,9 +15,11 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
+@CompileStatic
 @ToString(includeNames = true)
 class ModuleInfo implements Serializable {
     boolean enabled
@@ -121,7 +123,7 @@ class ModuleInfo implements Serializable {
         }
 
         ProvidesBuilder with(String... implementations) {
-            this.implementations.addAll(implementations.each {it.replace('$', '.')} as List)
+            this.implementations.addAll(implementations.each {String s -> s.replace('$', '.')} as List)
             this
         }
 

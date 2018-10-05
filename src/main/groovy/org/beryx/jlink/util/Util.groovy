@@ -23,7 +23,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 import java.lang.module.ModuleFinder
-import java.nio.file.Paths
 import java.util.jar.JarFile
 import java.util.zip.ZipFile
 
@@ -150,6 +149,15 @@ class Util {
                         @ClosureParams(value= SimpleType, options="java.lang.String,java.lang.String,java.io.InputStream") Closure<Void> action) {
         def zipFile = new ZipFile(jarFile)
         zipFile.entries().each { entry -> action.call('', entry.name, zipFile.getInputStream(entry)) }
+    }
+
+    static File getVersionedDir(File baseDir, int javaVersion) {
+        def versionsDir = new File("$baseDir.absolutePath/META-INF/versions")
+        if(!versionsDir.directory) return null
+        def version = versionsDir.listFiles({ it.directory && it.name.number }as FileFilter)
+                .collect {it.name as int}.findAll{it <= javaVersion}.max()
+        if(!version) return null
+        new File(versionsDir, "$version")
     }
 
 }

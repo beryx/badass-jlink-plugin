@@ -15,12 +15,13 @@
  */
 package org.beryx.jlink
 
-
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 
+@CompileStatic
 class BaseTask extends DefaultTask {
     @Input
     Property<String> jlinkBasePath

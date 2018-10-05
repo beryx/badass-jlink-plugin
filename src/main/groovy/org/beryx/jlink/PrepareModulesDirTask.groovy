@@ -15,6 +15,7 @@
  */
 package org.beryx.jlink
 
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.impl.PrepareModulesDirTaskImpl
 import org.beryx.jlink.data.PrepareModulesDirTaskData
@@ -26,6 +27,7 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
+@CompileStatic
 class PrepareModulesDirTask extends BaseTask {
     @Input
     Property<List<String>> forceMergedJarPrefixes
@@ -46,10 +48,10 @@ class PrepareModulesDirTask extends BaseTask {
         super.init(extension)
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
 
-        delegatingModulesDir = project.layout.directoryProperty()
+        delegatingModulesDir = project.objects.directoryProperty()
         delegatingModulesDir.set(new File(PathUtil.getDelegatingModulesDirPath(jlinkBasePath.get())))
 
-        jlinkJarsDir = project.layout.directoryProperty()
+        jlinkJarsDir = project.objects.directoryProperty()
         jlinkJarsDir.set(new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get())))
     }
 

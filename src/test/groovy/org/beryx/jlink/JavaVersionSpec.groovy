@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.beryx.jlink.data
+package org.beryx.jlink
 
-import groovy.transform.CompileStatic
-import groovy.transform.ToString
+import org.beryx.jlink.util.JavaVersion
+import spock.lang.Ignore
+import spock.lang.Specification
 
-@CompileStatic
-@ToString(includeNames = true)
-class PrepareModulesDirTaskData extends BaseTaskData {
-    List<String> forceMergedJarPrefixes
+class JavaVersionSpec extends Specification {
+    @Ignore
+    def "should retrieve the correct javaVersion"() {
+        when:
+        int version = JavaVersion.get(null, System.getenv('JAVA_HOME'))
 
-    File delegatingModulesDir
-    File jlinkJarsDir
+        then:
+        version == 11
+    }
 }

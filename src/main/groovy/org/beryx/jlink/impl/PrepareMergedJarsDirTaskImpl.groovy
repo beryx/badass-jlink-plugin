@@ -30,7 +30,7 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         td.mergedJarsDir.mkdirs()
         def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes)
         copyRuntimeJars(depMgr)
-        mergeUnpackedContents(new File(td.nonModularJarsDirPath).listFiles() as List, td.mergedJarsDir)
+        mergeUnpackedContents(new File(td.nonModularJarsDirPath).listFiles() as List)
     }
 
     def copyRuntimeJars(DependencyManager depMgr) {
@@ -54,15 +54,29 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         }
     }
 
-    def mergeUnpackedContents(Collection<File> jars, File tmpDir) {
+    def mergeUnpackedContents(Collection<File> jars) {
         if(jars.empty) return
-        project.logger.info("Merging content into ${tmpDir}...")
-        project.copy {
-            jars.each { from project.zipTree(it) }
-            into tmpDir
-            exclude 'module-info.class'
+        project.logger.info("Merging content into ${td.mergedJarsDir}...")
+
+        jars.each { jar ->
+            project.delete(td.tmpJarsDirPath)
+            project.copy {
+                from project.zipTree(jar)
+                into td.tmpJarsDirPath
+                exclude 'module-info.class'
+            }
+            def versionedDir = Util.getVersionedDir(new File(td.tmpJarsDirPath), td.jvmVersion)
+            if(versionedDir?.directory) {
+                project.copy {
+                    from versionedDir
+                    into td.tmpJarsDirPath
+                }
+            }
+
+            project.delete("$td.tmpJarsDirPath/META-INF/versions")
+
+            project.ant.move file: td.tmpJarsDirPath, tofile: td.mergedJarsDir
         }
-        boolean multiRelease = new File("$td.mergedJarsDir/META-INF/versions").directory
-        Util.createManifest(tmpDir, multiRelease)
+        Util.createManifest(td.mergedJarsDir, false)
     }
 }

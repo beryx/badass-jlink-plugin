@@ -15,20 +15,29 @@
  */
 package org.beryx.jlink
 
-
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.impl.PrepareMergedJarsDirTaskImpl
+import org.beryx.jlink.util.JavaVersion
 import org.beryx.jlink.util.PathUtil
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
+@CompileStatic
 class PrepareMergedJarsDirTask extends BaseTask {
     @Input
     Property<List<String>> forceMergedJarPrefixes
+
+    @Input
+    Property<String> javaHome
+
+    @Optional @Input
+    Property<Integer> jvmVersion
 
     @OutputDirectory
     DirectoryProperty mergedJarsDir
@@ -42,8 +51,10 @@ class PrepareMergedJarsDirTask extends BaseTask {
     void init(JlinkPluginExtension extension) {
         super.init(extension)
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
+        javaHome = extension.javaHome
+        jvmVersion = extension.jvmVersion
 
-        mergedJarsDir = project.layout.directoryProperty()
+        mergedJarsDir = project.objects.directoryProperty()
         mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
     }
 
@@ -53,9 +64,16 @@ class PrepareMergedJarsDirTask extends BaseTask {
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
         taskData.mergedJarsDir = mergedJarsDir.get().asFile
+        taskData.javaHome = javaHome.get()
+        if(jvmVersion.present && jvmVersion.get()) {
+            taskData.jvmVersion = jvmVersion.get()
+        } else {
+            taskData.jvmVersion = JavaVersion.get(project, taskData.javaHome)
+        }
 
         taskData.nonModularJarsDirPath = PathUtil.getNonModularJarsDirPath(taskData.jlinkBasePath)
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
+        taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
 
         def taskImpl = new PrepareMergedJarsDirTaskImpl(project, taskData)
         taskImpl.execute()

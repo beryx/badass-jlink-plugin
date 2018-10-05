@@ -15,9 +15,11 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.CompileStatic
 import org.gradle.api.Project
 import static org.beryx.jlink.data.ModuleInfo.ProvidesBuilder
 
+@CompileStatic
 class ServiceProviderScanner {
     final Project project
     final Set<ProvidesBuilder> builders = new HashSet<>()
@@ -28,7 +30,7 @@ class ServiceProviderScanner {
 
     List<String> scan(File file) {
         def invalidEntries = []
-        Util.scan(file) { String basePath, String path, InputStream inputStream ->
+        Util.scan(file, { String basePath, String path, InputStream inputStream ->
             if(path.startsWith('META-INF/services/')) {
                 try {
                     def service = path - 'META-INF/services/'
@@ -51,7 +53,7 @@ class ServiceProviderScanner {
                     invalidEntries << "${basePath}/${path}"
                 }
             }
-        }
+        } as Closure)
         invalidEntries
     }
 }

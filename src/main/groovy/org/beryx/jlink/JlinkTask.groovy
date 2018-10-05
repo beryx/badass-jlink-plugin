@@ -15,6 +15,7 @@
  */
 package org.beryx.jlink
 
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.data.JlinkTaskData
 import org.beryx.jlink.impl.JlinkTaskImpl
@@ -27,6 +28,7 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
+@CompileStatic
 class JlinkTask extends BaseTask {
     @Input
     Property<String> moduleName
@@ -64,7 +66,7 @@ class JlinkTask extends BaseTask {
         javaHome = extension.javaHome
         imageDir = extension.imageDir
 
-        jlinkJarsDir = project.layout.directoryProperty()
+        jlinkJarsDir = project.objects.directoryProperty()
         jlinkJarsDir.set(new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get())))
     }
 
@@ -75,7 +77,7 @@ class JlinkTask extends BaseTask {
         taskData.imageDir = imageDir.get().asFile
         taskData.moduleName = moduleName.get()
         taskData.launcherName = launcherName.get()
-        taskData.mainClass = mainClass.get() ?: project.mainClassName
+        taskData.mainClass = mainClass.get() ?: project['mainClassName']
         taskData.options = options.get()
         taskData.javaHome = javaHome.get()
         taskData.jlinkJarsDir = jlinkJarsDir.get().asFile

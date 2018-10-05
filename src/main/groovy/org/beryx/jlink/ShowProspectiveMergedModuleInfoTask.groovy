@@ -45,7 +45,7 @@ class ShowProspectiveMergedModuleInfoTask extends BaseTask {
 
     ShowProspectiveMergedModuleInfoTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MERGED_JARS_DIR)
-        description = 'Unpacks all non-modularized jars into a single directory'
+        description = 'Displays the prospective module declaration of the merged module'
         outputs.upToDateWhen { false }
     }
 
@@ -56,7 +56,7 @@ class ShowProspectiveMergedModuleInfoTask extends BaseTask {
         javaHome = extension.javaHome
         useJdeps = extension.useJdeps
 
-        mergedJarsDir = project.layout.directoryProperty()
+        mergedJarsDir = project.objects.directoryProperty()
         mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
     }
 
