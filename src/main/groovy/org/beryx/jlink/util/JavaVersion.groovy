@@ -19,6 +19,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 import java.nio.file.Files
+import java.util.concurrent.TimeUnit
 
 class JavaVersion {
     static final String sourceCode = '''
@@ -65,7 +66,9 @@ public class JavaVersion {
         def javacProc = javacCmd.execute([], path.toFile())
         def javacErrOutput = new StringBuilder()
         javacProc.consumeProcessErrorStream(javacErrOutput)
-
+        if(!javacProc.waitFor(30, TimeUnit.SECONDS)) {
+            throw new GradleException("javac JavaVersion.java hasn't exited after 30 seconds.")
+        }
         String javacOutput = javacProc.text
         infoLog(javacOutput)
         if(javacProc.exitValue()) {
@@ -78,6 +81,9 @@ public class JavaVersion {
         def javaProc = javaCmd.execute([], path.toFile())
         def javaErrOutput = new StringBuilder()
         javaProc.consumeProcessErrorStream(javaErrOutput)
+        if(!javaProc.waitFor(30, TimeUnit.SECONDS)) {
+            throw new GradleException("java JavaVersion hasn't exited after 30 seconds.")
+        }
 
         String javaOutput = javaProc.text
         infoLog(javaOutput)
