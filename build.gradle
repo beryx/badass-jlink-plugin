@@ -7,7 +7,7 @@ plugins {
     id 'com.github.jk1.dependency-license-report' version '0.3.8'
     id "com.github.hierynomus.license" version "0.14.0"
     id "org.asciidoctor.convert" version "1.5.8.1"
-    id "org.ajoberstar.git-publish" version "1.0.1"
+    id "org.ajoberstar.git-publish" version "2.0.0-rc.2"
 }
 
 project.version.with {
