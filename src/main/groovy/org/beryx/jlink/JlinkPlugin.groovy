@@ -17,8 +17,10 @@ package org.beryx.jlink
 
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.util.GradleVersion
 
 @CompileStatic
 class JlinkPlugin implements Plugin<Project> {
@@ -33,6 +35,10 @@ class JlinkPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
+        if(GradleVersion.current() < GradleVersion.version('5.0-milestone-1')) {
+            throw new GradleException("This version of the plugin requires Gradle 5 or newer.\n" +
+                "Upgrade to Gradle 5 or use https://badass-jlink-plugin.beryx.org/releases/1.4.4.")
+        }
         project.getPluginManager().apply('application');
         def extension = project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)
         project.getTasks().create(TASK_NAME_PREPARE_MERGED_JARS_DIR, PrepareMergedJarsDirTask, { it.init(extension) })
