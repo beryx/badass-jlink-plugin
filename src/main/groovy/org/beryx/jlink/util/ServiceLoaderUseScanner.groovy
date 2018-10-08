@@ -47,6 +47,9 @@ class ServiceLoaderUseScanner {
     final Project project
     final Set<UsesBuilder> builders = new HashSet<>()
 
+    private String lastClassName
+    private String lastMethodName
+    private Set<String> unresolvedInvocations = []
 
     ServiceLoaderUseScanner(Project project) {
         this.project = project
@@ -78,7 +81,14 @@ class ServiceLoaderUseScanner {
         }
 
         @Override
+        void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+            lastClassName = name
+            super.visit(version, access, name, signature, superName, interfaces)
+        }
+
+        @Override
         MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
+            lastMethodName = name
             new ServiceLoaderMethodVisitor(usedServices)
         }
     }
@@ -96,7 +106,11 @@ class ServiceLoaderUseScanner {
         void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
             if ((owner == 'java/util/ServiceLoader') && (name == 'load')) {
                 if (!lastType) {
-                    if(project) project.logger.warn( "Cannot derive uses clause from service loader invocation with non constant class literal" )
+                    String invocation = "$lastClassName.$lastMethodName"
+                    if(project && !(invocation in unresolvedInvocations)) {
+                        unresolvedInvocations.add(invocation)
+                        project.logger.warn( "Cannot derive uses clause from service loader invocation in: $invocation().")
+                    }
                 } else {
                     usedServices << lastType.className
                 }
