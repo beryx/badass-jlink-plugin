@@ -17,7 +17,7 @@ package org.beryx.jlink.impl
 
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.util.JdepsExecutor
-import org.beryx.jlink.util.ProspectiveMergedModuleInfoBuilder
+import org.beryx.jlink.util.SuggestedMergedModuleInfoBuilder
 import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateMergedModuleTaskData
 import org.gradle.api.GradleException
@@ -90,7 +90,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         if(td.mergedModuleInfo.enabled) {
             modInfoJava << td.mergedModuleInfo.toString(4)
         } else {
-            def builder = new ProspectiveMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes)
+            def builder = new SuggestedMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes)
             modInfoJava << builder.moduleInfo.toString(4)
         }
         modInfoJava << '\n}\n'

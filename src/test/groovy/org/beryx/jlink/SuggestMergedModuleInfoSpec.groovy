@@ -24,7 +24,7 @@ import spock.lang.Specification
 
 import java.util.stream.Collectors
 
-class ShowProspectiveMergedModuleInfoSpec extends Specification {
+class SuggestMergedModuleInfoSpec extends Specification {
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
 
     def cleanup() {
@@ -45,9 +45,9 @@ class ShowProspectiveMergedModuleInfoSpec extends Specification {
                 .forwardStdOutput(outputWriter)
                 .withProjectDir(buildFile.parentFile)
                 .withPluginClasspath()
-                .withArguments("-is", JlinkPlugin.TASK_NAME_SHOW_PROSPECTIVE_MERGED_MODULE_INFO, '--useJdeps=no')
+                .withArguments("-is", JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO, '--useJdeps=no')
                 .build();
-        def task = result.task(":$JlinkPlugin.TASK_NAME_SHOW_PROSPECTIVE_MERGED_MODULE_INFO")
+        def task = result.task(":$JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO")
         println outputWriter
 
         then:

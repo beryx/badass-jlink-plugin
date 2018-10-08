@@ -16,24 +16,24 @@
 package org.beryx.jlink.impl
 
 import org.beryx.jlink.data.JdepsUsage
-import org.beryx.jlink.data.ShowProspectiveMergedModuleInfoTaskData
+import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
 import org.beryx.jlink.util.JdepsExecutor
-import org.beryx.jlink.util.ProspectiveMergedModuleInfoBuilder
+import org.beryx.jlink.util.SuggestedMergedModuleInfoBuilder
 import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
-class ShowProspectiveMergedModuleInfoTaskImpl extends BaseTaskImpl<ShowProspectiveMergedModuleInfoTaskData> {
-    ShowProspectiveMergedModuleInfoTaskImpl(Project project, ShowProspectiveMergedModuleInfoTaskData taskData) {
+class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleInfoTaskData> {
+    SuggestMergedModuleInfoTaskImpl(Project project, SuggestMergedModuleInfoTaskData taskData) {
         super(project, taskData)
         project.logger.info("taskData: $taskData")
     }
 
     void execute() {
-        project.logger.info("Executing showProspectiveMergedModuleInfo with useJdeps = $td.useJdeps")
+        project.logger.info("Executing suggestMergedModuleInfo with useJdeps = $td.useJdeps")
         if(td.useJdeps != JdepsUsage.no) {
             try {
-                def jarFilePath = "$td.jlinkBasePath/prospectiveMergedModule.jar"
+                def jarFilePath = "$td.jlinkBasePath/suggestedMergedModule.jar"
                 new File(jarFilePath).delete()
                 Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDir)
                 def result = new JdepsExecutor(project).genModuleInfo(project.file(jarFilePath),
@@ -60,7 +60,7 @@ class ShowProspectiveMergedModuleInfoTaskImpl extends BaseTaskImpl<ShowProspecti
             }
             if(td.useJdeps == JdepsUsage.exclusively) return
         }
-        def builder = new ProspectiveMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes)
+        def builder = new SuggestedMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes)
         println "mergedModule {\n" + builder.moduleInfo.toString(4, true) + "\n}"
     }
 }

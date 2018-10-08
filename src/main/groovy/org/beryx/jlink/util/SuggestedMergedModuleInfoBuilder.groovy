@@ -22,7 +22,7 @@ import org.gradle.api.Project
 import static org.beryx.jlink.data.ModuleInfo.*
 
 @TupleConstructor
-class ProspectiveMergedModuleInfoBuilder {
+class SuggestedMergedModuleInfoBuilder {
     final Project project;
     final File mergedJarsDir;
     String javaHome

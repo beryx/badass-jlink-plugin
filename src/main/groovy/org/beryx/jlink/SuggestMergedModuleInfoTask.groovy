@@ -18,8 +18,8 @@ package org.beryx.jlink
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.JlinkPluginExtension
-import org.beryx.jlink.data.ShowProspectiveMergedModuleInfoTaskData
-import org.beryx.jlink.impl.ShowProspectiveMergedModuleInfoTaskImpl
+import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
+import org.beryx.jlink.impl.SuggestMergedModuleInfoTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
@@ -30,7 +30,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 
 @CompileStatic
-class ShowProspectiveMergedModuleInfoTask extends BaseTask {
+class SuggestMergedModuleInfoTask extends BaseTask {
     @Input
     Property<List<String>> forceMergedJarPrefixes
 
@@ -43,9 +43,9 @@ class ShowProspectiveMergedModuleInfoTask extends BaseTask {
     @Input
     Property<JdepsUsage> useJdeps
 
-    ShowProspectiveMergedModuleInfoTask() {
+    SuggestMergedModuleInfoTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MERGED_JARS_DIR)
-        description = 'Displays the prospective module declaration of the merged module'
+        description = 'Suggests a module declaration for the merged module'
         outputs.upToDateWhen { false }
     }
 
@@ -61,8 +61,8 @@ class ShowProspectiveMergedModuleInfoTask extends BaseTask {
     }
 
     @TaskAction
-    void showProspectiveMergedModuleInfoAction() {
-        def taskData = new ShowProspectiveMergedModuleInfoTaskData()
+    void suggestMergedModuleInfoAction() {
+        def taskData = new SuggestMergedModuleInfoTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
         taskData.javaHome = javaHome.get()
@@ -71,11 +71,11 @@ class ShowProspectiveMergedModuleInfoTask extends BaseTask {
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
 
-        def taskImpl = new ShowProspectiveMergedModuleInfoTaskImpl(project, taskData)
+        def taskImpl = new SuggestMergedModuleInfoTaskImpl(project, taskData)
         taskImpl.execute()
     }
 
-    @Option(option = 'useJdeps', description = "Specifies whether jdeps should be used to generate the prospective module info. Accepted values: 'yes', 'no', 'exclusively'.")
+    @Option(option = 'useJdeps', description = "Specifies whether jdeps should be used to generate the suggested module info. Accepted values: 'yes', 'no', 'exclusively'.")
     void setUseJdeps(String useJdeps) {
         try {
             this.useJdeps.set(JdepsUsage.valueOf(useJdeps))

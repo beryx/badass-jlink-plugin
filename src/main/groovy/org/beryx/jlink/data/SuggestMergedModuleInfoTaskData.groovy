@@ -20,7 +20,7 @@ import groovy.transform.ToString
 
 @CompileStatic
 @ToString(includeNames = true)
-class ShowProspectiveMergedModuleInfoTaskData extends BaseTaskData {
+class SuggestMergedModuleInfoTaskData extends BaseTaskData {
     List<String> forceMergedJarPrefixes
     File mergedJarsDir
     String javaHome
