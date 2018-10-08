@@ -20,12 +20,10 @@ import groovy.transform.ToString
 
 @CompileStatic
 @ToString(includeNames = true)
-class JlinkTaskData extends BaseTaskData {
-    File imageDir
-    String moduleName
-    LauncherData launcherData
-    String mainClass
-    List<String> options
-    String javaHome
-    File jlinkJarsDir
+class LauncherData implements Serializable {
+    String name
+    List<String> jvmArgs = []
+    List<String> args = []
+    File unixScriptTemplate
+    File windowsScriptTemplate
 }

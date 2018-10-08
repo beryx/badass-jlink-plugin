@@ -42,7 +42,7 @@ class JlinkPluginSpec extends Specification {
                 options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']                
         '''.stripIndent()
         if(moduleName) buildFile << "    moduleName = '$moduleName'\n"
-        if(launcherName) buildFile << "    launcherName = '$launcherName'\n"
+        if(launcherName) buildFile << "    launcher {name = '$launcherName'}\n"
         if(mainClass) buildFile << "    mainClass = '$mainClass'\n"
         if(mergedModuleName) buildFile << "    mergedModuleName = '$mergedModuleName'\n"
         buildFile <<

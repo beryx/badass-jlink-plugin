@@ -17,7 +17,6 @@ package org.beryx.jlink.util
 
 import groovy.transform.TupleConstructor
 import org.beryx.jlink.data.ModuleInfo
-import org.beryx.jlink.impl.DependencyManager
 import org.gradle.api.Project
 
 import static org.beryx.jlink.data.ModuleInfo.*

@@ -16,6 +16,7 @@
 package org.beryx.jlink.impl
 
 import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
+import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 

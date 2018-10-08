@@ -16,6 +16,7 @@
 package org.beryx.jlink.impl
 
 import org.beryx.jlink.data.PrepareModulesDirTaskData
+import org.beryx.jlink.util.DependencyManager
 import org.gradle.api.Project
 
 class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> {

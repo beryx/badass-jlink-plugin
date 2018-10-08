@@ -18,6 +18,7 @@ package org.beryx.jlink
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.data.JlinkTaskData
+import org.beryx.jlink.data.LauncherData
 import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
@@ -34,7 +35,7 @@ class JlinkTask extends BaseTask {
     Property<String> moduleName
 
     @Input
-    Property<String> launcherName
+    Property<LauncherData> launcherData
 
     @Input
     Property<String> mainClass
@@ -59,7 +60,7 @@ class JlinkTask extends BaseTask {
     @Override
     void init(JlinkPluginExtension extension) {
         super.init(extension)
-        launcherName = extension.launcherName
+        launcherData = extension.launcherData
         mainClass = extension.mainClass
         moduleName = extension.moduleName
         options = extension.options
@@ -76,7 +77,7 @@ class JlinkTask extends BaseTask {
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.imageDir = imageDir.get().asFile
         taskData.moduleName = moduleName.get()
-        taskData.launcherName = launcherName.get()
+        taskData.launcherData = launcherData.get()
         taskData.mainClass = mainClass.get() ?: project['mainClassName']
         taskData.options = options.get()
         taskData.javaHome = javaHome.get()

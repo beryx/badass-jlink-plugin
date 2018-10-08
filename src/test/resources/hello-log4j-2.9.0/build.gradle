@@ -32,7 +32,9 @@ compileJava {
 }
 
 jlink {
-    launcherName = 'hello'
+    launcher {
+        name = 'hello'
+    }
     mergedModule {
         requires 'java.naming';
         requires 'java.xml';

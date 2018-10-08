@@ -21,7 +21,6 @@ import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 
 @CompileStatic
@@ -33,7 +32,7 @@ class JlinkPluginExtension {
     final Property<String> moduleName
     final Property<String> mergedModuleName
 
-    final Property<String> launcherName
+    final Property<LauncherData> launcherData
     final Property<String> mainClass
     final Property<List<String>> forceMergedJarPrefixes
     final Property<List<String>> options
@@ -60,8 +59,10 @@ class JlinkPluginExtension {
         mergedModuleName = project.objects.property(String)
         mergedModuleName.set(project.provider{Util.getDefaultMergedModuleName(project)})
 
-        launcherName = project.objects.property(String)
-        launcherName.set(project.name)
+        launcherData = project.objects.property(LauncherData)
+        def ld = new LauncherData()
+        ld.name = project.name
+        launcherData.set(ld)
 
         mainClass = project.objects.property(String)
         mainClass.set('')
@@ -96,6 +97,12 @@ class JlinkPluginExtension {
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = mergedModuleInfo.get()
         mergedModuleInfo.get().enabled = true
+        closure()
+    }
+
+    void launcher(Closure closure) {
+        closure.resolveStrategy = Closure.DELEGATE_FIRST
+        closure.delegate = launcherData.get()
         closure()
     }
 }

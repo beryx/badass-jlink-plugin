@@ -16,6 +16,7 @@
 package org.beryx.jlink.impl
 
 import org.beryx.jlink.data.JlinkTaskData
+import org.beryx.jlink.util.LaunchScriptGenerator
 import org.gradle.api.Project
 
 class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
@@ -25,6 +26,11 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     }
 
     void execute() {
+        runJlink()
+        createLaunchScripts()
+    }
+
+    void runJlink() {
         project.delete(td.imageDir)
         def result = project.exec {
             ignoreExitValue = true
@@ -38,8 +44,8 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
                            '--module-path',
                            "$td.javaHome/jmods/$SEP${project.files(td.jlinkJarsDir).asPath}$SEP${project.jar.archivePath}",
                            '--add-modules', td.moduleName,
-                           '--output', td.imageDir,
-                           '--launcher', "$td.launcherName=$td.moduleName/$td.mainClass"]
+                           '--output', td.imageDir]
+//        '--launcher', "$td.launcherData.name=$td.moduleName/$td.mainClass"]
         }
         if(result.exitValue != 0) {
             project.logger.error(project.ext.jlinkOutput())
@@ -48,5 +54,10 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         }
         result.assertNormalExitValue()
         result.rethrowFailure()
+    }
+
+    void createLaunchScripts() {
+        def generator = new LaunchScriptGenerator(td.moduleName, td.mainClass, td.launcherData)
+        generator.generate("$td.imageDir/bin")
     }
 }
