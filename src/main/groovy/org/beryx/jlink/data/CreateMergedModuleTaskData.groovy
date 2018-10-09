@@ -22,6 +22,7 @@ import groovy.transform.ToString
 @ToString(includeNames = true)
 class CreateMergedModuleTaskData extends BaseTaskData {
     List<String> forceMergedJarPrefixes
+    List<String> extraDependenciesPrefixes
     String mergedModuleName
     ModuleInfo mergedModuleInfo
     JdepsUsage useJdeps

@@ -32,6 +32,9 @@ class PrepareModulesDirTask extends BaseTask {
     @Input
     Property<List<String>> forceMergedJarPrefixes
 
+    @Input
+    Property<List<String>> extraDependenciesPrefixes
+
     @InputDirectory
     DirectoryProperty delegatingModulesDir
 
@@ -47,6 +50,7 @@ class PrepareModulesDirTask extends BaseTask {
     void init(JlinkPluginExtension extension) {
         super.init(extension)
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
+        extraDependenciesPrefixes = extension.extraDependenciesPrefixes
 
         delegatingModulesDir = project.objects.directoryProperty()
         delegatingModulesDir.set(new File(PathUtil.getDelegatingModulesDirPath(jlinkBasePath.get())))
@@ -60,6 +64,7 @@ class PrepareModulesDirTask extends BaseTask {
         def taskData = new PrepareModulesDirTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
+        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes.get()
         taskData.delegatingModulesDir = delegatingModulesDir.get().asFile
         taskData.jlinkJarsDir = jlinkJarsDir.get().asFile
 

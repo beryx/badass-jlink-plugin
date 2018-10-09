@@ -22,6 +22,7 @@ import groovy.transform.ToString
 @ToString(includeNames = true)
 class PrepareMergedJarsDirTaskData extends BaseTaskData {
     List<String> forceMergedJarPrefixes
+    List<String> extraDependenciesPrefixes
     File mergedJarsDir
     String jlinkJarsDirPath
     String nonModularJarsDirPath

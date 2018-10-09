@@ -27,16 +27,24 @@ import java.util.zip.ZipFile
 class DependencyManager {
     final Project project
     final List<String> forceMergedJarPrefixes
+    final List<String> extraDependenciesPrefixes
 
+    final Set<ResolvedDependency> extraDeps
     final Set<File> modularJars = []
     final Set<File> nonModularJars = []
     final Set<File> modularJarsRequiredByNonModularJars = []
 
     private final Set<ResolvedDependency> dependenciesHandledAsNonModular = []
 
-    DependencyManager(Project project, List<String> forceMergedJarPrefixes) {
+    DependencyManager(Project project, List<String> forceMergedJarPrefixes, List<String> extraDependenciesPrefixes) {
         this.project = project
         this.forceMergedJarPrefixes = forceMergedJarPrefixes
+        this.extraDependenciesPrefixes = extraDependenciesPrefixes
+        this.extraDeps = collectDeps {ResolvedDependency dep -> extraDependenciesPrefixes.any {
+            dep.moduleArtifacts[0].file.name.startsWith(it)}
+        }
+        project.logger.info("extraDeps: ${extraDeps.collect{ dep -> dep.moduleArtifacts[0].file} as Set}")
+
         while(true) {
             def dep = getModularThatShouldBeHandledAsNonModular()
             if(!dep) break
@@ -51,7 +59,7 @@ class DependencyManager {
         nonModularJars = nonModDeps.collect{ dep -> dep.moduleArtifacts[0].file} as Set
 
         Set<ResolvedDependency> handledDeps = []
-        Set<ResolvedDependency> modsRequiredByNonMods = []
+        Set<ResolvedDependency> modsRequiredByNonMods = extraDeps.findAll{!isHandledAsNonModular(it)}
 
         nonModDeps.each {collectModularJarsRequiredByNonModularJars(it, modsRequiredByNonMods, modDeps, handledDeps)}
         modularJarsRequiredByNonModularJars = modsRequiredByNonMods.collect{ dep -> dep.moduleArtifacts[0].file} as Set
@@ -73,7 +81,7 @@ class DependencyManager {
 
     private ResolvedDependency getModularThatShouldBeHandledAsNonModular() {
         Set<ResolvedDependency> handledDeps = []
-        Set<ResolvedDependency> modsRequiredByNonMods = []
+        Set<ResolvedDependency> modsRequiredByNonMods = extraDeps.findAll {!isHandledAsNonModular(it)}
         Set<ResolvedDependency> nonModDeps = collectDeps{ isHandledAsNonModular(it) }
         Set<ResolvedDependency> modDeps = collectDeps {!isHandledAsNonModular(it)}
         project.logger.debug("nonModDeps: ${nonModDeps*.name}")

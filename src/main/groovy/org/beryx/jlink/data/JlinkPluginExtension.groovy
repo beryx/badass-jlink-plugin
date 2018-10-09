@@ -35,6 +35,7 @@ class JlinkPluginExtension {
     final Property<LauncherData> launcherData
     final Property<String> mainClass
     final Property<List<String>> forceMergedJarPrefixes
+    final Property<List<String>> extraDependenciesPrefixes
     final Property<List<String>> options
     final Property<ModuleInfo> mergedModuleInfo
     final Property<JdepsUsage> useJdeps
@@ -70,6 +71,9 @@ class JlinkPluginExtension {
         forceMergedJarPrefixes = (Property)project.objects.property(List)
         forceMergedJarPrefixes.set(new ArrayList<String>())
 
+        extraDependenciesPrefixes = (Property)project.objects.property(List)
+        extraDependenciesPrefixes.set(new ArrayList<String>())
+
         options = (Property)project.objects.property(List)
         options.set(new ArrayList<String>())
 
@@ -83,6 +87,10 @@ class JlinkPluginExtension {
         javaHome.set(System.getenv('JAVA_HOME'))
 
         jvmVersion = project.objects.property(Integer)
+    }
+
+    void addExtraDependencies(String... jarPrefixes) {
+        extraDependenciesPrefixes.get().addAll(jarPrefixes)
     }
 
     void forceMerge(String... jarPrefixes) {

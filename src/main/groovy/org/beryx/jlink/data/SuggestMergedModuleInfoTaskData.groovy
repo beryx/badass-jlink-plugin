@@ -22,6 +22,7 @@ import groovy.transform.ToString
 @ToString(includeNames = true)
 class SuggestMergedModuleInfoTaskData extends BaseTaskData {
     List<String> forceMergedJarPrefixes
+    List<String> extraDependenciesPrefixes
     File mergedJarsDir
     String javaHome
     ModuleInfo.Language language

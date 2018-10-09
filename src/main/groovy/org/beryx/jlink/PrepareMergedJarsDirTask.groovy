@@ -34,6 +34,9 @@ class PrepareMergedJarsDirTask extends BaseTask {
     Property<List<String>> forceMergedJarPrefixes
 
     @Input
+    Property<List<String>> extraDependenciesPrefixes
+
+    @Input
     Property<String> javaHome
 
     @Optional @Input
@@ -51,6 +54,7 @@ class PrepareMergedJarsDirTask extends BaseTask {
     void init(JlinkPluginExtension extension) {
         super.init(extension)
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
+        extraDependenciesPrefixes = extension.extraDependenciesPrefixes
         javaHome = extension.javaHome
         jvmVersion = extension.jvmVersion
 
@@ -63,6 +67,7 @@ class PrepareMergedJarsDirTask extends BaseTask {
         def taskData = new PrepareMergedJarsDirTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
+        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes.get()
         taskData.mergedJarsDir = mergedJarsDir.get().asFile
         taskData.javaHome = javaHome.get()
         if(jvmVersion.present && jvmVersion.get()) {

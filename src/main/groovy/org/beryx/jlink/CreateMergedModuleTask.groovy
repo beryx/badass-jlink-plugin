@@ -35,6 +35,9 @@ class CreateMergedModuleTask extends BaseTask {
     Property<List<String>> forceMergedJarPrefixes
 
     @Input
+    Property<List<String>> extraDependenciesPrefixes
+
+    @Input
     Property<String> mergedModuleName
 
     @InputDirectory
@@ -63,6 +66,7 @@ class CreateMergedModuleTask extends BaseTask {
     void init(JlinkPluginExtension extension) {
         super.init(extension)
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
+        extraDependenciesPrefixes = extension.extraDependenciesPrefixes
         mergedModuleName = extension.mergedModuleName
         mergedModuleInfo = extension.mergedModuleInfo
         useJdeps = extension.useJdeps
@@ -77,6 +81,7 @@ class CreateMergedModuleTask extends BaseTask {
         def taskData = new CreateMergedModuleTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
+        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes.get()
         taskData.mergedModuleName = mergedModuleName.get()
         taskData.mergedModuleInfo = mergedModuleInfo.get()
         taskData.useJdeps = useJdeps.get()

@@ -35,6 +35,9 @@ class SuggestMergedModuleInfoTask extends BaseTask {
     @Input
     Property<List<String>> forceMergedJarPrefixes
 
+    @Input
+    Property<List<String>> extraDependenciesPrefixes
+
     @InputDirectory
     DirectoryProperty mergedJarsDir
 
@@ -57,6 +60,7 @@ class SuggestMergedModuleInfoTask extends BaseTask {
     void init(JlinkPluginExtension extension) {
         super.init(extension)
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
+        extraDependenciesPrefixes = extension.extraDependenciesPrefixes
         javaHome = extension.javaHome
         useJdeps = extension.useJdeps
         language = project.objects.property(ModuleInfo.Language)
@@ -71,6 +75,7 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         def taskData = new SuggestMergedModuleInfoTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
+        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes.get()
         taskData.javaHome = javaHome.get()
         taskData.useJdeps = useJdeps.get()
         taskData.language = language.get()

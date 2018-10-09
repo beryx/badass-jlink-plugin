@@ -27,6 +27,7 @@ class SuggestedMergedModuleInfoBuilder {
     final File mergedJarsDir;
     String javaHome
     final List<String> forceMergedJarPrefixes
+    final List<String> extraDependenciesPrefixes
 
     ModuleInfo getModuleInfo() {
         def info = new ModuleInfo()
@@ -56,7 +57,7 @@ class SuggestedMergedModuleInfoBuilder {
         }
         project.logger.debug("External packages used by the merged service:\n\t${scanner.externalPackages.join('\n\t')}")
 
-        def depMgr = new DependencyManager(project, forceMergedJarPrefixes)
+        def depMgr = new DependencyManager(project, forceMergedJarPrefixes, extraDependenciesPrefixes)
         def moduleManager = new ModuleManager(*depMgr.modularJars.toArray(), new File("$javaHome/jmods"))
         def builders = new HashSet<RequiresBuilder>()
 

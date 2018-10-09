@@ -61,7 +61,7 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
             }
             if(td.useJdeps == JdepsUsage.exclusively) return
         }
-        def builder = new SuggestedMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes)
+        def builder = new SuggestedMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes)
         println "mergedModule {\n" + builder.moduleInfo.toString(4, td.language) + "\n}"
     }
 }
