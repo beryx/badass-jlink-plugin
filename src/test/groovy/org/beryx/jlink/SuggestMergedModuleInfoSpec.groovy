@@ -21,17 +21,70 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.Unroll
 
 import java.util.stream.Collectors
 
 class SuggestMergedModuleInfoSpec extends Specification {
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
 
+    static Set<String> GROOVY_DIRECTIVES = [
+            "requires 'java.sql';",
+            "requires 'java.naming';",
+            "requires 'java.desktop';",
+            "requires 'java.rmi';",
+            "requires 'java.logging';",
+            "requires 'java.compiler';",
+            "requires 'java.scripting';",
+            "requires 'java.xml';",
+            "requires 'java.management';",
+            "uses 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory';",
+            "uses 'org.apache.logging.log4j.spi.Provider';",
+            "provides 'javax.annotation.processing.Processor' with 'org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor';",
+            "provides 'org.apache.logging.log4j.spi.Provider' with 'org.apache.logging.log4j.core.impl.Log4jProvider';",
+            "provides 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory' with 'org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory';",
+    ]
+
+    static Set<String> KOTLIN_DIRECTIVES = [
+            'requires("java.management");',
+            'requires("java.naming");',
+            'requires("java.logging");',
+            'requires("java.scripting");',
+            'requires("java.sql");',
+            'requires("java.rmi");',
+            'requires("java.xml");',
+            'requires("java.desktop");',
+            'requires("java.compiler");',
+            'uses("org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory");',
+            'uses("org.apache.logging.log4j.spi.Provider");',
+            'provides("javax.annotation.processing.Processor").with("org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor");',
+            'provides("org.apache.logging.log4j.spi.Provider").with("org.apache.logging.log4j.core.impl.Log4jProvider");',
+            'provides("org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory").with("org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory");'
+    ]
+    static Set<String> JAVA_DIRECTIVES = [
+            "requires java.sql;",
+            "requires java.naming;",
+            "requires java.desktop;",
+            "requires java.rmi;",
+            "requires java.logging;",
+            "requires java.compiler;",
+            "requires java.scripting;",
+            "requires java.xml;",
+            "requires java.management;",
+            "uses org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory;",
+            "uses org.apache.logging.log4j.spi.Provider;",
+            "provides javax.annotation.processing.Processor with org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor;",
+            "provides org.apache.logging.log4j.spi.Provider with org.apache.logging.log4j.core.impl.Log4jProvider;",
+            "provides org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory with org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory;",
+    ]
+
+
     def cleanup() {
         println "CLEANUP"
     }
 
-    def "should display the correct module-info for the merged module"() {
+    @Unroll
+    def "should display the correct module-info for the merged module with #language flavor"() {
         given:
         new AntBuilder().copy( todir: testProjectDir.root ) {
             fileset( dir: 'src/test/resources/hello-log4j-2.9.0' )
@@ -45,7 +98,7 @@ class SuggestMergedModuleInfoSpec extends Specification {
                 .forwardStdOutput(outputWriter)
                 .withProjectDir(buildFile.parentFile)
                 .withPluginClasspath()
-                .withArguments("-is", JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO, '--useJdeps=no')
+                .withArguments("-is", JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO, '--useJdeps=no', "--language=$language")
                 .build();
         def task = result.task(":$JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO")
         println outputWriter
@@ -59,22 +112,13 @@ class SuggestMergedModuleInfoSpec extends Specification {
 
         then:
         directives.size() == 14
-        directives as Set == [
-                "requires 'java.sql';",
-                "requires 'java.naming';",
-                "requires 'java.desktop';",
-                "requires 'java.rmi';",
-                "requires 'java.logging';",
-                "requires 'java.compiler';",
-                "requires 'java.scripting';",
-                "requires 'java.xml';",
-                "requires 'java.management';",
-                "uses 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory';",
-                "uses 'org.apache.logging.log4j.spi.Provider';",
-                "provides 'javax.annotation.processing.Processor' with 'org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor';",
-                "provides 'org.apache.logging.log4j.spi.Provider' with 'org.apache.logging.log4j.core.impl.Log4jProvider';",
-                "provides 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory' with 'org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory';",
-        ] as Set
+        directives as Set == expectedDirectives
+
+        where:
+        language | expectedDirectives
+        'groovy' | GROOVY_DIRECTIVES
+        'kotlin' | KOTLIN_DIRECTIVES
+        'java'   | JAVA_DIRECTIVES
     }
 
     List<String> getDirectives(String taskOutput) {

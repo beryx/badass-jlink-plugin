@@ -24,6 +24,7 @@ class SuggestMergedModuleInfoTaskData extends BaseTaskData {
     List<String> forceMergedJarPrefixes
     File mergedJarsDir
     String javaHome
+    ModuleInfo.Language language
     JdepsUsage useJdeps
     String jlinkJarsDirPath
     String tmpJarsDirPath

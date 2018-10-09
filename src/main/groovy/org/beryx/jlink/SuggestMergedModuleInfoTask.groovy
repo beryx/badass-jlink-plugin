@@ -18,6 +18,7 @@ package org.beryx.jlink
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.JlinkPluginExtension
+import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
 import org.beryx.jlink.impl.SuggestMergedModuleInfoTaskImpl
 import org.beryx.jlink.util.PathUtil
@@ -43,6 +44,9 @@ class SuggestMergedModuleInfoTask extends BaseTask {
     @Input
     Property<JdepsUsage> useJdeps
 
+    @Input
+    Property<ModuleInfo.Language> language
+
     SuggestMergedModuleInfoTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MERGED_JARS_DIR)
         description = 'Suggests a module declaration for the merged module'
@@ -55,6 +59,8 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
         javaHome = extension.javaHome
         useJdeps = extension.useJdeps
+        language = project.objects.property(ModuleInfo.Language)
+        language.set(ModuleInfo.Language.GROOVY)
 
         mergedJarsDir = project.objects.directoryProperty()
         mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
@@ -67,6 +73,7 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
         taskData.javaHome = javaHome.get()
         taskData.useJdeps = useJdeps.get()
+        taskData.language = language.get()
         taskData.mergedJarsDir = mergedJarsDir.get().asFile
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
@@ -81,6 +88,15 @@ class SuggestMergedModuleInfoTask extends BaseTask {
             this.useJdeps.set(JdepsUsage.valueOf(useJdeps))
         } catch (Exception e) {
             throw new GradleException("Unknown value for option 'useJdeps': $useJdeps. Accepted values: ${JdepsUsage.values()*.name().join(' / ')}.")
+        }
+    }
+
+    @Option(option = 'language', description = "The language used to display the module declaration. Accepted values: 'groovy', 'kotlin', 'java'.")
+    void setLanguage(String language) {
+        try {
+            this.language.set(ModuleInfo.Language.valueOf(language.toUpperCase()))
+        } catch (Exception e) {
+            throw new GradleException("Unknown value for option 'language': $language. Accepted values: ${ModuleInfo.Language.values()*.name().join(' / ').toLowerCase()}.")
         }
     }
 }

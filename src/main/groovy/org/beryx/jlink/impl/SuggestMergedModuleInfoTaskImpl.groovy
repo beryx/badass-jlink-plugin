@@ -16,6 +16,7 @@
 package org.beryx.jlink.impl
 
 import org.beryx.jlink.data.JdepsUsage
+import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
 import org.beryx.jlink.util.JdepsExecutor
 import org.beryx.jlink.util.SuggestedMergedModuleInfoBuilder
@@ -61,6 +62,6 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
             if(td.useJdeps == JdepsUsage.exclusively) return
         }
         def builder = new SuggestedMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes)
-        println "mergedModule {\n" + builder.moduleInfo.toString(4, true) + "\n}"
+        println "mergedModule {\n" + builder.moduleInfo.toString(4, td.language) + "\n}"
     }
 }

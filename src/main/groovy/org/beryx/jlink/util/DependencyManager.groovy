@@ -59,6 +59,7 @@ class DependencyManager {
         project.logger.info("modularJars: ${modularJars*.name}")
         project.logger.info("nonModularJars: ${nonModularJars*.name}")
         project.logger.info("modularJarsRequiredByNonModularJars: ${modularJarsRequiredByNonModularJars*.name}")
+        project.logger.info("dependenciesHandledAsNonModular: ${dependenciesHandledAsNonModular*.name}")
     }
 
     private Set<ResolvedDependency> collectDeps(Predicate<ResolvedDependency> filter) {

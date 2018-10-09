@@ -29,6 +29,8 @@ class ModuleInfo implements Serializable {
 
     private boolean afterRequiresTransitive = false
 
+    static enum Language {JAVA, GROOVY, KOTLIN}
+
     @EqualsAndHashCode
     static class RequiresBuilder implements Serializable {
         final String module
@@ -45,11 +47,15 @@ class ModuleInfo implements Serializable {
 
         @Override
         String toString() {
-            toString(false)
+            toString(Language.JAVA)
         }
-        String toString(boolean quoted) {
-            def q = quoted ? "'" : ""
-            "requires ${transitive ? 'transitive ' : ''}$q$module$q;"
+        String toString(Language language) {
+            def q = (language == Language.JAVA) ? "" : "'"
+            if(language == Language.KOTLIN) {
+                return "requires${transitive ? 'Transitive' : ''}(\"$module\");"
+            } else {
+                return "requires ${transitive ? 'transitive ' : ''}$q$module$q;"
+            }
         }
 
         String get() {
@@ -61,6 +67,13 @@ class ModuleInfo implements Serializable {
     RequiresBuilder requires(String module) {
         afterRequiresTransitive = false
         def builder = new RequiresBuilder(module)
+        requiresBuilders << builder
+        builder
+    }
+
+    RequiresBuilder requiresTransitive(String module) {
+        afterRequiresTransitive = false
+        def builder = new RequiresBuilder(module).withTransitive(true)
         requiresBuilders << builder
         builder
     }
@@ -93,11 +106,15 @@ class ModuleInfo implements Serializable {
 
         @Override
         String toString() {
-            toString(false)
+            toString(Language.JAVA)
         }
-        String toString(boolean quoted) {
-            def q = quoted ? "'" : ""
-            "uses $q$service$q;"
+        String toString(Language language) {
+            def q = (language == Language.JAVA) ? "" : "'"
+            if(language == Language.KOTLIN) {
+                return "uses(\"$service\");"
+            } else {
+                return "uses $q$service$q;"
+            }
         }
 
         String get() {
@@ -116,7 +133,7 @@ class ModuleInfo implements Serializable {
     @EqualsAndHashCode
     static class ProvidesBuilder implements Serializable {
         final String service
-        final List<String> implementations = []
+        final TreeSet<String> implementations = new TreeSet<>()
 
         ProvidesBuilder(String service) {
             this.service = service.replace('$', '.')
@@ -129,11 +146,15 @@ class ModuleInfo implements Serializable {
 
         @Override
         String toString() {
-            toString(false)
+            toString(Language.JAVA)
         }
-        String toString(boolean quoted) {
-            def q = quoted ? "'" : ""
-            "provides $q$service$q with $q${implementations.join(',\n\t\t\t\t')}$q;"
+        String toString(Language language) {
+            def q = (language == Language.JAVA) ? "" : "'"
+            if(language == Language.KOTLIN) {
+                return "provides(\"$service\").with(${implementations.collect {"\"$it\""}.join(',\n\t\t\t\t')});"
+            } else {
+                return "provides $q$service$q with ${implementations.collect {"$q$it$q"}.join(',\n\t\t\t\t')};"
+            }
         }
 
         String get() {
@@ -155,9 +176,9 @@ class ModuleInfo implements Serializable {
         return toString(0)
     }
 
-    String toString(int indent, boolean quoted = false) {
-        (requiresBuilders.collect {b -> (' ' * indent) + b.toString(quoted)} +
-        usesBuilders.collect {b -> (' ' * indent) + b.toString(quoted)} +
-        providesBuilders.collect {b -> (' ' * indent) + b.toString(quoted)}).join('\n')
+    String toString(int indent, Language language = Language.JAVA) {
+        (requiresBuilders.collect {b -> (' ' * indent) + b.toString(language)} +
+        usesBuilders.collect {b -> (' ' * indent) + b.toString(language)} +
+        providesBuilders.collect {b -> (' ' * indent) + b.toString(language)}).join('\n')
     }
 }
