@@ -87,7 +87,8 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         taskImpl.execute()
     }
 
-    @Option(option = 'useJdeps', description = "Specifies whether jdeps should be used to generate the suggested module info. Accepted values: 'yes', 'no', 'exclusively'.")
+    @Deprecated
+    @Option(option = 'useJdeps', description = "(Experimental/Deprecated) Specifies whether jdeps should be used to generate the suggested module info. Accepted values: 'yes', 'no', 'exclusively'.")
     void setUseJdeps(String useJdeps) {
         try {
             this.useJdeps.set(JdepsUsage.valueOf(useJdeps))

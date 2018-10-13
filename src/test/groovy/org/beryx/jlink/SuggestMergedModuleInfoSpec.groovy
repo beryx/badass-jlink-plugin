@@ -108,7 +108,7 @@ class SuggestMergedModuleInfoSpec extends Specification {
 
         when:
         def taskOutput = outputWriter.toString()
-        def directives = getDirectives(taskOutput)
+        def directives = getDirectives(taskOutput, language)
 
         then:
         directives.size() == 14
@@ -121,12 +121,14 @@ class SuggestMergedModuleInfoSpec extends Specification {
         'java'   | JAVA_DIRECTIVES
     }
 
-    List<String> getDirectives(String taskOutput) {
-        def blockStart = 'mergedModule {'
+    List<String> getDirectives(String taskOutput, String language) {
+        def blockStart = (language == 'kotlin') ? 'mergedModule (delegateClosureOf<ModuleInfo> {' : 'mergedModule {'
+        def blockEnd = (language == 'kotlin') ? '})' : '}'
+
         int startPos = taskOutput.indexOf(blockStart)
         assert startPos >= 0
         startPos += blockStart.length()
-        int endPos = taskOutput.indexOf('}', startPos)
+        int endPos = taskOutput.indexOf(blockEnd, startPos)
         assert endPos >= 0
         def content = taskOutput.substring(startPos, endPos)
         content.lines().map{it.trim()}.filter{!it.empty}.collect(Collectors.toList())
