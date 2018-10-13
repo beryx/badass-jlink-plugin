@@ -22,6 +22,9 @@ consisting only of a module descriptor. The module descriptor specifies that the
     _depends on_: `prepareModulesDir`
 <<jlinkZip>>:: Creates a zip archive of the custom runtime image. +
     _depends on_: `jlink`
+<<suggestMergedModuleInfo>>:: Displays the `mergedModule` block that will be used if your `jlink` extension doesn't include one.
+  You can use the suggested block as a starting point for your custom `mergedModule` block. +
+    _depends on_: `prepareMergedJarsDir`
 
 A detailed description of these tasks is given in <<taskDetails>>
 
@@ -38,9 +41,6 @@ jlinkBasePath:: The path to the base directory that will be used by the plugin t
 mainClass:: The main class to be provided as part of the `--launcher` option of _jlink_. +
     _defaultValue_: `project.mainClassName` (from the https://docs.gradle.org/current/userguide/application_plugin.html[Application plugin]) +
     _usage example_: `mainClass = 'org.example.MyApp'`
-launcherName:: The launcher command name to be provided as part of the `--launcher` option of _jlink_. +
-    _defaultValue_: `project.name` +
-    _usage example_: `launcherName = 'my-app'`
 moduleName:: The module name of this application. +
     _defaultValue_: the module name specified in this application's _module-info.java_ +
     _usage example_: `moduleName = 'org.example.myapp'`
@@ -50,14 +50,9 @@ mergedModuleName:: The name of the merged module. +
 options:: A list of options to be passed to _jlink_. +
     _defaultValue_: empty list +
     _usage example_: `options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']`
-javaHome:: The path to the JDK providing the tools needed by the plugin (_javac_, _jar_, _jdeps_, _jlink_ etc.). +
+javaHome:: The path to the JDK providing the tools needed by the plugin (_javac_, _jar_, _jlink_ etc.). +
     _defaultValue_: the value of the `JAVA_HOME` environment variable. +
     _usage example_: `javaHome = '/usr/lib/jvm/open-jdk'`
-useJdeps:: Boolean specifying whether to use _jdeps_ to generate the _module-info.java_ of the merged module. +
-    If this property is false or the _jdeps_ command fails, the _module-info.java_ will be created taking into account
-    the configuration provided in the `mergedModule` block (see <<scriptBlocks>>). +
-    _defaultValue_: `false` +
-    _usage example_: `useJdeps = true`
 
 
 == Methods
@@ -72,8 +67,18 @@ This method is useful when the plugin should handle one or more modular jars as 
 You can call this method multiple times. +
     _usage example_: `forceMerge 'jaxb-api'`
 
+
+addExtraDependencies(String... jarPrefixes):: Instructs the plugin to treat all jars matching the given prefixes as dependencies of the merged module. +
+A typical situation where this method is needed involves libraries using JavaFX.
+Some libraries do not specify their JavaFX dependencies, because JavaFX was part of the JDK before being removed in Java 11. +
+Including `addExtraDependencies("javafx")` into the `jlink` block solves this problem.
+
 [[scriptBlocks]]
 == Script blocks
+
+The `jlink` extension can also contain the script blocks detailed below.
+
+=== mergedModule
 
 The `mergedModule` block allows you to configure the module descriptor of the merged module.
 It provides a DSL that matches the syntax of the directives in a module declaration file (_module-info.java_),
@@ -81,7 +86,7 @@ but it requires quotes around the names of modules, services, and service implem
 
 The plugin automatically exports all packages found in the merged module, therefore the DSL does not support `exports` directives.
 
-.Usage example
+.Usage example (Groovy DSL)
 [source,groovy]
 ----
 jlink {
@@ -96,11 +101,91 @@ jlink {
 }
 ----
 
+.Usage example (Kotlin DSL)
+[source,groovy]
+----
+import org.beryx.jlink.data.ModuleInfo
+...
+jlink {
+    ...
+    mergedModule (delegateClosureOf<ModuleInfo> {
+        requires("java.desktop")
+        requiresTransitive("java.sql")
+        uses("java.sql.Driver")
+        provides("java.sql.Driver").with("org.hsqldb.jdbc.JDBCDriver")
+    })
+    ...
+}
+----
+
+=== launcher
+
+The plugin generates script files for launching your application.
+You can customize these scripts by configuring the following properties in the `launcher` block.
+
+name:: The base name of the script files used to launch your aplication. +
+    _defaultValue_: `project.name`
+
+jvmArgs:: list of JVM arguments to be passed to the java executable. +
+    _defaultValue_: empty list
+
+args:: list of arguments to be passed to the application. +
+    _defaultValue_: empty list
+
+unixScriptTemplate:: the template for generating the script file for Unix-like systems.
+    _defaultValue_: null (the plugin uses its own template)
+
+windowsScriptTemplate:: the template for generating the script file for Windows-based systems.
+    _defaultValue_: null (the plugin uses its own template)
+
+The plugin uses http://docs.groovy-lang.org/latest/html/api/groovy/text/SimpleTemplateEngine.html[Groovy's SimpleTemplateEngine]
+to parse the templates, with the following variables available:
+
+- moduleName
+- mainClassName
+- jvmArgs
+- args
+
+.Usage example (Groovy DSL)
+[source,groovy]
+----
+jlink {
+    ...
+    launcher {
+        name = 'my-app'
+        jvmArgs = ['-Dlog4j.debug=true', '-Dlog4j.configurationFile=./log4j2.xml']
+        args = ['--user', 'alice']
+        unixScriptTemplate = file('unixStartScript.txt')
+        windowsScriptTemplate = file('windowsStartScript.txt')
+    }
+    ...
+}
+----
+
+.Usage example (Kotlin DSL)
+[source,groovy]
+----
+import org.beryx.jlink.data.LauncherData
+...
+jlink {
+    ...
+    launcher (delegateClosureOf<LauncherData> {
+        name = "my-app"
+        jvmArgs = listOf("-Dlog4j.debug=true", "-Dlog4j.configurationFile=./log4j2.xml")
+        args = listOf("--user", "alice")
+        unixScriptTemplate = file("unixStartScript.txt")
+        windowsScriptTemplate = file("windowsStartScript.txt")
+    })
+    ...
+}
+----
 
 == How it works
 
-The plugin combines all non-modular dependencies into a single jar to which it adds a module descriptor
-(configured in accordance with the `mergedModule` block).
+The plugin combines all non-modular dependencies into a single jar to which it adds a module descriptor.
+If the `jlink` extension contains a `mergedModule` block, its directives will be used to generate the module descriptor.
+Otherwise, a module descriptor is created using the algorithm implemented by the `suggestMergedModuleInfo` task.
+
 The non-modular dependencies appear as automatic modules in the original module graph.
 The plugin replaces them with _delegating modules_, which are dummy modules containing only a module descriptor that
 `requires transitive` the  merged module.
@@ -128,7 +213,7 @@ Sometimes, you may want to have a modular jar treated as non-modular, even if it
 You can do this using the `forceMerge` method.
 
 [[taskDetails]]
-=== Task details
+== Task details
 
 The following properties denote files and directories used by the plugin tasks:
 
@@ -221,3 +306,19 @@ The table below shows the variable names of the subdirectories created here and 
 ----
 - zip <span class="green">imageDir</span> to <span class="olive">imageZip</span>
 ----
+
+[[suggestMergedModuleInfo]]
+=== suggestMergedModuleInfo
+[subs="attributes",options="nowrap"]
+----
+- determine the modules required by the merged module
+- determine the services used by the merged module
+- determine the services provided by the merged module
+- print the suggested `mergedModule` block
+----
+
+**Options**::
+`language`:: the DSL for which the _mergedModule_ block should be displayed. +
+_default value_: `groovy` +
+_accepted values_: `groovy`, `kotlin`, `java` +
+_usage example_: `./gradlew suggestMergedModuleInfo --language=kotlin`

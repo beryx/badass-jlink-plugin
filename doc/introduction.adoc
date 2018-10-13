@@ -1,7 +1,7 @@
 [[introduction]]
 = Introduction
 
-The badass-jlink plugin helps you create custom runtime images using jlink.
+The badass-jlink plugin allows you to create custom runtime images with minimal effort.
 
 Many modular applications have one or more non-modular dependencies, which are treated as automatic modules by the Java platform.
 However, jlink cannot work with automatic modules.
@@ -14,7 +14,7 @@ This way, only the resulting merged module needs a module descriptor.
 The plugin provides several tasks. The most frequently used are `jlink`, which creates a custom runtime image in a given directory,
 and `jlinkZip`, which in addition creates a zip archive of the custom runtime image.
 
-To use the badass-jlink plugin, include the following in your build script:
+If you use Gradle 5 or newer, include the following in your build script:
 
 [source,groovy]
 [subs="attributes",options="nowrap"]
@@ -24,6 +24,18 @@ plugins {
 }
 ----
 
+We also provide a version compatible with Gradle 4:
+
+[source,groovy]
+[subs="attributes",options="nowrap"]
+----
+plugins {
+    id 'org.beryx.jlink' version '{project-version}-gradle4'
+}
+----
+
+
+
 Applying the Badass-JLink plugin also implicitly applies the https://docs.gradle.org/current/userguide/application_plugin.html[Application plugin].
 
 The plugin uses an extension named `jlink`.
@@ -32,12 +44,11 @@ The sample below shows a few configuration options.
 [source,groovy]
 ----
 jlink {
-    launcherName = 'hello'
-    mergedModule {
-        requires 'java.naming';
-        requires 'java.xml';
-    }
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher{
+        name = 'hello'
+        jvmArgs = ['-Dlog4j.configurationFile=./log4j2.xml']
+    }
 }
 ----
 

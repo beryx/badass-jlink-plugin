@@ -4,7 +4,7 @@
 
 ## Badass JLink Plugin ##
 
-Using this Gradle plugin you can create a custom runtime image of your application, 
+Using this Gradle plugin you can create a custom runtime image of your application with minimal effort, 
 even if it depends on automatic modules. 
 
 Badass-JLink exposes an extension with the name `jlink` to let you configure various
@@ -13,12 +13,11 @@ A simple example configuration is shown below:
 
 ```
 jlink {
-    launcherName = 'hello'
-    mergedModule {
-        requires 'java.naming';
-        requires 'java.xml';
-    }
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher{
+        name = 'hello'
+        jvmArgs = ['-Dlog4j.configurationFile=./log4j2.xml']
+    }
 }
 ``` 
 
