@@ -37,7 +37,7 @@ class JlinkPlugin implements Plugin<Project> {
     void apply(Project project) {
         if(GradleVersion.current() < GradleVersion.version('5.0-milestone-1')) {
             throw new GradleException("This version of the plugin requires Gradle 5 or newer.\n" +
-                "Upgrade to Gradle 5 or use https://badass-jlink-plugin.beryx.org/releases/1.4.4.")
+                "Upgrade to Gradle 5 or use a version with the '-gradle4' suffix.")
         }
         project.getPluginManager().apply('application');
         def extension = project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)
