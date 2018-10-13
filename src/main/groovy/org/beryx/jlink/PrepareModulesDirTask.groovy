@@ -52,10 +52,10 @@ class PrepareModulesDirTask extends BaseTask {
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
         extraDependenciesPrefixes = extension.extraDependenciesPrefixes
 
-        delegatingModulesDir = project.objects.directoryProperty()
+        delegatingModulesDir = project.layout.directoryProperty()
         delegatingModulesDir.set(new File(PathUtil.getDelegatingModulesDirPath(jlinkBasePath.get())))
 
-        jlinkJarsDir = project.objects.directoryProperty()
+        jlinkJarsDir = project.layout.directoryProperty()
         jlinkJarsDir.set(new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get())))
     }
 

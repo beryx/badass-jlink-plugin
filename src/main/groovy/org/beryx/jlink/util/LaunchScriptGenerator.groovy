@@ -53,7 +53,7 @@ class LaunchScriptGenerator {
     }
 
     void generate(String targetDirPath) {
-        Type.values().each {type ->
+        Type.values().each {Type type ->
             def scriptText = getScript(type)
             def scriptFile = new File(targetDirPath, "${launcherData.name}${type.extension}")
             scriptFile << scriptText

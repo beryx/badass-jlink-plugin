@@ -48,10 +48,10 @@ class JlinkPluginExtension {
         jlinkBasePath = project.objects.property(String)
         jlinkBasePath.set(project.provider{"$project.buildDir/jlinkbase" as String})
 
-        imageDir = project.objects.directoryProperty()
+        imageDir = project.layout.directoryProperty()
         imageDir.set(project.layout.buildDirectory.dir('image'))
 
-        imageZip = project.objects.fileProperty()
+        imageZip = project.layout.fileProperty()
         imageZip.set(project.layout.buildDirectory.file('image.zip'))
 
         moduleName = project.objects.property(String)

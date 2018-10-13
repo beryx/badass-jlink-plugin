@@ -58,7 +58,7 @@ class PrepareMergedJarsDirTask extends BaseTask {
         javaHome = extension.javaHome
         jvmVersion = extension.jvmVersion
 
-        mergedJarsDir = project.objects.directoryProperty()
+        mergedJarsDir = project.layout.directoryProperty()
         mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
     }
 

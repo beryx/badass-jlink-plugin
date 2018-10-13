@@ -67,7 +67,7 @@ class JlinkTask extends BaseTask {
         javaHome = extension.javaHome
         imageDir = extension.imageDir
 
-        jlinkJarsDir = project.objects.directoryProperty()
+        jlinkJarsDir = project.layout.directoryProperty()
         jlinkJarsDir.set(new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get())))
     }
 

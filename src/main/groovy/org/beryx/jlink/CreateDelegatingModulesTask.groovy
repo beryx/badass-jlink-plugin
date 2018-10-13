@@ -52,10 +52,10 @@ class CreateDelegatingModulesTask extends BaseTask {
         mergedModuleName = extension.mergedModuleName
         javaHome = extension.javaHome
 
-        nonModularJarsDir = project.objects.directoryProperty()
+        nonModularJarsDir = project.layout.directoryProperty()
         nonModularJarsDir.set(new File(PathUtil.getNonModularJarsDirPath(jlinkBasePath.get())))
 
-        delegatingModulesDir = project.objects.directoryProperty()
+        delegatingModulesDir = project.layout.directoryProperty()
         delegatingModulesDir.set(new File(PathUtil.getDelegatingModulesDirPath(jlinkBasePath.get())))
     }
 

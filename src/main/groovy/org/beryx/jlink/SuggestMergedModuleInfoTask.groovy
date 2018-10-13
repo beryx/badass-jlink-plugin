@@ -66,7 +66,7 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         language = project.objects.property(ModuleInfo.Language)
         language.set(ModuleInfo.Language.GROOVY)
 
-        mergedJarsDir = project.objects.directoryProperty()
+        mergedJarsDir = project.layout.directoryProperty()
         mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
     }
 

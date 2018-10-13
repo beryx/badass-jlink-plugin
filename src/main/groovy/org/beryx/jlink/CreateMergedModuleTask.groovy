@@ -72,7 +72,7 @@ class CreateMergedModuleTask extends BaseTask {
         useJdeps = extension.useJdeps
         javaHome = extension.javaHome
 
-        mergedJarsDir = project.objects.directoryProperty()
+        mergedJarsDir = project.layout.directoryProperty()
         mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
     }
 
