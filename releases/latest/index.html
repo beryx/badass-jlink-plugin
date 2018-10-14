@@ -17,7 +17,7 @@
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 1.4.4</span>
+<span id="revnumber">version 2.0.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -28,16 +28,22 @@
 <li><a href="#_tasks">Tasks</a></li>
 <li><a href="#_properties">Properties</a></li>
 <li><a href="#_methods">Methods</a></li>
-<li><a href="#scriptBlocks">Script blocks</a></li>
-<li><a href="#_how_it_works">How it works</a>
+<li><a href="#scriptBlocks">Script blocks</a>
 <ul class="sectlevel3">
-<li><a href="#taskDetails">Task details</a></li>
+<li><a href="#_mergedmodule">mergedModule</a></li>
+<li><a href="#_launcher">launcher</a></li>
+</ul>
+</li>
+<li><a href="#_how_it_works">How it works</a></li>
+<li><a href="#taskDetails">Task details</a>
+<ul class="sectlevel3">
 <li><a href="#prepareMergedJarsDir">prepareMergedJarsDir</a></li>
 <li><a href="#createMergedModule">createMergedModule</a></li>
 <li><a href="#createDelegatingModules">createDelegatingModules</a></li>
 <li><a href="#prepareModulesDir">prepareModulesDir</a></li>
 <li><a href="#jlink">jlink</a></li>
 <li><a href="#jlinkZip">jlinkZip</a></li>
+<li><a href="#suggestMergedModuleInfo">suggestMergedModuleInfo</a></li>
 </ul>
 </li>
 </ul>
@@ -51,7 +57,7 @@
 <h2 id="introduction">Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The badass-jlink plugin helps you create custom runtime images using jlink.</p>
+<p>The badass-jlink plugin allows you to create custom runtime images with minimal effort.</p>
 </div>
 <div class="paragraph">
 <p>Many modular applications have one or more non-modular dependencies, which are treated as automatic modules by the Java platform.
@@ -68,12 +74,22 @@ This way, only the resulting merged module needs a module descriptor.</p>
 and <code>jlinkZip</code>, which in addition creates a zip archive of the custom runtime image.</p>
 </div>
 <div class="paragraph">
-<p>To use the badass-jlink plugin, include the following in your build script:</p>
+<p>If you use Gradle 5 or newer, include the following in your build script:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '1.4.4'
+    id 'org.beryx.jlink' version '2.0.0'
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>We also provide a version compatible with Gradle 4:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
+    id 'org.beryx.jlink' version '2.0.0-gradle4'
 }</code></pre>
 </div>
 </div>
@@ -87,12 +103,11 @@ The sample below shows a few configuration options.</p>
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
-    launcherName = <span class="string"><span class="delimiter">'</span><span class="content">hello</span><span class="delimiter">'</span></span>
-    mergedModule {
-        requires <span class="string"><span class="delimiter">'</span><span class="content">java.naming</span><span class="delimiter">'</span></span>;
-        requires <span class="string"><span class="delimiter">'</span><span class="content">java.xml</span><span class="delimiter">'</span></span>;
-    }
     options = [<span class="string"><span class="delimiter">'</span><span class="content">--strip-debug</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">--compress</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">2</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">--no-header-files</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">--no-man-pages</span><span class="delimiter">'</span></span>]
+    launcher{
+        name = <span class="string"><span class="delimiter">'</span><span class="content">hello</span><span class="delimiter">'</span></span>
+        jvmArgs = [<span class="string"><span class="delimiter">'</span><span class="content">-Dlog4j.configurationFile=./log4j2.xml</span><span class="delimiter">'</span></span>]
+    }
 }</code></pre>
 </div>
 </div>
@@ -106,7 +121,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v1.4.4/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.0.0/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -160,6 +175,12 @@ consisting only of a module descriptor. The module descriptor specifies that the
 <p>Creates a zip archive of the custom runtime image.<br>
 <em>depends on</em>: <code>jlink</code></p>
 </dd>
+<dt class="hdlist1"><a href="#suggestMergedModuleInfo">suggestMergedModuleInfo</a></dt>
+<dd>
+<p>Displays the <code>mergedModule</code> block that will be used if your <code>jlink</code> extension doesn&#8217;t include one.
+You can use the suggested block as a starting point for your custom <code>mergedModule</code> block.<br>
+  <em>depends on</em>: <code>prepareMergedJarsDir</code></p>
+</dd>
 </dl>
 </div>
 <div class="paragraph">
@@ -194,12 +215,6 @@ consisting only of a module descriptor. The module descriptor specifies that the
 <em>defaultValue</em>: <code>project.mainClassName</code> (from the <a href="https://docs.gradle.org/current/userguide/application_plugin.html">Application plugin</a>)<br>
 <em>usage example</em>: <code>mainClass = 'org.example.MyApp'</code></p>
 </dd>
-<dt class="hdlist1">launcherName</dt>
-<dd>
-<p>The launcher command name to be provided as part of the <code>--launcher</code> option of <em>jlink</em>.<br>
-<em>defaultValue</em>: <code>project.name</code><br>
-<em>usage example</em>: <code>launcherName = 'my-app'</code></p>
-</dd>
 <dt class="hdlist1">moduleName</dt>
 <dd>
 <p>The module name of this application.<br>
@@ -220,17 +235,9 @@ consisting only of a module descriptor. The module descriptor specifies that the
 </dd>
 <dt class="hdlist1">javaHome</dt>
 <dd>
-<p>The path to the JDK providing the tools needed by the plugin (<em>javac</em>, <em>jar</em>, <em>jdeps</em>, <em>jlink</em> etc.).<br>
+<p>The path to the JDK providing the tools needed by the plugin (<em>javac</em>, <em>jar</em>, <em>jlink</em> etc.).<br>
 <em>defaultValue</em>: the value of the <code>JAVA_HOME</code> environment variable.<br>
 <em>usage example</em>: <code>javaHome = '/usr/lib/jvm/open-jdk'</code></p>
-</dd>
-<dt class="hdlist1">jdepsEnabled</dt>
-<dd>
-<p>Boolean specifying whether to use <em>jdeps</em> to generate the <em>module-info.java</em> of the merged module.<br>
-If this property is false or the <em>jdeps</em> command fails, the <em>module-info.java</em> will be created taking into account
-the configuration provided in the <code>mergedModule</code> block (see <a href="#scriptBlocks">Script blocks</a>).<br>
-<em>defaultValue</em>: <code>false</code><br>
-<em>usage example</em>: <code>jdepsEnabled = true</code></p>
 </dd>
 </dl>
 </div>
@@ -253,11 +260,23 @@ This method is useful when the plugin should handle one or more modular jars as 
 You can call this method multiple times.<br>
     <em>usage example</em>: <code>forceMerge 'jaxb-api'</code></p>
 </dd>
+<dt class="hdlist1">addExtraDependencies(String&#8230;&#8203; jarPrefixes)</dt>
+<dd>
+<p>Instructs the plugin to treat all jars matching the given prefixes as dependencies of the merged module.<br>
+A typical situation where this method is needed involves libraries using JavaFX.
+Some libraries do not specify their JavaFX dependencies, because JavaFX was part of the JDK before being removed in Java 11.<br>
+Including <code>addExtraDependencies("javafx")</code> into the <code>jlink</code> block solves this problem.</p>
+</dd>
 </dl>
 </div>
 </div>
 <div class="sect2">
 <h3 id="scriptBlocks">Script blocks</h3>
+<div class="paragraph">
+<p>The <code>jlink</code> extension can also contain the script blocks detailed below.</p>
+</div>
+<div class="sect3">
+<h4 id="_mergedmodule">mergedModule</h4>
 <div class="paragraph">
 <p>The <code>mergedModule</code> block allows you to configure the module descriptor of the merged module.
 It provides a DSL that matches the syntax of the directives in a module declaration file (<em>module-info.java</em>),
@@ -267,7 +286,7 @@ but it requires quotes around the names of modules, services, and service implem
 <p>The plugin automatically exports all packages found in the merged module, therefore the DSL does not support <code>exports</code> directives.</p>
 </div>
 <div class="listingblock">
-<div class="title">Usage example</div>
+<div class="title">Usage example (Groovy DSL)</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
@@ -281,13 +300,124 @@ but it requires quotes around the names of modules, services, and service implem
 }</code></pre>
 </div>
 </div>
+<div class="listingblock">
+<div class="title">Usage example (Kotlin DSL)</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy"><span class="keyword">import</span> <span class="include">org.beryx.jlink.data.ModuleInfo</span>
+...
+jlink {
+    ...
+    mergedModule (delegateClosureOf&lt;ModuleInfo&gt; {
+        requires(<span class="string"><span class="delimiter">&quot;</span><span class="content">java.desktop</span><span class="delimiter">&quot;</span></span>)
+        requiresTransitive(<span class="string"><span class="delimiter">&quot;</span><span class="content">java.sql</span><span class="delimiter">&quot;</span></span>)
+        uses(<span class="string"><span class="delimiter">&quot;</span><span class="content">java.sql.Driver</span><span class="delimiter">&quot;</span></span>)
+        provides(<span class="string"><span class="delimiter">&quot;</span><span class="content">java.sql.Driver</span><span class="delimiter">&quot;</span></span>).with(<span class="string"><span class="delimiter">&quot;</span><span class="content">org.hsqldb.jdbc.JDBCDriver</span><span class="delimiter">&quot;</span></span>)
+    })
+    ...
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_launcher">launcher</h4>
+<div class="paragraph">
+<p>The plugin generates script files for launching your application.
+You can customize these scripts by configuring the following properties in the <code>launcher</code> block.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">name</dt>
+<dd>
+<p>The base name of the script files used to launch your aplication.<br>
+<em>defaultValue</em>: <code>project.name</code></p>
+</dd>
+<dt class="hdlist1">jvmArgs</dt>
+<dd>
+<p>list of JVM arguments to be passed to the java executable.<br>
+<em>defaultValue</em>: empty list</p>
+</dd>
+<dt class="hdlist1">args</dt>
+<dd>
+<p>list of arguments to be passed to the application.<br>
+<em>defaultValue</em>: empty list</p>
+</dd>
+<dt class="hdlist1">unixScriptTemplate</dt>
+<dd>
+<p>the template for generating the script file for Unix-like systems.
+<em>defaultValue</em>: null (the plugin uses its own template)</p>
+</dd>
+<dt class="hdlist1">windowsScriptTemplate</dt>
+<dd>
+<p>the template for generating the script file for Windows-based systems.
+<em>defaultValue</em>: null (the plugin uses its own template)</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>The plugin uses <a href="http://docs.groovy-lang.org/latest/html/api/groovy/text/SimpleTemplateEngine.html">Groovy&#8217;s SimpleTemplateEngine</a>
+to parse the templates, with the following variables available:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>moduleName</p>
+</li>
+<li>
+<p>mainClassName</p>
+</li>
+<li>
+<p>jvmArgs</p>
+</li>
+<li>
+<p>args</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="title">Usage example (Groovy DSL)</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">jlink {
+    ...
+    launcher {
+        name = <span class="string"><span class="delimiter">'</span><span class="content">my-app</span><span class="delimiter">'</span></span>
+        jvmArgs = [<span class="string"><span class="delimiter">'</span><span class="content">-Dlog4j.debug=true</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">-Dlog4j.configurationFile=./log4j2.xml</span><span class="delimiter">'</span></span>]
+        args = [<span class="string"><span class="delimiter">'</span><span class="content">--user</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">alice</span><span class="delimiter">'</span></span>]
+        unixScriptTemplate = file(<span class="string"><span class="delimiter">'</span><span class="content">unixStartScript.txt</span><span class="delimiter">'</span></span>)
+        windowsScriptTemplate = file(<span class="string"><span class="delimiter">'</span><span class="content">windowsStartScript.txt</span><span class="delimiter">'</span></span>)
+    }
+    ...
+}</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">Usage example (Kotlin DSL)</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy"><span class="keyword">import</span> <span class="include">org.beryx.jlink.data.LauncherData</span>
+...
+jlink {
+    ...
+    launcher (delegateClosureOf&lt;LauncherData&gt; {
+        name = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-app</span><span class="delimiter">&quot;</span></span>
+        jvmArgs = listOf(<span class="string"><span class="delimiter">&quot;</span><span class="content">-Dlog4j.debug=true</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">-Dlog4j.configurationFile=./log4j2.xml</span><span class="delimiter">&quot;</span></span>)
+        args = listOf(<span class="string"><span class="delimiter">&quot;</span><span class="content">--user</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">alice</span><span class="delimiter">&quot;</span></span>)
+        unixScriptTemplate = file(<span class="string"><span class="delimiter">&quot;</span><span class="content">unixStartScript.txt</span><span class="delimiter">&quot;</span></span>)
+        windowsScriptTemplate = file(<span class="string"><span class="delimiter">&quot;</span><span class="content">windowsStartScript.txt</span><span class="delimiter">&quot;</span></span>)
+    })
+    ...
+}</code></pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_how_it_works">How it works</h3>
 <div class="paragraph">
-<p>The plugin combines all non-modular dependencies into a single jar to which it adds a module descriptor
-(configured in accordance with the <code>mergedModule</code> block).
-The non-modular dependencies appear as automatic modules in the original module graph.
+<p>The plugin combines all non-modular dependencies into a single jar to which it adds a module descriptor.
+If the <code>jlink</code> extension contains a <code>mergedModule</code> block, its directives will be used to generate the module descriptor.
+Otherwise, a module descriptor is created using the algorithm implemented by the <code>suggestMergedModuleInfo</code> task.</p>
+</div>
+<div class="paragraph">
+<p>The non-modular dependencies appear as automatic modules in the original module graph.
 The plugin replaces them with <em>delegating modules</em>, which are dummy modules containing only a module descriptor that
 <code>requires transitive</code> the  merged module.</p>
 </div>
@@ -325,8 +455,9 @@ The figure below shows the resulting module graph.</p>
 <p>Sometimes, you may want to have a modular jar treated as non-modular, even if it is not affected by a cyclic dependency problem.
 You can do this using the <code>forceMerge</code> method.</p>
 </div>
-<div class="sect3">
-<h4 id="taskDetails">Task details</h4>
+</div>
+<div class="sect2">
+<h3 id="taskDetails">Task details</h3>
 <div class="paragraph">
 <p>The following properties denote files and directories used by the plugin tasks:</p>
 </div>
@@ -362,7 +493,6 @@ The table below shows the variable names of the subdirectories created here and 
 </table>
 </div>
 </p>
-</div>
 </div>
 <div class="sect3">
 <h4 id="prepareMergedJarsDir">prepareMergedJarsDir</h4>
@@ -431,6 +561,29 @@ The table below shows the variable names of the subdirectories created here and 
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="suggestMergedModuleInfo">suggestMergedModuleInfo</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">- determine the modules required by the merged module
+- determine the services used by the merged module
+- determine the services provided by the merged module
+- print the suggested `mergedModule` block</pre>
+</div>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><strong>Options</strong></dt>
+<dt class="hdlist1"><code>language</code></dt>
+<dd>
+<p>the DSL for which the <em>mergedModule</em> block should be displayed.<br>
+<em>default value</em>: <code>groovy</code><br>
+<em>accepted values</em>: <code>groovy</code>, <code>kotlin</code>, <code>java</code><br>
+<em>usage example</em>: <code>./gradlew suggestMergedModuleInfo --language=kotlin</code></p>
+</dd>
+</dl>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -461,7 +614,7 @@ The table below shows the variable names of the subdirectories created here and 
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 1.4.4<br>
+Version 2.0.0<br>
 </div>
 </div>
 </body>
