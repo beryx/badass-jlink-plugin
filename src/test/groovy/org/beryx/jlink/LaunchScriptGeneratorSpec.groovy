@@ -38,9 +38,9 @@ class LaunchScriptGeneratorSpec extends Specification {
 
         where:
         jvmArgs                      | args             | lastLine
-        []                           | []               | '(cd $DIR && $DIR/java -m org.example.hello/org.example.Hello $@)'
-        ['-Xmx200m']                 | ['Alice']        | '(cd $DIR && $DIR/java -Xmx200m -m org.example.hello/org.example.Hello Alice $@)'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | '(cd $DIR && $DIR/java -Xmx200m -Ddebug=true -m org.example.hello/org.example.Hello Alice Bob $@)'
+        []                           | []               | '(cd $DIR && ./java -m org.example.hello/org.example.Hello $@)'
+        ['-Xmx200m']                 | ['Alice']        | '(cd $DIR && ./java -Xmx200m -m org.example.hello/org.example.Hello Alice $@)'
+        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | '(cd $DIR && ./java -Xmx200m -Ddebug=true -m org.example.hello/org.example.Hello Alice Bob $@)'
     }
 
     @Unroll
