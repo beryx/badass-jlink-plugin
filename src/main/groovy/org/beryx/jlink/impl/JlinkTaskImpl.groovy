@@ -26,12 +26,20 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     }
 
     void execute() {
-        runJlink()
-        createLaunchScripts()
+        if(td.targetPlatforms) {
+            td.targetPlatforms.values().each { platform ->
+                File imageDir = new File(td.imageDir, "$td.launcherData.name-$platform.name")
+                runJlink(imageDir, platform.jdkHome, td.options + platform.options)
+                createLaunchScripts(imageDir)
+            }
+        } else {
+            runJlink(td.imageDir, td.javaHome, td.options)
+            createLaunchScripts(td.imageDir)
+        }
     }
 
-    void runJlink() {
-        project.delete(td.imageDir)
+    void runJlink(File imageDir, String jdkHome, List<String> options) {
+        project.delete(imageDir)
         def result = project.exec {
             ignoreExitValue = true
             standardOutput = new ByteArrayOutputStream()
@@ -40,11 +48,11 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
             }
             commandLine = ["$td.javaHome/bin/jlink",
                            '-v',
-                           *td.options,
+                           *options,
                            '--module-path',
-                           "$td.javaHome/jmods/$SEP${project.files(td.jlinkJarsDir).asPath}$SEP${project.jar.archivePath}",
+                           "$jdkHome/jmods/$SEP${project.files(td.jlinkJarsDir).asPath}$SEP${project.jar.archivePath}",
                            '--add-modules', td.moduleName,
-                           '--output', td.imageDir]
+                           '--output', imageDir]
 //        '--launcher', "$td.launcherData.name=$td.moduleName/$td.mainClass"]
         }
         if(result.exitValue != 0) {
@@ -56,8 +64,8 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         result.rethrowFailure()
     }
 
-    void createLaunchScripts() {
+    void createLaunchScripts(File imageDir) {
         def generator = new LaunchScriptGenerator(td.moduleName, td.mainClass, td.launcherData)
-        generator.generate("$td.imageDir/bin")
+        generator.generate("$imageDir/bin")
     }
 }

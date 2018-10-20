@@ -19,10 +19,11 @@ import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.data.JlinkTaskData
 import org.beryx.jlink.data.LauncherData
+import org.beryx.jlink.data.TargetPlatform
 import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.util.PathUtil
-import org.beryx.jlink.util.Util
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -41,10 +42,13 @@ class JlinkTask extends BaseTask {
     Property<String> mainClass
 
     @Input
-    Property<List<String>> options
+    ListProperty<String> options
 
     @Input
     Property<String> javaHome
+
+    @Input
+    Property<Map<String, TargetPlatform>> targetPlatforms
 
     @InputDirectory
     DirectoryProperty jlinkJarsDir
@@ -65,6 +69,7 @@ class JlinkTask extends BaseTask {
         moduleName = extension.moduleName
         options = extension.options
         javaHome = extension.javaHome
+        targetPlatforms = extension.targetPlatforms
         imageDir = extension.imageDir
 
         jlinkJarsDir = project.objects.directoryProperty()
@@ -81,6 +86,7 @@ class JlinkTask extends BaseTask {
         taskData.mainClass = mainClass.get() ?: project['mainClassName']
         taskData.options = options.get()
         taskData.javaHome = javaHome.get()
+        taskData.targetPlatforms = targetPlatforms.get()
         taskData.jlinkJarsDir = jlinkJarsDir.get().asFile
 
         def taskImpl = new JlinkTaskImpl(project, taskData)

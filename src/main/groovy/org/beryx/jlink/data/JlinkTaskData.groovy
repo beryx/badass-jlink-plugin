@@ -27,5 +27,6 @@ class JlinkTaskData extends BaseTaskData {
     String mainClass
     List<String> options
     String javaHome
+    Map<String,TargetPlatform> targetPlatforms
     File jlinkJarsDir
 }

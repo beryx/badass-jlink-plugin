@@ -132,10 +132,10 @@ jvmArgs:: list of JVM arguments to be passed to the java executable. +
 args:: list of arguments to be passed to the application. +
     _defaultValue_: empty list
 
-unixScriptTemplate:: the template for generating the script file for Unix-like systems.
+unixScriptTemplate:: the template for generating the script file for Unix-like systems. +
     _defaultValue_: null (the plugin uses its own template)
 
-windowsScriptTemplate:: the template for generating the script file for Windows-based systems.
+windowsScriptTemplate:: the template for generating the script file for Windows-based systems. +
     _defaultValue_: null (the plugin uses its own template)
 
 The plugin uses http://docs.groovy-lang.org/latest/html/api/groovy/text/SimpleTemplateEngine.html[Groovy's SimpleTemplateEngine]

@@ -22,6 +22,7 @@ import org.beryx.jlink.impl.PrepareMergedJarsDirTaskImpl
 import org.beryx.jlink.util.JavaVersion
 import org.beryx.jlink.util.PathUtil
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
@@ -31,10 +32,10 @@ import org.gradle.api.tasks.TaskAction
 @CompileStatic
 class PrepareMergedJarsDirTask extends BaseTask {
     @Input
-    Property<List<String>> forceMergedJarPrefixes
+    ListProperty<String> forceMergedJarPrefixes
 
     @Input
-    Property<List<String>> extraDependenciesPrefixes
+    ListProperty<String> extraDependenciesPrefixes
 
     @Input
     Property<String> javaHome
