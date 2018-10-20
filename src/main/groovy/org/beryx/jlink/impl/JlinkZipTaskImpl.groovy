@@ -18,16 +18,32 @@ package org.beryx.jlink.impl
 import org.beryx.jlink.data.JlinkZipTaskData
 import org.gradle.api.Project
 
-class JlinkZipTaskImpl extends BaseTaskImpl {
+class JlinkZipTaskImpl extends BaseTaskImpl<JlinkZipTaskData> {
     JlinkZipTaskImpl(Project project, JlinkZipTaskData taskData) {
         super(project, taskData)
         project.logger.info("taskData: $taskData")
     }
 
     void execute() {
-        project.ant.zip(destfile: td.imageZip, duplicate: 'fail') {
-            zipfileset(dir: td.imageDir.parentFile, includes: "$td.imageDir.name/**", excludes: "$td.imageDir.name/bin/**")
-            zipfileset(dir: td.imageDir.parentFile, includes: "$td.imageDir.name/bin/**", filemode: 755)
+        if(td.targetPlatforms) {
+            def zipDir = td.imageZip.parentFile
+            def zipName = td.imageZip.name
+            int pos = zipName.lastIndexOf('.')
+            def ext = (pos > 0) ? zipName.substring(pos+1) : 'zip'
+            def baseName = (pos > 0) ? zipName.substring(0,pos) : zipName
+            td.targetPlatforms.values().each { platform ->
+                File zipFile = new File(zipDir, "${baseName}-${platform.name}.${ext}")
+                File imageDir = new File(td.imageDir, "$td.launcherData.name-$platform.name")
+                project.ant.zip(destfile: zipFile, duplicate: 'fail') {
+                    zipfileset(dir: imageDir.parentFile, includes: "$imageDir.name/**", excludes: "$imageDir.name/bin/**")
+                    zipfileset(dir: imageDir.parentFile, includes: "$imageDir.name/bin/**", filemode: 755)
+                }
+            }
+        } else {
+            project.ant.zip(destfile: td.imageZip, duplicate: 'fail') {
+                zipfileset(dir: td.imageDir.parentFile, includes: "$td.imageDir.name/**", excludes: "$td.imageDir.name/bin/**")
+                zipfileset(dir: td.imageDir.parentFile, includes: "$td.imageDir.name/bin/**", filemode: 755)
+            }
         }
     }
 }

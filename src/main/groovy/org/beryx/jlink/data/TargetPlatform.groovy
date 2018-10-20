@@ -15,14 +15,17 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.Canonical
 import groovy.transform.CompileStatic
-import groovy.transform.ToString
 
 @CompileStatic
-@ToString(includeNames = true)
-class JlinkZipTaskData extends BaseTaskData {
-    Map<String,TargetPlatform> targetPlatforms
-    LauncherData launcherData
-    File imageDir
-    File imageZip
+class TargetPlatform implements Serializable {
+    final String name
+    final String jdkHome
+    final List<String> options = []
+    TargetPlatform(String name, String jdkHome, List<String> options = []) {
+        this.name = name
+        this.jdkHome = jdkHome
+        this.options.addAll(options)
+    }
 }

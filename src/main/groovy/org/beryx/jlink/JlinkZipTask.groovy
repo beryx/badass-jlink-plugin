@@ -17,16 +17,26 @@ package org.beryx.jlink
 
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
+import org.beryx.jlink.data.LauncherData
+import org.beryx.jlink.data.TargetPlatform
 import org.beryx.jlink.impl.JlinkZipTaskImpl
 import org.beryx.jlink.data.JlinkZipTaskData
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 @CompileStatic
 class JlinkZipTask extends BaseTask {
+    @Input
+    Property<Map<String, TargetPlatform>> targetPlatforms
+
+    @Input
+    Property<LauncherData> launcherData
+
     @OutputDirectory
     DirectoryProperty imageDir
 
@@ -41,6 +51,8 @@ class JlinkZipTask extends BaseTask {
     @Override
     void init(JlinkPluginExtension extension) {
         super.init(extension)
+        targetPlatforms = extension.targetPlatforms
+        launcherData = extension.launcherData
         imageDir = extension.imageDir
         imageZip = extension.imageZip
     }
@@ -49,6 +61,8 @@ class JlinkZipTask extends BaseTask {
     void jlinkTaskAction() {
         def taskData = new JlinkZipTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
+        taskData.targetPlatforms = targetPlatforms.get()
+        taskData.launcherData = launcherData.get()
         taskData.imageDir = imageDir.get().asFile
         taskData.imageZip = imageZip.get().asFile
         def taskImpl = new JlinkZipTaskImpl(project, taskData)

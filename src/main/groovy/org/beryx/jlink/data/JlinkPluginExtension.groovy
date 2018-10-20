@@ -21,6 +21,7 @@ import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 
 @CompileStatic
@@ -34,12 +35,13 @@ class JlinkPluginExtension {
 
     final Property<LauncherData> launcherData
     final Property<String> mainClass
-    final Property<List<String>> forceMergedJarPrefixes
-    final Property<List<String>> extraDependenciesPrefixes
-    final Property<List<String>> options
+    final ListProperty<String> forceMergedJarPrefixes
+    final ListProperty<String> extraDependenciesPrefixes
+    final ListProperty<String> options
     final Property<ModuleInfo> mergedModuleInfo
     final Property<JdepsUsage> useJdeps
     final Property<String> javaHome
+    final Property<Map<String, TargetPlatform>> targetPlatforms
     final Property<Integer> jvmVersion
 
 
@@ -68,13 +70,13 @@ class JlinkPluginExtension {
         mainClass = project.objects.property(String)
         mainClass.set('')
 
-        forceMergedJarPrefixes = (Property)project.objects.property(List)
+        forceMergedJarPrefixes = project.objects.listProperty(String)
         forceMergedJarPrefixes.set(new ArrayList<String>())
 
-        extraDependenciesPrefixes = (Property)project.objects.property(List)
+        extraDependenciesPrefixes = project.objects.listProperty(String)
         extraDependenciesPrefixes.set(new ArrayList<String>())
 
-        options = (Property)project.objects.property(List)
+        options = project.objects.listProperty(String)
         options.set(new ArrayList<String>())
 
         mergedModuleInfo = project.objects.property(ModuleInfo)
@@ -85,6 +87,9 @@ class JlinkPluginExtension {
 
         javaHome = project.objects.property(String)
         javaHome.set(System.getenv('JAVA_HOME'))
+
+        targetPlatforms = (Property)project.objects.property(Map)
+        targetPlatforms.set(new TreeMap<>())
 
         jvmVersion = project.objects.property(Integer)
     }
@@ -99,6 +104,10 @@ class JlinkPluginExtension {
 
     void addOptions(String... options) {
         this.options.get().addAll(options)
+    }
+
+    void targetPlatform(String name, String jdkHome, List<String> options = []) {
+        targetPlatforms.get()[name] = new TargetPlatform(name, jdkHome, options)
     }
 
     void mergedModule(Closure closure) {

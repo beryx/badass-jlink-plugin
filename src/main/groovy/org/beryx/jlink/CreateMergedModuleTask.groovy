@@ -23,6 +23,7 @@ import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.impl.CreateMergedModuleTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -32,10 +33,10 @@ import org.gradle.api.tasks.TaskAction
 @CompileStatic
 class CreateMergedModuleTask extends BaseTask {
     @Input
-    Property<List<String>> forceMergedJarPrefixes
+    ListProperty<String> forceMergedJarPrefixes
 
     @Input
-    Property<List<String>> extraDependenciesPrefixes
+    ListProperty<String> extraDependenciesPrefixes
 
     @Input
     Property<String> mergedModuleName
