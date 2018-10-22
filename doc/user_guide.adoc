@@ -30,7 +30,7 @@ A detailed description of these tasks is given in <<taskDetails>>
 
 == Properties
 imageDir:: The directory into which the custom runtime image should be generated. +
-(If you use the `targetPlatform` method to generate images for other platforms, the corresponding images will be created in subdirectories of `imageDir`.)
+(If you use the `targetPlatform` method to generate images for other platforms, the corresponding images will be created in subdirectories of `imageDir`.) +
     _defaultValue_: `_buildDir_/image` +
     _usage example_: `imageDir = file("$buildDir/myapp-image")`
 imageZip:: The file into which a zip archive of the custom runtime image should be created. +
