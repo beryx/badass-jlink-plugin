@@ -30,6 +30,7 @@ A detailed description of these tasks is given in <<taskDetails>>
 
 == Properties
 imageDir:: The directory into which the custom runtime image should be generated. +
+(If you use the `targetPlatform` method to generate images for other platforms, the corresponding images will be created in subdirectories of `imageDir`.)
     _defaultValue_: `_buildDir_/image` +
     _usage example_: `imageDir = file("$buildDir/myapp-image")`
 imageZip:: The file into which a zip archive of the custom runtime image should be created. +
@@ -96,9 +97,9 @@ jlink {
 }
 ----
 
-Executing the `jlinkZip` task with the above configuration, and assuming default values for the other properties,
+For a project named `hello`, executing the `jlinkZip` task with the above configuration, and assuming default values for the other properties,
 the plugin will generate the platform-specific images in the directories
-`build/image-linux-x64` and `build/image-linux-s390x`.
+`build/image/hello-linux-x64` and `build/image/hello-linux-s390x`.
 The archived images will be available in `build/image-linux-x64.zip` and `build/image-linux-s390x.zip`.
 |===
 
