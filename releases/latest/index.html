@@ -17,7 +17,7 @@
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.0.1</span>
+<span id="revnumber">version 2.1.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -79,7 +79,7 @@ and <code>jlinkZip</code>, which in addition creates a zip archive of the custom
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.0.1'
+    id 'org.beryx.jlink' version '2.1.0'
 }</code></pre>
 </div>
 </div>
@@ -89,7 +89,7 @@ and <code>jlinkZip</code>, which in addition creates a zip archive of the custom
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.0.1-gradle4'
+    id 'org.beryx.jlink' version '2.1.0-gradle4'
 }</code></pre>
 </div>
 </div>
@@ -121,7 +121,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.0.1/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.1.0/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -194,8 +194,9 @@ You can use the suggested block as a starting point for your custom <code>merged
 <dt class="hdlist1">imageDir</dt>
 <dd>
 <p>The directory into which the custom runtime image should be generated.<br>
-<em>defaultValue</em>: <code><em>buildDir</em>/image</code><br>
-<em>usage example</em>: <code>imageDir = file("$buildDir/myapp-image")</code></p>
+(If you use the <code>targetPlatform</code> method to generate images for other platforms, the corresponding images will be created in subdirectories of <code>imageDir</code>.)
+    <em>defaultValue</em>: <code><em>buildDir</em>/image</code><br>
+    <em>usage example</em>: <code>imageDir = file("$buildDir/myapp-image")</code></p>
 </dd>
 <dt class="hdlist1">imageZip</dt>
 <dd>
@@ -246,29 +247,69 @@ You can use the suggested block as a starting point for your custom <code>merged
 <h3 id="_methods">Methods</h3>
 <div class="dlist">
 <dl>
-<dt class="hdlist1">addOptions(String&#8230;&#8203; options)</dt>
+<dt class="hdlist1"><span class="maroon">addOptions</span>(String&#8230;&#8203; <span class="purple">options</span>)</dt>
 <dd>
 <p>Adds options to be passed to <em>jlink</em>.
 It is an alternative way of setting the <code>options</code> property.
 You can call this method multiple times.<br>
     <em>usage example</em>: <code>addOptions '--no-header-files', '--no-man-pages'</code></p>
 </dd>
-<dt class="hdlist1">forceMerge(String&#8230;&#8203; jarPrefixes)</dt>
+<dt class="hdlist1"><span class="maroon">forceMerge</span>(String&#8230;&#8203; <span class="purple">jarPrefixes</span>)</dt>
 <dd>
 <p>Instructs the plugin to include all dependencies matching the given prefixes into the merged module.
 This method is useful when the plugin should handle one or more modular jars as non-modular.
 You can call this method multiple times.<br>
     <em>usage example</em>: <code>forceMerge 'jaxb-api'</code></p>
 </dd>
-<dt class="hdlist1">addExtraDependencies(String&#8230;&#8203; jarPrefixes)</dt>
+<dt class="hdlist1"><span class="maroon">addExtraDependencies</span>(String&#8230;&#8203; <span class="purple">jarPrefixes</span>)</dt>
 <dd>
 <p>Instructs the plugin to treat all jars matching the given prefixes as dependencies of the merged module.<br>
 A typical situation where this method is needed involves libraries using JavaFX.
 Some libraries do not specify their JavaFX dependencies, because JavaFX was part of the JDK before being removed in Java 11.<br>
 Including <code>addExtraDependencies("javafx")</code> into the <code>jlink</code> block solves this problem.</p>
 </dd>
+<dt class="hdlist1"><span class="maroon">targetPlatform</span>(String <span class="purple">name</span>, String <span class="purple">jdkHome</span>, List&lt;String&gt; <span class="purple">options</span> = [])</dt>
+<dd>
+<p>Instructs the plugin to generate an application image for a specific platform.<br>
+By default, the plugin generates an image for the platform it runs on.
+To create images for other platforms, you need to call the <code>targetPlatform</code> method (one call per target platform).<br>
+<span class="purple"><strong>name</strong></span>: an identifier of your choice that will be appended to the <code>imageDir</code> and <code>imageZip</code> properties to
+determine the location of the image directory and of the image archive.<br>
+<span class="purple"><strong>jdkHome</strong></span>: the path to the target platform JDK.<br>
+<span class="purple"><strong>options</strong></span>: an optional list of platform-specific options.
+These options will pe passed to <em>jlink</em> in addition to those provided by the <code>options</code> property of the <code>jlink</code> extension.</p>
+</dd>
 </dl>
 </div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 0.99%;">
+<col style="width: 99.01%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
+<div class="title">Usage example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">jlink {
+    ...
+    targetPlatform(<span class="string"><span class="delimiter">'</span><span class="content">linux-x64</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">/usr/lib/jvm/jdk_x64_linux_hotspot_11_28</span><span class="delimiter">'</span></span>)
+    targetPlatform(<span class="string"><span class="delimiter">'</span><span class="content">linux-s390x</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">/usr/lib/jvm/jdk_s390x_linux_hotspot_11_28</span><span class="delimiter">'</span></span>,
+                                                               [<span class="string"><span class="delimiter">'</span><span class="content">--endian</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">big</span><span class="delimiter">'</span></span>])
+    ...
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For a project named <code>hello</code>, executing the <code>jlinkZip</code> task with the above configuration, and assuming default values for the other properties,
+the plugin will generate the platform-specific images in the directories
+<code>build/image/hello-linux-x64</code> and <code>build/image/hello-linux-s390x</code>.
+The archived images will be available in <code>build/image-linux-x64.zip</code> and <code>build/image-linux-s390x.zip</code>.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
 <h3 id="scriptBlocks">Script blocks</h3>
@@ -343,12 +384,12 @@ You can customize these scripts by configuring the following properties in the <
 </dd>
 <dt class="hdlist1">unixScriptTemplate</dt>
 <dd>
-<p>the template for generating the script file for Unix-like systems.
+<p>the template for generating the script file for Unix-like systems.<br>
 <em>defaultValue</em>: null (the plugin uses its own template)</p>
 </dd>
 <dt class="hdlist1">windowsScriptTemplate</dt>
 <dd>
-<p>the template for generating the script file for Windows-based systems.
+<p>the template for generating the script file for Windows-based systems.<br>
 <em>defaultValue</em>: null (the plugin uses its own template)</p>
 </dd>
 </dl>
@@ -617,7 +658,7 @@ The table below shows the variable names of the subdirectories created here and 
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.0.1<br>
+Version 2.1.0<br>
 </div>
 </div>
 </body>
