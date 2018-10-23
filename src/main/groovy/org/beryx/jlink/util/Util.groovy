@@ -49,8 +49,8 @@ class Util {
     }
 
     static String getDefaultModuleName(Project project) {
-        Set<File> srcDirs = project.sourceSets.main.java.srcDirs
-        File moduleInfoDir = srcDirs.find { it.list().contains('module-info.java')}
+        Set<File> srcDirs = project.sourceSets.main?.java?.srcDirs
+        File moduleInfoDir = srcDirs?.find { it.list()?.contains('module-info.java')}
         if(!moduleInfoDir) throw new GradleException("Cannot find module-info.java")
         String moduleInfoText = new File(moduleInfoDir, 'module-info.java').text
         Util.getModuleNameFrom(moduleInfoText)
