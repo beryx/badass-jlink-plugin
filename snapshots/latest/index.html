@@ -194,8 +194,9 @@ You can use the suggested block as a starting point for your custom <code>merged
 <dt class="hdlist1">imageDir</dt>
 <dd>
 <p>The directory into which the custom runtime image should be generated.<br>
-<em>defaultValue</em>: <code><em>buildDir</em>/image</code><br>
-<em>usage example</em>: <code>imageDir = file("$buildDir/myapp-image")</code></p>
+(If you use the <code>targetPlatform</code> method to generate images for other platforms, the corresponding images will be created in subdirectories of <code>imageDir</code>.)
+    <em>defaultValue</em>: <code><em>buildDir</em>/image</code><br>
+    <em>usage example</em>: <code>imageDir = file("$buildDir/myapp-image")</code></p>
 </dd>
 <dt class="hdlist1">imageZip</dt>
 <dd>
@@ -301,9 +302,9 @@ These options will pe passed to <em>jlink</em> in addition to those provided by 
 </div>
 </div>
 <div class="paragraph">
-<p>Executing the <code>jlinkZip</code> task with the above configuration, and assuming default values for the other properties,
+<p>For a project named <code>hello</code>, executing the <code>jlinkZip</code> task with the above configuration, and assuming default values for the other properties,
 the plugin will generate the platform-specific images in the directories
-<code>build/image-linux-x64</code> and <code>build/image-linux-s390x</code>.
+<code>build/image/hello-linux-x64</code> and <code>build/image/hello-linux-s390x</code>.
 The archived images will be available in <code>build/image-linux-x64.zip</code> and <code>build/image-linux-s390x.zip</code>.</p>
 </div></div></td>
 </tr>
