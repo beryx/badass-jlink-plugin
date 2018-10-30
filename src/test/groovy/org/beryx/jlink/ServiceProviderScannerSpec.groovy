@@ -15,13 +15,13 @@
  */
 package org.beryx.jlink
 
-import org.beryx.jlink.util.ServiceLoaderUseScanner
+import org.beryx.jlink.util.ServiceProviderScanner
 import spock.lang.Specification
 
-class ServiceLoaderUseScannerSpec extends Specification {
-    def "should correctly detect used services"() {
+class ServiceProviderScannerSpec extends Specification {
+    def "should correctly detect provided services"() {
         given:
-        def scanner = new ServiceLoaderUseScanner(null)
+        def scanner = new ServiceProviderScanner(null)
         def jarFile = new File('src/test/resources/libs/ecj-3.13.102.jar')
 
         when:
@@ -29,6 +29,8 @@ class ServiceLoaderUseScannerSpec extends Specification {
         if(invalidEntries) println "invalidEntries: $invalidEntries"
 
         then:
-        scanner.builders*.toString() as Set == ['uses javax.annotation.processing.Processor;'] as Set
+        scanner.builders*.toString() as Set == [
+                'provides javax.tools.JavaCompiler with org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;'
+        ] as Set
     }
 }

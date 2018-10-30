@@ -49,7 +49,7 @@ license {
     header rootProject.file("license-header.txt")
     skipExistingHeaders true
     ignoreFailures false
-    excludes (['**/*.properties', '**/hello/'])
+    excludes (['**/*.properties', '**/hello*/'])
 }
 
 configurations {

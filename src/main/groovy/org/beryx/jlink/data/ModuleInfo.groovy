@@ -75,45 +75,45 @@ class ModuleInfo implements Serializable {
 
 
     static class UsesBuilder implements Serializable {
-        final String module
+        final String service
 
-        UsesBuilder(String module) {
-            this.module = module
+        UsesBuilder(String service) {
+            this.service = service
         }
 
         @Override
         String toString() {
-            return "uses $module;"
+            return "uses $service;"
         }
 
         String get() {
-            if(!module) throw new IllegalStateException("No module provided")
+            if(!service) throw new IllegalStateException("No service provided")
             toString()
         }
     }
 
-    UsesBuilder uses(String module) {
+    UsesBuilder uses(String service) {
         afterRequiresTransitive = false
-        def builder = new UsesBuilder(module)
+        def builder = new UsesBuilder(service)
         usesBuilders << builder
         builder
     }
 
     static class ProvidesBuilder implements Serializable {
         final String service
-        String[] implementations
+        final List<String> implementations = []
 
         ProvidesBuilder(String service) {
             this.service = service
         }
 
         ProvidesBuilder with(String... implementations) {
-            this.implementations = implementations
+            this.implementations.addAll(implementations as List)
             this
         }
 
         String toString() {
-            "provides $service with ${implementations.join(', ')};"
+            "provides $service with ${implementations.join(',\n\t\t\t\t')};"
         }
 
         String get() {

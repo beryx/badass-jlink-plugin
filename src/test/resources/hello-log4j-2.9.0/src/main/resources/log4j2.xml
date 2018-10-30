@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Appenders>
+        <Console name="out" target="SYSTEM_OUT">
+            <PatternLayout pattern="LOG: %msg%n" />
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="WARN">
+            <AppenderRef ref="out"/>
+        </Root>
+        <Logger name="org.beryx.modular.hello" level="INFO"/>
+    </Loggers>
+</Configuration>

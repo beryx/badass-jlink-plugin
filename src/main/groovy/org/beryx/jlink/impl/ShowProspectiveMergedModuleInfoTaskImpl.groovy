@@ -16,8 +16,7 @@
 package org.beryx.jlink.impl
 
 import org.beryx.jlink.data.ShowProspectiveMergedModuleInfoTaskData
-import org.beryx.jlink.util.ModuleManager
-import org.beryx.jlink.util.PackageUseScanner
+import org.beryx.jlink.util.ProspectiveMergedModuleInfoBuilder
 import org.gradle.api.Project
 
 class ShowProspectiveMergedModuleInfoTaskImpl extends BaseTaskImpl<ShowProspectiveMergedModuleInfoTaskData> {
@@ -27,32 +26,7 @@ class ShowProspectiveMergedModuleInfoTaskImpl extends BaseTaskImpl<ShowProspecti
     }
 
     void execute() {
-        def scanner = new PackageUseScanner(project)
-        def invalidFiles = scanner.scan(td.mergedJarsDir)
-        if(invalidFiles) {
-            project.logger.warn("Failed to scan: $invalidFiles")
-        }
-        project.logger.debug("External packages used by the merged module:\n\t${scanner.externalPackages.join('\n\t')}")
-
-        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes)
-        def moduleManager = new ModuleManager(*depMgr.modularJars.toArray(), new File("$td.javaHome/jmods"))
-        def requiredModules = new TreeSet<String>()
-
-        scanner.externalPackages.each { pkg ->
-            def moduleName = moduleManager.exportMap[pkg]
-            if(!moduleName) {
-                project.logger.info("Cannot find module exporting $pkg")
-            } else {
-                requiredModules.add(moduleName)
-            }
-        }
-        requiredModules -= 'java.base'
-
-        println "mergedModule {"
-
-        requiredModules.each {println "\trequires '$it'"}
-
-        println "}\n"
-
+        def builder = new ProspectiveMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes)
+        println "mergedModule{\n" + builder.moduleInfo.toString(4) + "\n}"
     }
 }

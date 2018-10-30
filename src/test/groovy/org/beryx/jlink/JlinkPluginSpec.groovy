@@ -33,7 +33,7 @@ class JlinkPluginSpec extends Specification {
 
     def setUpBuild(String moduleName, String launcherName, String mainClass, String mergedModuleName) {
         new AntBuilder().copy( todir: testProjectDir.root ) {
-            fileset( dir: 'src/test/resources/hello' )
+            fileset( dir: 'src/test/resources/hello-logback' )
         }
 
         File buildFile = new File(testProjectDir.root, "build.gradle")

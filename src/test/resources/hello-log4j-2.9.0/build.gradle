@@ -1,0 +1,68 @@
+plugins {
+    id 'org.beryx.jlink' version '1.4.4'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+ext.log4jVersion = '2.9.0'
+
+dependencies {
+    compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
+    compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+    compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
+    compile "javax.xml.bind:jaxb-api:2.3.0"
+}
+
+mainClassName = 'org.beryx.modular.hello.Hello'
+jar {
+    manifest {
+        attributes 'Implementation-Title': "modular-hello",
+                'Main-Class': mainClassName
+    }
+}
+
+compileJava {
+    options.compilerArgs = ['--module-path', classpath.asPath]
+    classpath = files()
+}
+
+jlink {
+    launcherName = 'hello'
+    mergedModule {
+        requires 'java.naming';
+        requires 'java.xml';
+        requires 'java.management';
+        requires 'java.scripting';
+        requires 'java.desktop';
+
+        uses 'org.apache.logging.log4j.spi.Provider';
+        provides 'org.apache.logging.log4j.spi.Provider' with 'org.apache.logging.log4j.core.impl.Log4jProvider';
+    }
+}
+
+tasks.jlink.doLast {
+    copy {
+        from('src/main/resources')
+        into("$buildDir/image/bin")
+    }
+    adjustStartScripts()
+}
+
+def adjustStartScripts() {
+    ['hello', 'hello.bat'].each { script ->
+        def scriptFile = new File("$buildDir/image/bin/$script")
+        if(scriptFile.file) {
+            def quotes = script.endsWith('.bat') ? '' : '"'
+            def binDir = script.endsWith('.bat') ? '%~dp0' : '.'
+            def newText = scriptFile.text
+            newText = newText.replace('JLINK_VM_OPTIONS=',
+                    "JLINK_VM_OPTIONS=${quotes}-Dlog4j.configurationFile=$binDir/log4j2.xml${quotes}")
+            scriptFile.newWriter().withWriter {w -> w << newText}
+        }
+    }
+}

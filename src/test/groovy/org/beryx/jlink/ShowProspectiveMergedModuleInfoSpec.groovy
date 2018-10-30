@@ -16,13 +16,11 @@
 package org.beryx.jlink
 
 import org.gradle.testkit.runner.BuildResult
-import org.gradle.testkit.runner.BuildTask
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
-import spock.util.environment.OperatingSystem
 
 class ShowProspectiveMergedModuleInfoSpec extends Specification {
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
@@ -34,7 +32,7 @@ class ShowProspectiveMergedModuleInfoSpec extends Specification {
     def "should display the correct module-info for the merged module"() {
         given:
         new AntBuilder().copy( todir: testProjectDir.root ) {
-            fileset( dir: 'src/test/resources/hello' )
+            fileset( dir: 'src/test/resources/hello-log4j-2.9.0' )
         }
         File buildFile = new File(testProjectDir.root, "build.gradle")
         def outputWriter = new StringWriter(8192)
@@ -48,6 +46,7 @@ class ShowProspectiveMergedModuleInfoSpec extends Specification {
                 .withArguments(JlinkPlugin.TASK_NAME_SHOW_PROSPECTIVE_MERGED_MODULE_INFO, "-is")
                 .build();
         def task = result.task(":$JlinkPlugin.TASK_NAME_SHOW_PROSPECTIVE_MERGED_MODULE_INFO")
+        println outputWriter
 
         then:
         task.outcome == TaskOutcome.SUCCESS

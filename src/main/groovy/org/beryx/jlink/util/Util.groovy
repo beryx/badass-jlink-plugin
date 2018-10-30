@@ -23,6 +23,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 
 import java.lang.module.ModuleFinder
+import java.nio.file.Paths
 import java.util.jar.JarFile
 import java.util.zip.ZipFile
 
@@ -129,22 +130,26 @@ class Util {
 
 
     static void scan(File file,
-         @ClosureParams(value= SimpleType, options="java.lang.String,java.io.InputStream") Closure<Void> action) {
+         @ClosureParams(value= SimpleType, options="java.lang.String,java.lang.String,java.io.InputStream") Closure<Void> action) {
         if(!file.exists()) throw new IllegalArgumentException("File or directory not found: $file")
         if(file.directory) scanDir(file, action)
         else scanJar(file, action)
     }
 
     private static void scanDir(File dir,
-                        @ClosureParams(value= SimpleType, options="java.lang.String,java.io.InputStream") Closure<Void> action) {
+                        @ClosureParams(value= SimpleType, options="java.lang.String,java.lang.String,java.io.InputStream") Closure<Void> action) {
         if(!dir.directory) throw new IllegalArgumentException("Not a directory: $dir")
-        dir.eachFileRecurse(FileType.FILES) { file -> action.call(file.absolutePath, file.newInputStream()) }
+        dir.eachFileRecurse(FileType.FILES) { file ->
+            def basePath = dir.absolutePath.replace('\\', '/')
+            def relPath = dir.toPath().relativize(file.toPath()).toString().replace('\\', '/')
+            action.call(basePath, relPath, file.newInputStream())
+        }
     }
 
     private static void scanJar(File jarFile,
-                        @ClosureParams(value= SimpleType, options="java.lang.String,java.io.InputStream") Closure<Void> action) {
+                        @ClosureParams(value= SimpleType, options="java.lang.String,java.lang.String,java.io.InputStream") Closure<Void> action) {
         def zipFile = new ZipFile(jarFile)
-        zipFile.entries().each { entry -> action.call(entry.name, zipFile.getInputStream(entry)) }
+        zipFile.entries().each { entry -> action.call('', entry.name, zipFile.getInputStream(entry)) }
     }
 
 }

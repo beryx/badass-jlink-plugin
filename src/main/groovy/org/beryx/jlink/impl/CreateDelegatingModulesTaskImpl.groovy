@@ -38,7 +38,7 @@ class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModul
         def moduleDir = genDelegatingModuleInfo(jarFile, tmpDirPath)
         project.delete(td.tmpModuleInfoDirPath)
         Util.createManifest(td.tmpModuleInfoDirPath, false)
-        project.logger.info("Compiling delegate module $moduleDir.name ...")
+        project.logger.info("Compiling delegating module $moduleDir.name ...")
         def result = project.exec {
             ignoreExitValue = true
             standardOutput = new ByteArrayOutputStream()

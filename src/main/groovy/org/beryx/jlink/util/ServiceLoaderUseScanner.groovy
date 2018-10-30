@@ -37,13 +37,13 @@
 
 package org.beryx.jlink.util
 
-
 import org.gradle.api.Project
 import org.objectweb.asm.*
+import static org.beryx.jlink.data.ModuleInfo.UsesBuilder
 
 class ServiceLoaderUseScanner {
     final Project project
-    final Set<String> usedServices = new HashSet<>()
+    final Set<UsesBuilder> builders = new HashSet<>()
 
 
     ServiceLoaderUseScanner(Project project) {
@@ -52,16 +52,16 @@ class ServiceLoaderUseScanner {
 
     List<String> scan(File file) {
         def invalidEntries = []
-        Util.scan(file) { name, inputStream ->
-            if(Util.isValidClassFileReference(name)) {
-                if(project) project.logger.trace("scanning ServiceLoader use in: $name")
+        Util.scan(file) { basePath, path, inputStream ->
+            if(Util.isValidClassFileReference(path)) {
+                if(project) project.logger.trace("scanning ServiceLoader use in: $path")
                 try {
                     def cv = new ServiceLoaderClassVisitor()
                     new ClassReader(inputStream).accept(cv, 0)
-                    usedServices.addAll(cv.usedServices)
+                    cv.usedServices.each {service -> builders << new UsesBuilder(service)}
                 } catch (Exception e) {
-                    if(project) project.logger.info("Failed to scan $name", e)
-                    invalidEntries << name
+                    if(project) project.logger.info("Failed to scan $path", e)
+                    invalidEntries << "${basePath}/${path}"
                 }
             }
         }
