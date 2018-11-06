@@ -29,3 +29,5 @@ The following projects illustrate how to use this plugin to create custom runtim
 - [copper-modular-demo](https://github.com/copper-engine/copper-modular-demo) - creates a custom runtime image of a [COPPER 5](http://copper-engine.org/) modular application. 
 
 ### This is a complex plugin. Please [read the documentation](https://badass-jlink-plugin.beryx.org/releases/latest/) before using it.
+
+See the [list of all releases](https://github.com/beryx/badass-jlink-plugin/blob/gh-pages/releases.md) if you use an older version of this plugin. 
