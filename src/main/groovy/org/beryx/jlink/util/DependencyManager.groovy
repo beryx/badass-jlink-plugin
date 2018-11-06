@@ -23,6 +23,8 @@ import java.util.function.Predicate
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
+import static org.beryx.jlink.util.Util.getArtifact;
+
 @CompileStatic
 class DependencyManager {
     final Project project
@@ -41,9 +43,9 @@ class DependencyManager {
         this.forceMergedJarPrefixes = forceMergedJarPrefixes
         this.extraDependenciesPrefixes = extraDependenciesPrefixes
         this.extraDeps = collectDeps {ResolvedDependency dep -> extraDependenciesPrefixes.any {
-            dep.moduleArtifacts[0].file.name.startsWith(it)}
+            getArtifact(dep).name.startsWith(it)}
         }
-        project.logger.info("extraDeps: ${extraDeps.collect{ dep -> dep.moduleArtifacts[0].file} as Set}")
+        project.logger.info("extraDeps: ${extraDeps.collect{ getArtifact((it)) } as Set}")
 
         while(true) {
             def dep = getModularThatShouldBeHandledAsNonModular()
@@ -53,16 +55,16 @@ class DependencyManager {
         }
 
         Set<ResolvedDependency> modDeps = collectDeps {!isHandledAsNonModular(it)}
-        modularJars = modDeps.collect{ dep -> dep.moduleArtifacts[0].file} as Set
+        modularJars = modDeps.collect{ getArtifact((it) )} as Set
 
         Set<ResolvedDependency> nonModDeps = collectDeps {isHandledAsNonModular(it)}
-        nonModularJars = nonModDeps.collect{ dep -> dep.moduleArtifacts[0].file} as Set
+        nonModularJars = nonModDeps.collect{ getArtifact(it) } as Set
 
         Set<ResolvedDependency> handledDeps = []
         Set<ResolvedDependency> modsRequiredByNonMods = extraDeps.findAll{!isHandledAsNonModular(it)}
 
         nonModDeps.each {collectModularJarsRequiredByNonModularJars(it, modsRequiredByNonMods, modDeps, handledDeps)}
-        modularJarsRequiredByNonModularJars = modsRequiredByNonMods.collect{ dep -> dep.moduleArtifacts[0].file} as Set
+        modularJarsRequiredByNonModularJars = modsRequiredByNonMods.collect{ getArtifact(it) } as Set
 
         project.logger.info("modularJars: ${modularJars*.name}")
         project.logger.info("nonModularJars: ${nonModularJars*.name}")
@@ -110,7 +112,7 @@ class DependencyManager {
 
     private boolean isHandledAsNonModular(ResolvedDependency dep) {
         if(dependenciesHandledAsNonModular.contains(dep)) return true
-        def f = dep.moduleArtifacts[0].file
+        def f = getArtifact(dep)
         if(forceMergedJarPrefixes.any {f.name.startsWith(it)}) return true
         new ZipFile(f).entries().every { ZipEntry entry ->
             (entry.name != 'module-info.class') && (!entry.name.matches('META-INF/versions/[0-9]+/module-info.class'))
