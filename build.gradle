@@ -1,3 +1,18 @@
+import groovy.text.SimpleTemplateEngine
+import org.kohsuke.github.*
+
+buildscript {
+    repositories {
+        jcenter()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'org.kohsuke:github-api:1.94'
+    }
+}
+
 plugins {
     id 'java-gradle-plugin'
     id 'groovy'
@@ -166,4 +181,53 @@ gitPublish {
             }
         }
     }
+}
+
+task "update-release-list" {
+    doLast {
+        def docBaseUrl = 'http://badass-jlink-plugin.beryx.org'
+        updateReleaseList(docBaseUrl)
+    }
+}
+
+def updateReleaseList(String docBaseUrl) {
+    List<String> releases = getReleases()
+    def markdown = getReleasesMarkdown(releases, docBaseUrl)
+    def releaseListDir = new File('build/release-list')
+    releaseListDir.mkdirs()
+    new File(releaseListDir, 'releases.md').write(markdown)
+}
+
+def getReleases() {
+    GitHub gitHubApi = GitHub.connectUsingPassword(System.getenv('GRGIT_USER') ?: '', '')
+    def releases = gitHubApi.getOrganization("beryx")
+            .getRepository("badass-jlink-plugin")
+            .getDirectoryContent("releases", "gh-pages")*.name
+    releases.removeAll { !it || it == 'latest' }
+    releases.reverse()
+}
+
+def getReleasesMarkdown(List<String> releases, String docBaseUrl) {
+    def releasesTemplate = '''
+            ## List of all releases ##
+            
+            **Latest snapshot**
+            - [documentation]($docBaseUrl/snapshots/latest)
+            - [javadoc]($docBaseUrl/snapshots/latest/javadoc)
+            
+            <% releases.each { %>**Release $it**
+              - [documentation]($docBaseUrl/releases/$it)
+              - [javadoc]($docBaseUrl/releases/$it/javadoc)
+              
+            <% } %>
+        '''.stripIndent()
+
+    def engine = new SimpleTemplateEngine()
+    def template = engine.createTemplate(releasesTemplate)
+    def binding = [
+            docBaseUrl: docBaseUrl,
+            releases  : releases
+    ]
+
+    template.make(binding).toString()
 }
