@@ -21,6 +21,7 @@ import groovy.transform.stc.SimpleType
 import org.codehaus.groovy.tools.Utilities
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ResolvedDependency
 
 import java.lang.module.ModuleFinder
 import java.util.jar.JarFile
@@ -160,4 +161,8 @@ class Util {
         new File(versionsDir, "$version")
     }
 
+    static File getArtifact(ResolvedDependency dep) {
+        def artifact = dep.moduleArtifacts.find {it.classifier} ?: dep.moduleArtifacts[0]
+        artifact.file
+    }
 }
