@@ -95,15 +95,15 @@ class JlinkPluginExtension {
     }
 
     void addExtraDependencies(String... jarPrefixes) {
-        extraDependenciesPrefixes.get().addAll(jarPrefixes)
+        extraDependenciesPrefixes.addAll(jarPrefixes as List)
     }
 
     void forceMerge(String... jarPrefixes) {
-        forceMergedJarPrefixes.get().addAll(jarPrefixes)
+        forceMergedJarPrefixes.addAll(jarPrefixes as List)
     }
 
     void addOptions(String... options) {
-        this.options.get().addAll(options)
+        this.options.addAll(options as List)
     }
 
     void targetPlatform(String name, String jdkHome, List<String> options = []) {
