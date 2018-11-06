@@ -213,11 +213,11 @@ def getReleasesMarkdown(List<String> releases, String docBaseUrl) {
             
             **Latest snapshot**
             - [documentation]($docBaseUrl/snapshots/latest)
-            - [javadoc]($docBaseUrl/snapshots/latest/javadoc)
+            - [groovydoc]($docBaseUrl/snapshots/latest/groovydoc)
             
             <% releases.each { %>**Release $it**
               - [documentation]($docBaseUrl/releases/$it)
-              - [javadoc]($docBaseUrl/releases/$it/javadoc)
+              - [groovydoc]($docBaseUrl/releases/$it/groovydoc)
               
             <% } %>
         '''.stripIndent()
