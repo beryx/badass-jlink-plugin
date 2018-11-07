@@ -14,6 +14,9 @@ This way, only the resulting merged module needs a module descriptor.
 The plugin provides several tasks. The most frequently used are `jlink`, which creates a custom runtime image in a given directory,
 and `jlinkZip`, which in addition creates a zip archive of the custom runtime image.
 
+WARNING: The plugin requires Java 11 and Gradle 4.8 or newer.
+While it might work with some combinations of older Java and Gradle versions, these are not officially supported.
+
 If you use Gradle 5 or newer, include the following in your build script:
 
 [source,groovy]
