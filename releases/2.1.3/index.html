@@ -73,6 +73,19 @@ This way, only the resulting merged module needs a module descriptor.</p>
 <p>The plugin provides several tasks. The most frequently used are <code>jlink</code>, which creates a custom runtime image in a given directory,
 and <code>jlinkZip</code>, which in addition creates a zip archive of the custom runtime image.</p>
 </div>
+<div class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+The plugin requires Java 11 and Gradle 4.8 or newer.
+While it might work with some combinations of older Java and Gradle versions, these are not officially supported.
+</td>
+</tr>
+</table>
+</div>
 <div class="paragraph">
 <p>If you use Gradle 5 or newer, include the following in your build script:</p>
 </div>
