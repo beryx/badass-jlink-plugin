@@ -15,6 +15,7 @@ buildscript {
 
 plugins {
     id 'java-gradle-plugin'
+    id 'com.github.johnrengelman.plugin-shadow' version '2.0.3'
     id 'groovy'
     id "com.gradle.plugin-publish" version "0.9.10"
     id "com.github.ethankhall.semantic-versioning" version "1.1.0"
@@ -72,8 +73,9 @@ configurations {
 }
 
 dependencies {
-    compile gradleTestKit()
-    compile localGroovy()
+    shadow gradleTestKit()
+    shadow localGroovy()
+
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
 
     compile "org.ow2.asm:asm:$asmVersion"
