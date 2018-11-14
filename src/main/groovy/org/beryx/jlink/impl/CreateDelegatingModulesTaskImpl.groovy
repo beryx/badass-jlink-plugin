@@ -15,7 +15,6 @@
  */
 package org.beryx.jlink.impl
 
-import groovy.transform.CompileStatic
 import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.gradle.api.Project
@@ -37,6 +36,7 @@ class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModul
 
     def createDelegatingModule(File jarFile, String tmpDirPath, File targetDir) {
         def moduleDir = genDelegatingModuleInfo(jarFile, tmpDirPath)
+        if(!moduleDir) return
         project.delete(td.tmpModuleInfoDirPath)
         Util.createManifest(td.tmpModuleInfoDirPath, false)
         project.logger.info("Compiling delegating module $moduleDir.name ...")
@@ -70,11 +70,16 @@ class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModul
         def modinfoDir = new File(targetDirPath, moduleName)
         modinfoDir.mkdirs()
         def modInfoJava = new File(modinfoDir, 'module-info.java')
-        modInfoJava << """
-        open module $moduleName {
-            requires transitive $td.mergedModuleName;
+        if(modInfoJava.exists()) {
+            project.logger.info("Module $moduleName already generated. Skipping $jarFile")
+            return null
         }
-        """.stripIndent()
+        project.logger.info("Generating module $moduleName for: $jarFile")
+        modInfoJava << """
+            open module $moduleName {
+                requires transitive $td.mergedModuleName;
+            }
+            """.stripIndent()
         modinfoDir
     }
 }
