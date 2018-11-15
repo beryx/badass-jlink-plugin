@@ -27,6 +27,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
@@ -83,7 +84,7 @@ class JlinkTask extends BaseTask {
         taskData.imageDir = imageDir.get().asFile
         taskData.moduleName = moduleName.get()
         taskData.launcherData = launcherData.get()
-        taskData.mainClass = mainClass.get() ?: project['mainClassName']
+        taskData.mainClass = mainClass.get() ?: defaultMainClass
         taskData.options = options.get()
         taskData.javaHome = javaHome.get()
         taskData.targetPlatforms = targetPlatforms.get()
@@ -91,5 +92,17 @@ class JlinkTask extends BaseTask {
 
         def taskImpl = new JlinkTaskImpl(project, taskData)
         taskImpl.execute()
+    }
+
+    @Internal
+    String getDefaultMainClass() {
+        def mainClass = project['mainClassName'] as String
+        int pos = mainClass.lastIndexOf('/')
+        if(pos < 0) return mainClass
+        def mainClassModule = mainClass.substring(0, pos)
+        if(mainClassModule != moduleName.get()) {
+            project.logger.warn("The module name specified in 'mainClassName' ($mainClassModule) has not the expected value (${moduleName.get()}).")
+        }
+        mainClass.substring(pos + 1)
     }
 }
