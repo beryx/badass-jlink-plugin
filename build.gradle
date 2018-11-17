@@ -22,7 +22,7 @@ plugins {
     id "com.github.ben-manes.versions" version "0.13.0"
     id 'com.github.jk1.dependency-license-report' version '0.3.8'
     id "com.github.hierynomus.license" version "0.14.0"
-    id "org.asciidoctor.convert" version "1.5.8.1"
+    id "org.asciidoctor.convert" version "2.0-alpha.4"
     id "org.ajoberstar.git-publish" version "2.0.0-rc.2"
 }
 
@@ -90,7 +90,8 @@ dependencies {
     testCompile 'cglib:cglib-nodep:3.2.4'
     testCompile 'org.objenesis:objenesis:2.4'
     testCompile('com.athaydes:spock-reports:1.2.13') { transitive = false}
-}
+
+    asciidoctor 'com.bmuschko:asciidoctorj-tabbed-code-extension:0.1'}
 
 gradlePlugin {
     plugins {

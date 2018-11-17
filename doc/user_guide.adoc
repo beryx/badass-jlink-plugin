@@ -116,8 +116,9 @@ but it requires quotes around the names of modules, services, and service implem
 
 The plugin automatically exports all packages found in the merged module, therefore the DSL does not support `exports` directives.
 
-.Usage example (Groovy DSL)
-[source,groovy]
+_Usage example_
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
 jlink {
     ...
@@ -131,8 +132,8 @@ jlink {
 }
 ----
 
-.Usage example (Kotlin DSL)
-[source,groovy]
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
 ----
 import org.beryx.jlink.data.ModuleInfo
 ...
@@ -176,8 +177,9 @@ to parse the templates, with the following variables available:
 - jvmArgs
 - args
 
-.Usage example (Groovy DSL)
-[source,groovy]
+_Usage example_
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
 ----
 jlink {
     ...
@@ -192,8 +194,8 @@ jlink {
 }
 ----
 
-.Usage example (Kotlin DSL)
-[source,groovy]
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
 ----
 import org.beryx.jlink.data.LauncherData
 ...
