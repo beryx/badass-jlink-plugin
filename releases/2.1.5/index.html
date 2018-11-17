@@ -4,13 +4,89 @@
 <meta charset="UTF-8">
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.7.1">
+<meta name="generator" content="Asciidoctor 1.5.8">
 <meta name="author" content="Serban Iordache">
 <title>The Badass JLink Plugin</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <link rel="stylesheet" href="./asciidoctor.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
+<style>
+.hidden {
+    display: none;
+}
+
+.switch {
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
+    border-color: #7a2518;
+    display: inline-block;
+}
+
+.switch--item {
+    padding: 10px;
+    background-color: #ffffff;
+    color: #7a2518;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.switch--item.selected {
+    background-color: #7a2519;
+    color: #ffffff;
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+<script type="text/javascript">
+function addBlockSwitches() {
+    $('.primary').each(function() {
+        primary = $(this);
+        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
+        primary.children('.title').remove();
+    });
+    $('.secondary').each(function(idx, node) {
+        secondary = $(node);
+        primary = findPrimary(secondary);
+        switchItem = createSwitchItem(secondary, primary.children('.switch'));
+        switchItem.content.addClass('hidden');
+        findPrimary(secondary).append(switchItem.content);
+        secondary.remove();
+    });
+}
+
+function createBlockSwitch(primary) {
+    blockSwitch = $('<div class="switch"></div>');
+    primary.prepend(blockSwitch);
+    return blockSwitch;
+}
+
+function findPrimary(secondary) {
+    candidate = secondary.prev();
+    while (!candidate.is('.primary')) {
+        candidate = candidate.prev();
+    }
+    return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+    blockName = block.children('.title').text();
+    content = block.children('.content').first().append(block.next('.colist'));
+    item = $('<div class="switch--item">' + blockName + '</div>');
+    item.on('click', '', content, function(e) {
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
+        e.data.siblings('.content').addClass('hidden');
+        e.data.removeClass('hidden');
+    });
+    blockSwitch.append(item);
+    return {'item': item, 'content': content};
+}
+
+$(addBlockSwitches);
+
+</script>
+
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
@@ -339,8 +415,11 @@ but it requires quotes around the names of modules, services, and service implem
 <div class="paragraph">
 <p>The plugin automatically exports all packages found in the merged module, therefore the DSL does not support <code>exports</code> directives.</p>
 </div>
-<div class="listingblock">
-<div class="title">Usage example (Groovy DSL)</div>
+<div class="paragraph">
+<p><em>Usage example</em></p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
@@ -354,18 +433,18 @@ but it requires quotes around the names of modules, services, and service implem
 }</code></pre>
 </div>
 </div>
-<div class="listingblock">
-<div class="title">Usage example (Kotlin DSL)</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="groovy"><span class="keyword">import</span> <span class="include">org.beryx.jlink.data.ModuleInfo</span>
+<pre class="CodeRay highlight"><code data-lang="kotlin">import org.beryx.jlink.data.ModuleInfo
 ...
 jlink {
     ...
     mergedModule (delegateClosureOf&lt;ModuleInfo&gt; {
-        requires(<span class="string"><span class="delimiter">&quot;</span><span class="content">java.desktop</span><span class="delimiter">&quot;</span></span>)
-        requiresTransitive(<span class="string"><span class="delimiter">&quot;</span><span class="content">java.sql</span><span class="delimiter">&quot;</span></span>)
-        uses(<span class="string"><span class="delimiter">&quot;</span><span class="content">java.sql.Driver</span><span class="delimiter">&quot;</span></span>)
-        provides(<span class="string"><span class="delimiter">&quot;</span><span class="content">java.sql.Driver</span><span class="delimiter">&quot;</span></span>).with(<span class="string"><span class="delimiter">&quot;</span><span class="content">org.hsqldb.jdbc.JDBCDriver</span><span class="delimiter">&quot;</span></span>)
+        requires(&quot;java.desktop&quot;)
+        requiresTransitive(&quot;java.sql&quot;)
+        uses(&quot;java.sql.Driver&quot;)
+        provides(&quot;java.sql.Driver&quot;).with(&quot;org.hsqldb.jdbc.JDBCDriver&quot;)
     })
     ...
 }</code></pre>
@@ -427,8 +506,11 @@ to parse the templates, with the following variables available:</p>
 </li>
 </ul>
 </div>
-<div class="listingblock">
-<div class="title">Usage example (Groovy DSL)</div>
+<div class="paragraph">
+<p><em>Usage example</em></p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
@@ -443,19 +525,19 @@ to parse the templates, with the following variables available:</p>
 }</code></pre>
 </div>
 </div>
-<div class="listingblock">
-<div class="title">Usage example (Kotlin DSL)</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="groovy"><span class="keyword">import</span> <span class="include">org.beryx.jlink.data.LauncherData</span>
+<pre class="CodeRay highlight"><code data-lang="kotlin">import org.beryx.jlink.data.LauncherData
 ...
 jlink {
     ...
     launcher (delegateClosureOf&lt;LauncherData&gt; {
-        name = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-app</span><span class="delimiter">&quot;</span></span>
-        jvmArgs = listOf(<span class="string"><span class="delimiter">&quot;</span><span class="content">-Dlog4j.debug=true</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">-Dlog4j.configurationFile=./log4j2.xml</span><span class="delimiter">&quot;</span></span>)
-        args = listOf(<span class="string"><span class="delimiter">&quot;</span><span class="content">--user</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">alice</span><span class="delimiter">&quot;</span></span>)
-        unixScriptTemplate = file(<span class="string"><span class="delimiter">&quot;</span><span class="content">unixStartScript.txt</span><span class="delimiter">&quot;</span></span>)
-        windowsScriptTemplate = file(<span class="string"><span class="delimiter">&quot;</span><span class="content">windowsStartScript.txt</span><span class="delimiter">&quot;</span></span>)
+        name = &quot;my-app&quot;
+        jvmArgs = listOf(&quot;-Dlog4j.debug=true&quot;, &quot;-Dlog4j.configurationFile=./log4j2.xml&quot;)
+        args = listOf(&quot;--user&quot;, &quot;alice&quot;)
+        unixScriptTemplate = file(&quot;unixStartScript.txt&quot;)
+        windowsScriptTemplate = file(&quot;windowsStartScript.txt&quot;)
     })
     ...
 }</code></pre>
