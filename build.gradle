@@ -135,6 +135,7 @@ asciidoctor {
     logDocuments = true
     attributes 'source-highlighter': 'coderay',
             'coderay-linenums-mode': 'table',
+            'project-version': version,
             icons: 'font',
             imagesdir: 'img',
             'data-uri': '',
