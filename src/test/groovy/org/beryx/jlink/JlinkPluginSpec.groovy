@@ -72,9 +72,9 @@ class JlinkPluginSpec extends Specification {
         then:
         result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
         imageLauncher.exists()
+        imageLauncher.canExecute()
 
         when:
-        imageLauncher.setExecutable(true)
         def process = imageLauncher.absolutePath.execute([], imageBinDir)
         def out = new ByteArrayOutputStream(2048)
         process.waitForProcessOutput(out, out)
