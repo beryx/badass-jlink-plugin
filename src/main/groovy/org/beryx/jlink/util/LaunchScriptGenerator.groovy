@@ -56,6 +56,7 @@ class LaunchScriptGenerator {
         Type.values().each {type ->
             def scriptText = getScript(type)
             def scriptFile = new File(targetDirPath, "${launcherData.name}${type.extension}")
+//            scriptFile.setExecutable(true, false)
             scriptFile << scriptText
         }
     }
