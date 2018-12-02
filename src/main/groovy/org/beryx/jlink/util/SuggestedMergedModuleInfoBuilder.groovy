@@ -64,7 +64,7 @@ class SuggestedMergedModuleInfoBuilder {
         scanner.externalPackages.each { pkg ->
             def moduleName = moduleManager.exportMap[pkg]
             if(!moduleName) {
-                project.logger.info("Cannot find service exporting $pkg")
+                project.logger.info("Cannot find module exporting $pkg")
             } else if(moduleName != 'java.base'){
                 builders << new RequiresBuilder(moduleName)
             }

@@ -53,8 +53,14 @@ class PackageCollection {
     static String adjust(String s) {
         s = s?.trim()
         if(!s) return ''
-        while(!Character.isJavaIdentifierStart(s[0] as char)) s = s.substring(0)
-        while(!Character.isJavaIdentifierPart(s[-1] as char)) s = s.substring(0, s.length()-1)
+        while(!Character.isJavaIdentifierStart(s[0] as char)) {
+            s = s.substring(1)
+            if(!s) return ''
+        }
+        while(!Character.isJavaIdentifierPart(s[-1] as char)) {
+            s = s.substring(0, s.length()-1)
+            if(!s) return ''
+        }
         s.replace('/', '.')
     }
 }
