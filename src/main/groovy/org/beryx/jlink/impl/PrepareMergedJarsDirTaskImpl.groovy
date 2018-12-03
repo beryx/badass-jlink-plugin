@@ -64,7 +64,7 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
             project.copy {
                 from project.zipTree(jar)
                 into td.tmpJarsDirPath
-                exclude 'module-info.class'
+                exclude 'module-info.class', 'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/SIG-*'
             }
             def versionedDir = Util.getVersionedDir(new File(td.tmpJarsDirPath), td.jvmVersion)
             if(versionedDir?.directory) {
