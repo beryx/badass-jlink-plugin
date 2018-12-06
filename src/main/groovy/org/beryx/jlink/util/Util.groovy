@@ -25,6 +25,7 @@ import org.gradle.api.artifacts.ResolvedDependency
 
 import java.lang.module.ModuleFinder
 import java.util.jar.JarFile
+import java.util.regex.Pattern
 import java.util.zip.ZipFile
 
 class Util {
@@ -38,8 +39,9 @@ class Util {
         name.replaceAll('\\.[.]+', '.')
     }
 
+    private static final Pattern MODULE_DECL = ~/\s*(?:open\s+)?module\s+(\S+)\s*\{.*/
     static String getModuleNameFrom(String moduleInfoText) {
-        def matcher = moduleInfoText.readLines().collect {it =~ /\s*(?:open\s+)?module\s+(\S+)\s*\{.*/}.find {it.matches()}
+        def matcher = moduleInfoText.readLines().collect {MODULE_DECL.matcher(it)}.find {it.matches()}
         if(matcher == null) throw new GradleException("Cannot retrieve module name from module-info.java")
         matcher[0][1]
     }

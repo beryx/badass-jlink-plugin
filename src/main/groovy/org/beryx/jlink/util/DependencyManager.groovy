@@ -20,6 +20,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.ResolvedDependency
 
 import java.util.function.Predicate
+import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
@@ -112,13 +113,14 @@ class DependencyManager {
         }
     }
 
+    private static final Pattern MULT_RELEASE_MODULE_INFO = ~'META-INF/versions/[0-9]+/module-info.class'
     private boolean isHandledAsNonModular(ResolvedDependency dep) {
         if(dependenciesHandledAsNonModular.contains(dep)) return true
         def f = dep.moduleArtifacts*.file.find {!isEmptyJar(it)}
         if(!f) return true
         if(forceMergedJarPrefixes.any {f.name.startsWith(it)}) return true
         new ZipFile(f).entries().every { ZipEntry entry ->
-            (entry.name != 'module-info.class') && (!entry.name.matches('META-INF/versions/[0-9]+/module-info.class'))
+            (entry.name != 'module-info.class') && (!entry.name.matches(MULT_RELEASE_MODULE_INFO))
         }
     }
 
