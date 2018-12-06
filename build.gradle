@@ -41,7 +41,7 @@ ext.badassJlinkPluginTag = Boolean.valueOf(badassJlinkPluginReleaseBuild) ? "v$e
 group = 'org.beryx'
 version = badassJlinkPluginVersion
 
-ext.asmVersion = '6.2.1'
+ext.asmVersion = '7.0'
 
 repositories {
     jcenter()
