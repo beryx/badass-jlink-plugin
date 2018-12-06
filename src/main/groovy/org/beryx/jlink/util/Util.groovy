@@ -161,8 +161,12 @@ class Util {
         new File(versionsDir, "$version")
     }
 
-    static File getArtifact(ResolvedDependency dep) {
-        def artifact = dep.moduleArtifacts.find {it.classifier} ?: dep.moduleArtifacts[0]
-        artifact.file
+    static Set<File> getArtifacts(Set<ResolvedDependency> deps) {
+        (Set<File>)deps.collect{ it.moduleArtifacts*.file }.flatten() as Set
+    }
+
+    static boolean isEmptyJar(File jarFile) {
+        def zipFile = new ZipFile(jarFile)
+        zipFile.entries().every { it.name in ['META-INF/', 'META-INF/MANIFEST.MF']}
     }
 }
