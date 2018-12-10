@@ -1,7 +1,9 @@
 [[introduction]]
 = Introduction
 
-The badass-jlink plugin allows you to create custom runtime images with minimal effort.
+The badass-jlink plugin allows you to create custom runtime images for modular applications with minimal effort.
+
+TIP:  For non-modular applications use the https://badass-runtime-plugin.beryx.org/releases/latest/[Badass-Runtime plugin].
 
 Many modular applications have one or more non-modular dependencies, which are treated as automatic modules by the Java platform.
 However, jlink cannot work with automatic modules.
