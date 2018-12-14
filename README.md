@@ -25,7 +25,7 @@ jlink {
 
 The following projects illustrate how to use this plugin to create custom runtime images:
 - [badass-jlink-example](https://github.com/beryx-gist/badass-jlink-example) - a 'Hello world' application using slf4j and logback.
-- [badass-jlink-examplee-log4j2-javafx](https://github.com/beryx-gist/badass-jlink-example-log4j2-javafx) - a 'Hello world' JavaFX application using log4j2.
+- [badass-jlink-example-log4j2-javafx](https://github.com/beryx-gist/badass-jlink-example-log4j2-javafx) - a 'Hello world' JavaFX application using log4j2.
 - [badass-jlink-example-kotlin-javafx](https://github.com/beryx-gist/badass-jlink-example-kotlin-javafx) - a 'Hello world' JavaFX application written in Kotlin.
 - [badass-jlink-example-kotlin-tornadofx](https://github.com/beryx-gist/badass-jlink-example-kotlin-tornadofx) - a 'Hello world' application written in Kotlin using [tornadofx](https://github.com/edvin/tornadofx).
 - [badass-jlink-spring-petclinic](https://github.com/beryx-gist/badass-jlink-spring-petclinic) - creates a custom runtime image of the [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) application.
