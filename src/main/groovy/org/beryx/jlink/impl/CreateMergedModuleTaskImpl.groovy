@@ -78,7 +78,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
             def pkgName = Util.getPackage(entry.name)
             if(pkgName) packages << pkgName
         }
-        def moduleName = Util.getModuleName(jarFile, project)
+        def moduleName = Util.getFallbackModuleName(jarFile)
         def modinfoDir = new File(targetDir, moduleName)
         modinfoDir.mkdirs()
         def modInfoJava = new File(modinfoDir, 'module-info.java')

@@ -53,7 +53,6 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
                            "$jdkHome/jmods/$SEP${project.files(td.jlinkJarsDir).asPath}$SEP${project.jar.archivePath}",
                            '--add-modules', td.moduleName,
                            '--output', imageDir]
-//        '--launcher', "$td.launcherData.name=$td.moduleName/$td.mainClass"]
         }
         if(result.exitValue != 0) {
             project.logger.error(project.ext.jlinkOutput())
