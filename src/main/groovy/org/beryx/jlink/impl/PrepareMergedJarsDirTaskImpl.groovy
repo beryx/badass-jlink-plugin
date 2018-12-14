@@ -71,6 +71,7 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
                 project.copy {
                     from versionedDir
                     into td.tmpJarsDirPath
+                    exclude 'module-info.class'
                 }
             }
 
