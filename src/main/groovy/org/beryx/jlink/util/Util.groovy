@@ -88,7 +88,7 @@ class Util {
     }
 
     static String getFallbackModuleName(File f) {
-        def modName = new JarFile(f).getManifest()?.mainAttributes.getValue('Automatic-Module-Name')
+        def modName = new JarFile(f).getManifest()?.mainAttributes?.getValue('Automatic-Module-Name')
         if(modName) return modName
         def s = f.name
         def tokens = s.split('-[0-9]')
