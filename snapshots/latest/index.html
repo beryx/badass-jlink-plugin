@@ -338,7 +338,10 @@ You can use the suggested block as a starting point for your custom <code>merged
 <dt class="hdlist1">javaHome</dt>
 <dd>
 <p>The path to the JDK providing the tools needed by the plugin (<em>javac</em>, <em>jar</em>, <em>jlink</em> etc.).<br>
-<em>defaultValue</em>: the value of the <code>JAVA_HOME</code> environment variable.<br>
+<em>defaultValue</em>: the first non-empty value from:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <code>badass.jlink.java.home</code> system property<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <code>BADASS_JLINK_JAVA_HOME</code> environment variable<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <code>JAVA_HOME</code> environment variable<br>
 <em>usage example</em>: <code>javaHome = '/usr/lib/jvm/open-jdk'</code></p>
 </dd>
 </dl>
