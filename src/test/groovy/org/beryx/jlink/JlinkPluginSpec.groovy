@@ -31,12 +31,15 @@ class JlinkPluginSpec extends Specification {
         println "CLEANUP"
     }
 
-    def setUpBuild(String moduleName, String launcherName, String mainClass, String mergedModuleName) {
-        new AntBuilder().copy( todir: testProjectDir.root ) {
-            fileset( dir: 'src/test/resources/hello-logback' )
+    def setUpBuild(String projectDir) {
+        new AntBuilder().copy(todir: testProjectDir.root) {
+            fileset(dir: "src/test/resources/$projectDir")
         }
+        new File(testProjectDir.root, "build.gradle")
+    }
 
-        File buildFile = new File(testProjectDir.root, "build.gradle")
+    def setUpHelloLogbackBuild(String moduleName, String launcherName, String mainClass, String mergedModuleName) {
+        File buildFile = setUpBuild('hello-logback')
         buildFile << '''
             jlink {
                 options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']                
@@ -58,7 +61,7 @@ class JlinkPluginSpec extends Specification {
     @Unroll
     def "should execute task with moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
         when:
-        setUpBuild(moduleName, launcherName, mainClass, mergedModuleName)
+        setUpHelloLogbackBuild(moduleName, launcherName, mainClass, mergedModuleName)
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
                 .withProjectDir(testProjectDir.root)
@@ -88,6 +91,31 @@ class JlinkPluginSpec extends Specification {
         null                    | null         | null                        | null                                | 'modular-hello'
         'modular.example.hello' | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
         null                    | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
+    }
+
+    @Unroll
+    def "should create runtime image of project #projectDir"() {
+        when:
+        setUpBuild(projectDir)
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
+        def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
+        def imageLauncher = new File(imageBinDir, "$expectedLauncherName$launcherExt")
+
+        then:
+        result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
+        imageLauncher.exists()
+        imageLauncher.canExecute()
+
+        where:
+        projectDir                  | expectedLauncherName
+        'hello-javafx'              | 'helloFX'
+        'hello-javafx-log4j-2.11.1' | 'helloFX'
     }
 
 }
