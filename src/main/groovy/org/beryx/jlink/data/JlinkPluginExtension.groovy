@@ -86,7 +86,7 @@ class JlinkPluginExtension {
         useJdeps.set(JdepsUsage.no)
 
         javaHome = project.objects.property(String)
-        javaHome.set(System.getenv('JAVA_HOME'))
+        javaHome.set(getDefaultJavaHome())
 
         targetPlatforms = (Property)project.objects.property(Map)
         targetPlatforms.set(new TreeMap<>())
@@ -127,5 +127,13 @@ class JlinkPluginExtension {
         closure.resolveStrategy = Closure.DELEGATE_FIRST
         closure.delegate = launcherData.get()
         closure()
+    }
+
+    private static String getDefaultJavaHome() {
+        def value = System.properties['badass.jlink.java.home']
+        if(value) return value
+        value = System.getenv('BADASS_JLINK_JAVA_HOME')
+        if(value) return value
+        return System.getenv('JAVA_HOME')
     }
 }
