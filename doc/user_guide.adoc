@@ -52,7 +52,10 @@ options:: A list of options to be passed to _jlink_. +
     _defaultValue_: empty list +
     _usage example_: `options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']`
 javaHome:: The path to the JDK providing the tools needed by the plugin (_javac_, _jar_, _jlink_ etc.). +
-    _defaultValue_: the value of the `JAVA_HOME` environment variable. +
+    _defaultValue_: the first non-empty value from: +
+        pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `badass.jlink.java.home` system property +
+        pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `BADASS_JLINK_JAVA_HOME` environment variable +
+        pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `JAVA_HOME` environment variable +
     _usage example_: `javaHome = '/usr/lib/jvm/open-jdk'`
 
 
