@@ -134,6 +134,9 @@ class JlinkPluginExtension {
         if(value) return value
         value = System.getenv('BADASS_JLINK_JAVA_HOME')
         if(value) return value
+        value = System.properties['java.home']
+        String ext = System.getProperty('os.name', '').toLowerCase().contains('win') ? '.exe' : ''
+        if(['javac', 'jar', 'jlink'].every { new File("$value/bin/$it$ext").file }) return value
         return System.getenv('JAVA_HOME')
     }
 }
