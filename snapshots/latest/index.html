@@ -341,6 +341,7 @@ You can use the suggested block as a starting point for your custom <code>merged
 <em>defaultValue</em>: the first non-empty value from:<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>badass.jlink.java.home</code> system property<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>BADASS_JLINK_JAVA_HOME</code> environment variable<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <code>java.home</code> system property (only if it points to a JRE containing the <code>javac</code>, <code>jar</code>, and <code>jlink tools</code>)<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>JAVA_HOME</code> environment variable<br>
 <em>usage example</em>: <code>javaHome = '/usr/lib/jvm/open-jdk'</code></p>
 </dd>
