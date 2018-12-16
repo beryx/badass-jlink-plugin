@@ -11,81 +11,81 @@
 <link rel="stylesheet" href="./asciidoctor.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
-<style>
-.hidden {
-    display: none;
-}
-
-.switch {
-    border-width: 1px 1px 0 1px;
-    border-style: solid;
-    border-color: #7a2518;
-    display: inline-block;
-}
-
-.switch--item {
-    padding: 10px;
-    background-color: #ffffff;
-    color: #7a2518;
-    display: inline-block;
-    cursor: pointer;
-}
-
-.switch--item.selected {
-    background-color: #7a2519;
-    color: #ffffff;
-}
-
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
-<script type="text/javascript">
-function addBlockSwitches() {
-    $('.primary').each(function() {
-        primary = $(this);
-        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
-        primary.children('.title').remove();
-    });
-    $('.secondary').each(function(idx, node) {
-        secondary = $(node);
-        primary = findPrimary(secondary);
-        switchItem = createSwitchItem(secondary, primary.children('.switch'));
-        switchItem.content.addClass('hidden');
-        findPrimary(secondary).append(switchItem.content);
-        secondary.remove();
-    });
-}
-
-function createBlockSwitch(primary) {
-    blockSwitch = $('<div class="switch"></div>');
-    primary.prepend(blockSwitch);
-    return blockSwitch;
-}
-
-function findPrimary(secondary) {
-    candidate = secondary.prev();
-    while (!candidate.is('.primary')) {
-        candidate = candidate.prev();
-    }
-    return candidate;
-}
-
-function createSwitchItem(block, blockSwitch) {
-    blockName = block.children('.title').text();
-    content = block.children('.content').first().append(block.next('.colist'));
-    item = $('<div class="switch--item">' + blockName + '</div>');
-    item.on('click', '', content, function(e) {
-        $(this).addClass('selected');
-        $(this).siblings().removeClass('selected');
-        e.data.siblings('.content').addClass('hidden');
-        e.data.removeClass('hidden');
-    });
-    blockSwitch.append(item);
-    return {'item': item, 'content': content};
-}
-
-$(addBlockSwitches);
-
-</script>
+<style>
+.hidden {
+    display: none;
+}
+
+.switch {
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
+    border-color: #7a2518;
+    display: inline-block;
+}
+
+.switch--item {
+    padding: 10px;
+    background-color: #ffffff;
+    color: #7a2518;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.switch--item.selected {
+    background-color: #7a2519;
+    color: #ffffff;
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+<script type="text/javascript">
+function addBlockSwitches() {
+    $('.primary').each(function() {
+        primary = $(this);
+        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
+        primary.children('.title').remove();
+    });
+    $('.secondary').each(function(idx, node) {
+        secondary = $(node);
+        primary = findPrimary(secondary);
+        switchItem = createSwitchItem(secondary, primary.children('.switch'));
+        switchItem.content.addClass('hidden');
+        findPrimary(secondary).append(switchItem.content);
+        secondary.remove();
+    });
+}
+
+function createBlockSwitch(primary) {
+    blockSwitch = $('<div class="switch"></div>');
+    primary.prepend(blockSwitch);
+    return blockSwitch;
+}
+
+function findPrimary(secondary) {
+    candidate = secondary.prev();
+    while (!candidate.is('.primary')) {
+        candidate = candidate.prev();
+    }
+    return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+    blockName = block.children('.title').text();
+    content = block.children('.content').first().append(block.next('.colist'));
+    item = $('<div class="switch--item">' + blockName + '</div>');
+    item.on('click', '', content, function(e) {
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
+        e.data.siblings('.content').addClass('hidden');
+        e.data.removeClass('hidden');
+    });
+    blockSwitch.append(item);
+    return {'item': item, 'content': content};
+}
+
+$(addBlockSwitches);
+
+</script>
 
 </head>
 <body class="article toc2 toc-left">
@@ -341,6 +341,7 @@ You can use the suggested block as a starting point for your custom <code>merged
 <em>defaultValue</em>: the first non-empty value from:<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>badass.jlink.java.home</code> system property<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>BADASS_JLINK_JAVA_HOME</code> environment variable<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <code>java.home</code> system property (only if it points to a JRE containing the <code>javac</code>, <code>jar</code>, and <code>jlink tools</code>)<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>JAVA_HOME</code> environment variable<br>
 <em>usage example</em>: <code>javaHome = '/usr/lib/jvm/open-jdk'</code></p>
 </dd>
