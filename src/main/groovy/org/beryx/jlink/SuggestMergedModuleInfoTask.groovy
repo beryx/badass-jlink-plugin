@@ -22,6 +22,7 @@ import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
 import org.beryx.jlink.impl.SuggestMergedModuleInfoTaskImpl
 import org.beryx.jlink.util.PathUtil
+import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
@@ -67,7 +68,7 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         language = project.objects.property(ModuleInfo.Language)
         language.set(ModuleInfo.Language.GROOVY)
 
-        mergedJarsDir = project.objects.directoryProperty()
+        mergedJarsDir = Util.createDirectoryProperty(project)
         mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
     }
 

@@ -22,6 +22,7 @@ import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.impl.CreateMergedModuleTaskImpl
 import org.beryx.jlink.util.PathUtil
+import org.beryx.jlink.util.Util
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -73,7 +74,7 @@ class CreateMergedModuleTask extends BaseTask {
         useJdeps = extension.useJdeps
         javaHome = extension.javaHome
 
-        mergedJarsDir = project.objects.directoryProperty()
+        mergedJarsDir = Util.createDirectoryProperty(project)
         mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
     }
 

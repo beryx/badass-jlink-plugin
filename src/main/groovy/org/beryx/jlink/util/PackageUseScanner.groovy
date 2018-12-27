@@ -42,7 +42,7 @@ class PackageUseScanner extends ClassVisitor {
     void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
         ownPackages.addClass(name)
         if(superName) usedPackages.addClass(superName)
-        interfaces.each {usedPackages.addClass(it as String)}
+        for(intf in interfaces) {usedPackages.addClass(intf)}
         super.visit(version, access, name, signature, superName, interfaces)
     }
 
@@ -54,7 +54,11 @@ class PackageUseScanner extends ClassVisitor {
 
     @Override
     MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
-        exceptions?.each {usedPackages.addClass(it as String)}
+        if(exceptions) {
+            for(e in exceptions) {
+                usedPackages.addClass(e)
+            }
+        }
         usedPackages.addDescriptor(descriptor)
         return super.visitMethod(access, name, descriptor, signature, exceptions)
     }

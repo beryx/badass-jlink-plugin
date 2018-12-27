@@ -19,6 +19,8 @@ import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
+import java.util.stream.Collectors
+
 @CompileStatic
 @ToString(includeNames = true)
 class ModuleInfo implements Serializable {
@@ -140,7 +142,9 @@ class ModuleInfo implements Serializable {
         }
 
         ProvidesBuilder with(String... implementations) {
-            this.implementations.addAll(implementations.each {String s -> s.replace('$', '.')} as List)
+            for(s in implementations) {
+                this.implementations.add(s.replace('$', '.'))
+            }
             this
         }
 
@@ -151,9 +155,15 @@ class ModuleInfo implements Serializable {
         String toString(Language language) {
             def q = (language == Language.JAVA) ? "" : "'"
             if(language == Language.KOTLIN) {
-                return "provides(\"$service\").with(${implementations.collect {"\"$it\""}.join(',\n\t\t\t\t')});"
+                def impl = implementations.stream()
+                        .map{"\"$it\"" as CharSequence}
+                        .collect(Collectors.joining(',\n\t\t\t\t'))
+                return "provides(\"$service\").with($impl);"
             } else {
-                return "provides $q$service$q with ${implementations.collect {"$q$it$q"}.join(',\n\t\t\t\t')};"
+                def impl = implementations.stream()
+                        .map{"$q$it$q" as CharSequence}
+                        .collect(Collectors.joining(',\n\t\t\t\t'))
+                return "provides $q$service$q with $impl;"
             }
         }
 
@@ -177,8 +187,11 @@ class ModuleInfo implements Serializable {
     }
 
     String toString(int indent, Language language = Language.JAVA) {
-        (requiresBuilders.collect {b -> (' ' * indent) + b.toString(language)} +
-        usesBuilders.collect {b -> (' ' * indent) + b.toString(language)} +
-        providesBuilders.collect {b -> (' ' * indent) + b.toString(language)}).join('\n')
+        def entries = []
+        String blanks = ' ' * indent
+        for(builder in requiresBuilders) { entries << blanks + builder.toString(language)}
+        for(builder in usesBuilders) { entries << blanks + builder.toString(language)}
+        for(builder in providesBuilders) { entries << blanks + builder.toString(language)}
+        entries.join('\n')
     }
 }

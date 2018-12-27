@@ -20,6 +20,7 @@ import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.impl.CreateDelegatingModulesTaskImpl
 import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.beryx.jlink.util.PathUtil
+import org.beryx.jlink.util.Util
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -52,10 +53,10 @@ class CreateDelegatingModulesTask extends BaseTask {
         mergedModuleName = extension.mergedModuleName
         javaHome = extension.javaHome
 
-        nonModularJarsDir = project.objects.directoryProperty()
+        nonModularJarsDir = Util.createDirectoryProperty(project)
         nonModularJarsDir.set(new File(PathUtil.getNonModularJarsDirPath(jlinkBasePath.get())))
 
-        delegatingModulesDir = project.objects.directoryProperty()
+        delegatingModulesDir = Util.createDirectoryProperty(project)
         delegatingModulesDir.set(new File(PathUtil.getDelegatingModulesDirPath(jlinkBasePath.get())))
     }
 

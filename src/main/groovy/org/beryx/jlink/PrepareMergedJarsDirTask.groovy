@@ -21,6 +21,7 @@ import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.impl.PrepareMergedJarsDirTaskImpl
 import org.beryx.jlink.util.JavaVersion
 import org.beryx.jlink.util.PathUtil
+import org.beryx.jlink.util.Util
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -59,7 +60,7 @@ class PrepareMergedJarsDirTask extends BaseTask {
         javaHome = extension.javaHome
         jvmVersion = extension.jvmVersion
 
-        mergedJarsDir = project.objects.directoryProperty()
+        mergedJarsDir = Util.createDirectoryProperty(project)
         mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
     }
 

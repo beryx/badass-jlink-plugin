@@ -22,6 +22,7 @@ import org.beryx.jlink.data.LauncherData
 import org.beryx.jlink.data.TargetPlatform
 import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.util.PathUtil
+import org.beryx.jlink.util.Util
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -77,7 +78,7 @@ class JlinkTask extends BaseTask {
         imageName = extension.imageName
         imageDir = extension.imageDir
 
-        jlinkJarsDir = project.objects.directoryProperty()
+        jlinkJarsDir = Util.createDirectoryProperty(project)
         jlinkJarsDir.set(new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get())))
     }
 

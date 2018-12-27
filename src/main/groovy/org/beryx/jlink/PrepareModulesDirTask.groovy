@@ -20,6 +20,7 @@ import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.impl.PrepareModulesDirTaskImpl
 import org.beryx.jlink.data.PrepareModulesDirTaskData
 import org.beryx.jlink.util.PathUtil
+import org.beryx.jlink.util.Util
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
@@ -53,10 +54,10 @@ class PrepareModulesDirTask extends BaseTask {
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
         extraDependenciesPrefixes = extension.extraDependenciesPrefixes
 
-        delegatingModulesDir = project.objects.directoryProperty()
+        delegatingModulesDir = Util.createDirectoryProperty(project)
         delegatingModulesDir.set(new File(PathUtil.getDelegatingModulesDirPath(jlinkBasePath.get())))
 
-        jlinkJarsDir = project.objects.directoryProperty()
+        jlinkJarsDir = Util.createDirectoryProperty(project)
         jlinkJarsDir.set(new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get())))
     }
 

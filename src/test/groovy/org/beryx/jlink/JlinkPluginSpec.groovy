@@ -59,13 +59,14 @@ class JlinkPluginSpec extends Specification {
     }
 
     @Unroll
-    def "should execute task with moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
+    def "should execute task with Gradle #gradleVersion, moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
         when:
         setUpHelloLogbackBuild(moduleName, launcherName, mainClass, mergedModuleName)
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
+                .withGradleVersion(gradleVersion)
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
         def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
@@ -87,18 +88,19 @@ class JlinkPluginSpec extends Specification {
         outputText.trim() == 'LOG: Hello, modular Java!'
 
         where:
-        moduleName              | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
-        null                    | null         | null                        | null                                | 'modular-hello'
-        'modular.example.hello' | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
-        null                    | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
+        moduleName              | gradleVersion | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
+        null                    | '4.8'         | null         | null                        | null                                | 'modular-hello'
+        'modular.example.hello' | '4.10.3'      | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
+        null                    | '5.0'         | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
     }
 
     @Unroll
-    def "should create runtime image of project #projectDir"() {
+    def "should create runtime image of project #projectDir with Gradle #gradleVersion"() {
         when:
         setUpBuild(projectDir)
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
+                .withGradleVersion(gradleVersion)
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK_ZIP, "-is")
@@ -115,9 +117,9 @@ class JlinkPluginSpec extends Specification {
         imageZipFile.exists()
 
         where:
-        projectDir                  | imageDir  | imageZip      | expectedLauncherName
-        'hello-javafx'              | 'helloFX' | 'helloFX.zip' | 'helloFX'
-        'hello-javafx-log4j-2.11.1' | 'image'   | 'image.zip'   | 'helloFX'
+        projectDir                  | gradleVersion | imageDir  | imageZip      | expectedLauncherName
+        'hello-javafx'              | '4.8'         | 'helloFX' | 'helloFX.zip' | 'helloFX'
+        'hello-javafx-log4j-2.11.1' | '5.0'         | 'image'   | 'image.zip'   | 'helloFX'
     }
 
 }

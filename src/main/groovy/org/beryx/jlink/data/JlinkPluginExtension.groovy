@@ -53,10 +53,10 @@ class JlinkPluginExtension {
         imageName = project.objects.property(String)
         imageName.set('')
 
-        imageDir = project.objects.directoryProperty()
+        imageDir = Util.createDirectoryProperty(project)
         imageDir.set(project.layout.buildDirectory.dir('image'))
 
-        imageZip = project.objects.fileProperty()
+        imageZip = Util.createRegularFileProperty(project)
         imageZip.set(project.layout.buildDirectory.file('image.zip'))
 
         moduleName = project.objects.property(String)
@@ -97,16 +97,16 @@ class JlinkPluginExtension {
         jvmVersion = project.objects.property(Integer)
     }
 
-    void addExtraDependencies(String... jarPrefixes) {
-        extraDependenciesPrefixes.addAll(jarPrefixes as List)
+    void addExtraDependencies(String... dependencies) {
+        Util.addToListProperty(extraDependenciesPrefixes, dependencies)
     }
 
     void forceMerge(String... jarPrefixes) {
-        forceMergedJarPrefixes.addAll(jarPrefixes as List)
+        Util.addToListProperty(forceMergedJarPrefixes, jarPrefixes)
     }
 
     void addOptions(String... options) {
-        this.options.addAll(options as List)
+        Util.addToListProperty(this.options, options)
     }
 
     void targetPlatform(String name, String jdkHome, List<String> options = []) {

@@ -84,7 +84,7 @@ class SuggestMergedModuleInfoSpec extends Specification {
     }
 
     @Unroll
-    def "should display the correct module-info for the merged module with #language flavor"() {
+    def "should display the correct module-info for the merged module with #language flavor using Gradle #gradleVersion"() {
         given:
         new AntBuilder().copy( todir: testProjectDir.root ) {
             fileset( dir: 'src/test/resources/hello-log4j-2.9.0' )
@@ -95,6 +95,7 @@ class SuggestMergedModuleInfoSpec extends Specification {
         when:
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
+                .withGradleVersion(gradleVersion)
                 .forwardStdOutput(outputWriter)
                 .withProjectDir(buildFile.parentFile)
                 .withPluginClasspath()
@@ -115,10 +116,10 @@ class SuggestMergedModuleInfoSpec extends Specification {
         directives as Set == expectedDirectives
 
         where:
-        language | expectedDirectives
-        'groovy' | GROOVY_DIRECTIVES
-        'kotlin' | KOTLIN_DIRECTIVES
-        'java'   | JAVA_DIRECTIVES
+        language | expectedDirectives | gradleVersion
+        'groovy' | GROOVY_DIRECTIVES  | '4.8'
+        'kotlin' | KOTLIN_DIRECTIVES  | '4.10.3'
+        'java'   | JAVA_DIRECTIVES    | '5.0'
     }
 
     List<String> getDirectives(String taskOutput, String language) {
