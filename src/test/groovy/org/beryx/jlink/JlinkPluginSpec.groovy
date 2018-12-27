@@ -101,21 +101,23 @@ class JlinkPluginSpec extends Specification {
                 .withDebug(true)
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
-                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK_ZIP, "-is")
                 .build();
-        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
+        def imageBinDir = new File(testProjectDir.root, "build/$imageDir/bin")
         def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
         def imageLauncher = new File(imageBinDir, "$expectedLauncherName$launcherExt")
+        def imageZipFile = new File(testProjectDir.root, "build/$imageZip")
 
         then:
         result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
         imageLauncher.exists()
         imageLauncher.canExecute()
+        imageZipFile.exists()
 
         where:
-        projectDir                  | expectedLauncherName
-        'hello-javafx'              | 'helloFX'
-        'hello-javafx-log4j-2.11.1' | 'helloFX'
+        projectDir                  | imageDir  | imageZip      | expectedLauncherName
+        'hello-javafx'              | 'helloFX' | 'helloFX.zip' | 'helloFX'
+        'hello-javafx-log4j-2.11.1' | 'image'   | 'image.zip'   | 'helloFX'
     }
 
 }

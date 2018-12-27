@@ -15,6 +15,9 @@ javafx {
 mainClassName = "hellofx/org.example.HelloFX"
 
 jlink {
+    imageName = 'helloFX'
+    imageDir = file('foo') // ignored
+    imageZip = file('bar.zip') // ignored
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     launcher {
         name = 'helloFX'

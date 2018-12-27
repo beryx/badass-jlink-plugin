@@ -28,6 +28,7 @@ import org.gradle.api.provider.Property
 @ToString(includeNames = true)
 class JlinkPluginExtension {
     final Property<String> jlinkBasePath
+    final Property<String> imageName
     final DirectoryProperty imageDir
     final RegularFileProperty imageZip
     final Property<String> moduleName
@@ -46,9 +47,11 @@ class JlinkPluginExtension {
 
 
     JlinkPluginExtension(Project project) {
-        project.provider{}
         jlinkBasePath = project.objects.property(String)
         jlinkBasePath.set(project.provider{"$project.buildDir/jlinkbase" as String})
+
+        imageName = project.objects.property(String)
+        imageName.set('')
 
         imageDir = project.objects.directoryProperty()
         imageDir.set(project.layout.buildDirectory.dir('image'))

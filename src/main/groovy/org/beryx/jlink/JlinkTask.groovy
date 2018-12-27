@@ -54,6 +54,9 @@ class JlinkTask extends BaseTask {
     @InputDirectory
     DirectoryProperty jlinkJarsDir
 
+    @Input
+    Property<String> imageName
+
     @OutputDirectory
     DirectoryProperty imageDir
 
@@ -71,6 +74,7 @@ class JlinkTask extends BaseTask {
         options = extension.options
         javaHome = extension.javaHome
         targetPlatforms = extension.targetPlatforms
+        imageName = extension.imageName
         imageDir = extension.imageDir
 
         jlinkJarsDir = project.objects.directoryProperty()
@@ -81,7 +85,7 @@ class JlinkTask extends BaseTask {
     void jlinkTaskAction() {
         def taskData = new JlinkTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
-        taskData.imageDir = imageDir.get().asFile
+        taskData.imageDir = imageName.get() ? imageDirFromName : imageDir.get().asFile
         taskData.moduleName = moduleName.get()
         taskData.launcherData = launcherData.get()
         taskData.mainClass = mainClass.get() ?: defaultMainClass
@@ -92,6 +96,11 @@ class JlinkTask extends BaseTask {
 
         def taskImpl = new JlinkTaskImpl(project, taskData)
         taskImpl.execute()
+    }
+
+    @Internal
+    File getImageDirFromName() {
+        project.file("$project.buildDir/${imageName.get()}")
     }
 
     @Internal

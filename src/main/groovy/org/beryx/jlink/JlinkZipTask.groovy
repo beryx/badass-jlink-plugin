@@ -25,6 +25,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -36,6 +37,9 @@ class JlinkZipTask extends BaseTask {
 
     @Input
     Property<LauncherData> launcherData
+
+    @Input
+    Property<String> imageName
 
     @OutputDirectory
     DirectoryProperty imageDir
@@ -53,6 +57,7 @@ class JlinkZipTask extends BaseTask {
         super.init(extension)
         targetPlatforms = extension.targetPlatforms
         launcherData = extension.launcherData
+        imageName = extension.imageName
         imageDir = extension.imageDir
         imageZip = extension.imageZip
     }
@@ -63,9 +68,19 @@ class JlinkZipTask extends BaseTask {
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.targetPlatforms = targetPlatforms.get()
         taskData.launcherData = launcherData.get()
-        taskData.imageDir = imageDir.get().asFile
-        taskData.imageZip = imageZip.get().asFile
+        taskData.imageDir = imageName.get() ? imageDirFromName : imageDir.get().asFile
+        taskData.imageZip = imageName.get() ? imageZipFromName : imageZip.get().asFile
         def taskImpl = new JlinkZipTaskImpl(project, taskData)
         taskImpl.execute()
+    }
+
+    @Internal
+    File getImageDirFromName() {
+        project.file("$project.buildDir/${imageName.get()}")
+    }
+
+    @Internal
+    File getImageZipFromName() {
+        project.file("$project.buildDir/${imageName.get()}.zip")
     }
 }
