@@ -18,6 +18,7 @@ package org.beryx.jlink.util
 import groovy.io.FileType
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
+import org.codehaus.groovy.runtime.IOGroovyMethods
 import org.codehaus.groovy.tools.Utilities
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -148,14 +149,20 @@ class Util {
         dir.eachFileRecurse(FileType.FILES) { file ->
             def basePath = dir.absolutePath.replace('\\', '/')
             def relPath = dir.toPath().relativize(file.toPath()).toString().replace('\\', '/')
-            action.call(basePath, relPath, file.newInputStream())
+            IOGroovyMethods.withCloseable(file.newInputStream()) {
+                action.call(basePath, relPath, it)
+            }
         }
     }
 
     private static void scanJar(File jarFile,
                         @ClosureParams(value= SimpleType, options="java.lang.String,java.lang.String,java.io.InputStream") Closure<Void> action) {
         def zipFile = new ZipFile(jarFile)
-        zipFile.entries().each { entry -> action.call('', entry.name, zipFile.getInputStream(entry)) }
+        zipFile.entries().each { entry ->
+            IOGroovyMethods.withCloseable(zipFile.getInputStream(entry)) {
+                action.call('', entry.name, it)
+            }
+        }
     }
 
     static File getVersionedDir(File baseDir, int javaVersion) {
