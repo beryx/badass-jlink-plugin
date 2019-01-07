@@ -65,9 +65,11 @@ class Util {
     }
 
     static String getPackage(String entryName) {
-        if(!entryName.endsWith('.class')) return null;
+        if(!entryName.endsWith('.class')) return null
         int pos = entryName.lastIndexOf('/')
         if(pos <= 0) return null
+        int dotPos = entryName.lastIndexOf('.')
+        if(!isValidIdentifier(entryName.substring(pos + 1, dotPos))) return null
         def pkgName = entryName.substring(0, pos).replace('/', '.')
         boolean valid = pkgName.split('\\.').every {isValidIdentifier(it)}
         return valid ? pkgName : null
