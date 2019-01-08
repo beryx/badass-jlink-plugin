@@ -15,7 +15,7 @@ buildscript {
 
 plugins {
     id 'java-gradle-plugin'
-    id 'com.github.johnrengelman.plugin-shadow' version '2.0.3'
+    id 'com.github.johnrengelman.shadow' version '4.0.3'
     id 'groovy'
     id "com.gradle.plugin-publish" version "0.10.0"
     id "com.github.ethankhall.semantic-versioning" version "1.1.0"
@@ -72,26 +72,48 @@ configurations {
     compile {transitive = true}
 }
 
+configurations {
+    plugin.description = 'Plugin\'s dependencies'
+    compile.extendsFrom plugin
+}
+
 dependencies {
-    shadow gradleTestKit()
-    shadow localGroovy()
+    implementation gradleTestKit()
+    implementation localGroovy()
 
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
 
-    compile "org.ow2.asm:asm:$asmVersion"
-    compile "org.ow2.asm:asm-commons:$asmVersion"
-    compile "org.ow2.asm:asm-tree:$asmVersion"
-    compile "org.ow2.asm:asm-util:$asmVersion"
-    compile "org.ow2.asm:asm-analysis:$asmVersion"
+    plugin "org.ow2.asm:asm:$asmVersion"
+    plugin "org.ow2.asm:asm-commons:$asmVersion"
+    plugin "org.ow2.asm:asm-tree:$asmVersion"
+    plugin "org.ow2.asm:asm-util:$asmVersion"
+    plugin "org.ow2.asm:asm-analysis:$asmVersion"
 
-    testCompile('org.spockframework:spock-core:1.1-groovy-2.4') {
+    testImplementation('org.spockframework:spock-core:1.1-groovy-2.4') {
         exclude module: 'groovy-all'
     }
-    testCompile 'cglib:cglib-nodep:3.2.9'
-    testCompile 'org.objenesis:objenesis:3.0.1'
-    testCompile('com.athaydes:spock-reports:1.6.1') { transitive = false}
+    testImplementation 'cglib:cglib-nodep:3.2.9'
+    testImplementation 'org.objenesis:objenesis:3.0.1'
+    testImplementation ('com.athaydes:spock-reports:1.6.1') { transitive = false}
 
-    asciidoctor 'com.bmuschko:asciidoctorj-tabbed-code-extension:0.1'}
+    asciidoctor 'com.bmuschko:asciidoctorj-tabbed-code-extension:0.1'
+}
+
+shadowJar {
+    configurations = [project.configurations.plugin]
+    classifier = null
+    dependencies {
+        include(dependency("org.ow2.asm:asm:$asmVersion"))
+        include(dependency("org.ow2.asm:asm-commons:$asmVersion"))
+        include(dependency("org.ow2.asm:asm-tree:$asmVersion"))
+        include(dependency("org.ow2.asm:asm-util:$asmVersion"))
+        include(dependency("org.ow2.asm:asm-anaysis:$asmVersion"))
+    }
+    relocate 'org.objectweb.asm', 'org.beryx.jlink.shadow.asm'
+}
+
+jar.enabled = false
+jar.dependsOn shadowJar
 
 gradlePlugin {
     plugins {
