@@ -4,10 +4,10 @@ language: java
 
 sudo: false
 
-before_install: wget https://raw.githubusercontent.com/sormuras/bach/master/install-jdk.sh
+jdk:
+  - openjdk11
 
 install:
-  - . ./install-jdk.sh -F 11 -L BCL
   - chmod a+x ./gradlew
   - chmod a+x ./travis-build.sh
 
