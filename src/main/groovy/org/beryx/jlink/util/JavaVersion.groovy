@@ -15,13 +15,18 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.CompileStatic
 import org.gradle.api.GradleException
-import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
+@CompileStatic
 class JavaVersion {
+    private static final Logger LOGGER = Logging.getLogger(JavaVersion.class);
+
     static final String sourceCode = '''
 import java.lang.reflect.Method;
 
@@ -54,15 +59,13 @@ public class JavaVersion {
 }
 '''
 
-    static int get(Project project, String javaHome) {
-        def infoLog = {s -> project ? project.logger.info(s) : println(s)}
-        def errorLog = {s -> project ? project.logger.error(s) : println(s)}
+    static int get(String javaHome) {
         def path = Files.createTempDirectory("badass-")
         def javaFile = path.resolve('JavaVersion.java').toFile()
         javaFile << sourceCode
 
         def javacCmd = "$javaHome/bin/javac -cp . -d . JavaVersion.java"
-        infoLog("Executing: $javacCmd")
+        LOGGER.info("Executing: $javacCmd")
         def javacProc = javacCmd.execute([], path.toFile())
         def javacErrOutput = new StringBuilder()
         javacProc.consumeProcessErrorStream(javacErrOutput)
@@ -70,14 +73,14 @@ public class JavaVersion {
             throw new GradleException("javac JavaVersion.java hasn't exited after 30 seconds.")
         }
         String javacOutput = javacProc.text
-        infoLog(javacOutput)
+        LOGGER.info(javacOutput)
         if(javacProc.exitValue()) {
             throw new GradleException("javac JavaVersion.java failed: $javacErrOutput")
         }
-        if(javacErrOutput.size() > 0) errorLog("javac failed: $javacErrOutput")
+        if(javacErrOutput.size() > 0) LOGGER.error("javac failed: $javacErrOutput")
 
         def javaCmd = "$javaHome/bin/java -cp . JavaVersion"
-        infoLog("Executing: $javaCmd")
+        LOGGER.info("Executing: $javaCmd")
         def javaProc = javaCmd.execute([], path.toFile())
         def javaErrOutput = new StringBuilder()
         javaProc.consumeProcessErrorStream(javaErrOutput)
@@ -86,11 +89,11 @@ public class JavaVersion {
         }
 
         String javaOutput = javaProc.text
-        infoLog(javaOutput)
+        LOGGER.info(javaOutput)
         if(javaProc.exitValue()) {
             throw new GradleException("java JavaVersion failed: $javaErrOutput")
         }
-        if(javaErrOutput.size() > 0) errorLog("java failed: $javaErrOutput")
+        if(javaErrOutput.size() > 0) LOGGER.error("java failed: $javaErrOutput")
 
         try {
             return javaOutput as int

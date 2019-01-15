@@ -15,14 +15,21 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.beryx.jlink.data.ModuleInfo
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 import static org.beryx.jlink.data.ModuleInfo.*
 
+@CompileStatic
 @TupleConstructor
 class SuggestedMergedModuleInfoBuilder {
+    private static final Logger LOGGER = Logging.getLogger(SuggestedMergedModuleInfoBuilder.class);
+
     final Project project;
     final File mergedJarsDir;
     String javaHome
@@ -38,24 +45,25 @@ class SuggestedMergedModuleInfoBuilder {
     }
 
     Set<UsesBuilder> getUsesBuilders() {
-        def scanner = new ServiceLoaderUseScanner(project)
+        def scanner = new ServiceLoaderUseScanner()
         scanner.scan(mergedJarsDir)
         scanner.builders
     }
 
     Set<ProvidesBuilder> getProvidesBuilders() {
-        def scanner = new ServiceProviderScanner(project)
+        def scanner = new ServiceProviderScanner()
         scanner.scan(mergedJarsDir)
         scanner.builders
     }
 
+    @CompileDynamic
     Set<RequiresBuilder> getRequiresBuilders() {
-        def scanner = new PackageUseScanner(project)
+        def scanner = new PackageUseScanner()
         def invalidFiles = scanner.scan(mergedJarsDir)
         if(invalidFiles) {
-            project.logger.warn("Failed to scan: $invalidFiles")
+            LOGGER.warn("Failed to scan: $invalidFiles")
         }
-        project.logger.debug("External packages used by the merged service:\n\t${scanner.externalPackages.join('\n\t')}")
+        LOGGER.debug("External packages used by the merged service:\n\t${scanner.externalPackages.join('\n\t')}")
 
         def depMgr = new DependencyManager(project, forceMergedJarPrefixes, extraDependenciesPrefixes)
         def moduleManager = new ModuleManager(*depMgr.modularJars.toArray(), new File("$javaHome/jmods"))
@@ -64,7 +72,7 @@ class SuggestedMergedModuleInfoBuilder {
         scanner.externalPackages.each { pkg ->
             def moduleName = moduleManager.exportMap[pkg]
             if(!moduleName) {
-                project.logger.info("Cannot find module exporting $pkg")
+                LOGGER.info("Cannot find module exporting $pkg")
             } else if(moduleName != 'java.base'){
                 builders << new RequiresBuilder(moduleName)
             }

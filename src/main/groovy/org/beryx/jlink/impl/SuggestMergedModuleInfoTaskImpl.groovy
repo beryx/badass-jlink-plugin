@@ -15,6 +15,8 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
@@ -23,15 +25,21 @@ import org.beryx.jlink.util.SuggestedMergedModuleInfoBuilder
 import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
+@CompileStatic
 class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleInfoTaskData> {
+    private static final Logger LOGGER = Logging.getLogger(SuggestMergedModuleInfoTaskImpl.class);
+
     SuggestMergedModuleInfoTaskImpl(Project project, SuggestMergedModuleInfoTaskData taskData) {
         super(project, taskData)
-        project.logger.info("taskData: $taskData")
+        LOGGER.info("taskData: $taskData")
     }
 
+    @CompileDynamic
     void execute() {
-        project.logger.info("Executing suggestMergedModuleInfo with useJdeps = $td.useJdeps")
+        LOGGER.info("Executing suggestMergedModuleInfo with useJdeps = $td.useJdeps")
         if(td.useJdeps != JdepsUsage.no) {
             try {
                 def jarFilePath = "$td.jlinkBasePath/suggestedMergedModule.jar"
@@ -40,7 +48,7 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
                 def result = new JdepsExecutor(project).genModuleInfo(project.file(jarFilePath),
                         project.file(td.tmpJarsDirPath), td.jlinkJarsDirPath, td.javaHome)
                 def loggerFun = result.exitValue ? (td.useJdeps == JdepsUsage.yes) ? 'warn' : 'error' : 'info'
-                project.logger."$loggerFun"(result.output)
+                LOGGER."$loggerFun"(result.output)
                 if(result.exitValue) {
                     if(td.useJdeps == JdepsUsage.exclusively) {
                         throw new GradleException("jdeps exited with return code $result.exitValue")
@@ -53,10 +61,10 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
                 if(td.useJdeps == JdepsUsage.exclusively) {
                     throw new GradleException("jdeps failed", e)
                 }
-                if(project.logger.infoEnabled) {
-                    project.logger.info("jdeps failed.", e)
+                if(LOGGER.infoEnabled) {
+                    LOGGER.info("jdeps failed.", e)
                 } else {
-                    project.logger.warn("jdeps failed: $e")
+                    LOGGER.warn("jdeps failed: $e")
                 }
             }
             if(td.useJdeps == JdepsUsage.exclusively) return

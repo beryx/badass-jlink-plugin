@@ -15,24 +15,32 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.PrepareModulesDirTaskData
 import org.beryx.jlink.util.DependencyManager
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
+@CompileStatic
 class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> {
+    private static final Logger LOGGER = Logging.getLogger(PrepareModulesDirTaskImpl.class);
+
     PrepareModulesDirTaskImpl(Project project, PrepareModulesDirTaskData taskData) {
         super(project, taskData)
-        project.logger.info("taskData: $taskData")
+        LOGGER.info("taskData: $taskData")
     }
 
+    @CompileDynamic
     void execute() {
-        project.logger.info("Copying delegating modules to ${td.jlinkJarsDir}...")
+        LOGGER.info("Copying delegating modules to ${td.jlinkJarsDir}...")
         project.copy {
             into td.jlinkJarsDir
             from td.delegatingModulesDir
         }
 
-        project.logger.info("Copying modular jars not required by non-modular jars to ${td.jlinkJarsDir}...")
+        LOGGER.info("Copying modular jars not required by non-modular jars to ${td.jlinkJarsDir}...")
         def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes)
         project.copy {
             into td.jlinkJarsDir

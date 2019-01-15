@@ -21,7 +21,7 @@ import spock.lang.Specification
 class PackageUseScannerSpec extends Specification {
     def "should correctly retrieve the names of the referenced packages"() {
         given:
-        def scanner = new PackageUseScanner(null)
+        def scanner = new PackageUseScanner()
         def jarFile = new File('src/test/resources/libs/logback-core-1.3.0-alpha4.jar')
 
         when:

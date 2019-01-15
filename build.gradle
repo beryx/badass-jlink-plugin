@@ -69,10 +69,6 @@ license {
 }
 
 configurations {
-    compile {transitive = true}
-}
-
-configurations {
     plugin.description = 'Plugin\'s dependencies'
     compile.extendsFrom plugin
 }

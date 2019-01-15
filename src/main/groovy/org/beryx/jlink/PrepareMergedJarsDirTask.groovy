@@ -75,7 +75,7 @@ class PrepareMergedJarsDirTask extends BaseTask {
         if(jvmVersion.present && jvmVersion.get()) {
             taskData.jvmVersion = jvmVersion.get()
         } else {
-            taskData.jvmVersion = JavaVersion.get(project, taskData.javaHome)
+            taskData.jvmVersion = JavaVersion.get(taskData.javaHome)
         }
 
         taskData.nonModularJarsDirPath = PathUtil.getNonModularJarsDirPath(taskData.jlinkBasePath)

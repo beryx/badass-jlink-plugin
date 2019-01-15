@@ -15,18 +15,25 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
+@CompileStatic
 class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModulesTaskData> {
+    private static final Logger LOGGER = Logging.getLogger(CreateDelegatingModulesTaskImpl.class);
+
     CreateDelegatingModulesTaskImpl(Project project, CreateDelegatingModulesTaskData taskData) {
         super(project, taskData)
-        project.logger.info("taskData: $taskData")
+        LOGGER.info("taskData: $taskData")
     }
 
     void execute() {
-        project.logger.info("Creating delegating modules...")
+        LOGGER.info("Creating delegating modules...")
         project.delete(td.tmpJarsDirPath)
 
         td.nonModularJarsDir.eachFile { jarFile ->
@@ -34,12 +41,13 @@ class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModul
         }
     }
 
+    @CompileDynamic
     def createDelegatingModule(File jarFile, String tmpDirPath, File targetDir) {
         def moduleDir = genDelegatingModuleInfo(jarFile, tmpDirPath)
         if(!moduleDir) return
         project.delete(td.tmpModuleInfoDirPath)
         Util.createManifest(td.tmpModuleInfoDirPath, false)
-        project.logger.info("Compiling delegating module $moduleDir.name ...")
+        LOGGER.info("Compiling delegating module $moduleDir.name ...")
         def result = project.exec {
             ignoreExitValue = true
             standardOutput = new ByteArrayOutputStream()
@@ -54,9 +62,9 @@ class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModul
                     "${moduleDir.path}/module-info.java"
         }
         if(result.exitValue != 0) {
-            project.logger.error(project.ext.javacOutput())
+            LOGGER.error(project.ext.javacOutput())
         } else {
-            project.logger.info(project.ext.javacOutput())
+            LOGGER.info(project.ext.javacOutput())
         }
         result.assertNormalExitValue()
         result.rethrowFailure()
@@ -66,15 +74,15 @@ class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModul
     }
 
     File genDelegatingModuleInfo(File jarFile, String targetDirPath) {
-        def moduleName = Util.getModuleName(jarFile, project)
+        def moduleName = Util.getModuleName(jarFile)
         def modinfoDir = new File(targetDirPath, moduleName)
         modinfoDir.mkdirs()
         def modInfoJava = new File(modinfoDir, 'module-info.java')
         if(modInfoJava.exists()) {
-            project.logger.info("Module $moduleName already generated. Skipping $jarFile")
+            LOGGER.info("Module $moduleName already generated. Skipping $jarFile")
             return null
         }
-        project.logger.info("Generating module $moduleName for: $jarFile")
+        LOGGER.info("Generating module $moduleName for: $jarFile")
         modInfoJava << """
             open module $moduleName {
                 requires transitive $td.mergedModuleName;

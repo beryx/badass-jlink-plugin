@@ -15,9 +15,13 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.CompileStatic
+
 import java.lang.module.ModuleDescriptor
+import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
+@CompileStatic
 class ModuleManager {
     // [module name : descriptor]
     final Map<String, ModuleDescriptor> moduleMap = [:]
@@ -27,7 +31,7 @@ class ModuleManager {
 
     ModuleManager(Object... modulePath) {
         getJarsAndMods(modulePath).each {
-            def md = getModuleDescriptor(it)
+            ModuleDescriptor md = getModuleDescriptor(it)
             if(md) {
                 moduleMap[md.name()] = md
                 md.exports().each {exportMap[it.source()] = md.name()}
@@ -38,10 +42,10 @@ class ModuleManager {
     private static List<File> getJarsAndMods(Object... modulePath) {
         List<File> allFiles = []
         modulePath.each {entry ->
-            File f = (entry instanceof File) ? entry : new File(entry.toString())
+            File f = (entry instanceof File) ? (File)entry : new File(entry.toString())
             if(f.file) allFiles.add(f)
             if(f.directory) {
-                allFiles.addAll(f.listFiles({it.file} as FileFilter))
+                allFiles.addAll(f.listFiles({File ff -> ff.file} as FileFilter))
             }
         }
         allFiles.findAll {it.name.endsWith(".jar") || it.name.endsWith(".jmod")}
@@ -54,8 +58,9 @@ class ModuleManager {
         def prefix = f.name.endsWith('.jmod') ? 'classes/' : ''
         def zipFile = new ZipFile(f)
         for(entry in zipFile.entries()) {
-            if(entry.name == "${prefix}module-info.class" as String) {
-                def entryStream = zipFile.getInputStream(entry)
+            ZipEntry zipEntry = (ZipEntry)entry
+            if(zipEntry.name == "${prefix}module-info.class" as String) {
+                def entryStream = zipFile.getInputStream(zipEntry)
                 return ModuleDescriptor.read(entryStream)
             }
         }

@@ -24,6 +24,8 @@ import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -34,6 +36,8 @@ import org.gradle.api.tasks.TaskAction
 
 @CompileStatic
 class JlinkTask extends BaseTask {
+    private static final Logger LOGGER = Logging.getLogger(JlinkTask.class);
+
     @Input
     Property<String> moduleName
 
@@ -111,7 +115,7 @@ class JlinkTask extends BaseTask {
         if(pos < 0) return mainClass
         def mainClassModule = mainClass.substring(0, pos)
         if(mainClassModule != moduleName.get()) {
-            project.logger.warn("The module name specified in 'mainClassName' ($mainClassModule) has not the expected value (${moduleName.get()}).")
+            LOGGER.warn("The module name specified in 'mainClassName' ($mainClassModule) has not the expected value (${moduleName.get()}).")
         }
         mainClass.substring(pos + 1)
     }

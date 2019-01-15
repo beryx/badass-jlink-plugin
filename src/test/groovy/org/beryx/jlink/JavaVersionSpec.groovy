@@ -23,7 +23,7 @@ class JavaVersionSpec extends Specification {
     @Ignore
     def "should retrieve the correct javaVersion"() {
         when:
-        int version = JavaVersion.get(null, System.getenv('JAVA_HOME'))
+        int version = JavaVersion.get(System.getenv('JAVA_HOME'))
 
         then:
         version == 11

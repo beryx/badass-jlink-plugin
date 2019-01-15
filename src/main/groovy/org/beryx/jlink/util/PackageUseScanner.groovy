@@ -16,22 +16,24 @@
 package org.beryx.jlink.util
 
 import groovy.transform.CompileStatic
-import jdk.internal.org.objectweb.asm.Opcodes
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor
 import org.objectweb.asm.MethodVisitor
+import org.objectweb.asm.Opcodes
 
 @CompileStatic
 class PackageUseScanner extends ClassVisitor {
-    final Project project
+    private static final Logger LOGGER = Logging.getLogger(String.class);
+    
     final PackageCollection usedPackages = new PackageCollection()
     final PackageCollection ownPackages = new PackageCollection()
 
-    PackageUseScanner(Project project) {
-        super(Opcodes.ASM6)
-        this.project = project
+    PackageUseScanner() {
+        super(Opcodes.ASM7)
     }
 
     Collection<String> getExternalPackages() {
@@ -67,12 +69,12 @@ class PackageUseScanner extends ClassVisitor {
         def invalidEntries = []
         Util.scan(file, { String basePath, String path, InputStream inputStream ->
             if(Util.isValidClassFileReference(path)) {
-                if(project) project.logger.trace("processing: $path")
+                LOGGER.trace("processing: $path")
                 try {
                     ClassReader cr = new ClassReader(inputStream)
                     cr.accept(this, 0)
                 } catch (Exception e) {
-                    if(project) project.logger.info("Failed to scan $path", e)
+                    LOGGER.info("Failed to scan $path", e)
                     invalidEntries << "${basePath}/${path}"
                 }
             }

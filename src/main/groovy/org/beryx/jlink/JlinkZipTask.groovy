@@ -17,18 +17,14 @@ package org.beryx.jlink
 
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
+import org.beryx.jlink.data.JlinkZipTaskData
 import org.beryx.jlink.data.LauncherData
 import org.beryx.jlink.data.TargetPlatform
 import org.beryx.jlink.impl.JlinkZipTaskImpl
-import org.beryx.jlink.data.JlinkZipTaskData
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 
 @CompileStatic
 class JlinkZipTask extends BaseTask {
@@ -41,7 +37,7 @@ class JlinkZipTask extends BaseTask {
     @Input
     Property<String> imageName
 
-    @OutputDirectory
+    @InputDirectory
     DirectoryProperty imageDir
 
     @OutputFile

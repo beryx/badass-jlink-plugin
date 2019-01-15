@@ -15,14 +15,21 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkTaskData
 import org.beryx.jlink.util.LaunchScriptGenerator
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
+@CompileStatic
 class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
+    private static final Logger LOGGER = Logging.getLogger(JlinkZipTaskImpl.class);
+
     JlinkTaskImpl(Project project, JlinkTaskData taskData) {
         super(project, taskData)
-        project.logger.info("taskData: $taskData")
+        LOGGER.info("taskData: $taskData")
     }
 
     void execute() {
@@ -38,6 +45,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         }
     }
 
+    @CompileDynamic
     void runJlink(File imageDir, String jdkHome, List<String> options) {
         project.delete(imageDir)
         def result = project.exec {
@@ -55,9 +63,9 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
                            '--output', imageDir]
         }
         if(result.exitValue != 0) {
-            project.logger.error(project.ext.jlinkOutput())
+            LOGGER.error(project.ext.jlinkOutput())
         } else {
-            project.logger.info(project.ext.jlinkOutput())
+            LOGGER.info(project.ext.jlinkOutput())
         }
         result.assertNormalExitValue()
         result.rethrowFailure()

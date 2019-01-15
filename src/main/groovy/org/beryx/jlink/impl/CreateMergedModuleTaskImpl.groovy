@@ -15,6 +15,8 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.util.JdepsExecutor
 import org.beryx.jlink.util.SuggestedMergedModuleInfoBuilder
@@ -22,31 +24,38 @@ import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateMergedModuleTaskData
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
+import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
+@CompileStatic
 class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData> {
+    private static final Logger LOGGER = Logging.getLogger(CreateMergedModuleTaskImpl.class);
+
     CreateMergedModuleTaskImpl(Project project, CreateMergedModuleTaskData taskData) {
         super(project, taskData)
-        project.logger.info("taskData: $taskData")
+        LOGGER.info("taskData: $taskData")
     }
 
+    @CompileDynamic
     void execute() {
         def jarFilePath = "$td.tmpMergedModuleDirPath/${td.mergedModuleName}.jar"
         Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDir)
         def modInfoDir = genModuleInfo(project.file(jarFilePath), project.file(td.tmpJarsDirPath))
         compileModuleInfo(project.file(modInfoDir), project.file(jarFilePath), project.file(td.tmpModuleInfoDirPath))
-        project.logger.info("Copy from $jarFilePath into ${td.mergedModuleJar}...")
+        LOGGER.info("Copy from $jarFilePath into ${td.mergedModuleJar}...")
         project.copy {
             from jarFilePath
             into td.jlinkJarsDirPath
         }
-        project.logger.info("Insert module-info from $td.tmpModuleInfoDirPath into ${td.mergedModuleJar}...")
+        LOGGER.info("Insert module-info from $td.tmpModuleInfoDirPath into ${td.mergedModuleJar}...")
         insertModuleInfo(td.mergedModuleJar, project.file(td.tmpModuleInfoDirPath))
     }
 
     File genModuleInfo(File jarFile, File targetDir) {
-        project.logger.info("Generating module-info in ${targetDir}...")
+        LOGGER.info("Generating module-info in ${targetDir}...")
         project.delete(targetDir)
         targetDir.mkdirs()
         def moduleInfoFile = genModuleInfoJdeps(jarFile, targetDir)
@@ -64,9 +73,9 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
                     throw new GradleException("jdeps exited with return code $result.exitValue")
                 }
             } else {
-                def files = targetDir.listFiles{File dir, String name -> name == 'module-info.java'}
+                def files = targetDir.listFiles({File dir, String name -> name == 'module-info.java'} as FilenameFilter)
                 if(files?.length) return files[0]
-                project.logger.warn("jdeps terminated successfully but the module declaration file cannot be found.")
+                LOGGER.warn("jdeps terminated successfully but the module declaration file cannot be found.")
             }
         }
         null
@@ -74,7 +83,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
 
     File genModuleInfoBadass(File jarFile, File targetDir) {
         def packages = new TreeSet<String>()
-        new ZipFile(jarFile).entries().each { entry ->
+        new ZipFile(jarFile).entries().each { ZipEntry entry ->
             def pkgName = Util.getPackage(entry.name)
             if(pkgName) packages << pkgName
         }
@@ -97,8 +106,9 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         modinfoDir
     }
 
+    @CompileDynamic
     def compileModuleInfo(File moduleInfoJavaDir, File moduleJar, File targetDir) {
-        project.logger.info("Compiling module-info from ${moduleInfoJavaDir}...")
+        LOGGER.info("Compiling module-info from ${moduleInfoJavaDir}...")
         project.delete(targetDir)
         project.copy {
             from(project.zipTree(moduleJar))
@@ -114,8 +124,9 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         }
     }
 
+    @CompileDynamic
     def insertModuleInfo(File moduleJar, File moduleInfoClassDir) {
-        project.logger.info("Inserting module-info into ${moduleJar}...")
+        LOGGER.info("Inserting module-info into ${moduleJar}...")
         project.exec {
             commandLine "$td.javaHome/bin/jar",
                     '--update',

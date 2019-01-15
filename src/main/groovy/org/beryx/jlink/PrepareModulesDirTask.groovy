@@ -17,13 +17,12 @@ package org.beryx.jlink
 
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
-import org.beryx.jlink.impl.PrepareModulesDirTaskImpl
 import org.beryx.jlink.data.PrepareModulesDirTaskData
+import org.beryx.jlink.impl.PrepareModulesDirTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory

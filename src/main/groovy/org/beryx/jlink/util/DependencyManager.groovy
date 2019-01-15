@@ -18,6 +18,8 @@ package org.beryx.jlink.util
 import groovy.transform.CompileStatic
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ResolvedDependency
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 import java.util.function.Predicate
 import java.util.regex.Pattern
@@ -29,6 +31,8 @@ import static org.beryx.jlink.util.Util.isEmptyJar;
 
 @CompileStatic
 class DependencyManager {
+    private static final Logger LOGGER = Logging.getLogger(DependencyManager.class);
+
     final Project project
     final List<String> forceMergedJarPrefixes
     final List<String> extraDependenciesPrefixes
@@ -48,13 +52,13 @@ class DependencyManager {
             def depName = dep.moduleArtifacts[0].name
             extraDependenciesPrefixes.any { depName.startsWith(it) }
         }
-        project.logger.info("extraDeps: ${getArtifacts(extraDeps)}")
+        LOGGER.info("extraDeps: ${getArtifacts(extraDeps)}")
 
         while(true) {
             def dep = getModularThatShouldBeHandledAsNonModular()
             if(!dep) break
             dependenciesHandledAsNonModular << dep
-            project.logger.info("Handling $dep.name as non-modular")
+            LOGGER.info("Handling $dep.name as non-modular")
         }
 
         Set<ResolvedDependency> modDeps = collectDeps {!isHandledAsNonModular(it)}
@@ -69,10 +73,10 @@ class DependencyManager {
         nonModDeps.each {collectModularJarsRequiredByNonModularJars(it, modsRequiredByNonMods, modDeps, handledDeps)}
         modularJarsRequiredByNonModularJars = getArtifacts(modsRequiredByNonMods)
 
-        project.logger.info("modularJars: ${modularJars*.name}")
-        project.logger.info("nonModularJars: ${nonModularJars*.name}")
-        project.logger.info("modularJarsRequiredByNonModularJars: ${modularJarsRequiredByNonModularJars*.name}")
-        project.logger.info("dependenciesHandledAsNonModular: ${dependenciesHandledAsNonModular*.name}")
+        LOGGER.info("modularJars: ${modularJars*.name}")
+        LOGGER.info("nonModularJars: ${nonModularJars*.name}")
+        LOGGER.info("modularJarsRequiredByNonModularJars: ${modularJarsRequiredByNonModularJars*.name}")
+        LOGGER.info("dependenciesHandledAsNonModular: ${dependenciesHandledAsNonModular*.name}")
     }
 
     private Set<ResolvedDependency> collectDeps(Predicate<ResolvedDependency> filter) {
@@ -89,9 +93,9 @@ class DependencyManager {
         Set<ResolvedDependency> modsRequiredByNonMods = extraDeps.findAll {!isHandledAsNonModular(it)}
         Set<ResolvedDependency> nonModDeps = collectDeps{ isHandledAsNonModular(it) }
         Set<ResolvedDependency> modDeps = collectDeps {!isHandledAsNonModular(it)}
-        project.logger.debug("nonModDeps: ${nonModDeps*.name}")
+        LOGGER.debug("nonModDeps: ${nonModDeps*.name}")
         nonModDeps.each {collectModularJarsRequiredByNonModularJars(it, modsRequiredByNonMods, modDeps, handledDeps)}
-        project.logger.debug("modsRequiredByNonMods: ${modsRequiredByNonMods*.name}")
+        LOGGER.debug("modsRequiredByNonMods: ${modsRequiredByNonMods*.name}")
         for(ResolvedDependency dep: modsRequiredByNonMods) {
             if(getDescendants(dep) {isHandledAsNonModular(it)}) return dep
         }

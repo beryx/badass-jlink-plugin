@@ -15,15 +15,22 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.Util
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
+@CompileStatic
 class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTaskData> {
+    private static final Logger LOGGER = Logging.getLogger(PrepareMergedJarsDirTaskImpl.class);
+
     PrepareMergedJarsDirTaskImpl(Project project, PrepareMergedJarsDirTaskData taskData) {
         super(project, taskData)
-        project.logger.info("taskData: $taskData")
+        LOGGER.info("taskData: $taskData")
     }
 
     void execute() {
@@ -34,19 +41,20 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         mergeUnpackedContents(new File(td.nonModularJarsDirPath).listFiles() as List)
     }
 
+    @CompileDynamic
     def copyRuntimeJars(DependencyManager depMgr) {
         project.delete(td.jlinkJarsDirPath, td.nonModularJarsDirPath)
         new File(td.jlinkJarsDirPath).mkdirs()
         new File(td.nonModularJarsDirPath).mkdirs()
-        project.logger.info("Copying modular jars required by non-modular jars to ${td.jlinkJarsDirPath}...")
+        LOGGER.info("Copying modular jars required by non-modular jars to ${td.jlinkJarsDirPath}...")
         depMgr.modularJarsRequiredByNonModularJars.each { jar ->
-            project.logger.debug("\t... from $jar ...")
+            LOGGER.debug("\t... from $jar ...")
             project.copy {
                 into td.jlinkJarsDirPath
                 from jar
             }
         }
-        project.logger.info("Copying mon-modular jars to ${td.nonModularJarsDirPath}...")
+        LOGGER.info("Copying mon-modular jars to ${td.nonModularJarsDirPath}...")
         depMgr.nonModularJars.each { jar ->
             project.copy {
                 into td.nonModularJarsDirPath
@@ -55,9 +63,10 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         }
     }
 
+    @CompileDynamic
     def mergeUnpackedContents(Collection<File> jars) {
         if(jars.empty) return
-        project.logger.info("Merging content into ${td.mergedJarsDir}...")
+        LOGGER.info("Merging content into ${td.mergedJarsDir}...")
 
         jars.each { jar ->
             project.delete(td.tmpJarsDirPath)

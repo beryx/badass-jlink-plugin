@@ -15,10 +15,13 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import jdk.internal.org.objectweb.asm.Type
 
+@CompileStatic
 class PackageCollection {
-    final TreeSet<String> packages = []
+    final TreeSet<String> packages = new TreeSet<>()
 
     void addPackage(String pkg) {
         packages << adjust(pkg)
@@ -28,6 +31,7 @@ class PackageCollection {
         addTypes(Type.getType(descriptor))
     }
 
+    @CompileDynamic
     void addTypes(Type... types) {
         types.each { Type type ->
             switch(type.sort) {

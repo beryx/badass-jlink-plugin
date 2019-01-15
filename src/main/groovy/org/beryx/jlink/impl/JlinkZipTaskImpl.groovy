@@ -15,15 +15,23 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkZipTaskData
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
+@CompileStatic
 class JlinkZipTaskImpl extends BaseTaskImpl<JlinkZipTaskData> {
+    private static final Logger LOGGER = Logging.getLogger(JlinkZipTaskImpl.class);
+
     JlinkZipTaskImpl(Project project, JlinkZipTaskData taskData) {
         super(project, taskData)
-        project.logger.info("taskData: $taskData")
+        LOGGER.info("taskData: $taskData")
     }
 
+    @CompileDynamic
     void execute() {
         if(td.targetPlatforms) {
             def zipDir = td.imageZip.parentFile

@@ -36,7 +36,7 @@ class JlinkPlugin implements Plugin<Project> {
     @Override
     void apply(Project project) {
         if(GradleVersion.current() < GradleVersion.version('4.0')) {
-            throw new GradleException("This version of the plugin requires Gradle 4.8 or newer.")
+            throw new GradleException("This plugin requires Gradle 4.8 or newer.")
         }
         project.getPluginManager().apply('application');
         def extension = project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)

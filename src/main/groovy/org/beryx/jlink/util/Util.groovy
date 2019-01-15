@@ -16,6 +16,8 @@
 package org.beryx.jlink.util
 
 import groovy.io.FileType
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.codehaus.groovy.runtime.IOGroovyMethods
@@ -25,15 +27,22 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ListProperty
 import org.gradle.util.GradleVersion
 
 import java.lang.module.ModuleFinder
+import java.nio.file.Path
 import java.util.jar.JarFile
 import java.util.regex.Pattern
+import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
+@CompileStatic
 class Util {
+    private static final Logger LOGGER = Logging.getLogger(Util.class);
+
     static String toModuleName(String s) {
         def name = s.replaceAll('[^0-9A-Za-z_.]', '.')
         int start = 0
@@ -45,6 +54,7 @@ class Util {
     }
 
     private static final Pattern MODULE_DECL = ~/\s*(?:open\s+)?module\s+(\S+)\s*\{.*/
+    @CompileDynamic
     static String getModuleNameFrom(String moduleInfoText) {
         def matcher = moduleInfoText.readLines().collect {MODULE_DECL.matcher(it)}.find {it.matches()}
         if(matcher == null) throw new GradleException("Cannot retrieve module name from module-info.java")
@@ -56,6 +66,7 @@ class Util {
         "${Util.toModuleName(name)}.merged.module"
     }
 
+    @CompileDynamic
     static String getDefaultModuleName(Project project) {
         Set<File> srcDirs = project.sourceSets.main?.java?.srcDirs
         File moduleInfoDir = srcDirs?.find { it.list()?.contains('module-info.java')}
@@ -71,7 +82,7 @@ class Util {
         int dotPos = entryName.lastIndexOf('.')
         if(!isValidIdentifier(entryName.substring(pos + 1, dotPos))) return null
         def pkgName = entryName.substring(0, pos).replace('/', '.')
-        boolean valid = pkgName.split('\\.').every {isValidIdentifier(it)}
+        boolean valid = pkgName.split('\\.').every {String s -> isValidIdentifier(s)}
         return valid ? pkgName : null
     }
 
@@ -84,12 +95,13 @@ class Util {
         true
     }
 
-    static String getModuleName(File f, Project project) {
+    @CompileDynamic
+    static String getModuleName(File f) {
         try {
             return ModuleFinder.of(f.toPath()).findAll().first().descriptor().name()
         } catch (Exception e) {
             def modName = getFallbackModuleName(f)
-            project.logger.warn("Cannot retrieve the module name of $f. Using fallback value: $modName.", e)
+            LOGGER.warn("Cannot retrieve the module name of $f. Using fallback value: $modName.", e)
             return modName
         }
     }
@@ -104,6 +116,7 @@ class Util {
         return s.substring(0, len - tokens[-1].length() - 2).replace('-', '.')
     }
 
+    @CompileDynamic
     static void createManifest(Object targetDir, boolean multiRelease) {
         def mfdir = new File(targetDir, 'META-INF')
         mfdir.mkdirs()
@@ -116,6 +129,7 @@ class Util {
         if(multiRelease) mf << 'Multi-Release: true\n'
     }
 
+    @CompileDynamic
     static void createJar(Project project, String javaHome, String jarFilePath, Object contentDir) {
         project.file(jarFilePath).parentFile.mkdirs()
         project.exec {
@@ -160,7 +174,7 @@ class Util {
     private static void scanJar(File jarFile,
                         @ClosureParams(value= SimpleType, options="java.lang.String,java.lang.String,java.io.InputStream") Closure<Void> action) {
         def zipFile = new ZipFile(jarFile)
-        zipFile.entries().each { entry ->
+        zipFile.entries().each { ZipEntry entry ->
             IOGroovyMethods.withCloseable(zipFile.getInputStream(entry)) {
                 action.call('', entry.name, it)
             }
@@ -170,8 +184,8 @@ class Util {
     static File getVersionedDir(File baseDir, int javaVersion) {
         def versionsDir = new File("$baseDir.absolutePath/META-INF/versions")
         if(!versionsDir.directory) return null
-        def version = versionsDir.listFiles({ it.directory && it.name.number }as FileFilter)
-                .collect {it.name as int}.findAll{it <= javaVersion}.max()
+        def version = versionsDir.listFiles({ File f -> f.directory && f.name.number }as FileFilter)
+                .collect {File f -> f.name as int}.findAll{int v -> v <= javaVersion}.max()
         if(!version) return null
         new File(versionsDir, "$version")
     }
@@ -182,9 +196,10 @@ class Util {
 
     static boolean isEmptyJar(File jarFile) {
         def zipFile = new ZipFile(jarFile)
-        zipFile.entries().every { it.name in ['META-INF/', 'META-INF/MANIFEST.MF']}
+        zipFile.entries().every { ZipEntry entry -> entry.name in ['META-INF/', 'META-INF/MANIFEST.MF']}
     }
 
+    @CompileDynamic
     static DirectoryProperty createDirectoryProperty(Project project) {
         if(GradleVersion.current() < GradleVersion.version('5.0-milestone-1')) {
             return project.layout.directoryProperty()
@@ -192,6 +207,8 @@ class Util {
             return project.objects.directoryProperty()
         }
     }
+
+    @CompileDynamic
     static RegularFileProperty createRegularFileProperty(Project project) {
         if(GradleVersion.current() < GradleVersion.version('5.0-milestone-1')) {
             return project.layout.fileProperty()

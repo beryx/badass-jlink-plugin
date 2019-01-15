@@ -21,7 +21,7 @@ import spock.lang.Specification
 class ServiceLoaderUseScannerSpec extends Specification {
     def "should correctly detect used services"() {
         given:
-        def scanner = new ServiceLoaderUseScanner(null)
+        def scanner = new ServiceLoaderUseScanner()
         def jarFile = new File('src/test/resources/libs/ecj-3.13.102.jar')
 
         when:

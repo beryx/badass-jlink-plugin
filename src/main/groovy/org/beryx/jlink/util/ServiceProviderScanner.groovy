@@ -17,16 +17,15 @@ package org.beryx.jlink.util
 
 import groovy.transform.CompileStatic
 import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+
 import static org.beryx.jlink.data.ModuleInfo.ProvidesBuilder
 
 @CompileStatic
 class ServiceProviderScanner {
-    final Project project
+    private static final Logger LOGGER = Logging.getLogger(ServiceProviderScanner.class);
     final Set<ProvidesBuilder> builders = new HashSet<>()
-
-    ServiceProviderScanner(Project project) {
-        this.project = project
-    }
 
     List<String> scan(File file) {
         def invalidEntries = []
@@ -34,22 +33,24 @@ class ServiceProviderScanner {
             if(path.startsWith('META-INF/services/')) {
                 try {
                     def service = path - 'META-INF/services/'
-                    def builder = new ProvidesBuilder(service)
-                    inputStream.text.eachLine { line ->
-                        line = line.trim()
-                        int pos = line.indexOf('#')
-                        if(pos >= 0) {
-                            line = line.substring(0,pos).trim()
+                    if(service) {
+                        def builder = new ProvidesBuilder(service)
+                        inputStream.text.eachLine { line ->
+                            line = line.trim()
+                            int pos = line.indexOf('#')
+                            if(pos >= 0) {
+                                line = line.substring(0,pos).trim()
+                            }
+                            if(line) {
+                                builder.with(line)
+                            }
                         }
-                        if(line) {
-                            builder.with(line)
+                        if(builder.implementations) {
+                            builders << builder
                         }
-                    }
-                    if(builder.implementations) {
-                        builders << builder
                     }
                 } catch (Exception e) {
-                    if(project) project.logger.info("Failed to scan $path", e)
+                    LOGGER.info("Failed to scan $path", e)
                     invalidEntries << "${basePath}/${path}"
                 }
             }

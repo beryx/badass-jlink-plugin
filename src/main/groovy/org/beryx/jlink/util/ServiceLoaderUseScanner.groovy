@@ -38,34 +38,33 @@
 package org.beryx.jlink.util
 
 import groovy.transform.CompileStatic
-import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.objectweb.asm.*
+
 import static org.beryx.jlink.data.ModuleInfo.UsesBuilder
 
 @CompileStatic
 class ServiceLoaderUseScanner {
-    final Project project
+    private static final Logger LOGGER = Logging.getLogger(ServiceLoaderUseScanner.class);
+
     final Set<UsesBuilder> builders = new HashSet<>()
 
     private String lastClassName
     private String lastMethodName
     private Set<String> unresolvedInvocations = []
 
-    ServiceLoaderUseScanner(Project project) {
-        this.project = project
-    }
-
     List<String> scan(File file) {
         def invalidEntries = []
         Util.scan(file, { String basePath, String path, InputStream inputStream ->
             if(Util.isValidClassFileReference(path)) {
-                if(project) project.logger.trace("scanning ServiceLoader use in: $path")
+                LOGGER.trace("scanning ServiceLoader use in: $path")
                 try {
                     def cv = new ServiceLoaderClassVisitor()
                     new ClassReader(inputStream).accept(cv, 0)
                     cv.usedServices.each {service -> builders << new UsesBuilder(service)}
                 } catch (Exception e) {
-                    if(project) project.logger.info("Failed to scan $path", e)
+                    LOGGER.info("Failed to scan $path", e)
                     invalidEntries << "${basePath}/${path}"
                 }
             }
@@ -107,9 +106,9 @@ class ServiceLoaderUseScanner {
             if ((owner == 'java/util/ServiceLoader') && (name == 'load')) {
                 if (!lastType) {
                     String invocation = "$lastClassName.$lastMethodName"
-                    if(project && !(invocation in unresolvedInvocations)) {
+                    if(!(invocation in unresolvedInvocations)) {
                         unresolvedInvocations.add(invocation)
-                        project.logger.warn( "Cannot derive uses clause from service loader invocation in: $invocation().")
+                        LOGGER.warn( "Cannot derive uses clause from service loader invocation in: $invocation().")
                     }
                 } else {
                     usedServices << lastType.className
