@@ -92,6 +92,7 @@ class JlinkPluginSpec extends Specification {
         null                    | '4.8'         | null         | null                        | null                                | 'modular-hello'
         'modular.example.hello' | '4.10.3'      | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
         null                    | '5.0'         | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
+        'modular.example.hello' | '5.1.1'       | null         | null                        | null                                | 'modular-hello'
     }
 
     @Unroll
