@@ -113,7 +113,7 @@ class Util {
         def tokens = s.split('-[0-9]')
         if(tokens.length < 2) return s - '.jar'
         def len = s.length()
-        return s.substring(0, len - tokens[-1].length() - 2).replace('-', '.')
+        return s.substring(0, len - tokens[tokens.length-1].length() - 2).replace('-', '.')
     }
 
     @CompileDynamic
@@ -147,7 +147,8 @@ class Util {
     static boolean isValidClassFileReference(String name) {
         if(!name.endsWith('.class')) return false
         name = name - '.class'
-        name = name.split('[./\\\\]')[-1]
+        def tokens = name.split('[./\\\\]')
+        name = tokens[tokens.length - 1]
         return Utilities.isJavaIdentifier(name)
     }
 

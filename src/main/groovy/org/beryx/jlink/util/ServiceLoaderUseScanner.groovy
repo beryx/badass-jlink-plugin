@@ -104,6 +104,7 @@ class ServiceLoaderUseScanner {
         @Override
         void visitMethodInsn(int opcode, String owner, String name, String desc, boolean itf) {
             if ((owner == 'java/util/ServiceLoader') && (name == 'load')) {
+                LOGGER.info("found ServiceLoader.load() in ${lastClassName}.${lastMethodName}()")
                 if (!lastType) {
                     String invocation = "$lastClassName.$lastMethodName"
                     if(!(invocation in unresolvedInvocations)) {

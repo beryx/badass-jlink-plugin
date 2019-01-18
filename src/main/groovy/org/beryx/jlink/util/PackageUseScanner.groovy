@@ -15,15 +15,21 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.objectweb.asm.AnnotationVisitor
 import org.objectweb.asm.ClassReader
 import org.objectweb.asm.ClassVisitor
 import org.objectweb.asm.FieldVisitor
+import org.objectweb.asm.Handle
+import org.objectweb.asm.Label
 import org.objectweb.asm.MethodVisitor
 import org.objectweb.asm.Opcodes
+import org.objectweb.asm.Type
+import org.objectweb.asm.TypePath
 
 @CompileStatic
 class PackageUseScanner extends ClassVisitor {
@@ -32,20 +38,120 @@ class PackageUseScanner extends ClassVisitor {
     final PackageCollection usedPackages = new PackageCollection()
     final PackageCollection ownPackages = new PackageCollection()
 
+    private String currentClassName
+
+    private class ScannerMethodVisitor extends MethodVisitor {
+        ScannerMethodVisitor(MethodVisitor methodVisitor) {
+            super(Opcodes.ASM7, methodVisitor)
+        }
+
+        @Override
+        void visitTypeInsn(int opcode, String type) {
+            LOGGER.debug "visitTypeInsn($type)"
+            usedPackages.addDescriptor(type)
+            super.visitTypeInsn(opcode, type)
+        }
+
+        @Override
+        void visitMethodInsn(int opcode, String owner, String name, String descriptor) {
+            visitMethodInsn(opcode, owner, name, descriptor, opcode == Opcodes.INVOKEINTERFACE)
+        }
+
+        @Override
+        void visitMethodInsn(int opcode, String owner, String name, String descriptor, boolean isInterface) {
+            LOGGER.debug "visitMethodInsn($owner)"
+            usedPackages.addClass(owner)
+            super.visitMethodInsn(opcode, owner, name, descriptor, isInterface)
+        }
+
+        @Override
+        void visitInvokeDynamicInsn(String name, String descriptor, Handle bootstrapMethodHandle, Object... bootstrapMethodArguments) {
+            LOGGER.debug "visitInvokeDynamic($descriptor)"
+            usedPackages.addDescriptor(descriptor)
+            super.visitInvokeDynamicInsn(name, descriptor, bootstrapMethodHandle, bootstrapMethodArguments)
+        }
+
+        @Override
+        void visitLocalVariable(String name, String descriptor, String signature, Label start, Label end, int index) {
+            LOGGER.debug "visitLocalVariable($descriptor)"
+            usedPackages.addDescriptor(descriptor)
+            super.visitLocalVariable(name, descriptor, signature, start, end, index)
+        }
+
+        @Override
+        void visitMultiANewArrayInsn(String descriptor, int numDimensions) {
+            LOGGER.debug "visitMultiANewArrayInsn($descriptor)"
+            usedPackages.addDescriptor(descriptor)
+            super.visitMultiANewArrayInsn(descriptor, numDimensions)
+        }
+
+        @Override
+        AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
+            LOGGER.debug "visitTypeAnnotation($descriptor)"
+            usedPackages.addDescriptor(descriptor)
+            return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible)
+        }
+
+        @Override
+        AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+            LOGGER.debug "visitAnnotation($descriptor)"
+            usedPackages.addDescriptor(descriptor)
+            return super.visitAnnotation(descriptor, visible)
+        }
+
+        @Override
+        AnnotationVisitor visitInsnAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
+            LOGGER.debug "visitInsnAnnotation($descriptor)"
+            usedPackages.addDescriptor(descriptor)
+            return super.visitInsnAnnotation(typeRef, typePath, descriptor, visible)
+        }
+
+        @Override
+        AnnotationVisitor visitLocalVariableAnnotation(int typeRef, TypePath typePath, Label[] start, Label[] end, int[] index, String descriptor, boolean visible) {
+            LOGGER.debug "visitLocalVariablAnnotation($descriptor)"
+            usedPackages.addDescriptor(descriptor)
+            return super.visitLocalVariableAnnotation(typeRef, typePath, start, end, index, descriptor, visible)
+        }
+
+        @Override
+        AnnotationVisitor visitParameterAnnotation(int parameter, String descriptor, boolean visible) {
+            LOGGER.debug "visitParameterAnnotation($descriptor)"
+            usedPackages.addDescriptor(descriptor)
+            return super.visitParameterAnnotation(parameter, descriptor, visible)
+        }
+
+        @Override
+        AnnotationVisitor visitTryCatchAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
+            LOGGER.debug "visitTrayCatchAnnotation($descriptor)"
+            usedPackages.addDescriptor(descriptor)
+            return super.visitTryCatchAnnotation(typeRef, typePath, descriptor, visible)
+        }
+    }
+
+
     PackageUseScanner() {
         super(Opcodes.ASM7)
     }
 
-    Collection<String> getExternalPackages() {
-        usedPackages.packages - ownPackages.packages
+    Set<String> getExternalPackages() {
+        (usedPackages.packages - ownPackages.packages) as Set<String>
     }
 
     @Override
     void visit(int version, int access, String name, String signature, String superName, String[] interfaces) {
+        LOGGER.debug "Visiting $name : $superName"
+        currentClassName = name
         ownPackages.addClass(name)
         if(superName) usedPackages.addClass(superName)
         for(intf in interfaces) {usedPackages.addClass(intf)}
         super.visit(version, access, name, signature, superName, interfaces)
+    }
+
+    @Override
+    void visitEnd() {
+        LOGGER.debug "End visiting $currentClassName"
+        currentClassName = null
+        super.visitEnd()
     }
 
     @Override
@@ -62,7 +168,65 @@ class PackageUseScanner extends ClassVisitor {
             }
         }
         usedPackages.addDescriptor(descriptor)
-        return super.visitMethod(access, name, descriptor, signature, exceptions)
+        def mv =  super.visitMethod(access, name, descriptor, signature, exceptions)
+        new MethodVisitor(Opcodes.ASM7, mv) {
+            @Override
+            void visitTypeInsn(int opcode, String type) {
+                LOGGER.debug "visitTypeInsn($type)"
+                usedPackages.addClass(type)
+                super.visitTypeInsn(opcode, type)
+            }
+
+            @Override
+            void visitMethodInsn(int opcode, String owner, String aName, String aDescriptor) {
+                visitMethodInsn(opcode, owner, aName, aDescriptor, opcode == Opcodes.INVOKEINTERFACE)
+            }
+
+            @CompileDynamic
+            @Override
+            void visitMethodInsn(int opcode, String owner, String aName, String aDescriptor, boolean isInterface) {
+                usedPackages.addClass(owner)
+                super.visitMethodInsn(opcode, owner, aName, aDescriptor, isInterface)
+            }
+        }
+    }
+
+    @Override
+    void visitInnerClass(String name, String outerName, String innerName, int access) {
+        usedPackages.addClass(name)
+        super.visitInnerClass(name, outerName, innerName, access)
+    }
+
+    @Override
+    void visitNestHost(String nestHost) {
+        LOGGER.debug "visitNestHost($nestHost)"
+        usedPackages.addClass(nestHost)
+        super.visitNestHost(nestHost)
+    }
+
+    @Override
+    void visitNestMember(String nestMember) {
+        LOGGER.debug "visitNestMember($nestMember)"
+        usedPackages.addClass(nestMember)
+        super.visitNestMember(nestMember)
+    }
+
+    @Override
+    void visitOuterClass(String owner, String name, String descriptor) {
+        usedPackages.addClass(owner)
+        super.visitOuterClass(owner, name, descriptor)
+    }
+
+    @Override
+    AnnotationVisitor visitAnnotation(String descriptor, boolean visible) {
+        usedPackages.addDescriptor(descriptor)
+        return super.visitAnnotation(descriptor, visible)
+    }
+
+    @Override
+    AnnotationVisitor visitTypeAnnotation(int typeRef, TypePath typePath, String descriptor, boolean visible) {
+        usedPackages.addDescriptor(descriptor)
+        return super.visitTypeAnnotation(typeRef, typePath, descriptor, visible)
     }
 
     List<String> scan(File file) {
@@ -75,6 +239,7 @@ class PackageUseScanner extends ClassVisitor {
                     cr.accept(this, 0)
                 } catch (Exception e) {
                     LOGGER.info("Failed to scan $path", e)
+                    e.printStackTrace()
                     invalidEntries << "${basePath}/${path}"
                 }
             }

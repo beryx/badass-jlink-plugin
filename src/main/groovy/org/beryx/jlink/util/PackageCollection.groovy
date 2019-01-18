@@ -17,16 +17,31 @@ package org.beryx.jlink.util
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import groovy.transform.ToString
 import jdk.internal.org.objectweb.asm.Type
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
+@ToString
 @CompileStatic
 class PackageCollection {
-    final TreeSet<String> packages = new TreeSet<>()
+    private static final Logger LOGGER = Logging.getLogger(PackageCollection.class);
+
+    final TreeSet<String> packages = new TreeSet<String>() {
+        @Override
+        boolean add(Object o) {
+            if(String.valueOf(o).startsWith('L')) {
+                println "#### $o"
+            }
+            return super.add(o)
+        }
+    }
 
     void addPackage(String pkg) {
         packages << adjust(pkg)
     }
 
+    @CompileDynamic
     void addDescriptor(String descriptor) {
         addTypes(Type.getType(descriptor))
     }
@@ -44,13 +59,20 @@ class PackageCollection {
 
     void addClass(String className) {
         if(!className) return
-        def pkg = removeFromLastOccurrence(adjust(className), '.')
-        if(pkg) packages << pkg
+        if(className.startsWith('[')) {
+            addDescriptor(className)
+        } else {
+            def pkg = removeFromLastOccurrence(adjust(className), '.')
+            if(pkg) packages << pkg
+        }
     }
 
     static String removeFromLastOccurrence(String s, String delimiter) {
         int pos = s.lastIndexOf(delimiter)
-        if(pos <= 0) throw new IllegalArgumentException("Cannot remove from last occurrence of $delimiter in $s")
+        if(pos <= 0) {
+            LOGGER.debug("Cannot remove from last occurrence of $delimiter in $s")
+            return null
+        }
         s.substring(0, pos)
     }
 
@@ -61,7 +83,7 @@ class PackageCollection {
             s = s.substring(1)
             if(!s) return ''
         }
-        while(!Character.isJavaIdentifierPart(s[-1] as char)) {
+        while(!Character.isJavaIdentifierPart(s[s.length() - 1] as char)) {
             s = s.substring(0, s.length()-1)
             if(!s) return ''
         }
