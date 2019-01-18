@@ -123,8 +123,8 @@ class SuggestMergedModuleInfoSpec extends Specification {
     }
 
     List<String> getDirectives(String taskOutput, String language) {
-        def blockStart = (language == 'kotlin') ? 'mergedModule (delegateClosureOf<ModuleInfo> {' : 'mergedModule {'
-        def blockEnd = (language == 'kotlin') ? '})' : '}'
+        def blockStart = 'mergedModule {'
+        def blockEnd = '}'
 
         int startPos = taskOutput.indexOf(blockStart)
         assert startPos >= 0

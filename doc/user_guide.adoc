@@ -152,12 +152,12 @@ import org.beryx.jlink.data.ModuleInfo
 ...
 jlink {
     ...
-    mergedModule (delegateClosureOf<ModuleInfo> {
+    mergedModule {
         requires("java.desktop")
         requiresTransitive("java.sql")
         uses("java.sql.Driver")
         provides("java.sql.Driver").with("org.hsqldb.jdbc.JDBCDriver")
-    })
+    }
     ...
 }
 ----
@@ -214,13 +214,13 @@ import org.beryx.jlink.data.LauncherData
 ...
 jlink {
     ...
-    launcher (delegateClosureOf<LauncherData> {
+    launcher {
         name = "my-app"
         jvmArgs = listOf("-Dlog4j.debug=true", "-Dlog4j.configurationFile=./log4j2.xml")
         args = listOf("--user", "alice")
         unixScriptTemplate = file("unixStartScript.txt")
         windowsScriptTemplate = file("windowsStartScript.txt")
-    })
+    }
     ...
 }
 ----

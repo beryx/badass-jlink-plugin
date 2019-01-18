@@ -18,7 +18,6 @@ package org.beryx.jlink.impl
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JdepsUsage
-import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
 import org.beryx.jlink.util.JdepsExecutor
 import org.beryx.jlink.util.SuggestedMergedModuleInfoBuilder
@@ -70,9 +69,6 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
             if(td.useJdeps == JdepsUsage.exclusively) return
         }
         def builder = new SuggestedMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes)
-        def blockStart = (td.language == ModuleInfo.Language.KOTLIN) ?
-                'mergedModule (delegateClosureOf<ModuleInfo> {' : 'mergedModule {'
-        def blockEnd = (td.language == ModuleInfo.Language.KOTLIN) ? '})' : '}'
-        println "$blockStart\n${builder.moduleInfo.toString(4, td.language)}\n$blockEnd"
+        println "mergedModule {\n${builder.moduleInfo.toString(4, td.language)}\n}"
     }
 }

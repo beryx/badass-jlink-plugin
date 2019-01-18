@@ -18,6 +18,7 @@ package org.beryx.jlink.data
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import org.beryx.jlink.util.Util
+import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -113,17 +114,13 @@ class JlinkPluginExtension {
         targetPlatforms.get()[name] = new TargetPlatform(name, jdkHome, options)
     }
 
-    void mergedModule(Closure closure) {
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.delegate = mergedModuleInfo.get()
+    void mergedModule(Action<ModuleInfo> action) {
         mergedModuleInfo.get().enabled = true
-        closure()
+        action.execute(mergedModuleInfo.get())
     }
 
-    void launcher(Closure closure) {
-        closure.resolveStrategy = Closure.DELEGATE_FIRST
-        closure.delegate = launcherData.get()
-        closure()
+    void launcher(Action<LauncherData> action) {
+        action.execute(launcherData.get())
     }
 
     private static String getDefaultJavaHome() {
