@@ -441,12 +441,12 @@ but it requires quotes around the names of modules, services, and service implem
 ...
 jlink {
     ...
-    mergedModule (delegateClosureOf&lt;ModuleInfo&gt; {
+    mergedModule {
         requires(&quot;java.desktop&quot;)
         requiresTransitive(&quot;java.sql&quot;)
         uses(&quot;java.sql.Driver&quot;)
         provides(&quot;java.sql.Driver&quot;).with(&quot;org.hsqldb.jdbc.JDBCDriver&quot;)
-    })
+    }
     ...
 }</code></pre>
 </div>
@@ -533,13 +533,13 @@ to parse the templates, with the following variables available:</p>
 ...
 jlink {
     ...
-    launcher (delegateClosureOf&lt;LauncherData&gt; {
+    launcher {
         name = &quot;my-app&quot;
         jvmArgs = listOf(&quot;-Dlog4j.debug=true&quot;, &quot;-Dlog4j.configurationFile=./log4j2.xml&quot;)
         args = listOf(&quot;--user&quot;, &quot;alice&quot;)
         unixScriptTemplate = file(&quot;unixStartScript.txt&quot;)
         windowsScriptTemplate = file(&quot;windowsStartScript.txt&quot;)
-    })
+    }
     ...
 }</code></pre>
 </div>
