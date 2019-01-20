@@ -17,23 +17,13 @@ package org.beryx.jlink.util
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.objectweb.asm.AnnotationVisitor
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.FieldVisitor
-import org.objectweb.asm.Handle
-import org.objectweb.asm.Label
-import org.objectweb.asm.MethodVisitor
-import org.objectweb.asm.Opcodes
-import org.objectweb.asm.Type
-import org.objectweb.asm.TypePath
+import org.objectweb.asm.*
 
 @CompileStatic
 class PackageUseScanner extends ClassVisitor {
-    private static final Logger LOGGER = Logging.getLogger(String.class);
+    private static final Logger LOGGER = Logging.getLogger(PackageUseScanner.class);
     
     final PackageCollection usedPackages = new PackageCollection()
     final PackageCollection ownPackages = new PackageCollection()
@@ -48,7 +38,7 @@ class PackageUseScanner extends ClassVisitor {
         @Override
         void visitTypeInsn(int opcode, String type) {
             LOGGER.debug "visitTypeInsn($type)"
-            usedPackages.addDescriptor(type)
+            usedPackages.addClass(type)
             super.visitTypeInsn(opcode, type)
         }
 
@@ -169,26 +159,7 @@ class PackageUseScanner extends ClassVisitor {
         }
         usedPackages.addDescriptor(descriptor)
         def mv =  super.visitMethod(access, name, descriptor, signature, exceptions)
-        new MethodVisitor(Opcodes.ASM7, mv) {
-            @Override
-            void visitTypeInsn(int opcode, String type) {
-                LOGGER.debug "visitTypeInsn($type)"
-                usedPackages.addClass(type)
-                super.visitTypeInsn(opcode, type)
-            }
-
-            @Override
-            void visitMethodInsn(int opcode, String owner, String aName, String aDescriptor) {
-                visitMethodInsn(opcode, owner, aName, aDescriptor, opcode == Opcodes.INVOKEINTERFACE)
-            }
-
-            @CompileDynamic
-            @Override
-            void visitMethodInsn(int opcode, String owner, String aName, String aDescriptor, boolean isInterface) {
-                usedPackages.addClass(owner)
-                super.visitMethodInsn(opcode, owner, aName, aDescriptor, isInterface)
-            }
-        }
+        new ScannerMethodVisitor(mv)
     }
 
     @Override
@@ -239,7 +210,6 @@ class PackageUseScanner extends ClassVisitor {
                     cr.accept(this, 0)
                 } catch (Exception e) {
                     LOGGER.info("Failed to scan $path", e)
-                    e.printStackTrace()
                     invalidEntries << "${basePath}/${path}"
                 }
             }
