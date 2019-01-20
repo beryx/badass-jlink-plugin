@@ -148,8 +148,6 @@ jlink {
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
 .Kotlin
 ----
-import org.beryx.jlink.data.ModuleInfo
-...
 jlink {
     ...
     mergedModule {
@@ -210,8 +208,6 @@ jlink {
 [source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
 .Kotlin
 ----
-import org.beryx.jlink.data.LauncherData
-...
 jlink {
     ...
     launcher {
