@@ -55,13 +55,14 @@ class LaunchScriptGeneratorSpec extends Specification {
 
         then:
         scriptLines[0] == '@echo off'
-        scriptLines[1] == 'set DIR=%~dp0'
-        scriptLines[2].replace('  ', ' ') == lastLine
+        scriptLines[1] == 'set DIR="%~dp0"'
+        scriptLines[2] == 'set JAVA_EXEC="%DIR:"=%\\java"'
+        scriptLines[3].replace('  ', ' ') == lastLine
 
         where:
         jvmArgs                      | args             | lastLine
-        []                           | []               | 'pushd "%DIR%" & "%DIR%\\java" -m org.example.hello/org.example.Hello %* & popd'
-        ['-Xmx200m']                 | ['Alice']        | 'pushd "%DIR%" & "%DIR%\\java" -Xmx200m -m org.example.hello/org.example.Hello Alice %* & popd'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | 'pushd "%DIR%" & "%DIR%\\java" -Xmx200m -Ddebug=true -m org.example.hello/org.example.Hello Alice Bob %* & popd'
+        []                           | []               | 'pushd %DIR% & %JAVA_EXEC% -m org.example.hello/org.example.Hello %* & popd'
+//        ['-Xmx200m']                 | ['Alice']        | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -m org.example.hello/org.example.Hello Alice %* & popd'
+//        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -Ddebug=true -m org.example.hello/org.example.Hello Alice Bob %* & popd'
     }
 }
