@@ -1,3 +1,4 @@
 @echo off
-set DIR=%~dp0
-pushd "%DIR%" & "%DIR%\\java" ${jvmArgs} -m ${moduleName}/${mainClassName} ${args} %* & popd
+set DIR="%~dp0"
+set JAVA_EXEC="%DIR:"=%\\java"
+pushd %DIR% & %JAVA_EXEC% ${jvmArgs} -m ${moduleName}/${mainClassName} ${args} %* & popd
