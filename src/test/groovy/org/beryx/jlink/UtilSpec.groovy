@@ -58,13 +58,14 @@ class UtilSpec extends Specification {
         Util.getPackage(entry) == pkgName
 
         where:
-        entry                            | pkgName
-        'App.class'                      | null
-        'org/App.class'                  | 'org'
-        'org/example/App.class'          | 'org.example'
-        'org/example-bad/App.class'      | null
-        'org/example/info.txt'           | null
-        'META-INF/org/example/App.class' | null
+        entry                                   | pkgName
+        'App.class'                             | null
+        'org/App.class'                         | 'org'
+        'org/example/App.class'                 | 'org.example'
+        'org/example-bad/App.class'             | null
+        'org/example/info.txt'                  | null
+        'META-INF/org/example/App.class'        | null
+        'kotlin/native/concurrent/Future.class' | null
     }
 
     @Unroll

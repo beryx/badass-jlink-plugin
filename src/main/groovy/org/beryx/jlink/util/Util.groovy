@@ -80,19 +80,10 @@ class Util {
         int pos = entryName.lastIndexOf('/')
         if(pos <= 0) return null
         int dotPos = entryName.lastIndexOf('.')
-        if(!isValidIdentifier(entryName.substring(pos + 1, dotPos))) return null
+        if(!Utilities.isJavaIdentifier(entryName.substring(pos + 1, dotPos))) return null
         def pkgName = entryName.substring(0, pos).replace('/', '.')
-        boolean valid = pkgName.split('\\.').every {String s -> isValidIdentifier(s)}
+        boolean valid = pkgName.split('\\.').every {String s -> Utilities.isJavaIdentifier(s)}
         return valid ? pkgName : null
-    }
-
-    static boolean isValidIdentifier(String name) {
-        if (!name) return false
-        if (!Character.isJavaIdentifierStart(name.charAt(0))) return false
-        for (int i = 1; i < name.length(); i++) {
-            if (!Character.isJavaIdentifierPart(name.charAt(i))) return false
-        }
-        true
     }
 
     @CompileDynamic
