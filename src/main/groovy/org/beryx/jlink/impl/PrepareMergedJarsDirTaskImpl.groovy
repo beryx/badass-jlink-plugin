@@ -20,7 +20,9 @@ import groovy.transform.CompileStatic
 import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.Util
+import org.codehaus.groovy.tools.Utilities
 import org.gradle.api.Project
+import org.gradle.api.file.FileTreeElement
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -74,6 +76,7 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
                 from project.zipTree(jar)
                 into td.tmpJarsDirPath
                 exclude 'module-info.class', 'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/SIG-*'
+                exclude { hasInvalidName(it) }
             }
             def versionedDir = Util.getVersionedDir(new File(td.tmpJarsDirPath), td.jvmVersion)
             if(versionedDir?.directory) {
@@ -83,11 +86,25 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
                     exclude 'module-info.class'
                 }
             }
-
-            project.delete("$td.tmpJarsDirPath/META-INF/versions")
-
-            project.ant.move file: td.tmpJarsDirPath, tofile: td.mergedJarsDir
+            if(new File(td.tmpJarsDirPath).directory) {
+                project.delete("$td.tmpJarsDirPath/META-INF/versions")
+                project.ant.move file: td.tmpJarsDirPath, tofile: td.mergedJarsDir
+            }
         }
         Util.createManifest(td.mergedJarsDir, false)
+    }
+
+    private static boolean hasInvalidName(FileTreeElement fte) {
+        String path = fte.path
+        if(path.startsWith('META-INF')) return false
+        String[] tokens = path.split('/')
+        if(!fte.directory && tokens.length > 0) {
+            tokens = ((tokens.length == 1) ? [] : tokens[0 .. -2]) as String[]
+        }
+        def invalid = !tokens.every { String token -> Utilities.isJavaIdentifier(token) }
+        if(invalid) {
+            LOGGER.warn("Excluding $path from the merged module.")
+        }
+        return invalid
     }
 }
