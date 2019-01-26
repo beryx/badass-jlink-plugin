@@ -96,9 +96,11 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
 
     private static boolean hasInvalidName(FileTreeElement fte) {
         String path = fte.path
+        if(fte.directory) return false
         if(path.startsWith('META-INF')) return false
+        if(!path.endsWith('.class')) return false
         String[] tokens = path.split('/')
-        if(!fte.directory && tokens.length > 0) {
+        if(tokens.length > 0) {
             tokens = ((tokens.length == 1) ? [] : tokens[0 .. -2]) as String[]
         }
         def invalid = !tokens.every { String token -> Utilities.isJavaIdentifier(token) }
