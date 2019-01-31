@@ -417,6 +417,17 @@ but it requires quotes around the names of modules, services, and service implem
 <p>The plugin automatically exports all packages found in the merged module, therefore the DSL does not support <code>exports</code> directives.</p>
 </div>
 <div class="paragraph">
+<p>If a <code>mergedModule</code> block appears in yout build script, the generated module descriptor will contain the clauses specified in this block.
+Otherwise, the module descriptor is created using the algorithm implemented by the <code>suggestMergedModuleInfo</code> task.</p>
+</div>
+<div class="paragraph">
+<p>In many cases the "suggested" descriptor is just the right one for your merged module, so you don&#8217;t need to provide a <code>mergedModule</code> block.
+In some other cases the "suggested" descriptor is <em>almost</em> right, in the sense that it only misses one or a few clauses.
+In these cases you are allowed to configure only the missing clauses in the <code>mergedModule</code> block and instruct the plugin
+to add them to the suggested descriptor by setting the attribute <code>additive</code> to true.
+(The default value of <code>additive</code> is false.)</p>
+</div>
+<div class="paragraph">
 <p><em>Usage example</em></p>
 </div>
 <div class="listingblock primary">
@@ -425,6 +436,7 @@ but it requires quotes around the names of modules, services, and service implem
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
     mergedModule {
+        additive = <span class="predefined-constant">true</span>
         requires <span class="string"><span class="delimiter">'</span><span class="content">java.desktop</span><span class="delimiter">'</span></span>
         requires transitive <span class="string"><span class="delimiter">'</span><span class="content">java.sql</span><span class="delimiter">'</span></span>
         uses <span class="string"><span class="delimiter">'</span><span class="content">java.sql.Driver</span><span class="delimiter">'</span></span>
@@ -547,7 +559,9 @@ to parse the templates, with the following variables available:</p>
 <div class="paragraph">
 <p>The plugin combines all non-modular dependencies into a single jar to which it adds a module descriptor.
 If the <code>jlink</code> extension contains a <code>mergedModule</code> block, its directives will be used to generate the module descriptor.
-Otherwise, a module descriptor is created using the algorithm implemented by the <code>suggestMergedModuleInfo</code> task.</p>
+Otherwise, a module descriptor is created using the algorithm implemented by the <code>suggestMergedModuleInfo</code> task.
+If the attribute <code>additive</code> is set to true in the <code>mergedModule</code> block, the generated module descriptor adds the clauses
+specified in this block to the "suggested" descriptor.</p>
 </div>
 <div class="paragraph">
 <p>The non-modular dependencies appear as automatic modules in the original module graph.
