@@ -40,11 +40,6 @@ imageName:: Convenience property for setting the values of both `imageDir` and `
     pass:[&nbsp;&nbsp;&nbsp;&nbsp;]imageDir <- `_buildDir_/_imageName_` +
     pass:[&nbsp;&nbsp;&nbsp;&nbsp;]imageZip <- `_buildDir_/_imageName_.zip` +
     _usage example_: `imageName = 'hello'`
-
-The directory into which the custom runtime image should be generated. +
-(If you use the `targetPlatform` method to generate images for other platforms, the corresponding images will be created in subdirectories of `imageDir`.) +
-    _defaultValue_: `_buildDir_/image` +
-    _usage example_: `imageDir = file("$buildDir/myapp-image")`
 jlinkBasePath:: The path to the base directory that will be used by the plugin to store intermediate outputs. +
     _defaultValue_: `_buildDir_/jlinkbase` +
     _usage example_: `jlinkBasePath = "$buildDir/my-jlinkbase"`
