@@ -25,6 +25,7 @@ import java.util.stream.Collectors
 @ToString(includeNames = true)
 class ModuleInfo implements Serializable {
     boolean enabled
+    boolean additive
     List<RequiresBuilder> requiresBuilders = []
     List<UsesBuilder> usesBuilders = []
     List<ProvidesBuilder> providesBuilders = []

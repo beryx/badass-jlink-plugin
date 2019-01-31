@@ -129,6 +129,16 @@ but it requires quotes around the names of modules, services, and service implem
 
 The plugin automatically exports all packages found in the merged module, therefore the DSL does not support `exports` directives.
 
+If a `mergedModule` block appears in yout build script, the generated module descriptor will contain the clauses specified in this block.
+Otherwise, the module descriptor is created using the algorithm implemented by the `suggestMergedModuleInfo` task.
+
+In many cases the "suggested" descriptor is just the right one for your merged module, so you don't need to provide a `mergedModule` block.
+In some other cases the "suggested" descriptor is _almost_ right, in the sense that it only misses one or a few clauses.
+In these cases you are allowed to configure only the missing clauses in the `mergedModule` block and instruct the plugin
+to add them to the suggested descriptor by setting the attribute `additive` to true.
+(The default value of `additive` is false.)
+
+
 _Usage example_
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -136,6 +146,7 @@ _Usage example_
 jlink {
     ...
     mergedModule {
+        additive = true
         requires 'java.desktop'
         requires transitive 'java.sql'
         uses 'java.sql.Driver'
@@ -226,6 +237,8 @@ jlink {
 The plugin combines all non-modular dependencies into a single jar to which it adds a module descriptor.
 If the `jlink` extension contains a `mergedModule` block, its directives will be used to generate the module descriptor.
 Otherwise, a module descriptor is created using the algorithm implemented by the `suggestMergedModuleInfo` task.
+If the attribute `additive` is set to true in the `mergedModule` block, the generated module descriptor adds the clauses
+specified in this block to the "suggested" descriptor.
 
 The non-modular dependencies appear as automatic modules in the original module graph.
 The plugin replaces them with _delegating modules_, which are dummy modules containing only a module descriptor that
