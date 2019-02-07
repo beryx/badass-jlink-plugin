@@ -1,0 +1,30 @@
+plugins {
+    id 'application'
+    id "org.javamodularity.moduleplugin" version "1.4.1"
+    id 'org.beryx.jlink'
+}
+
+repositories {
+    jcenter()
+}
+
+ext.moduleName = 'org.example.jaxb'
+mainClassName = 'org.example.jaxb/org.example.jaxb.XMLPrinter'
+
+dependencies {
+    implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.2'
+}
+
+jlink {
+    forceMerge 'jaxb'
+    mergedModule {
+        requires 'java.logging';
+        requires 'java.xml';
+        requires 'com.sun.xml.txw2';
+        requires 'java.desktop';
+        requires 'java.datatransfer';
+        requires 'com.sun.xml.fastinfoset';
+        uses 'javax.xml.bind.JAXBContextFactory'
+        provides 'javax.xml.bind.JAXBContextFactory' with 'com.sun.xml.bind.v2.JAXBContextFactory'
+    }
+}

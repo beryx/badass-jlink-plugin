@@ -19,6 +19,8 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.PrepareModulesDirTaskData
 import org.beryx.jlink.util.DependencyManager
+import org.beryx.jlink.util.ModuleInfoAdjuster
+import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -45,6 +47,41 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
         project.copy {
             into td.jlinkJarsDir
             from (depMgr.modularJars - depMgr.modularJarsRequiredByNonModularJars)
+        }
+
+        project.copy {
+            into td.jlinkJarsDir
+            from (project.jar.archivePath)
+        }
+
+        adjustModuleDescriptors(depMgr)
+    }
+
+    @CompileDynamic
+    private void adjustModuleDescriptors(DependencyManager depMgr) {
+        def nonModularModules = depMgr.nonModularJars.collect { Util.getModuleName(it) }
+        def adjuster = new ModuleInfoAdjuster(td.mergedModuleName, nonModularModules)
+        def jarMap = (depMgr.modularJars + project.jar.archivePath).collectEntries { [it.name, it] }
+        td.jlinkJarsDir.listFiles().each { File jar ->
+            if(jarMap.keySet().contains(jar.name)) {
+                def descriptorBytes = adjuster.getAdjustedDescriptor(jarMap[jar.name])
+                if(descriptorBytes) {
+                    project.delete(td.tmpModuleInfoDirPath)
+                    project.mkdir(td.tmpModuleInfoDirPath)
+                    new File(td.tmpModuleInfoDirPath,'module-info.class').withOutputStream { stream ->
+                        stream << descriptorBytes
+                    }
+                    project.exec {
+                        commandLine "$td.javaHome/bin/jar",
+                                '--update',
+                                '--file',
+                                jar.path,
+                                '-C',
+                                td.tmpModuleInfoDirPath,
+                                'module-info.class'
+                    }
+                }
+            }
         }
     }
 }

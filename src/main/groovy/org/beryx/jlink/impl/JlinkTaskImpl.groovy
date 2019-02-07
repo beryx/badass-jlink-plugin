@@ -58,7 +58,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
                            '-v',
                            *options,
                            '--module-path',
-                           "$jdkHome/jmods/$SEP${project.files(td.jlinkJarsDir).asPath}$SEP${project.jar.archivePath}",
+                           "$jdkHome/jmods/$SEP${project.files(td.jlinkJarsDir).asPath}",
                            '--add-modules', td.moduleName,
                            '--output', imageDir]
         }

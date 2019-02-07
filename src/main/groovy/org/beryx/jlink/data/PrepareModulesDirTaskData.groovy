@@ -21,6 +21,9 @@ import groovy.transform.ToString
 @CompileStatic
 @ToString(includeNames = true)
 class PrepareModulesDirTaskData extends BaseTaskData {
+    String mergedModuleName
+    String tmpModuleInfoDirPath
+    String javaHome
     List<String> forceMergedJarPrefixes
     List<String> extraDependenciesPrefixes
 

@@ -23,6 +23,7 @@ import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
@@ -30,6 +31,12 @@ import org.gradle.api.tasks.TaskAction
 
 @CompileStatic
 class PrepareModulesDirTask extends BaseTask {
+    @Input
+    Property<String> mergedModuleName
+
+    @Input
+    Property<String> javaHome
+
     @Input
     ListProperty<String> forceMergedJarPrefixes
 
@@ -50,6 +57,8 @@ class PrepareModulesDirTask extends BaseTask {
     @Override
     void init(JlinkPluginExtension extension) {
         super.init(extension)
+        mergedModuleName = extension.mergedModuleName
+        javaHome = extension.javaHome
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
         extraDependenciesPrefixes = extension.extraDependenciesPrefixes
 
@@ -64,10 +73,13 @@ class PrepareModulesDirTask extends BaseTask {
     void jlinkTaskAction() {
         def taskData = new PrepareModulesDirTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
+        taskData.mergedModuleName = mergedModuleName.get()
+        taskData.javaHome = javaHome.get()
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
         taskData.extraDependenciesPrefixes = extraDependenciesPrefixes.get()
         taskData.delegatingModulesDir = delegatingModulesDir.get().asFile
         taskData.jlinkJarsDir = jlinkJarsDir.get().asFile
+        taskData.tmpModuleInfoDirPath = PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)
 
         def taskImpl = new PrepareModulesDirTaskImpl(project, taskData)
         taskImpl.execute()

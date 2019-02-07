@@ -123,4 +123,40 @@ class JlinkPluginSpec extends Specification {
         'hello-javafx-log4j-2.11.1' | '5.0'         | 'image'   | 'image.zip'   | 'helloFX'
     }
 
+    def "should adjust qualified opens in module-info"() {
+        when:
+        File buildFile = setUpBuild('opens-to-jaxb')
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withGradleVersion('5.2')
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
+        def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
+        def imageLauncher = new File(imageBinDir, "xmlprint$launcherExt")
+
+        then:
+        result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
+        imageLauncher.exists()
+        imageLauncher.canExecute()
+
+        when:
+        def process = imageLauncher.absolutePath.execute([], imageBinDir)
+        def out = new ByteArrayOutputStream(2048)
+        process.waitForProcessOutput(out, out)
+        def outputText = out.toString()
+
+        then:
+        outputText.trim() == '''
+            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            <product>
+                <id>100</id>
+                <name>pizza</name>
+                <price>3.25</price>
+            </product>         
+        '''.stripIndent().strip()
+    }
+
 }

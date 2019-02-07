@@ -15,8 +15,9 @@ buildscript {
 
 plugins {
     id 'java-gradle-plugin'
-    id 'com.github.johnrengelman.shadow' version '4.0.3'
     id 'groovy'
+    id 'maven-publish'
+    id 'com.github.johnrengelman.shadow' version '4.0.4'
     id "com.gradle.plugin-publish" version "0.10.0"
     id "com.github.ethankhall.semantic-versioning" version "1.1.0"
     id "com.github.ben-manes.versions" version "0.20.0"
@@ -65,7 +66,7 @@ license {
     header rootProject.file("license-header.txt")
     skipExistingHeaders true
     ignoreFailures false
-    excludes (['**/*.properties', '**/*.txt', '**/hello*/'])
+    excludes (['**/*.properties', '**/*.txt', '**/hello*/', '**/opens-to-jaxb*/'])
 }
 
 configurations {
