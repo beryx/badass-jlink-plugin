@@ -34,13 +34,13 @@ class JlinkZipTask extends BaseTask {
     @Input
     Property<LauncherData> launcherData
 
-    @Input
+    @Internal
     Property<String> imageName
 
-    @InputDirectory
+    @Internal
     DirectoryProperty imageDir
 
-    @OutputFile
+    @Internal
     RegularFileProperty imageZip
 
     JlinkZipTask() {
@@ -64,10 +64,20 @@ class JlinkZipTask extends BaseTask {
         taskData.jlinkBasePath = jlinkBasePath.get()
         taskData.targetPlatforms = targetPlatforms.get()
         taskData.launcherData = launcherData.get()
-        taskData.imageDir = imageName.get() ? imageDirFromName : imageDir.get().asFile
-        taskData.imageZip = imageName.get() ? imageZipFromName : imageZip.get().asFile
+        taskData.imageDir = getImageDirAsFile()
+        taskData.imageZip = getImageZipAsFile()
         def taskImpl = new JlinkZipTaskImpl(project, taskData)
         taskImpl.execute()
+    }
+
+    @InputDirectory @PathSensitive(PathSensitivity.RELATIVE)
+    File getImageDirAsFile() {
+        imageName.get() ? imageDirFromName : imageDir.get().asFile
+    }
+
+    @OutputFile @PathSensitive(PathSensitivity.NONE)
+    File getImageZipAsFile() {
+        imageName.get() ? imageZipFromName : imageZip.get().asFile
     }
 
     @Internal

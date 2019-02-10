@@ -32,6 +32,8 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 
 @CompileStatic
@@ -59,10 +61,10 @@ class JlinkTask extends BaseTask {
     @InputDirectory
     DirectoryProperty jlinkJarsDir
 
-    @Input
+    @Internal
     Property<String> imageName
 
-    @OutputDirectory
+    @Internal
     DirectoryProperty imageDir
 
     JlinkTask() {
@@ -90,7 +92,7 @@ class JlinkTask extends BaseTask {
     void jlinkTaskAction() {
         def taskData = new JlinkTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
-        taskData.imageDir = imageName.get() ? imageDirFromName : imageDir.get().asFile
+        taskData.imageDir = getImageDirAsFile()
         taskData.moduleName = moduleName.get()
         taskData.launcherData = launcherData.get()
         taskData.mainClass = mainClass.get() ?: defaultMainClass
@@ -101,6 +103,11 @@ class JlinkTask extends BaseTask {
 
         def taskImpl = new JlinkTaskImpl(project, taskData)
         taskImpl.execute()
+    }
+
+    @OutputDirectory @PathSensitive(PathSensitivity.RELATIVE)
+    File getImageDirAsFile() {
+        imageName.get() ? imageDirFromName : imageDir.get().asFile
     }
 
     @Internal
