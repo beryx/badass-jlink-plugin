@@ -32,6 +32,9 @@ import org.gradle.api.tasks.TaskAction
 @CompileStatic
 class PrepareModulesDirTask extends BaseTask {
     @Input
+    Property<String> moduleName
+
+    @Input
     Property<String> mergedModuleName
 
     @Input
@@ -57,6 +60,7 @@ class PrepareModulesDirTask extends BaseTask {
     @Override
     void init(JlinkPluginExtension extension) {
         super.init(extension)
+        moduleName = extension.moduleName
         mergedModuleName = extension.mergedModuleName
         javaHome = extension.javaHome
         forceMergedJarPrefixes = extension.forceMergedJarPrefixes
@@ -73,6 +77,7 @@ class PrepareModulesDirTask extends BaseTask {
     void jlinkTaskAction() {
         def taskData = new PrepareModulesDirTaskData()
         taskData.jlinkBasePath = jlinkBasePath.get()
+        taskData.moduleName = moduleName.get()
         taskData.mergedModuleName = mergedModuleName.get()
         taskData.javaHome = javaHome.get()
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()

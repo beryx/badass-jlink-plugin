@@ -2,6 +2,7 @@
 = Introduction
 
 The badass-jlink plugin allows you to create custom runtime images for modular applications with minimal effort.
+It also lets you create an application installer with the https://jdk.java.net/jpackage/[jpackage] tool introduced in Java 13.
 
 TIP:  For non-modular applications use the https://badass-runtime-plugin.beryx.org/releases/latest/[Badass-Runtime plugin].
 
@@ -15,6 +16,7 @@ This way, only the resulting merged module needs a module descriptor.
 
 The plugin provides several tasks. The most frequently used are `jlink`, which creates a custom runtime image in a given directory,
 and `jlinkZip`, which in addition creates a zip archive of the custom runtime image.
+With the `jpackage` task you can create a platform-specific installer for your application.
 
 WARNING: The plugin requires Java 11 and Gradle 4.8 or newer.
 While it might work with some combinations of older Java and Gradle versions, these are not officially supported.

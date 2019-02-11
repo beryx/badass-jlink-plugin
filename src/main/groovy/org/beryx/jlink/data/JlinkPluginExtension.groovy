@@ -46,6 +46,7 @@ class JlinkPluginExtension {
     final Property<Map<String, TargetPlatform>> targetPlatforms
     final Property<Integer> jvmVersion
 
+    final Property<JPackageData> jpackageData
 
     JlinkPluginExtension(Project project) {
         jlinkBasePath = project.objects.property(String)
@@ -96,6 +97,10 @@ class JlinkPluginExtension {
         targetPlatforms.set(new TreeMap<>())
 
         jvmVersion = project.objects.property(Integer)
+
+        jpackageData = project.objects.property(JPackageData)
+        def jpd = new JPackageData(project)
+        jpackageData.set(jpd)
     }
 
     void addExtraDependencies(String... dependencies) {
@@ -121,6 +126,10 @@ class JlinkPluginExtension {
 
     void launcher(Action<LauncherData> action) {
         action.execute(launcherData.get())
+    }
+
+    void jpackage(Action<JPackageData> action) {
+        action.execute(jpackageData.get())
     }
 
     private static String getDefaultJavaHome() {

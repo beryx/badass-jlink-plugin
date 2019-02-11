@@ -31,6 +31,7 @@ class JlinkPlugin implements Plugin<Project> {
     final static String TASK_NAME_PREPARE_MODULES_DIR = 'prepareModulesDir'
     final static String TASK_NAME_JLINK = 'jlink'
     final static String TASK_NAME_JLINK_ZIP = 'jlinkZip'
+    final static String TASK_NAME_JPACKAGE = 'jpackage'
     final static String TASK_NAME_SUGGEST_MERGED_MODULE_INFO = 'suggestMergedModuleInfo'
 
     @Override
@@ -46,6 +47,7 @@ class JlinkPlugin implements Plugin<Project> {
         project.tasks.create(TASK_NAME_PREPARE_MODULES_DIR, PrepareModulesDirTask, { it.init(extension) })
         project.tasks.create(TASK_NAME_JLINK, JlinkTask, { it.init(extension) })
         project.tasks.create(TASK_NAME_JLINK_ZIP, JlinkZipTask, { it.init(extension) })
+        project.tasks.create(TASK_NAME_JPACKAGE, JPackageTask, { it.init(extension) })
         project.tasks.create(TASK_NAME_SUGGEST_MERGED_MODULE_INFO, SuggestMergedModuleInfoTask, { it.init(extension) })
     }
 }

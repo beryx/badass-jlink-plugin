@@ -20,14 +20,10 @@ import groovy.transform.ToString
 
 @CompileStatic
 @ToString(includeNames = true)
-class PrepareModulesDirTaskData extends BaseTaskData {
+class JPackageTaskData extends BaseTaskData {
     String moduleName
-    String mergedModuleName
-    String tmpModuleInfoDirPath
-    String javaHome
-    List<String> forceMergedJarPrefixes
-    List<String> extraDependenciesPrefixes
-
-    File delegatingModulesDir
+    String mainClass
     File jlinkJarsDir
+    File imageDir
+    JPackageData jpackageData
 }

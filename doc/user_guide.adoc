@@ -25,6 +25,9 @@ consisting only of a module descriptor. The module descriptor specifies that the
 <<suggestMergedModuleInfo>>:: Displays the `mergedModule` block that will be used if your `jlink` extension doesn't include one.
   You can use the suggested block as a starting point for your custom `mergedModule` block. +
     _depends on_: `prepareMergedJarsDir`
+<<jpackage>>:: Uses the https://jdk.java.net/jpackage/[jpackage] tool to create a platform-specific application image and installer.  +
+    _depends on_: `prepareModulesDir` +
+    _This task is experimental._
 
 A detailed description of these tasks is given in <<taskDetails>>
 
@@ -59,7 +62,7 @@ javaHome:: The path to the JDK providing the tools needed by the plugin (_javac_
     _defaultValue_: the first non-empty value from: +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `badass.jlink.java.home` system property +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `BADASS_JLINK_JAVA_HOME` environment variable +
-        pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `java.home` system property (only if it points to a JRE containing the `javac`, `jar`, and `jlink tools`) +
+        pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `java.home` system property (only if it points to a JRE containing the `javac`, `jar`, and `jlink` tools) +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `JAVA_HOME` environment variable +
     _usage example_: `javaHome = '/usr/lib/jvm/open-jdk'`
 
@@ -227,6 +230,100 @@ jlink {
 }
 ----
 
+=== jpackage
+
+This experimental script block allows you to customize the https://jdk.java.net/jpackage/[jpackage]-based generation of platform-specific application images and installers.
+
+jpackageHome:: The path to the JDK providing the jpackage tool. +
+    _defaultValue_: the first non-empty value from: +
+        pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `badass.jlink.jpackage.home` system property +
+        pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `BADASS_JLINK_JPACKAGE_HOME` environment variable +
+        pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `java.home` system property (only if it points to a JRE containing the `jpackage` tool) +
+        pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `JAVA_HOME` environment variable +
+    _usage example_: `jpackageHome = "/usr/lib/jvm/jdk13"`
+
+outputDir:: Convenience property for setting both `imageOutputDir` and
+`installerOutputDir` with the value _buildDir_/_outputDir_. +
+    _defaultValue_: `"jpackage"` +
+    _usage example_: `outputDir = "my-packaging"`
+
+
+imageOutputDir:: the directory passed as argument to the `--output` option when running `jpackage` in the `create-image` mode.
+    _defaultValue_: `_buildDir_/_outputDir_` +
+    _usage example_: `imageOutputDir = file("$buildDir/my-packaging-image")`
+
+imageName:: the argument passed to the `--name` option when running `jpackage` in the `create-image` mode. +
+    _defaultValue_: `_project.name_` +
+    _usage example_: `imageName = "MyApp"`
+
+imageOptions:: list of additional options to be passed to the `jpackage` executable in the `create-image` mode. +
+    _defaultValue_: empty list +
+    _usage example_: `imageOptions = ["--win-console"]`
+
+skipInstaller:: boolean value that lets you generate only the platform-specific application image and skip th generation of the platform-specific application installer. +
+    _defaultValue_: false +
+    _usage example_: `skipInstaller = true`
+
+installerType:: the type of installer to be generated. +
+    _defaultValue_: null (all supported types for the current platform will be generated) +
+    _usage example_: `installerType = "rpm"`
+
+installerOutputDir:: the directory passed as argument to the `--output` option when running `jpackage` in the `create-image` mode.
+    _defaultValue_: `_buildDir_/_outputDir_` +
+    _usage example_: `installerOutputDir = file("$buildDir/my-packaging-installer")`
+
+installerName:: the argument passed to the `--name` option when running `jpackage` in the `create-installer` mode. +
+    _defaultValue_: `_project.name_` +
+    _usage example_: `installerName = "MyApp"`
+
+installerOptions:: list of additional options to be passed to the `jpackage` executable in the `create-installer` mode. +
+    _defaultValue_: empty list +
+    _usage example_: `installerOptions = ["--win-console"]`
+
+
+_Usage example_
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+jlink {
+    ...
+    jpackage {
+        jpackageHome = '/usr/lib/jvm/jdk13'
+        outputDir = 'my-packaging'
+        // imageOutputDir = file("$buildDir/my-packaging-image")
+        // installerOutputDir = file("$buildDir/my-packaging-installer")
+        imageName = 'MyApp'
+        imageOptions = ['--win-console']
+        skipInstaller = false
+        installerName = 'MyApp'
+        installerType = 'msi'
+        installerOptions = ['--win-console', '--win-menu', '--win-shortcut']
+    }
+    ...
+}
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+jlink {
+    ...
+    jpackage {
+        jpackageHome = "/usr/lib/jvm/jdk13"
+        outputDir = "my-packaging"
+        // imageOutputDir = file("$buildDir/my-packaging-image")
+        // installerOutputDir = file("$buildDir/my-packaging-installer")
+        imageName = "MyApp"
+        imageOptions = listOf("--win-console")
+        skipInstaller = false
+        installerName = "MyApp"
+        installerType = "msi"
+        installerOptions = listOf("--win-console", "--win-menu", "--win-shortcut")
+    }
+    ...
+}
+----
+
 == How it works
 
 The plugin combines all non-modular dependencies into a single jar to which it adds a module descriptor.
@@ -375,3 +472,19 @@ The table below shows the variable names of the subdirectories created here and 
 _default value_: `groovy` +
 _accepted values_: `groovy`, `kotlin`, `java` +
 _usage example_: `./gradlew suggestMergedModuleInfo --language=kotlin`
+
+
+[[jpackage]]
+=== jpackage
+[subs="attributes",options="nowrap"]
+----
+- create a platform-specific application image in <font color="saddlebrown">imageOutputDir</font> by executing
+        <i>jpackage create-image</i> with --module-path=<span class="teal">jlinkJarsDir</span>
+- if <i>skipInstaller</i> is <i>false</i>, create a platform-specific application installer
+        in <font color="cadetblue">installerOutputDir</font> by executing <i>jpackage create-installer</i>
+        with --app-image=<font color="saddlebrown">imageOutputDir</font>/<font color="midnightblue">imageName</font>
+----
+The properties <font color="saddlebrown">imageOutputDir</font>, <font color="cadetblue">installerOutputDir</font>, and <font color="midnightblue">imageName</font>
+cam be configured in the `jpackage` script block.
+
+
