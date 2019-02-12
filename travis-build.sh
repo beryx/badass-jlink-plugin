@@ -1,6 +1,6 @@
 #!/bin/bash
 set -ev
-./gradlew $GRADLE_BUILD_OPTS build asciidoc
+./gradlew $GRADLE_BUILD_OPTS build asciidoc --scan
 
 if [ "${TRAVIS_PULL_REQUEST}" == "false" -a "${TRAVIS_BRANCH}" == "master" ]; then
   if [ "`git ls-remote origin gh-pages`" == "" ]; then
