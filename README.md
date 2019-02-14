@@ -30,6 +30,7 @@ The following projects illustrate how to use this plugin to create custom runtim
 - [badass-jlink-example-kotlin-javafx](https://github.com/beryx-gist/badass-jlink-example-kotlin-javafx) - a 'Hello world' JavaFX application written in Kotlin.
 - [badass-jlink-example-kotlin-tornadofx](https://github.com/beryx-gist/badass-jlink-example-kotlin-tornadofx) - a 'Hello world' application written in Kotlin using [tornadofx](https://github.com/edvin/tornadofx).
 - [badass-jlink-spring-petclinic](https://github.com/beryx-gist/badass-jlink-spring-petclinic) - creates a custom runtime image of the [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) application.
+- [fxgl-sliding-puzzle](https://github.com/beryx/fxgl-sliding-puzzle/blob/master/README.adoc) - a sliding puzzle game using the [FXGL](https://github.com/AlmasB/FXGL) library.
 - [copper-modular-demo](https://github.com/copper-engine/copper-modular-demo) - creates a custom runtime image of a [COPPER 5](http://copper-engine.org/) modular application. 
 
 ### This is a complex plugin. Please [read the documentation](https://badass-jlink-plugin.beryx.org/releases/latest/) before using it.
