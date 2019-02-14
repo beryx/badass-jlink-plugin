@@ -24,6 +24,8 @@ import org.objectweb.asm.ClassWriter
 import org.objectweb.asm.ModuleVisitor
 import org.objectweb.asm.Opcodes
 
+import java.util.regex.Pattern
+
 @CompileStatic
 class ModuleInfoAdjuster {
     private static final Logger LOGGER = Logging.getLogger(ModuleInfoAdjuster.class);
@@ -39,15 +41,16 @@ class ModuleInfoAdjuster {
         this.nonModularModules = nonModularModules
     }
 
+    private static final Pattern MULTI_RELEASE_MODULE_INFO = ~'META-INF/versions/[0-9]+/module-info.class'
     /**
      * @return null if no adjustments have been made
      */
-    byte[] getAdjustedDescriptor(File dirOrJar) {
-        byte[] descriptorBytes = null
+    Map<String, byte[]> getAdjustedDescriptors(File dirOrJar) {
+        Map<String, byte[]> adjustedDescriptors = [:]
         if(nonModularModules) {
             boolean moduleInfoFound = false
             Util.scan(dirOrJar, { String basePath, String path, InputStream inputStream ->
-                if(path == 'module-info.class') {
+                if((path == 'module-info.class') || path.matches(MULTI_RELEASE_MODULE_INFO)) {
                     moduleInfoFound = true
 
                     ClassReader cr = new ClassReader(inputStream)
@@ -55,14 +58,14 @@ class ModuleInfoAdjuster {
                     def cv = new ModuleInfoClassVisitor(cw)
                     cr.accept(cv, 0)
                     if(cv.adjusted) {
-                        descriptorBytes = cw.toByteArray()
+                        adjustedDescriptors[path] = cw.toByteArray()
                     }
                 }
             } as Closure)
             if(!moduleInfoFound) {
-                LOGGER.warn("No module-info.class found in: $dirOrJar")
+                LOGGER.info("No module-info.class found in: $dirOrJar")
             } else {
-                if(descriptorBytes) {
+                if(adjustedDescriptors) {
                     LOGGER.info("Adjustments applied to module-info of $dirOrJar")
                 } else {
                     LOGGER.debug("No adjustments needed for module-info of $dirOrJar")
@@ -71,7 +74,7 @@ class ModuleInfoAdjuster {
         } else {
             LOGGER.debug("All artifacts are modular. No adjustments needed for module-info of $dirOrJar")
         }
-        descriptorBytes
+        adjustedDescriptors
     }
 
     private class ModuleInfoClassVisitor extends ClassVisitor {

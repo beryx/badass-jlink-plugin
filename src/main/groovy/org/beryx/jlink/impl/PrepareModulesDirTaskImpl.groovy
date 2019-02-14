@@ -70,11 +70,12 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
         def jarMap = (depMgr.modularJars + project.jar.archivePath).collectEntries { [it.name, it] }
         td.jlinkJarsDir.listFiles().each { File jar ->
             if(jarMap.keySet().contains(jar.name)) {
-                def descriptorBytes = adjuster.getAdjustedDescriptor(jarMap[jar.name])
-                if(descriptorBytes) {
+                def adjustedDescriptors = adjuster.getAdjustedDescriptors(jarMap[jar.name])
+                adjustedDescriptors.each { moduleInfoPath, descriptorBytes ->
                     project.delete(td.tmpModuleInfoDirPath)
-                    project.mkdir(td.tmpModuleInfoDirPath)
-                    new File(td.tmpModuleInfoDirPath,'module-info.class').withOutputStream { stream ->
+                    def moduleInfoFile = new File("$td.tmpModuleInfoDirPath/$moduleInfoPath")
+                    project.mkdir(moduleInfoFile.parent)
+                    moduleInfoFile.withOutputStream { stream ->
                         stream << descriptorBytes
                     }
                     project.exec {
@@ -84,7 +85,7 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
                                 jar.path,
                                 '-C',
                                 td.tmpModuleInfoDirPath,
-                                'module-info.class'
+                                moduleInfoPath
                     }
                 }
             }

@@ -32,7 +32,7 @@ class ModuleInfoAdjusterSpec extends Specification {
                                 ['jdk.accessibility', 'jdk.jconsole'])
 
         when:
-        def descriptor = adjuster.getAdjustedDescriptor(jarFile)
+        def descriptor = adjuster.getAdjustedDescriptors(jarFile)['module-info.class']
 
         then:
         descriptor != null
