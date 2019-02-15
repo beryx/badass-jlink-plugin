@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.5.1</span>
+<span id="revnumber">version 2.6.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -108,6 +108,7 @@ $(addBlockSwitches);
 <ul class="sectlevel3">
 <li><a href="#_mergedmodule">mergedModule</a></li>
 <li><a href="#_launcher">launcher</a></li>
+<li><a href="#_jpackage">jpackage</a></li>
 </ul>
 </li>
 <li><a href="#_how_it_works">How it works</a></li>
@@ -120,6 +121,7 @@ $(addBlockSwitches);
 <li><a href="#jlink">jlink</a></li>
 <li><a href="#jlinkZip">jlinkZip</a></li>
 <li><a href="#suggestMergedModuleInfo">suggestMergedModuleInfo</a></li>
+<li><a href="#jpackage">jpackage</a></li>
 </ul>
 </li>
 </ul>
@@ -133,7 +135,8 @@ $(addBlockSwitches);
 <h2 id="introduction">Introduction</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>The badass-jlink plugin allows you to create custom runtime images for modular applications with minimal effort.</p>
+<p>The badass-jlink plugin allows you to create custom runtime images for modular applications with minimal effort.
+It also lets you create an application installer with the <a href="https://jdk.java.net/jpackage/">jpackage</a> tool introduced in Java 13.</p>
 </div>
 <div class="admonitionblock tip">
 <table>
@@ -159,7 +162,8 @@ This way, only the resulting merged module needs a module descriptor.</p>
 </div>
 <div class="paragraph">
 <p>The plugin provides several tasks. The most frequently used are <code>jlink</code>, which creates a custom runtime image in a given directory,
-and <code>jlinkZip</code>, which in addition creates a zip archive of the custom runtime image.</p>
+and <code>jlinkZip</code>, which in addition creates a zip archive of the custom runtime image.
+With the <code>jpackage</code> task you can create a platform-specific installer for your application.</p>
 </div>
 <div class="admonitionblock warning">
 <table>
@@ -180,7 +184,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.5.1'
+    id 'org.beryx.jlink' version '2.6.0'
 }</code></pre>
 </div>
 </div>
@@ -212,7 +216,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.5.1/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.6.0/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -271,6 +275,12 @@ consisting only of a module descriptor. The module descriptor specifies that the
 <p>Displays the <code>mergedModule</code> block that will be used if your <code>jlink</code> extension doesn&#8217;t include one.
 You can use the suggested block as a starting point for your custom <code>mergedModule</code> block.<br>
   <em>depends on</em>: <code>prepareMergedJarsDir</code></p>
+</dd>
+<dt class="hdlist1"><a href="#jpackage">jpackage</a></dt>
+<dd>
+<p>Uses the <a href="https://jdk.java.net/jpackage/">jpackage</a> tool to create a platform-specific application image and installer. <br>
+<em>depends on</em>: <code>prepareModulesDir</code><br>
+<em>This task is experimental.</em></p>
 </dd>
 </dl>
 </div>
@@ -338,7 +348,7 @@ You can use the suggested block as a starting point for your custom <code>merged
 <em>defaultValue</em>: the first non-empty value from:<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>badass.jlink.java.home</code> system property<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>BADASS_JLINK_JAVA_HOME</code> environment variable<br>
-    &nbsp;&nbsp;&nbsp;&nbsp; - the <code>java.home</code> system property (only if it points to a JRE containing the <code>javac</code>, <code>jar</code>, and <code>jlink tools</code>)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <code>java.home</code> system property (only if it points to a JRE containing the <code>javac</code>, <code>jar</code>, and <code>jlink</code> tools)<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>JAVA_HOME</code> environment variable<br>
 <em>usage example</em>: <code>javaHome = '/usr/lib/jvm/open-jdk'</code></p>
 </dd>
@@ -565,6 +575,126 @@ to parse the templates, with the following variables available:</p>
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_jpackage">jpackage</h4>
+<div class="paragraph">
+<p>This experimental script block allows you to customize the <a href="https://jdk.java.net/jpackage/">jpackage</a>-based generation of platform-specific application images and installers.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">jpackageHome</dt>
+<dd>
+<p>The path to the JDK providing the jpackage tool.<br>
+<em>defaultValue</em>: the first non-empty value from:<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <code>badass.jlink.jpackage.home</code> system property<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <code>BADASS_JLINK_JPACKAGE_HOME</code> environment variable<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <code>java.home</code> system property (only if it points to a JRE containing the <code>jpackage</code> tool)<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <code>JAVA_HOME</code> environment variable<br>
+<em>usage example</em>: <code>jpackageHome = "/usr/lib/jvm/jdk13"</code></p>
+</dd>
+<dt class="hdlist1">outputDir</dt>
+<dd>
+<p>Convenience property for setting both <code>imageOutputDir</code> and
+<code>installerOutputDir</code> with the value <em>buildDir</em>/<em>outputDir</em>.<br>
+    <em>defaultValue</em>: <code>"jpackage"</code><br>
+    <em>usage example</em>: <code>outputDir = "my-packaging"</code></p>
+</dd>
+<dt class="hdlist1">imageOutputDir</dt>
+<dd>
+<p>the directory passed as argument to the <code>--output</code> option when running <code>jpackage</code> in the <code>create-image</code> mode.
+<em>defaultValue</em>: <code><em>buildDir</em>/<em>outputDir</em></code><br>
+<em>usage example</em>: <code>imageOutputDir = file("$buildDir/my-packaging-image")</code></p>
+</dd>
+<dt class="hdlist1">imageName</dt>
+<dd>
+<p>the argument passed to the <code>--name</code> option when running <code>jpackage</code> in the <code>create-image</code> mode.<br>
+<em>defaultValue</em>: <code><em>project.name</em></code><br>
+<em>usage example</em>: <code>imageName = "MyApp"</code></p>
+</dd>
+<dt class="hdlist1">imageOptions</dt>
+<dd>
+<p>list of additional options to be passed to the <code>jpackage</code> executable in the <code>create-image</code> mode.<br>
+<em>defaultValue</em>: empty list<br>
+<em>usage example</em>: <code>imageOptions = ["--win-console"]</code></p>
+</dd>
+<dt class="hdlist1">skipInstaller</dt>
+<dd>
+<p>boolean value that lets you generate only the platform-specific application image and skip th generation of the platform-specific application installer.<br>
+<em>defaultValue</em>: false<br>
+<em>usage example</em>: <code>skipInstaller = true</code></p>
+</dd>
+<dt class="hdlist1">installerType</dt>
+<dd>
+<p>the type of installer to be generated.<br>
+<em>defaultValue</em>: null (all supported types for the current platform will be generated)<br>
+<em>usage example</em>: <code>installerType = "rpm"</code></p>
+</dd>
+<dt class="hdlist1">installerOutputDir</dt>
+<dd>
+<p>the directory passed as argument to the <code>--output</code> option when running <code>jpackage</code> in the <code>create-image</code> mode.
+<em>defaultValue</em>: <code><em>buildDir</em>/<em>outputDir</em></code><br>
+<em>usage example</em>: <code>installerOutputDir = file("$buildDir/my-packaging-installer")</code></p>
+</dd>
+<dt class="hdlist1">installerName</dt>
+<dd>
+<p>the argument passed to the <code>--name</code> option when running <code>jpackage</code> in the <code>create-installer</code> mode.<br>
+<em>defaultValue</em>: <code><em>project.name</em></code><br>
+<em>usage example</em>: <code>installerName = "MyApp"</code></p>
+</dd>
+<dt class="hdlist1">installerOptions</dt>
+<dd>
+<p>list of additional options to be passed to the <code>jpackage</code> executable in the <code>create-installer</code> mode.<br>
+<em>defaultValue</em>: empty list<br>
+<em>usage example</em>: <code>installerOptions = ["--win-console"]</code></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p><em>Usage example</em></p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">jlink {
+    ...
+    jpackage {
+        jpackageHome = <span class="string"><span class="delimiter">'</span><span class="content">/usr/lib/jvm/jdk13</span><span class="delimiter">'</span></span>
+        outputDir = <span class="string"><span class="delimiter">'</span><span class="content">my-packaging</span><span class="delimiter">'</span></span>
+        <span class="comment">// imageOutputDir = file(&quot;$buildDir/my-packaging-image&quot;)</span>
+        <span class="comment">// installerOutputDir = file(&quot;$buildDir/my-packaging-installer&quot;)</span>
+        imageName = <span class="string"><span class="delimiter">'</span><span class="content">MyApp</span><span class="delimiter">'</span></span>
+        imageOptions = [<span class="string"><span class="delimiter">'</span><span class="content">--win-console</span><span class="delimiter">'</span></span>]
+        skipInstaller = <span class="predefined-constant">false</span>
+        installerName = <span class="string"><span class="delimiter">'</span><span class="content">MyApp</span><span class="delimiter">'</span></span>
+        installerType = <span class="string"><span class="delimiter">'</span><span class="content">msi</span><span class="delimiter">'</span></span>
+        installerOptions = [<span class="string"><span class="delimiter">'</span><span class="content">--win-console</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">--win-menu</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">--win-shortcut</span><span class="delimiter">'</span></span>]
+    }
+    ...
+}</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="kotlin">jlink {
+    ...
+    jpackage {
+        jpackageHome = &quot;/usr/lib/jvm/jdk13&quot;
+        outputDir = &quot;my-packaging&quot;
+        // imageOutputDir = file(&quot;$buildDir/my-packaging-image&quot;)
+        // installerOutputDir = file(&quot;$buildDir/my-packaging-installer&quot;)
+        imageName = &quot;MyApp&quot;
+        imageOptions = listOf(&quot;--win-console&quot;)
+        skipInstaller = false
+        installerName = &quot;MyApp&quot;
+        installerType = &quot;msi&quot;
+        installerOptions = listOf(&quot;--win-console&quot;, &quot;--win-menu&quot;, &quot;--win-shortcut&quot;)
+    }
+    ...
+}</code></pre>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_how_it_works">How it works</h3>
@@ -747,6 +877,22 @@ The table below shows the variable names of the subdirectories created here and 
 </dl>
 </div>
 </div>
+<div class="sect3">
+<h4 id="jpackage">jpackage</h4>
+<div class="listingblock">
+<div class="content">
+<pre class="nowrap">- create a platform-specific application image in <font color="saddlebrown">imageOutputDir</font> by executing
+        <i>jpackage create-image</i> with --module-path=<span class="teal">jlinkJarsDir</span>
+- if <i>skipInstaller</i> is <i>false</i>, create a platform-specific application installer
+        in <font color="cadetblue">installerOutputDir</font> by executing <i>jpackage create-installer</i>
+        with --app-image=<font color="saddlebrown">imageOutputDir</font>/<font color="midnightblue">imageName</font></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The properties &lt;font color="saddlebrown"&gt;imageOutputDir&lt;/font&gt;, &lt;font color="cadetblue"&gt;installerOutputDir&lt;/font&gt;, and &lt;font color="midnightblue"&gt;imageName&lt;/font&gt;
+cam be configured in the <code>jpackage</code> script block.</p>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -783,7 +929,7 @@ The table below shows the variable names of the subdirectories created here and 
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.5.1<br>
+Version 2.6.0<br>
 </div>
 </div>
 </body>
