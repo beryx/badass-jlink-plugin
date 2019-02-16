@@ -24,12 +24,13 @@ import org.beryx.jlink.impl.JlinkZipTaskImpl
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
 
 @CompileStatic
 class JlinkZipTask extends BaseTask {
     @Input
-    Property<Map<String, TargetPlatform>> targetPlatforms
+    Provider<Map<String, TargetPlatform>> targetPlatforms
 
     @Input
     Property<LauncherData> launcherData

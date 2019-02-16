@@ -28,6 +28,7 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
@@ -56,7 +57,7 @@ class JlinkTask extends BaseTask {
     Property<String> javaHome
 
     @Input
-    Property<Map<String, TargetPlatform>> targetPlatforms
+    Provider<Map<String, TargetPlatform>> targetPlatforms
 
     @InputDirectory
     DirectoryProperty jlinkJarsDir

@@ -24,6 +24,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 
 @CompileStatic
 @ToString(includeNames = true)
@@ -43,7 +44,7 @@ class JlinkPluginExtension {
     final Property<ModuleInfo> mergedModuleInfo
     final Property<JdepsUsage> useJdeps
     final Property<String> javaHome
-    final Property<Map<String, TargetPlatform>> targetPlatforms
+    final Provider<Map<String, TargetPlatform>> targetPlatforms
     final Property<Integer> jvmVersion
 
     final Property<JPackageData> jpackageData
@@ -93,8 +94,7 @@ class JlinkPluginExtension {
         javaHome = project.objects.property(String)
         javaHome.set(getDefaultJavaHome())
 
-        targetPlatforms = (Property)project.objects.property(Map)
-        targetPlatforms.set(new TreeMap<>())
+        targetPlatforms = Util.createMapProperty(project, String, TargetPlatform)
 
         jvmVersion = project.objects.property(Integer)
 
@@ -116,7 +116,7 @@ class JlinkPluginExtension {
     }
 
     void targetPlatform(String name, String jdkHome, List<String> options = []) {
-        targetPlatforms.get()[name] = new TargetPlatform(name, jdkHome, options)
+        Util.putToMapProvider(targetPlatforms, name, new TargetPlatform(name, jdkHome, options))
     }
 
     void mergedModule(Action<ModuleInfo> action) {

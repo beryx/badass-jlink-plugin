@@ -30,10 +30,11 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.util.GradleVersion
 
 import java.lang.module.ModuleFinder
-import java.nio.file.Path
 import java.util.jar.JarFile
 import java.util.regex.Pattern
 import java.util.zip.ZipEntry
@@ -217,5 +218,25 @@ class Util {
         } else {
             listProp.addAll(values as List)
         }
+    }
+
+    @CompileDynamic
+    static <K,V> Provider<Map<K,V>> createMapProperty(Project project,
+                                                      Class<K> keyType, Class<V> valueType) {
+        Provider<Map<K,V>> provider
+        if(GradleVersion.current() < GradleVersion.version('5.1')) {
+            provider = (Property<Map<K,V>>)project.objects.property(Map)
+        } else {
+            provider = project.objects.mapProperty(keyType, valueType)
+        }
+        provider.set(new TreeMap<K,V>())
+        provider
+    }
+
+    @CompileDynamic
+    static <K,V> void putToMapProvider(Provider<Map<K,V>> mapProvider, K key, V value) {
+        def map = new TreeMap(mapProvider.get())
+        map[key] = value
+        mapProvider.set(map)
     }
 }
