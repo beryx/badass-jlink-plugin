@@ -53,7 +53,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             def jpd = td.jpackageData
             commandLine = ["$jpd.jpackageHome/bin/jpackage",
                             'create-image',
-                            '--force',
+                            '--overwrite',
                             '--output', td.jpackageData.getImageOutputDir(),
                             '--name', jpd.imageName,
                             '--module-path', td.jlinkJarsDir,
@@ -79,8 +79,9 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             }
             def jpd = td.jpackageData
             commandLine = ["$jpd.jpackageHome/bin/jpackage",
-                           'create-installer', *(jpd.installerType ? [jpd.installerType] : []),
-                           '--force',
+                           'create-installer',
+                           *(jpd.installerType ? ['--installer-type', jpd.installerType] : []),
+                           '--overwrite',
                            '--output', td.jpackageData.getInstallerOutputDir(),
                            '--name', jpd.installerName,
                            '--app-image', "${td.jpackageData.getImageOutputDir()}/$jpd.imageName",
