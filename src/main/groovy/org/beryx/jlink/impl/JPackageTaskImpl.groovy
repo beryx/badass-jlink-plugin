@@ -18,6 +18,7 @@ package org.beryx.jlink.impl
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageTaskData
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -71,13 +72,27 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
 
     @CompileDynamic
     void jpackageCreateInstaller() {
+        def jpd = td.jpackageData
+        def appImagePath = "${td.jpackageData.getImageOutputDir()}/$jpd.imageName"
+        if(org.gradle.internal.os.OperatingSystem.current().macOsX) {
+            def appImageDir = new File(appImagePath)
+            if(!appImageDir.directory) {
+                def currImagePath = "${td.jpackageData.getImageOutputDir()}/${jpd.imageName}.app"
+                if(!new File(currImagePath).directory) {
+                    throw new GradleException("Unable to find the application image in ${td.jpackageData.getImageOutputDir()}")
+                }
+                LOGGER.info("Fix app-image for Mac OS: moving $currImagePath to $appImagePath/app")
+                appImageDir.mkdirs()
+                project.ant.move file: currImagePath, tofile: "$appImagePath/app"
+            }
+        }
+
         def result = project.exec {
             ignoreExitValue = true
             standardOutput = new ByteArrayOutputStream()
             project.ext.jpackageInstallerOutput = {
                 return standardOutput.toString()
             }
-            def jpd = td.jpackageData
             commandLine = ["$jpd.jpackageHome/bin/jpackage",
                            'create-installer',
                            *(jpd.installerType ? ['--installer-type', jpd.installerType] : []),
