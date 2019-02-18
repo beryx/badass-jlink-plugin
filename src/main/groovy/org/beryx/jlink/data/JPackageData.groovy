@@ -26,6 +26,7 @@ import org.gradle.api.tasks.OutputDirectory
 @ToString(includeNames = true)
 class JPackageData {
     private final Project project
+    private final LauncherData launcherData
 
     @Input
     String jpackageHome
@@ -49,18 +50,29 @@ class JPackageData {
 
     File installerOutputDir
 
-    @Input
     String installerName
 
     @Input
     List<String> installerOptions = []
 
+    List<String> jvmArgs = []
 
-    JPackageData(Project project) {
+    JPackageData(Project project, LauncherData launcherData) {
         this.project = project
+        this.launcherData = launcherData
         this.imageName = project.name
         this.installerName = project.name
         this.jpackageHome = defaultJPackageHome
+    }
+
+    @Input
+    String getInstallerName() {
+        this.@installerName ?: launcherData.name
+    }
+
+    @Input
+    List<String> getJvmArgs() {
+        this.@jvmArgs ?: launcherData.jvmArgs
     }
 
     @OutputDirectory

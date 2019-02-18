@@ -59,6 +59,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                             '--name', jpd.imageName,
                             '--module-path', td.jlinkJarsDir,
                             '--module', "$td.moduleName/$td.mainClass",
+                            *(jpd.jvmArgs ? ['--jvm-args', '"' + jpd.jvmArgs.join(' ')+ '"'] : []),
                             *jpd.imageOptions]
         }
         if(result.exitValue != 0) {
