@@ -36,7 +36,6 @@ class JPackageData {
 
     File imageOutputDir
 
-    @Input
     String imageName
 
     @Input
@@ -63,6 +62,11 @@ class JPackageData {
         this.imageName = project.name
         this.installerName = project.name
         this.jpackageHome = defaultJPackageHome
+    }
+
+    @Input
+    String getImageName() {
+        this.@imageName ?: launcherData.name
     }
 
     @Input
