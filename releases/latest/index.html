@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.6.3</span>
+<span id="revnumber">version 2.6.4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -184,7 +184,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.6.3'
+    id 'org.beryx.jlink' version '2.6.4'
 }</code></pre>
 </div>
 </div>
@@ -216,7 +216,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.6.3/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.6.4/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -608,7 +608,7 @@ to parse the templates, with the following variables available:</p>
 <dt class="hdlist1">imageName</dt>
 <dd>
 <p>the argument passed to the <code>--name</code> option when running <code>jpackage</code> in the <code>create-image</code> mode.<br>
-<em>defaultValue</em>: <code><em>project.name</em></code><br>
+<em>defaultValue</em>: the <code>name</code> value configured in the <code>launcher</code> block or  <code><em>project.name</em></code><br>
 <em>usage example</em>: <code>imageName = "MyApp"</code></p>
 </dd>
 <dt class="hdlist1">imageOptions</dt>
@@ -638,8 +638,13 @@ to parse the templates, with the following variables available:</p>
 <dt class="hdlist1">installerName</dt>
 <dd>
 <p>the argument passed to the <code>--name</code> option when running <code>jpackage</code> in the <code>create-installer</code> mode.<br>
-<em>defaultValue</em>: <code><em>project.name</em></code><br>
+<em>defaultValue</em>: the <code>name</code> value configured in the <code>launcher</code> block or  <code><em>project.name</em></code><br>
 <em>usage example</em>: <code>installerName = "MyApp"</code></p>
+</dd>
+<dt class="hdlist1">jvmArgs</dt>
+<dd>
+<p>list of JVM arguments to be passed to the virtual machine.<br>
+<em>defaultValue</em>: the <code>jvmArgs</code> value configured in the <code>launcher</code> block or an empty list</p>
 </dd>
 <dt class="hdlist1">installerOptions</dt>
 <dd>
@@ -932,7 +937,7 @@ cam be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.6.3<br>
+Version 2.6.4<br>
 </div>
 </div>
 </body>
