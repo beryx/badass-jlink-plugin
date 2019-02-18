@@ -608,7 +608,7 @@ to parse the templates, with the following variables available:</p>
 <dt class="hdlist1">imageName</dt>
 <dd>
 <p>the argument passed to the <code>--name</code> option when running <code>jpackage</code> in the <code>create-image</code> mode.<br>
-<em>defaultValue</em>: <code><em>project.name</em></code><br>
+<em>defaultValue</em>: the <code>name</code> value configured in the <code>launcher</code> block or  <code><em>project.name</em></code><br>
 <em>usage example</em>: <code>imageName = "MyApp"</code></p>
 </dd>
 <dt class="hdlist1">imageOptions</dt>
@@ -638,8 +638,13 @@ to parse the templates, with the following variables available:</p>
 <dt class="hdlist1">installerName</dt>
 <dd>
 <p>the argument passed to the <code>--name</code> option when running <code>jpackage</code> in the <code>create-installer</code> mode.<br>
-<em>defaultValue</em>: <code><em>project.name</em></code><br>
+<em>defaultValue</em>: the <code>name</code> value configured in the <code>launcher</code> block or  <code><em>project.name</em></code><br>
 <em>usage example</em>: <code>installerName = "MyApp"</code></p>
+</dd>
+<dt class="hdlist1">jvmArgs</dt>
+<dd>
+<p>list of JVM arguments to be passed to the virtual machine.<br>
+<em>defaultValue</em>: the <code>jvmArgs</code> value configured in the <code>launcher</code> block or an empty list</p>
 </dd>
 <dt class="hdlist1">installerOptions</dt>
 <dd>
