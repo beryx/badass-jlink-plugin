@@ -54,11 +54,13 @@ class Util {
         name.replaceAll('\\.[.]+', '.')
     }
 
-    private static final Pattern MODULE_DECL = ~/\s*(?:open\s+)?module\s+(\S+)\s*\{.*/
+    private static final Pattern MODULE_DECL = ~/(?m)(?s)\s*(?:open\s+)?module\s+(\S+)\s*\{.*/
+    private static final Pattern COMMENT = ~"(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)"
     @CompileDynamic
     static String getModuleNameFrom(String moduleInfoText) {
-        def matcher = moduleInfoText.readLines().collect {MODULE_DECL.matcher(it)}.find {it.matches()}
-        if(matcher == null) throw new GradleException("Cannot retrieve module name from module-info.java")
+        def text = moduleInfoText.replaceAll(COMMENT, '')//.strip()
+        def matcher = MODULE_DECL.matcher(text)
+        if(!matcher.matches()) throw new GradleException("Cannot retrieve module name from module-info.java")
         matcher[0][1]
     }
 

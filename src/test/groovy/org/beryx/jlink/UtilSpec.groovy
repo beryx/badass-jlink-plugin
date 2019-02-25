@@ -45,11 +45,11 @@ class UtilSpec extends Specification {
         Util.getModuleNameFrom(text) == moduleName
 
         where:
-        text                                                 | moduleName
-        'module a.b.c{'                                      | 'a.b.c'
-        'open module a.b.c{'                                 | 'a.b.c'
-        '  \t  open\t  \tmodule \ta.b.c\t { '                | 'a.b.c'
-        '/*my module*/\nmodule a.b.c {\n  exports a.b.c;\n}' | 'a.b.c'
+        text                                                                         | moduleName
+        'module a.b.c\n{'                                                            | 'a.b.c'
+        'open module a.b.c{}'                                                        | 'a.b.c'
+        '  \t  open\t  \tmodule \ta.b.c\t { '                                        | 'a.b.c'
+        '/*my module*/\nmodule /*---*/ a.b.c // declaration\n{\n  exports a.b.c;\n}' | 'a.b.c'
     }
 
     @Unroll
