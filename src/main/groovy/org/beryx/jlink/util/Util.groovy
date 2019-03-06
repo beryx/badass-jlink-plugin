@@ -95,7 +95,7 @@ class Util {
             return ModuleFinder.of(f.toPath()).findAll().first().descriptor().name()
         } catch (Exception e) {
             def modName = getFallbackModuleName(f)
-            LOGGER.warn("Cannot retrieve the module name of $f. Using fallback value: $modName.", e)
+            LOGGER.warn("Cannot retrieve the module name of $f. Using fallback value: $modName.")
             return modName
         }
     }
@@ -104,10 +104,10 @@ class Util {
         def modName = new JarFile(f).getManifest()?.mainAttributes?.getValue('Automatic-Module-Name')
         if(modName) return modName
         def s = f.name
-        def tokens = s.split('-[0-9]')
+        def tokens = s.split('[_.0-9]*-[0-9]')
         if(tokens.length < 2) return s - '.jar'
         def len = s.length()
-        return s.substring(0, len - tokens[tokens.length-1].length() - 2).replace('-', '.')
+        return tokens[0].replace('-', '.').replace('default', 'dflt')
     }
 
     @CompileDynamic
@@ -190,9 +190,9 @@ class Util {
     }
 
     static boolean isEmptyJar(File jarFile) {
-        def zipFile = new ZipFile(jarFile)
+            def zipFile = new ZipFile(jarFile)
         zipFile.entries().every { ZipEntry entry -> entry.name in ['META-INF/', 'META-INF/MANIFEST.MF']}
-    }
+     }
 
     @CompileDynamic
     static DirectoryProperty createDirectoryProperty(Project project) {
