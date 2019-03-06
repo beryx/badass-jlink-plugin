@@ -66,7 +66,7 @@ public class JavaVersion {
 
         def javacCmd = "$javaHome/bin/javac -cp . -d . JavaVersion.java"
         LOGGER.info("Executing: $javacCmd")
-        def javacProc = javacCmd.execute([], path.toFile())
+        def javacProc = javacCmd.execute(null as String[], path.toFile())
         def javacErrOutput = new StringBuilder()
         javacProc.consumeProcessErrorStream(javacErrOutput)
         if(!javacProc.waitFor(30, TimeUnit.SECONDS)) {
@@ -81,7 +81,7 @@ public class JavaVersion {
 
         def javaCmd = "$javaHome/bin/java -cp . JavaVersion"
         LOGGER.info("Executing: $javaCmd")
-        def javaProc = javaCmd.execute([], path.toFile())
+        def javaProc = javaCmd.execute(null as String[], path.toFile())
         def javaErrOutput = new StringBuilder()
         javaProc.consumeProcessErrorStream(javaErrOutput)
         if(!javaProc.waitFor(30, TimeUnit.SECONDS)) {
