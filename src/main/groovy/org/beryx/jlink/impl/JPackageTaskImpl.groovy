@@ -82,9 +82,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 if(!new File(currImagePath).directory) {
                     throw new GradleException("Unable to find the application image in ${td.jpackageData.getImageOutputDir()}")
                 }
-                LOGGER.info("Fix app-image for Mac OS: moving $currImagePath to $appImagePath/app")
-                appImageDir.mkdirs()
-                project.ant.move file: currImagePath, tofile: "$appImagePath/app"
+                appImagePath = currImagePath
             }
         }
 
@@ -100,7 +98,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                            '--overwrite',
                            '--output', td.jpackageData.getInstallerOutputDir(),
                            '--name', jpd.installerName,
-                           '--app-image', "${td.jpackageData.getImageOutputDir()}/$jpd.imageName",
+                           '--app-image', "$appImagePath",
                            *jpd.installerOptions]
         }
         if(result.exitValue != 0) {
