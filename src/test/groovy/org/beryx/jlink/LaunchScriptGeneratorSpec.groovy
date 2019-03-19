@@ -33,14 +33,14 @@ class LaunchScriptGeneratorSpec extends Specification {
 
         then:
         scriptLines[0] == '#!/bin/sh'
-        scriptLines[1] == 'DIR=${0%/*}'
+        scriptLines[1] == 'DIR="${0%/*}"'
         scriptLines[2].replace('  ', ' ') == lastLine
 
         where:
         jvmArgs                      | args             | lastLine
-        []                           | []               | '(cd $DIR && ./java -m org.example.hello/org.example.Hello $@)'
-        ['-Xmx200m']                 | ['Alice']        | '(cd $DIR && ./java -Xmx200m -m org.example.hello/org.example.Hello Alice $@)'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | '(cd $DIR && ./java -Xmx200m -Ddebug=true -m org.example.hello/org.example.Hello Alice Bob $@)'
+        []                           | []               | '"$DIR/java" -m org.example.hello/org.example.Hello "$@"'
+        ['-Xmx200m']                 | ['Alice']        | '"$DIR/java" -Xmx200m -m org.example.hello/org.example.Hello Alice "$@"'
+        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | '"$DIR/java" -Xmx200m -Ddebug=true -m org.example.hello/org.example.Hello Alice Bob "$@"'
     }
 
     @Unroll
