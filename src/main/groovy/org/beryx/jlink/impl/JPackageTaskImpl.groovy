@@ -17,6 +17,7 @@ package org.beryx.jlink.impl
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
+import org.apache.commons.io.FileUtils
 import org.beryx.jlink.data.JPackageTaskData
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -50,11 +51,10 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             project.ext.jpackageImageOutput = {
                 return standardOutput.toString()
             }
-
+            FileUtils.cleanDirectory(td.jpackageData.getImageOutputDir())
             def jpd = td.jpackageData
             commandLine = ["$jpd.jpackageHome/bin/jpackage",
                             'create-image',
-                            '--overwrite',
                             '--output', td.jpackageData.getImageOutputDir(),
                             '--name', jpd.imageName,
                             '--module-path', td.jlinkJarsDir,
@@ -94,10 +94,11 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             project.ext.jpackageInstallerOutput = {
                 return standardOutput.toString()
             }
+            if (td.jpackageData.getImageOutputDir() != td.jpackageData.getInstallerOutputDir())
+                FileUtils.cleanDirectory(td.jpackageData.getInstallerOutputDir())
             commandLine = ["$jpd.jpackageHome/bin/jpackage",
                            'create-installer',
                            *(jpd.installerType ? ['--installer-type', jpd.installerType] : []),
-                           '--overwrite',
                            '--output', td.jpackageData.getInstallerOutputDir(),
                            '--name', jpd.installerName,
                            '--app-image', "${td.jpackageData.getImageOutputDir()}/$jpd.imageName",
