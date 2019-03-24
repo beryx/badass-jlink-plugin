@@ -159,4 +159,33 @@ class JlinkPluginSpec extends Specification {
         '''.stripIndent().strip()
     }
 
+    def "should create image of project with local dependencies"() {
+        when:
+
+        File buildFile = setUpBuild('local-deps')
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withGradleVersion('5.2')
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
+        def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
+        def imageLauncher = new File(imageBinDir, "reverseHello$launcherExt")
+
+        then:
+        result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
+        imageLauncher.exists()
+        imageLauncher.canExecute()
+
+        when:
+        def process = imageLauncher.absolutePath.execute([], imageBinDir)
+        def out = new ByteArrayOutputStream(2048)
+        process.waitForProcessOutput(out, out)
+        def outputText = out.toString()
+
+        then:
+        outputText.trim() == '!dlrow ,olleH'
+    }
 }

@@ -1,0 +1,25 @@
+plugins {
+    id 'org.beryx.jlink'
+    id "org.javamodularity.moduleplugin" version "1.4.1"
+}
+
+group 'org.example'
+version '1.0'
+
+sourceCompatibility = 11
+mainClassName = "org.example/org.example.Hello"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation files('lib/commons-lang3-3.8.1.jar')
+}
+
+jlink {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher {
+        name = 'reverseHello'
+    }
+}

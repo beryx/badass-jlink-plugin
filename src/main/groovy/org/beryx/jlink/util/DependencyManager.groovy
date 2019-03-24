@@ -15,6 +15,7 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import org.gradle.api.Project
 import org.gradle.api.artifacts.ResolvedDependency
@@ -26,112 +27,166 @@ import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
-import static org.beryx.jlink.util.Util.getArtifacts;
-import static org.beryx.jlink.util.Util.isEmptyJar;
+import static org.beryx.jlink.util.Util.getArtifacts
+import static org.beryx.jlink.util.Util.isEmptyJar
 
 @CompileStatic
 class DependencyManager {
-    private static final Logger LOGGER = Logging.getLogger(DependencyManager.class);
+    private static final Logger LOGGER = Logging.getLogger(DependencyManager.class)
 
     final Project project
     final List<String> forceMergedJarPrefixes
     final List<String> extraDependenciesPrefixes
 
-    final Set<ResolvedDependency> extraDeps
-    final Set<File> modularJars = []
-    final Set<File> nonModularJars = []
-    final Set<File> modularJarsRequiredByNonModularJars = []
+    final Set<DependencyExt> allDependencies
 
-    private final Set<ResolvedDependency> dependenciesHandledAsNonModular = []
+    private final Set<DependencyExt> extraDeps
+    private final Set<DependencyExt> modularDeps
+    private final Set<DependencyExt> nonModularDeps
+    private final Set<DependencyExt> modularDepsRequiredByNonModularJars
+
+    private final Set<File> artifactsHandledAsNonModular
+
+    @Canonical
+    static class DependencyExt {
+        ResolvedDependency dependency
+        File artifact
+
+        @Override
+        String toString() {
+            "$artifact.name / $dependency"
+        }
+    }
 
     DependencyManager(Project project, List<String> forceMergedJarPrefixes, List<String> extraDependenciesPrefixes) {
         this.project = project
         this.forceMergedJarPrefixes = forceMergedJarPrefixes
         this.extraDependenciesPrefixes = extraDependenciesPrefixes
-        this.extraDeps = collectDeps {ResolvedDependency dep ->
-            def depName = dep.moduleArtifacts[0].name
-            extraDependenciesPrefixes.any { depName.startsWith(it) }
+        Set<File> depFiles = []
+        allDependencies = []
+        project.configurations['runtimeClasspath'].resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
+            getArtifacts([dep] as Set).each { f ->
+                def depExt = new DependencyExt(dependency: dep, artifact: f)
+                if(!isEmptyJar(f)) {
+                    allDependencies << depExt
+                    depFiles << f
+                }
+                collectAllDescendants(depExt, allDependencies)
+            }
         }
-        LOGGER.info("extraDeps: ${getArtifacts(extraDeps)}")
+        project.configurations['runtimeClasspath'].resolvedConfiguration.files.each { f ->
+            if(!isEmptyJar(f) && !depFiles.contains(f)) {
+                allDependencies << new DependencyExt(artifact: f)
+            }
+        }
 
+        this.extraDeps = allDependencies.findAll{ DependencyExt dep ->
+            extraDependenciesPrefixes.any { dep.artifact.name.startsWith(it) }
+        }
+        LOGGER.info("extraDeps: $extraDeps")
+
+        artifactsHandledAsNonModular = []
         while(true) {
             def dep = getModularThatShouldBeHandledAsNonModular()
             if(!dep) break
-            dependenciesHandledAsNonModular << dep
-            LOGGER.info("Handling $dep.name as non-modular")
+            artifactsHandledAsNonModular << dep.artifact
+            LOGGER.info("Handling $dep.artifact.name as non-modular")
         }
 
-        Set<ResolvedDependency> modDeps = collectDeps {!isHandledAsNonModular(it)}
-        modularJars = getArtifacts(modDeps)
+        modularDeps = allDependencies.findAll{ !isHandledAsNonModular(it.artifact) }
+        nonModularDeps = allDependencies.findAll{ isHandledAsNonModular(it.artifact) }
 
-        Set<ResolvedDependency> nonModDeps = collectDeps {isHandledAsNonModular(it)}
-        nonModularJars = getArtifacts(nonModDeps)
+        Set<DependencyExt> handledDeps = []
+        modularDepsRequiredByNonModularJars = extraDeps.findAll{!isHandledAsNonModular(it.artifact)}
 
-        Set<ResolvedDependency> handledDeps = []
-        Set<ResolvedDependency> modsRequiredByNonMods = extraDeps.findAll{!isHandledAsNonModular(it)}
-
-        nonModDeps.each {collectModularJarsRequiredByNonModularJars(it, modsRequiredByNonMods, modDeps, handledDeps)}
-        modularJarsRequiredByNonModularJars = getArtifacts(modsRequiredByNonMods)
+        nonModularDeps.each { collectModularJarsRequiredByNonModularJars(it, modularDepsRequiredByNonModularJars, modularDeps, handledDeps) }
 
         LOGGER.info("modularJars: ${modularJars*.name}")
         LOGGER.info("nonModularJars: ${nonModularJars*.name}")
         LOGGER.info("modularJarsRequiredByNonModularJars: ${modularJarsRequiredByNonModularJars*.name}")
-        LOGGER.info("dependenciesHandledAsNonModular: ${dependenciesHandledAsNonModular*.name}")
+        LOGGER.info("artifactsHandledAsNonModular: ${artifactsHandledAsNonModular*.name}")
     }
 
-    private Set<ResolvedDependency> collectDeps(Predicate<ResolvedDependency> filter) {
-        Set<ResolvedDependency> deps = []
-        for(ResolvedDependency dep: project.configurations['runtimeClasspath'].resolvedConfiguration.firstLevelModuleDependencies) {
-            if(filter.test(dep)) deps << dep
-            deps.addAll(getDescendants(dep, filter))
-        }
-        deps
+    Set<File> getModularJarsRequiredByNonModularJars() {
+        modularDepsRequiredByNonModularJars*.artifact as Set
     }
 
-    private ResolvedDependency getModularThatShouldBeHandledAsNonModular() {
-        Set<ResolvedDependency> handledDeps = []
-        Set<ResolvedDependency> modsRequiredByNonMods = extraDeps.findAll {!isHandledAsNonModular(it)}
-        Set<ResolvedDependency> nonModDeps = collectDeps{ isHandledAsNonModular(it) }
-        Set<ResolvedDependency> modDeps = collectDeps {!isHandledAsNonModular(it)}
-        LOGGER.debug("nonModDeps: ${nonModDeps*.name}")
+    Set<File> getModularJars() {
+        modularDeps*.artifact as Set
+    }
+
+    Set<File> getNonModularJars() {
+        nonModularDeps*.artifact as Set
+    }
+
+    private DependencyExt getModularThatShouldBeHandledAsNonModular() {
+        Set<DependencyExt> handledDeps = []
+        Set<DependencyExt> modsRequiredByNonMods = extraDeps.findAll {!isHandledAsNonModular(it.artifact)}
+        Set<DependencyExt> nonModDeps = allDependencies.findAll { isHandledAsNonModular(it.artifact) }
+        Set<DependencyExt> modDeps = allDependencies.findAll { !isHandledAsNonModular(it.artifact) }
+        LOGGER.debug("nonModDeps: ${nonModDeps*.artifact.name}")
         nonModDeps.each {collectModularJarsRequiredByNonModularJars(it, modsRequiredByNonMods, modDeps, handledDeps)}
-        LOGGER.debug("modsRequiredByNonMods: ${modsRequiredByNonMods*.name}")
-        for(ResolvedDependency dep: modsRequiredByNonMods) {
+        LOGGER.debug("modsRequiredByNonMods: ${modsRequiredByNonMods*.artifact.name}")
+        for(DependencyExt dep: modsRequiredByNonMods) {
             if(getDescendants(dep) {isHandledAsNonModular(it)}) return dep
         }
         null
     }
 
-    private Set<ResolvedDependency> getDescendants(ResolvedDependency dep, Predicate<ResolvedDependency> filter) {
-        Set<ResolvedDependency> descendants = []
+    private Set<DependencyExt> getDescendants(DependencyExt dep, Predicate<File> filter) {
+        Set<DependencyExt> descendants = []
         collectDescendants(dep, descendants, filter)
         descendants
     }
 
-    private void collectDescendants(ResolvedDependency dep, Set<ResolvedDependency> descendants, Predicate<ResolvedDependency> filter) {
-        for(ResolvedDependency child: dep.children) {
-            if(filter.test(child)) {
-                descendants << child
+    private void collectDescendants(DependencyExt dep, Set<DependencyExt> descendants, Predicate<File> filter) {
+        if(dep.dependency) {
+            for(ResolvedDependency child: dep.dependency.children) {
+                getArtifacts([child] as Set).each { f ->
+                    def childExt = new DependencyExt(dependency: child, artifact: f)
+                    if(!isEmptyJar(f) && filter.test(f)) {
+                        descendants << childExt
+                    }
+                    collectDescendants(childExt, descendants, filter)
+                }
             }
-            collectDescendants(child, descendants, filter)
+        }
+    }
+
+    private void collectAllDescendants(DependencyExt dep, Set<DependencyExt> descendants) {
+        if(dep.dependency) {
+            for(ResolvedDependency child: dep.dependency.children) {
+                getArtifacts([child] as Set).each { f ->
+                    def childExt = new DependencyExt(dependency: child, artifact: f)
+                    if(!isEmptyJar(f)) descendants << childExt
+                    collectAllDescendants(childExt, descendants)
+                }
+            }
         }
     }
 
     private static final Pattern MULTI_RELEASE_MODULE_INFO = ~'META-INF/versions/[0-9]+/module-info.class'
-    private boolean isHandledAsNonModular(ResolvedDependency dep) {
-        if(dependenciesHandledAsNonModular.contains(dep)) return true
-        def f = dep.moduleArtifacts*.file.find {!isEmptyJar(it)}
-        if(!f) return true
-        if(forceMergedJarPrefixes.any {f.name.startsWith(it)}) return true
-        new ZipFile(f).entries().every { ZipEntry entry ->
+    private boolean isHandledAsNonModular(File artifact) {
+        if(!artifact) return true
+        if(isEmptyJar(artifact)) return true
+        if(artifactsHandledAsNonModular.contains(artifact)) return true
+        if(forceMergedJarPrefixes.any {artifact.name.startsWith(it)}) return true
+        new ZipFile(artifact).entries().every { ZipEntry entry ->
             (entry.name != 'module-info.class') && (!entry.name.matches(MULTI_RELEASE_MODULE_INFO))
         }
     }
 
-    private void collectModularJarsRequiredByNonModularJars(ResolvedDependency dep, Set<ResolvedDependency> collectedJars,
-                                                        Set<ResolvedDependency> modDeps, Set<ResolvedDependency> handledDeps) {
+    private void collectModularJarsRequiredByNonModularJars(DependencyExt dep, Set<DependencyExt> collectedDeps,
+                                                        Set<DependencyExt> modDeps, Set<DependencyExt> handledDeps) {
         if(!handledDeps.add(dep)) return
-        if(modDeps.contains(dep)) collectedJars.add(dep)
-        dep.children.each {collectModularJarsRequiredByNonModularJars(it, collectedJars, modDeps, handledDeps)}
+        if(modDeps.contains(dep)) collectedDeps.add(dep)
+        if(dep.dependency) {
+            dep.dependency.children.each { childDep ->
+                getArtifacts([childDep] as Set).each { f ->
+                    def childExt = new DependencyExt(dependency: childDep, artifact: f)
+                    collectModularJarsRequiredByNonModularJars(childExt, collectedDeps, modDeps, handledDeps)
+                }
+            }
+        }
     }
 }
