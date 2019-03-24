@@ -62,18 +62,17 @@ class DependencyManager {
         this.project = project
         this.forceMergedJarPrefixes = forceMergedJarPrefixes
         this.extraDependenciesPrefixes = extraDependenciesPrefixes
-        Set<File> depFiles = []
         allDependencies = []
         project.configurations['runtimeClasspath'].resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
             getArtifacts([dep] as Set).each { f ->
                 def depExt = new DependencyExt(dependency: dep, artifact: f)
                 if(!isEmptyJar(f)) {
                     allDependencies << depExt
-                    depFiles << f
                 }
                 collectAllDescendants(depExt, allDependencies)
             }
         }
+        Set<File> depFiles = allDependencies*.artifact as Set
         project.configurations['runtimeClasspath'].resolvedConfiguration.files.each { f ->
             if(!isEmptyJar(f) && !depFiles.contains(f)) {
                 allDependencies << new DependencyExt(artifact: f)

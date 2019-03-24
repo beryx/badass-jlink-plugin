@@ -188,4 +188,34 @@ class JlinkPluginSpec extends Specification {
         then:
         outputText.trim() == '!dlrow ,olleH'
     }
+
+    def "should create runtime image of project with BOM"() {
+        when:
+        File buildFile = setUpBuild('hello-bom')
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withGradleVersion('5.3')
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
+        def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
+        def imageLauncher = new File(imageBinDir, "helloBom$launcherExt")
+
+        then:
+        result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
+        imageLauncher.exists()
+        imageLauncher.canExecute()
+
+        when:
+        def process = imageLauncher.absolutePath.execute([], imageBinDir)
+        def out = new ByteArrayOutputStream(2048)
+        process.waitForProcessOutput(out, out)
+        def outputText = out.toString()
+
+        then:
+        outputText.trim() == '{"from":"Alice","to":"Bob","greeting":"Hello"}'
+    }
+
 }

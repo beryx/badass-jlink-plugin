@@ -1,0 +1,36 @@
+plugins {
+    id 'org.beryx.jlink'
+    id "org.javamodularity.moduleplugin" version "1.4.1"
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+dependencies {
+    // import a BOM
+    implementation platform('org.springframework.boot:spring-boot-dependencies:2.1.3.RELEASE')
+
+    // define dependencies without versions
+    implementation 'com.google.code.gson:gson'
+    implementation('dom4j:dom4j') {
+        exclude module: 'xml-apis'
+    } 
+}
+
+mainClassName = 'org.beryx.modular.hello.Hello'
+jar {
+    manifest {
+        attributes 'Implementation-Title': "helloBom",
+                'Main-Class': mainClassName
+    }
+}
+
+jlink {
+    launcher {
+        name = 'helloBom'
+    }
+}
