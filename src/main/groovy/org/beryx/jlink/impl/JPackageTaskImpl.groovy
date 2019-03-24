@@ -17,7 +17,6 @@ package org.beryx.jlink.impl
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import org.apache.commons.io.FileUtils
 import org.beryx.jlink.data.JPackageTaskData
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -51,16 +50,17 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             project.ext.jpackageImageOutput = {
                 return standardOutput.toString()
             }
-            FileUtils.cleanDirectory(td.jpackageData.getImageOutputDir())
+            def outputDir = td.jpackageData.imageOutputDir
+            project.delete(outputDir)
             def jpd = td.jpackageData
             commandLine = ["$jpd.jpackageHome/bin/jpackage",
-                            'create-image',
-                            '--output', td.jpackageData.getImageOutputDir(),
-                            '--name', jpd.imageName,
-                            '--module-path', td.jlinkJarsDir,
-                            '--module', "$td.moduleName/$td.mainClass",
-                            *(jpd.jvmArgs ? ['--jvm-args', '"' + jpd.jvmArgs.join(' ')+ '"'] : []),
-                            *jpd.imageOptions]
+                           'create-image',
+                           '--output', outputDir,
+                           '--name', jpd.imageName,
+                           '--module-path', td.jlinkJarsDir,
+                           '--module', "$td.moduleName/$td.mainClass",
+                           *(jpd.jvmArgs ? ['--jvm-args', '"' + jpd.jvmArgs.join(' ')+ '"'] : []),
+                           *jpd.imageOptions]
         }
         if(result.exitValue != 0) {
             LOGGER.error(project.ext.jpackageImageOutput())

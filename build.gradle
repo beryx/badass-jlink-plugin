@@ -85,7 +85,6 @@ dependencies {
     implementation localGroovy()
 
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    implementation group: 'commons-io', name: 'commons-io', version: '2.6'
 
     plugin "org.ow2.asm:asm:$asmVersion"
     plugin "org.ow2.asm:asm-commons:$asmVersion"
