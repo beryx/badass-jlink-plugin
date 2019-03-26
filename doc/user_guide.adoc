@@ -77,7 +77,7 @@ You can call this method multiple times. +
 [maroon]##forceMerge##(String... [purple]##jarPrefixes##):: Instructs the plugin to include all dependencies matching the given prefixes into the merged module.
 This method is useful when the plugin should handle one or more modular jars as non-modular.
 You can call this method multiple times. +
-    _usage example_: `forceMerge 'jaxb-api'`
+    _usage example_: `forceMerge 'jakarta.xml.bind-api'`
 
 
 [maroon]##addExtraDependencies##(String... [purple]##jarPrefixes##):: Instructs the plugin to treat all jars matching the given prefixes as dependencies of the merged module. +
@@ -488,6 +488,6 @@ _usage example_: `./gradlew suggestMergedModuleInfo --language=kotlin`
         with --app-image=<font color="saddlebrown">imageOutputDir</font>/<font color="midnightblue">imageName</font>
 ----
 The properties <font color="saddlebrown">imageOutputDir</font>, <font color="cadetblue">installerOutputDir</font>, and <font color="midnightblue">imageName</font>
-cam be configured in the `jpackage` script block.
+can be configured in the `jpackage` script block.
 
 
