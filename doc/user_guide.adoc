@@ -488,6 +488,6 @@ _usage example_: `./gradlew suggestMergedModuleInfo --language=kotlin`
         with --app-image=<font color="saddlebrown">imageOutputDir</font>/<font color="midnightblue">imageName</font>
 ----
 The properties <font color="saddlebrown">imageOutputDir</font>, <font color="cadetblue">installerOutputDir</font>, and <font color="midnightblue">imageName</font>
-cam be configured in the `jpackage` script block.
+can be configured in the `jpackage` script block.
 
 
