@@ -283,6 +283,12 @@ installerOptions:: list of additional options to be passed to the `jpackage` exe
     _defaultValue_: empty list +
     _usage example_: `installerOptions = ["--win-console"]`
 
+targetPlatformName:: This property is required only when using the `targetPlatform` method.
+    It specifies which of the images produced by jlink should be used as runtime image by jpackage.
+    Its value must match the name provided in one of the calls to the `targetPlatform` method. +
+    _defaultValue_: null +
+    _usage example_: `targetPlatform = "linux"`
+
 
 _Usage example_
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
