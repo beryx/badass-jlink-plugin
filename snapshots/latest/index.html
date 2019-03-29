@@ -652,6 +652,14 @@ to parse the templates, with the following variables available:</p>
 <em>defaultValue</em>: empty list<br>
 <em>usage example</em>: <code>installerOptions = ["--win-console"]</code></p>
 </dd>
+<dt class="hdlist1">targetPlatformName</dt>
+<dd>
+<p>This property is required only when using the <code>targetPlatform</code> method.
+It specifies which of the images produced by jlink should be used as runtime image by jpackage.
+Its value must match the name provided in one of the calls to the <code>targetPlatform</code> method.<br>
+<em>defaultValue</em>: null<br>
+<em>usage example</em>: <code>targetPlatform = "linux"</code></p>
+</dd>
 </dl>
 </div>
 <div class="paragraph">
