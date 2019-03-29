@@ -41,6 +41,9 @@ class JPackageData {
     @Input
     List<String> imageOptions = []
 
+    @Input @Optional
+    String targetPlatformName
+
     @Input
     boolean skipInstaller = false
 
@@ -72,6 +75,11 @@ class JPackageData {
     @Input
     String getInstallerName() {
         this.@installerName ?: launcherData.name
+    }
+
+    @Input
+    String getLauncherName() {
+        launcherData.name
     }
 
     @Input

@@ -19,12 +19,9 @@ import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageData
 import org.beryx.jlink.data.JPackageTaskData
 import org.beryx.jlink.data.JlinkPluginExtension
-import org.beryx.jlink.data.JlinkTaskData
 import org.beryx.jlink.impl.JPackageTaskImpl
-import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
-import org.gradle.api.Task
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -33,7 +30,7 @@ import org.gradle.api.tasks.*
 
 @CompileStatic
 class JPackageTask extends BaseTask {
-    private static final Logger LOGGER = Logging.getLogger(JPackageTask.class);
+    private static final Logger LOGGER = Logging.getLogger(JPackageTask.class)
 
     @Input
     Property<String> moduleName
@@ -80,8 +77,9 @@ class JPackageTask extends BaseTask {
         taskData.jpackageData = jpackageData.get()
         taskData.mainClass = mainClass.get() ?: defaultMainClass
         taskData.jlinkJarsDir = jlinkJarsDir.get().asFile
-        def JlinkTask jlinkTask = (JlinkTask) project.getTasksByName(JlinkPlugin.TASK_NAME_JLINK, false).first() // Should be one, and only one
-        taskData.jlinkImageDir = jlinkTask.imageDirAsFile
+
+        def jlinkTask = (JlinkTask) project.tasks.getByName(JlinkPlugin.TASK_NAME_JLINK)
+        taskData.configureRuntimeImageDir(jlinkTask)
 
         def taskImpl = new JPackageTaskImpl(project, taskData)
         taskImpl.execute()

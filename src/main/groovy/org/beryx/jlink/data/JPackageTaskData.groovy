@@ -17,14 +17,46 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
+import org.beryx.jlink.JlinkTask
+import org.gradle.api.GradleException
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 @CompileStatic
 @ToString(includeNames = true)
 class JPackageTaskData extends BaseTaskData {
+    private static final Logger LOGGER = Logging.getLogger(JPackageTaskData.class)
+
     String moduleName
     String mainClass
     File jlinkJarsDir
     File imageDir
-    File jlinkImageDir
+    File runtimeImageDir
     JPackageData jpackageData
+
+    void configureRuntimeImageDir(JlinkTask jlinkTask) {
+        def jlinkPlatforms = jlinkTask.targetPlatforms.get()
+        if(jpackageData.targetPlatformName) {
+            if(!jlinkPlatforms.isEmpty()) {
+                if(!jlinkPlatforms.keySet().contains(jpackageData.targetPlatformName)) {
+                    throw new GradleException("The targetPlatform of the jpackage task ($jpackageData.targetPlatformName) doesn't match any of the targetPlatforms of the jlink task.")
+                }
+            } else {
+                LOGGER.warn("No target platforms defined for the jlink task. The jpackage targetPlatform will be ignored.")
+                jpackageData.targetPlatformName = null
+            }
+        } else {
+            if(!jlinkPlatforms.isEmpty()) {
+                if(jlinkPlatforms.size() > 1) throw new GradleException("Since your jlink task is configured to generate images for multiple platforms, you must specify a targetPlatform for your jpackage task.")
+                jpackageData.targetPlatformName = jlinkPlatforms.keySet().first()
+                LOGGER.warn("No target platform defined for the jpackage task. Defaulting to `$jpackageData.targetPlatformName`.")
+            }
+        }
+        if(jpackageData.targetPlatformName) {
+            runtimeImageDir = new File(jlinkTask.imageDirAsFile, "$jpackageData.launcherName-$jpackageData.targetPlatformName")
+        } else {
+            runtimeImageDir = jlinkTask.imageDirAsFile
+        }
+        LOGGER.debug("runtimeImageDir: $runtimeImageDir")
+    }
 }
