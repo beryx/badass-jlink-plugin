@@ -24,6 +24,7 @@ import org.beryx.jlink.impl.JPackageTaskImpl
 import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
+import org.gradle.api.Task
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -53,7 +54,7 @@ class JPackageTask extends BaseTask {
     Property<JPackageData> jpackageData
 
     JPackageTask() {
-        dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MODULES_DIR)
+        dependsOn(JlinkPlugin.TASK_NAME_JLINK)
         description = 'Creates an installable image using the jpackage tool'
     }
 
@@ -79,6 +80,8 @@ class JPackageTask extends BaseTask {
         taskData.jpackageData = jpackageData.get()
         taskData.mainClass = mainClass.get() ?: defaultMainClass
         taskData.jlinkJarsDir = jlinkJarsDir.get().asFile
+        def JlinkTask jlinkTask = (JlinkTask) project.getTasksByName(JlinkPlugin.TASK_NAME_JLINK, false).first() // Should be one, and only one
+        taskData.jlinkImageDir = jlinkTask.imageDirAsFile
 
         def taskImpl = new JPackageTaskImpl(project, taskData)
         taskImpl.execute()
