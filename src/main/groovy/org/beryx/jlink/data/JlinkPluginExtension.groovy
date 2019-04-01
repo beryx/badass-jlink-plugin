@@ -40,6 +40,7 @@ class JlinkPluginExtension {
     final Property<String> mainClass
     final ListProperty<String> forceMergedJarPrefixes
     final ListProperty<String> extraDependenciesPrefixes
+    final ListProperty<String> extraModulePaths
     final ListProperty<String> options
     final Property<ModuleInfo> mergedModuleInfo
     final Property<JdepsUsage> useJdeps
@@ -82,6 +83,9 @@ class JlinkPluginExtension {
         extraDependenciesPrefixes = project.objects.listProperty(String)
         extraDependenciesPrefixes.set(new ArrayList<String>())
 
+        extraModulePaths = project.objects.listProperty(String)
+        extraModulePaths.set(new ArrayList<String>())
+
         options = project.objects.listProperty(String)
         options.set(new ArrayList<String>())
 
@@ -105,6 +109,10 @@ class JlinkPluginExtension {
 
     void addExtraDependencies(String... dependencies) {
         Util.addToListProperty(extraDependenciesPrefixes, dependencies)
+    }
+
+    void addExtraModulePath(String path) {
+        Util.addToListProperty(extraModulePaths, path)
     }
 
     void forceMerge(String... jarPrefixes) {

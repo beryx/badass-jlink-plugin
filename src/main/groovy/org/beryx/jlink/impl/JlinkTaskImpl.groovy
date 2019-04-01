@@ -54,11 +54,12 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
             project.ext.jlinkOutput = {
                 return standardOutput.toString()
             }
+            def jlinkJarsDirAsPath = project.files(td.jlinkJarsDir).asPath
+            def extraModulePaths = td.extraModulePaths.collect {SEP + it}.join('')
             commandLine = ["$td.javaHome/bin/jlink",
                            '-v',
                            *options,
-                           '--module-path',
-                           "$jdkHome/jmods/$SEP${project.files(td.jlinkJarsDir).asPath}",
+                           '--module-path', "$jdkHome/jmods/$SEP$jlinkJarsDirAsPath$extraModulePaths",
                            '--add-modules', td.moduleName,
                            '--output', imageDir]
         }

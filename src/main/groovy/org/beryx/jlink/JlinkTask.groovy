@@ -54,6 +54,9 @@ class JlinkTask extends BaseTask {
     ListProperty<String> options
 
     @Input
+    ListProperty<String> extraModulePaths
+
+    @Input
     Property<String> javaHome
 
     @Input
@@ -80,6 +83,7 @@ class JlinkTask extends BaseTask {
         mainClass = extension.mainClass
         moduleName = extension.moduleName
         options = extension.options
+        extraModulePaths = extension.extraModulePaths
         javaHome = extension.javaHome
         targetPlatforms = extension.targetPlatforms
         imageName = extension.imageName
@@ -98,6 +102,7 @@ class JlinkTask extends BaseTask {
         taskData.launcherData = launcherData.get()
         taskData.mainClass = mainClass.get() ?: defaultMainClass
         taskData.options = options.get()
+        taskData.extraModulePaths = extraModulePaths.get()
         taskData.javaHome = javaHome.get()
         taskData.targetPlatforms = targetPlatforms.get()
         taskData.jlinkJarsDir = jlinkJarsDir.get().asFile
