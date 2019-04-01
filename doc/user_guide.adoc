@@ -85,6 +85,10 @@ A typical situation where this method is needed involves libraries using JavaFX.
 Some libraries do not specify their JavaFX dependencies, because JavaFX was part of the JDK before being removed in Java 11. +
 Including `addExtraDependencies("javafx")` into the `jlink` block solves this problem.
 
+[maroon]##addExtraModulePath##(String [purple]##modulePath##):: Instructs the plugin to include the specified `modulePath` in the list of paths passed to the `--module-path` option of jlink. +
+You can call this method multiple times. +
+    _usage example_: `addExtraModulePath '/usr/lib/jmods'`
+
 [maroon]##targetPlatform##(String [purple]##name##, String [purple]##jdkHome##, List<String> [purple]##options## = []):: Instructs the plugin to generate an application image for a specific platform. +
 By default, the plugin generates an image for the platform it runs on.
 To create images for other platforms, you need to call the `targetPlatform` method (one call per target platform). +
