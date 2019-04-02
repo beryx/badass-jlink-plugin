@@ -51,7 +51,8 @@ class PrepareMergedJarsDirTask extends BaseTask {
     DirectoryProperty mergedJarsDir
 
     PrepareMergedJarsDirTask() {
-        dependsOn('jar')
+        def jarTasks = project.rootProject.getTasksByName('jar', true).toArray()
+        dependsOn(jarTasks)
         description = 'Merges all non-modularized jars into a single module'
     }
 
