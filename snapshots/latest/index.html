@@ -380,6 +380,12 @@ A typical situation where this method is needed involves libraries using JavaFX.
 Some libraries do not specify their JavaFX dependencies, because JavaFX was part of the JDK before being removed in Java 11.<br>
 Including <code>addExtraDependencies("javafx")</code> into the <code>jlink</code> block solves this problem.</p>
 </dd>
+<dt class="hdlist1"><span class="maroon">addExtraModulePath</span>(String <span class="purple">modulePath</span>)</dt>
+<dd>
+<p>Instructs the plugin to include the specified <code>modulePath</code> in the list of paths passed to the <code>--module-path</code> option of jlink.<br>
+You can call this method multiple times.<br>
+    <em>usage example</em>: <code>addExtraModulePath '/usr/lib/jmods'</code></p>
+</dd>
 <dt class="hdlist1"><span class="maroon">targetPlatform</span>(String <span class="purple">name</span>, String <span class="purple">jdkHome</span>, List&lt;String&gt; <span class="purple">options</span> = [])</dt>
 <dd>
 <p>Instructs the plugin to generate an application image for a specific platform.<br>
@@ -924,6 +930,9 @@ can be configured in the <code>jpackage</code> script block.</p>
 <p><a href="https://github.com/beryx-gist/badass-jlink-example-log4j2-javafx">badass-jlink-example-log4j2-javafx</a> - a 'Hello world' JavaFX application using log4j2.</p>
 </li>
 <li>
+<p><a href="https://github.com/beryx-gist/badass-jlink-example-javafx-multiproject">badass-jlink-example-javafx-multiproject</a> - A 'Hello world' JavaFX application with a Gradle multi-project build.</p>
+</li>
+<li>
 <p><a href="https://github.com/beryx-gist/badass-jlink-example-kotlin-javafx">badass-jlink-example-kotlin-javafx</a> - a 'Hello world' JavaFX application written in Kotlin.</p>
 </li>
 <li>
@@ -937,6 +946,9 @@ can be configured in the <code>jpackage</code> script block.</p>
 </li>
 <li>
 <p><a href="https://github.com/copper-engine/copper-modular-demo">copper-modular-demo</a> - creates a custom runtime image of a <a href="http://copper-engine.org/">COPPER 5</a> modular application.</p>
+</li>
+<li>
+<p><a href="https://github.com/brunoborges/javafx-jlink-starter-gradle">javafx-jlink-starter-gradle</a> - A JavaFX starter project with an Azure Pipelines setup that produces binaries for Windows, Mac, and Linux.</p>
 </li>
 </ul>
 </div>
