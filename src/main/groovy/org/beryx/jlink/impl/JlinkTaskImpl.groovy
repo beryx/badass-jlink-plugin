@@ -59,7 +59,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
             commandLine = ["$td.javaHome/bin/jlink",
                            '-v',
                            *options,
-                           '--module-path', "$jdkHome/jmods/$SEP$extraModulePaths$jlinkJarsDirAsPath",
+                           '--module-path', "$jdkHome/jmods/$extraModulePaths$SEP$jlinkJarsDirAsPath",
                            '--add-modules', td.moduleName,
                            '--output', imageDir]
         }
