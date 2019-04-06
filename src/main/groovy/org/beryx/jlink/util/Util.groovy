@@ -57,10 +57,10 @@ class Util {
     private static final Pattern MODULE_DECL = ~/(?m)(?s)\s*(?:open\s+)?module\s+(\S+)\s*\{.*/
     private static final Pattern COMMENT = ~"(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)"
     @CompileDynamic
-    static String getModuleNameFrom(String moduleInfoText) {
-        def text = moduleInfoText.replaceAll(COMMENT, '')//.strip()
+    static String getModuleNameFrom(String moduleInfoText, String fileName = 'module-info.java') {
+        def text = moduleInfoText.replaceAll(COMMENT, '')
         def matcher = MODULE_DECL.matcher(text)
-        if(!matcher.matches()) throw new GradleException("Cannot retrieve module name from module-info.java")
+        if(!matcher.matches()) throw new GradleException("Cannot retrieve module name from $fileName with content: $moduleInfoText")
         matcher[0][1]
     }
 
@@ -73,9 +73,9 @@ class Util {
     static String getDefaultModuleName(Project project) {
         Set<File> srcDirs = project.sourceSets.main?.java?.srcDirs
         File moduleInfoDir = srcDirs?.find { it.list()?.contains('module-info.java')}
-        if(!moduleInfoDir) throw new GradleException("Cannot find module-info.java")
-        String moduleInfoText = new File(moduleInfoDir, 'module-info.java').text
-        Util.getModuleNameFrom(moduleInfoText)
+        if(!moduleInfoDir) throw new GradleException("Cannot find module-info.java in $srcDirs")
+        def moduleInfoFile = new File(moduleInfoDir, 'module-info.java')
+        Util.getModuleNameFrom(moduleInfoFile.text, moduleInfoFile.path)
     }
 
     static String getPackage(String entryName) {
