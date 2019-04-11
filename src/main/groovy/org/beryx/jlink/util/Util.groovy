@@ -89,8 +89,14 @@ class Util {
         Set<File> srcDirs = project.sourceSets.main?.java?.srcDirs
         File moduleInfoDir = srcDirs?.find { it.list()?.contains('module-info.java')}
         if(!moduleInfoDir) throw new GradleException("Cannot find module-info.java in $srcDirs")
-        def moduleInfoFile = new File(moduleInfoDir, 'module-info.java')
-        getModuleNameFrom(moduleInfoFile.text, moduleInfoFile.path)
+        try {
+            def moduleInfoFile = new File(moduleInfoDir, 'module-info.java')
+            getModuleNameFrom(moduleInfoFile.text, moduleInfoFile.path)
+        } catch (GradleException ge) {
+            throw ge
+        } catch (Exception e) {
+            throw new GradleException("Cannot retrieve module name from $moduleInfoDir/module-info.java", e)
+        }
     }
 
     static String getPackage(String entryName) {
