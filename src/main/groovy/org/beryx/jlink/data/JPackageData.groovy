@@ -63,19 +63,17 @@ class JPackageData {
     JPackageData(Project project, LauncherData launcherData) {
         this.project = project
         this.launcherData = launcherData
-        this.imageName = project.name
-        this.installerName = project.name
         this.jpackageHome = defaultJPackageHome
     }
 
     @Input
     String getImageName() {
-        this.@imageName ?: launcherData.name
+        this.@imageName ?: launcherData.name ?: project.name
     }
 
     @Input
     String getInstallerName() {
-        this.@installerName ?: launcherData.name
+        this.@installerName ?: launcherData.name ?: project.name
     }
 
     @Input
