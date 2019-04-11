@@ -96,7 +96,8 @@ To create images for other platforms, you need to call the `targetPlatform` meth
 determine the location of the image directory and of the image archive. +
 [purple]##**jdkHome**##: the path to the target platform JDK. +
 [purple]##**options**##: an optional list of platform-specific options.
-These options will pe passed to _jlink_ in addition to those provided by the `options` property of the `jlink` extension.
+These options will pe passed to _jlink_ in addition to those provided by the `options` property of the `jlink` extension. +
+_NOTE_: This is only a convenience method. There is a more powerful `targetPlatform` method (described below), which allows configuring additional parameters of the target platform.
 
 [cols="1,100", frame=none, grid=none]
 |===
@@ -111,11 +112,48 @@ jlink {
     ...
 }
 ----
+|===
 
 For a project named `hello`, executing the `jlinkZip` task with the above configuration, and assuming default values for the other properties,
 the plugin will generate the platform-specific images in the directories
 `build/image/hello-linux-x64` and `build/image/hello-linux-s390x`.
 The archived images will be available in `build/image-linux-x64.zip` and `build/image-linux-s390x.zip`.
+
+[maroon]##targetPlatform##(String [purple]##name##, Action<TargetPlatform> [purple]##action##):: This more powerful version of the `targetPlatform` method allows configuring the target platform parameters using a script block. +
+[purple]##**name**##: an identifier of your choice that will be appended to the `imageDir` and `imageZip` properties to
+determine the location of the image directory and of the image archive. +
+[purple]##**action**##: a script block for configuring the target platform parameters. +
+&nbsp;&nbsp;&nbsp;&nbsp; _Parameters:_ +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [purple]##**jdkHome**##: the path to the target platform JDK. +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [purple]##**options**##: an optional list of platform-specific options. +
+&nbsp;&nbsp;&nbsp;&nbsp; _Methods:_ +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [maroon]##addOptions##(String... [purple]##options##): an alternative way of setting the `options` property. +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [maroon]##addExtraModulePath##(String [purple]##path##): pass the specified path to the `--module-path` option of jlink. +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This method can be used to specify the location of the platform-specific OpenJFX modules.
+
+[cols="1,100", frame=none, grid=none]
+|===
+a| a| .Usage example
+[source,groovy]
+----
+jlink {
+    ...
+    targetPlatform("linux-s390x") {
+        jdkHome = "/usr/lib/jvm/linux-s390x/jdk-11.0.2+9"
+        addOptions("--endian", "big")
+        addExtraModulePath("/usr/lib/openjfx/linux-s390x/jmods")
+    }
+    targetPlatform("mac") {
+        jdkHome = "/usr/lib/jvm/mac/jdk-11.0.2+9"
+        addExtraModulePath("/usr/lib/openjfx/mac/jmods")
+    }
+    targetPlatform("win") {
+        jdkHome = "/usr/lib/jvm/win/jdk-11.0.2+9"
+        addExtraModulePath("/usr/lib/openjfx/win/jmods")
+    }
+    ...
+}
+----
 |===
 
 [[scriptBlocks]]
