@@ -50,7 +50,8 @@ class UtilSpec extends Specification {
         'open module a.b.c{}'                                                        | 'a.b.c'
         '  \t  open\t  \tmodule \ta.b.c\t { '                                        | 'a.b.c'
         '/*my module*/\nmodule /*---*/ a.b.c // declaration\n{\n  exports a.b.c;\n}' | 'a.b.c'
-        'import x.y.Z;//comment\nimport x.y.W;\nmodule /*---*/ a.b.c}'               | 'a.b.c'
+        'import x.y.Z;//comment\nimport x.y.W;\nmodule /*---*/ a.b.c'                | 'a.b.c'
+        'import x.y.z.*;\nimport x.y/*WW*/./*ZZ*/w.*;\nmodule //x.y.z\n/*-->*/a.b.c' | 'a.b.c'
     }
 
     @Unroll

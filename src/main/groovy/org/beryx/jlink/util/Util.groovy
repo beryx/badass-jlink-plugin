@@ -55,16 +55,18 @@ class Util {
     }
 
     private static final String WS = '[ \t\r\n\\u000C]'
-    private static final String LETTER = '[a-zA-Z$_]|[^\\u0000-\\u007F\\uD800-\\uDBFF]|[\\uD800-\\uDBFF]|[\\uDC00-\\uDFFF]'
-    private static final String LETTER_OR_DIGIT = LETTER + '|[0-9]'
-    private static final String IDENTIFIER = '((' + LETTER + ')(' + LETTER_OR_DIGIT + ')*)'
-    private static final String QUALIFIED_NAME = IDENTIFIER + '(\\.' + IDENTIFIER + ')*'
-
     private static final String LINE_COMMENT = '//[^\r\n]*'
     private static final String MULTILINE_COMMENT = '/\\*.*?\\*/'
     private static final String IGNORE =  '(' + WS + '|' + LINE_COMMENT + '|' + MULTILINE_COMMENT + ')*'
+    private static final String INNER_IGNORE =  '(' + MULTILINE_COMMENT + ')*'
 
-    private static final String IMPORT_DECLARATION = 'import' + IGNORE + '(static' + IGNORE + ')?' + QUALIFIED_NAME + IGNORE + ';'
+    private static final String LETTER = '[a-zA-Z$_]|[^\\u0000-\\u007F\\uD800-\\uDBFF]|[\\uD800-\\uDBFF]|[\\uDC00-\\uDFFF]'
+    private static final String LETTER_OR_DIGIT = LETTER + '|[0-9]'
+
+    private static final String IDENTIFIER = '((' + LETTER + INNER_IGNORE + ')(' + LETTER_OR_DIGIT + INNER_IGNORE + ')*)'
+    private static final String QUALIFIED_NAME = IDENTIFIER + INNER_IGNORE + '(\\.' + INNER_IGNORE + IDENTIFIER + INNER_IGNORE + ')*'
+
+    private static final String IMPORT_DECLARATION = 'import' + IGNORE + '(static' + IGNORE + ')?' + QUALIFIED_NAME + '(\\.\\*' + ')?' + IGNORE + ';'
     private static final String IMPORT_DECLARATIONS = '(' + IMPORT_DECLARATION + IGNORE + ')*'
     private static final String MODULE_DECLARATION = '(?s)' + IGNORE + IMPORT_DECLARATIONS + '(open' + IGNORE + ')?' + 'module' + IGNORE + '(?<MODULE>' + QUALIFIED_NAME + ').*?'
 
