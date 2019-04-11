@@ -36,17 +36,20 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         if(td.targetPlatforms) {
             td.targetPlatforms.values().each { platform ->
                 File imageDir = new File(td.imageDir, "$td.launcherData.name-$platform.name")
-                runJlink(imageDir, platform.jdkHome, td.options + platform.options)
+                runJlink(imageDir,
+                        platform.jdkHome ?: td.javaHome,
+                        td.extraModulePaths + platform.extraModulePaths,
+                        td.options + platform.options)
                 createLaunchScripts(imageDir)
             }
         } else {
-            runJlink(td.imageDir, td.javaHome, td.options)
+            runJlink(td.imageDir, td.javaHome, td.extraModulePaths, td.options)
             createLaunchScripts(td.imageDir)
         }
     }
 
     @CompileDynamic
-    void runJlink(File imageDir, String jdkHome, List<String> options) {
+    void runJlink(File imageDir, String jdkHome, List<String> extraModulePaths, List<String> options) {
         project.delete(imageDir)
         def result = project.exec {
             ignoreExitValue = true
@@ -55,11 +58,11 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
                 return standardOutput.toString()
             }
             def jlinkJarsDirAsPath = project.files(td.jlinkJarsDir).asPath
-            def extraModulePaths = td.extraModulePaths.collect {SEP + it}.join('')
+            def additionalModulePaths = extraModulePaths.collect {SEP + it}.join('')
             commandLine = ["$td.javaHome/bin/jlink",
                            '-v',
                            *options,
-                           '--module-path', "$jdkHome/jmods/$extraModulePaths$SEP$jlinkJarsDirAsPath",
+                           '--module-path', "$jdkHome/jmods/$additionalModulePaths$SEP$jlinkJarsDirAsPath",
                            '--add-modules', td.moduleName,
                            '--output', imageDir]
         }

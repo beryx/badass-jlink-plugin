@@ -21,11 +21,21 @@ import groovy.transform.CompileStatic
 @CompileStatic
 class TargetPlatform implements Serializable {
     final String name
-    final String jdkHome
-    final List<String> options = []
-    TargetPlatform(String name, String jdkHome, List<String> options = []) {
+    String jdkHome
+    List<String> options = []
+    List<String> extraModulePaths = []
+
+    TargetPlatform(String name, String jdkHome = '', List<String> options = []) {
         this.name = name
         this.jdkHome = jdkHome
         this.options.addAll(options)
+    }
+
+    void addOptions(String... opts) {
+        opts.each { String opt -> options.add(opt) }
+    }
+
+    void addExtraModulePath(String path) {
+        extraModulePaths << path
     }
 }

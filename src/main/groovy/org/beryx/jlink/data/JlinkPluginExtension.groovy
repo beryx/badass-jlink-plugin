@@ -127,6 +127,12 @@ class JlinkPluginExtension {
         Util.putToMapProvider(targetPlatforms, name, new TargetPlatform(name, jdkHome, options))
     }
 
+    void targetPlatform(String name, Action<TargetPlatform> action) {
+        def targetPlatform = new TargetPlatform(name)
+        action.execute(targetPlatform)
+        Util.putToMapProvider(targetPlatforms, name, targetPlatform)
+    }
+
     void mergedModule(Action<ModuleInfo> action) {
         mergedModuleInfo.get().enabled = true
         action.execute(mergedModuleInfo.get())
