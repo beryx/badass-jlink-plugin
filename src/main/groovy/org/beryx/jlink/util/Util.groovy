@@ -42,7 +42,7 @@ import java.util.zip.ZipFile
 
 @CompileStatic
 class Util {
-    private static final Logger LOGGER = Logging.getLogger(Util.class);
+    private static final Logger LOGGER = Logging.getLogger(Util.class)
 
     static String toModuleName(String s) {
         def name = s.replaceAll('[^0-9A-Za-z_.]', '.')
@@ -54,19 +54,34 @@ class Util {
         name.replaceAll('\\.[.]+', '.')
     }
 
-    private static final Pattern MODULE_DECL = ~/(?m)(?s)\s*(?:open\s+)?module\s+(\S+)\s*\{.*/
-    private static final Pattern COMMENT = ~"(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)"
+    private static final String WS = '[ \t\r\n\\u000C]'
+    private static final String LETTER = '[a-zA-Z$_]|[^\\u0000-\\u007F\\uD800-\\uDBFF]|[\\uD800-\\uDBFF]|[\\uDC00-\\uDFFF]'
+    private static final String LETTER_OR_DIGIT = LETTER + '|[0-9]'
+    private static final String IDENTIFIER = '((' + LETTER + ')(' + LETTER_OR_DIGIT + ')*)'
+    private static final String QUALIFIED_NAME = IDENTIFIER + '(\\.' + IDENTIFIER + ')*'
+
+    private static final String LINE_COMMENT = '//[^\r\n]*'
+    private static final String MULTILINE_COMMENT = '/\\*.*?\\*/'
+    private static final String IGNORE =  '(' + WS + '|' + LINE_COMMENT + '|' + MULTILINE_COMMENT + ')*'
+
+    private static final String IMPORT_DECLARATION = 'import' + IGNORE + '(static' + IGNORE + ')?' + QUALIFIED_NAME + IGNORE + ';'
+    private static final String IMPORT_DECLARATIONS = '(' + IMPORT_DECLARATION + IGNORE + ')*'
+    private static final String MODULE_DECLARATION = '(?s)' + IGNORE + IMPORT_DECLARATIONS + '(open' + IGNORE + ')?' + 'module' + IGNORE + '(?<MODULE>' + QUALIFIED_NAME + ').*?'
+
+    private static final Pattern PATTERN = Pattern.compile(MODULE_DECLARATION)
+
+
     @CompileDynamic
     static String getModuleNameFrom(String moduleInfoText, String fileName = 'module-info.java') {
-        def text = moduleInfoText.replaceAll(COMMENT, '')
-        def matcher = MODULE_DECL.matcher(text)
+        def matcher = PATTERN.matcher(moduleInfoText)
         if(!matcher.matches()) throw new GradleException("Cannot retrieve module name from $fileName with content: $moduleInfoText")
-        matcher[0][1]
+        matcher.group("MODULE")
     }
+
 
     static String getDefaultMergedModuleName(Project project) {
         String name = (project.group ?: project.name) as String
-        "${Util.toModuleName(name)}.merged.module"
+        "${toModuleName(name)}.merged.module"
     }
 
     @CompileDynamic
@@ -75,7 +90,7 @@ class Util {
         File moduleInfoDir = srcDirs?.find { it.list()?.contains('module-info.java')}
         if(!moduleInfoDir) throw new GradleException("Cannot find module-info.java in $srcDirs")
         def moduleInfoFile = new File(moduleInfoDir, 'module-info.java')
-        Util.getModuleNameFrom(moduleInfoFile.text, moduleInfoFile.path)
+        getModuleNameFrom(moduleInfoFile.text, moduleInfoFile.path)
     }
 
     static String getPackage(String entryName) {
