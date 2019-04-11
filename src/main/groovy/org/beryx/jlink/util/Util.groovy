@@ -44,6 +44,8 @@ import java.util.zip.ZipFile
 class Util {
     private static final Logger LOGGER = Logging.getLogger(Util.class)
 
+    static String EXEC_EXTENSION = System.getProperty('os.name', '').toLowerCase().contains('win') ? '.exe' : ''
+
     static String toModuleName(String s) {
         def name = s.replaceAll('[^0-9A-Za-z_.]', '.')
         int start = 0
@@ -263,5 +265,14 @@ class Util {
         def map = new TreeMap(mapProvider.get())
         map[key] = value
         mapProvider.set(map)
+    }
+
+    static void checkExecutable(String filePath) {
+        checkExecutable(new File(filePath))
+    }
+
+    static void checkExecutable(File f) {
+        if(!f.file) throw new GradleException("$f.absolutePath does not exist.")
+        if(!f.canExecute()) throw new GradleException("$f.absolutePath is not executable.")
     }
 }

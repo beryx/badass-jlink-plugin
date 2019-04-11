@@ -18,10 +18,12 @@ package org.beryx.jlink.impl
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageTaskData
+import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
 class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
@@ -53,7 +55,9 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             def outputDir = td.jpackageData.imageOutputDir
             project.delete(outputDir)
             def jpd = td.jpackageData
-            commandLine = ["$jpd.jpackageHome/bin/jpackage",
+            def jpackageExec = "$jpd.jpackageHome/bin/jpackage$EXEC_EXTENSION"
+            Util.checkExecutable(jpackageExec)
+            commandLine = [jpackageExec,
                            'create-image',
                            '--output', outputDir,
                            '--name', jpd.imageName,

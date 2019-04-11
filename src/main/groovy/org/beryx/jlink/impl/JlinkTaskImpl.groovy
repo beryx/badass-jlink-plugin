@@ -19,9 +19,11 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkTaskData
 import org.beryx.jlink.util.LaunchScriptGenerator
+import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
 class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
@@ -59,7 +61,9 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
             }
             def jlinkJarsDirAsPath = project.files(td.jlinkJarsDir).asPath
             def additionalModulePaths = extraModulePaths.collect {SEP + it}.join('')
-            commandLine = ["$td.javaHome/bin/jlink",
+            def jlinkExec = "$td.javaHome/bin/jlink$EXEC_EXTENSION"
+            Util.checkExecutable(jlinkExec)
+            commandLine = [jlinkExec,
                            '-v',
                            *options,
                            '--module-path', "$jdkHome/jmods/$additionalModulePaths$SEP$jlinkJarsDirAsPath",

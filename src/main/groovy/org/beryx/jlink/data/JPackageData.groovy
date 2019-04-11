@@ -21,6 +21,7 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
+import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
 @ToString(includeNames = true)
@@ -104,8 +105,7 @@ class JPackageData {
         value = System.getenv('BADASS_JLINK_JPACKAGE_HOME')
         if(value) return value
         value = System.properties['java.home']
-        String ext = System.getProperty('os.name', '').toLowerCase().contains('win') ? '.exe' : ''
-        if(new File("$value/bin/jpackage$ext").file) return value
+        if(new File("$value/bin/jpackage$EXEC_EXTENSION").file) return value
         return System.getenv('JAVA_HOME')
     }
 }

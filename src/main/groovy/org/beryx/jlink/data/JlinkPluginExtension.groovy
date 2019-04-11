@@ -25,6 +25,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
 @ToString(includeNames = true)
@@ -152,8 +153,7 @@ class JlinkPluginExtension {
         value = System.getenv('BADASS_JLINK_JAVA_HOME')
         if(value) return value
         value = System.properties['java.home']
-        String ext = System.getProperty('os.name', '').toLowerCase().contains('win') ? '.exe' : ''
-        if(['javac', 'jar', 'jlink'].every { new File("$value/bin/$it$ext").file }) return value
+        if(['javac', 'jar', 'jlink'].every { new File("$value/bin/$it$EXEC_EXTENSION").file }) return value
         return System.getenv('JAVA_HOME')
     }
 }
