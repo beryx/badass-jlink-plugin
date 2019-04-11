@@ -395,7 +395,8 @@ To create images for other platforms, you need to call the <code>targetPlatform<
 determine the location of the image directory and of the image archive.<br>
 <span class="purple"><strong>jdkHome</strong></span>: the path to the target platform JDK.<br>
 <span class="purple"><strong>options</strong></span>: an optional list of platform-specific options.
-These options will pe passed to <em>jlink</em> in addition to those provided by the <code>options</code> property of the <code>jlink</code> extension.</p>
+These options will pe passed to <em>jlink</em> in addition to those provided by the <code>options</code> property of the <code>jlink</code> extension.<br>
+<em>NOTE</em>: This is only a convenience method. There is a more powerful <code>targetPlatform</code> method (described below), which allows configuring additional parameters of the target platform.</p>
 </dd>
 </dl>
 </div>
@@ -418,12 +419,63 @@ These options will pe passed to <em>jlink</em> in addition to those provided by 
     ...
 }</code></pre>
 </div>
-</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
 <div class="paragraph">
 <p>For a project named <code>hello</code>, executing the <code>jlinkZip</code> task with the above configuration, and assuming default values for the other properties,
 the plugin will generate the platform-specific images in the directories
 <code>build/image/hello-linux-x64</code> and <code>build/image/hello-linux-s390x</code>.
 The archived images will be available in <code>build/image-linux-x64.zip</code> and <code>build/image-linux-s390x.zip</code>.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><span class="maroon">targetPlatform</span>(String <span class="purple">name</span>, Action&lt;TargetPlatform&gt; <span class="purple">action</span>)</dt>
+<dd>
+<p>This more powerful version of the <code>targetPlatform</code> method allows configuring the target platform parameters using a script block.<br>
+<span class="purple"><strong>name</strong></span>: an identifier of your choice that will be appended to the <code>imageDir</code> and <code>imageZip</code> properties to
+determine the location of the image directory and of the image archive.<br>
+<span class="purple"><strong>action</strong></span>: a script block for configuring the target platform parameters.<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameters:</em><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="purple"><strong>jdkHome</strong></span>: the path to the target platform JDK.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="purple"><strong>options</strong></span>: an optional list of platform-specific options.<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <em>Methods:</em><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="maroon">addOptions</span>(String&#8230;&#8203; <span class="purple">options</span>): an alternative way of setting the <code>options</code> property.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="maroon">addExtraModulePath</span>(String <span class="purple">path</span>): pass the specified path to the <code>--module-path</code> option of jlink.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This method can be used to specify the location of the platform-specific OpenJFX modules.</p>
+</dd>
+</dl>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 0.99%;">
+<col style="width: 99.01%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
+<div class="title">Usage example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">jlink {
+    ...
+    targetPlatform(<span class="string"><span class="delimiter">&quot;</span><span class="content">linux-s390x</span><span class="delimiter">&quot;</span></span>) {
+        jdkHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/jvm/linux-s390x/jdk-11.0.2+9</span><span class="delimiter">&quot;</span></span>
+        addOptions(<span class="string"><span class="delimiter">&quot;</span><span class="content">--endian</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">big</span><span class="delimiter">&quot;</span></span>)
+        addExtraModulePath(<span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/openjfx/linux-s390x/jmods</span><span class="delimiter">&quot;</span></span>)
+    }
+    targetPlatform(<span class="string"><span class="delimiter">&quot;</span><span class="content">mac</span><span class="delimiter">&quot;</span></span>) {
+        jdkHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/jvm/mac/jdk-11.0.2+9</span><span class="delimiter">&quot;</span></span>
+        addExtraModulePath(<span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/openjfx/mac/jmods</span><span class="delimiter">&quot;</span></span>)
+    }
+    targetPlatform(<span class="string"><span class="delimiter">&quot;</span><span class="content">win</span><span class="delimiter">&quot;</span></span>) {
+        jdkHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/jvm/win/jdk-11.0.2+9</span><span class="delimiter">&quot;</span></span>
+        addExtraModulePath(<span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/openjfx/win/jmods</span><span class="delimiter">&quot;</span></span>)
+    }
+    ...
+}</code></pre>
+</div>
 </div></div></td>
 </tr>
 </tbody>
