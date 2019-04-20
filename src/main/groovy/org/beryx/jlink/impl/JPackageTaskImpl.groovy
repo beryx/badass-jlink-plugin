@@ -58,7 +58,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             def jpackageExec = "$jpd.jpackageHome/bin/jpackage$EXEC_EXTENSION"
             Util.checkExecutable(jpackageExec)
             commandLine = [jpackageExec,
-                           'create-image',
+                           'create-app-image',
                            '--output', outputDir,
                            '--name', jpd.imageName,
                            '--module-path', td.jlinkJarsDir,
