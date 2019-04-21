@@ -290,15 +290,15 @@ outputDir:: Convenience property for setting both `imageOutputDir` and
     _usage example_: `outputDir = "my-packaging"`
 
 
-imageOutputDir:: the directory passed as argument to the `--output` option when running `jpackage` in the `create-image` mode.
+imageOutputDir:: the directory passed as argument to the `--output` option when running `jpackage` in the `create-app-image` mode.
     _defaultValue_: `_buildDir_/_outputDir_` +
     _usage example_: `imageOutputDir = file("$buildDir/my-packaging-image")`
 
-imageName:: the argument passed to the `--name` option when running `jpackage` in the `create-image` mode. +
+imageName:: the argument passed to the `--name` option when running `jpackage` in the `create-app-image` mode. +
     _defaultValue_: the `name` value configured in the `launcher` block or  `_project.name_` +
     _usage example_: `imageName = "MyApp"`
 
-imageOptions:: list of additional options to be passed to the `jpackage` executable in the `create-image` mode. +
+imageOptions:: list of additional options to be passed to the `jpackage` executable in the `create-app-image` mode. +
     _defaultValue_: empty list +
     _usage example_: `imageOptions = ["--win-console"]`
 
@@ -310,7 +310,7 @@ installerType:: the type of installer to be generated. +
     _defaultValue_: null (all supported types for the current platform will be generated) +
     _usage example_: `installerType = "rpm"`
 
-installerOutputDir:: the directory passed as argument to the `--output` option when running `jpackage` in the `create-image` mode.
+installerOutputDir:: the directory passed as argument to the `--output` option when running `jpackage` in the `create-app-image` mode.
     _defaultValue_: `_buildDir_/_outputDir_` +
     _usage example_: `installerOutputDir = file("$buildDir/my-packaging-installer")`
 
@@ -530,7 +530,7 @@ _usage example_: `./gradlew suggestMergedModuleInfo --language=kotlin`
 [subs="attributes",options="nowrap"]
 ----
 - create a platform-specific application image in <font color="saddlebrown">imageOutputDir</font> by executing
-        <i>jpackage create-image</i> with --module-path=<span class="teal">jlinkJarsDir</span>
+        <i>jpackage create-app-image</i> with --module-path=<span class="teal">jlinkJarsDir</span>
 - if <i>skipInstaller</i> is <i>false</i>, create a platform-specific application installer
         in <font color="cadetblue">installerOutputDir</font> by executing <i>jpackage create-installer</i>
         with --app-image=<font color="saddlebrown">imageOutputDir</font>/<font color="midnightblue">imageName</font>
