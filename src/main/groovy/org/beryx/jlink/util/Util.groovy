@@ -119,20 +119,36 @@ class Util {
         try {
             return ModuleFinder.of(f.toPath()).findAll().first().descriptor().name()
         } catch (Exception e) {
-            def modName = getFallbackModuleName(f)
+            def modName = getFallbackModuleNameFromJarFile(f)
             LOGGER.warn("Cannot retrieve the module name of $f. Using fallback value: $modName.")
             return modName
         }
     }
 
-    static String getFallbackModuleName(File f) {
+    static String getFallbackModuleNameFromJarFile(File f) {
         def modName = new JarFile(f).getManifest()?.mainAttributes?.getValue('Automatic-Module-Name')
         if(modName) return modName
-        def s = f.name
+        return getFallbackModuleNameFromJarName(f.name)
+    }
+
+    static final Set<String> KEYWORDS = [
+            "abstract", "assert", "boolean", "break", "byte", "case", "catch",
+            "char", "class", "const", "continue", "default", "do", "double",
+            "else", "enum", "extends", "false", "final", "finally", "float", "for", "goto",
+            "if", "implements", "import", "instanceof", "int", "interface", "long",
+            "native", "new", "null", "package", "private", "protected", "public",
+            "return", "short", "static", "strictfp", "super", "switch",
+            "synchronized", "this", "throw", "throws", "transient", "true", "try",
+            "void", "volatile", "while"] as HashSet
+
+    static String getFallbackModuleNameFromJarName(String s) {
         def tokens = s.split('[_.0-9]*-[0-9]')
-        if(tokens.length < 2) return s - '.jar'
-        def len = s.length()
-        return tokens[0].replace('-', '.').replace('default', 'dflt')
+        def modName = (tokens.length < 2) ? (s - '.jar') : tokens[0]
+        modName = modName.replace('-', '.')
+        def items = modName.split('\\.').collect {
+            KEYWORDS.contains(it) ? "${it}_" : it
+        }
+        items.join('.')
     }
 
     @CompileDynamic
@@ -265,6 +281,21 @@ class Util {
         def map = new TreeMap(mapProvider.get())
         map[key] = value
         mapProvider.set(map)
+    }
+
+    @CompileDynamic
+    static String getArchiveBaseName(Project project) {
+        String name = ""
+        try {
+            if(GradleVersion.current() < GradleVersion.version('5.1')) {
+                name = project.jar.baseName
+            } else {
+                name = project.jar.archiveBaseName.get()
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Cannot get archiveBaseName: $e")
+        }
+        name
     }
 
     static void checkExecutable(String filePath) {

@@ -58,9 +58,6 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
 
         def mainModuleJar = new File(td.jlinkJarsDir, project.jar.archivePath.name)
         def targetPath = "$td.jlinkJarsDir/${td.moduleName}.jar"
-        if(mainModuleJar != new File(targetPath)) {
-            mainModuleJar.renameTo targetPath
-        }
     }
 
     @CompileDynamic

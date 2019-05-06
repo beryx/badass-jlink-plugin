@@ -33,9 +33,9 @@ class UtilSpec extends Specification {
         Util.toModuleName(name) == moduleName
 
         where:
-        name | moduleName
-        'a' | 'a'
-        'org.xyz' | 'org.xyz'
+        name                 | moduleName
+        'a'                  | 'a'
+        'org.xyz'            | 'org.xyz'
         '?org.!!x+-yz!!=...' | 'org.x.yz'
     }
 
@@ -87,4 +87,21 @@ class UtilSpec extends Specification {
         11          | '11'
         12          | '11'
     }
+
+
+    @Unroll
+    def "getFallbackModuleNameFromJarName(#name) should return #moduleName"() {
+        expect:
+        Util.getFallbackModuleNameFromJarName(name) == moduleName
+
+        where:
+        name                      | moduleName
+        'abc'                     | 'abc'
+        'abc.jar'                 | 'abc'
+        'abc-1.5.0'               | 'abc'
+        'abc-1.5.0.jar'           | 'abc'
+        'abc-default-1.5.0.jar'   | 'abc.default_'
+        'native-byte-code-77.jar' | 'native_.byte_.code'
+    }
+
 }

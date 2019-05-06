@@ -41,9 +41,9 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
 
     @CompileDynamic
     void execute() {
-        def jarFilePath = "$td.tmpMergedModuleDirPath/${td.mergedModuleName}.jar"
+        def jarFilePath = "$td.tmpMergedModuleDirPath/${Util.getArchiveBaseName(project)}.merged.module.jar"
         Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDir)
-        def modInfoDir = genModuleInfo(project.file(jarFilePath), project.file(td.tmpJarsDirPath))
+        def modInfoDir = genModuleInfo(project.file(jarFilePath), project.file(td.tmpJarsDirPath), td.mergedModuleName)
         compileModuleInfo(project.file(modInfoDir), project.file(jarFilePath), project.file(td.tmpModuleInfoDirPath))
         LOGGER.info("Copy from $jarFilePath into ${td.mergedModuleJar}...")
         project.copy {
@@ -55,12 +55,16 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
     }
 
     File genModuleInfo(File jarFile, File targetDir) {
+        genModuleInfo(jarFile, targetDir, null)
+    }
+
+    File genModuleInfo(File jarFile, File targetDir, String moduleName) {
         LOGGER.info("Generating module-info in ${targetDir}...")
         project.delete(targetDir)
         targetDir.mkdirs()
         def moduleInfoFile = genModuleInfoJdeps(jarFile, targetDir)
         if(!moduleInfoFile) {
-            moduleInfoFile = genModuleInfoBadass(jarFile, targetDir)
+            moduleInfoFile = genModuleInfoBadass(jarFile, targetDir, moduleName)
         }
         moduleInfoFile
     }
@@ -82,12 +86,18 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
     }
 
     File genModuleInfoBadass(File jarFile, File targetDir) {
+        genModuleInfoBadass(jarFile, targetDir, null)
+    }
+
+    File genModuleInfoBadass(File jarFile, File targetDir, String moduleName) {
         def packages = new TreeSet<String>()
         new ZipFile(jarFile).entries().each { ZipEntry entry ->
             def pkgName = Util.getPackage(entry.name)
             if(pkgName) packages << pkgName
         }
-        def moduleName = Util.getFallbackModuleName(jarFile)
+        if(!moduleName) {
+            moduleName = Util.getFallbackModuleNameFromJarFile(jarFile)
+        }
         def modinfoDir = new File(targetDir, moduleName)
         modinfoDir.mkdirs()
         def modInfoJava = new File(modinfoDir, 'module-info.java')
