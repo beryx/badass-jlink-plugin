@@ -27,15 +27,7 @@ import org.gradle.api.logging.Logging
 class PackageCollection {
     private static final Logger LOGGER = Logging.getLogger(PackageCollection.class);
 
-    final TreeSet<String> packages = new TreeSet<String>() {
-        @Override
-        boolean add(Object o) {
-            if(String.valueOf(o).startsWith('L')) {
-                println "#### $o"
-            }
-            return super.add(o)
-        }
-    }
+    final TreeSet<String> packages = new TreeSet<String>()
 
     void addPackage(String pkg) {
         packages << adjust(pkg)

@@ -46,16 +46,6 @@ class Util {
 
     static String EXEC_EXTENSION = System.getProperty('os.name', '').toLowerCase().contains('win') ? '.exe' : ''
 
-    static String toModuleName(String s) {
-        def name = s.replaceAll('[^0-9A-Za-z_.]', '.')
-        int start = 0
-        while(name[start] == '.') start++
-        int end = name.length() - 1
-        while(name[end] == '.') end--
-        name = name.substring(start, end + 1)
-        name.replaceAll('\\.[.]+', '.')
-    }
-
     private static final String WS = '[ \t\r\n\\u000C]'
     private static final String LINE_COMMENT = '//[^\r\n]*'
     private static final String MULTILINE_COMMENT = '/\\*.*?\\*/'
@@ -131,6 +121,12 @@ class Util {
         return getFallbackModuleNameFromJarName(f.name)
     }
 
+    static String getFallbackModuleNameFromJarName(String s) {
+        def tokens = s.split('[_.0-9]*-[0-9]')
+        def modName = (tokens.length < 2) ? (s - '.jar') : tokens[0]
+        toModuleName(modName)
+    }
+
     static final Set<String> KEYWORDS = [
             "abstract", "assert", "boolean", "break", "byte", "case", "catch",
             "char", "class", "const", "continue", "default", "do", "double",
@@ -141,14 +137,20 @@ class Util {
             "synchronized", "this", "throw", "throws", "transient", "true", "try",
             "void", "volatile", "while"] as HashSet
 
-    static String getFallbackModuleNameFromJarName(String s) {
-        def tokens = s.split('[_.0-9]*-[0-9]')
-        def modName = (tokens.length < 2) ? (s - '.jar') : tokens[0]
-        modName = modName.replace('-', '.')
-        def items = modName.split('\\.').collect {
-            KEYWORDS.contains(it) ? "${it}_" : it
-        }
+    static String toModuleName(String s) {
+        def name = s.replaceAll('[^0-9A-Za-z_.]', '.')
+        int start = 0
+        while(name[start] == '.') start++
+        int end = name.length() - 1
+        while(name[end] == '.') end--
+        name = name.substring(start, end + 1)
+        name.replaceAll('\\.[.]+', '.')
+
+        def items = name.split('\\.')
+            .findAll { it }
+            .collect { String it -> KEYWORDS.contains(it) ? "${it}_" : (it[0] as char).isDigit() ? "_$it" : it }
         items.join('.')
+
     }
 
     @CompileDynamic
