@@ -115,6 +115,7 @@ class ServiceLoaderUseScanner {
                     usedServices << lastType.className
                 }
             }
+            lastType = null
         }
 
         @Override
