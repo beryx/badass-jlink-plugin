@@ -105,6 +105,10 @@
   - [documentation](http://badass-jlink-plugin.beryx.org/releases/2.2.0)
   - [groovydoc](http://badass-jlink-plugin.beryx.org/releases/2.2.0/groovydoc)
 
+**Release 2.10.4**
+  - [documentation](http://badass-jlink-plugin.beryx.org/releases/2.10.4)
+  - [groovydoc](http://badass-jlink-plugin.beryx.org/releases/2.10.4/groovydoc)
+
 **Release 2.10.3**
   - [documentation](http://badass-jlink-plugin.beryx.org/releases/2.10.3)
   - [groovydoc](http://badass-jlink-plugin.beryx.org/releases/2.10.3/groovydoc)
