@@ -1,0 +1,26 @@
+plugins {
+    id "org.javamodularity.moduleplugin" version "1.5.0"
+    id 'org.beryx.jlink'
+}
+
+repositories {
+    jcenter()
+}
+
+ext.moduleName = 'org.example.multi'
+mainClassName = 'org.example.multi/org.example.multi.Hello'
+
+jlink {
+    launcher {
+        name = 'hello'
+    }
+    secondaryLauncher {
+        name = 'helloAgain'
+        mainClass = 'org.example.multi.HelloAgain'
+    }
+    secondaryLauncher {
+        name = 'howdy'
+        moduleName = 'org.example.multi'
+        mainClass = 'org.example.multi.Howdy'
+    }
+}

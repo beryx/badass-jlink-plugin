@@ -72,7 +72,7 @@ license {
     header rootProject.file("license-header.txt")
     skipExistingHeaders true
     ignoreFailures false
-    excludes (['**/*.properties', '**/*.txt', '**/hello*/', '**/opens-to-jaxb*/', '**/local-deps*/'])
+    excludes (['**/*.properties', '**/*.txt', '**/hello*/', '**/opens-to-jaxb*/', '**/local-deps*/', '**/multi-launch*/'])
 }
 
 configurations {

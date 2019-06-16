@@ -25,6 +25,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
@@ -38,6 +39,7 @@ class JlinkPluginExtension {
     final Property<String> mergedModuleName
 
     final Property<LauncherData> launcherData
+    final ListProperty<SecondaryLauncherData> secondaryLaunchers
     final Property<String> mainClass
     final ListProperty<String> forceMergedJarPrefixes
     final ListProperty<String> extraDependenciesPrefixes
@@ -74,6 +76,9 @@ class JlinkPluginExtension {
         def ld = new LauncherData()
         ld.name = project.name
         launcherData.set(ld)
+
+        secondaryLaunchers = project.objects.listProperty(SecondaryLauncherData)
+        secondaryLaunchers.set(new ArrayList<SecondaryLauncherData>())
 
         mainClass = project.objects.property(String)
         mainClass.set('')
@@ -141,6 +146,14 @@ class JlinkPluginExtension {
 
     void launcher(Action<LauncherData> action) {
         action.execute(launcherData.get())
+    }
+
+    void secondaryLauncher(Action<LauncherData> action) {
+        def ld = new SecondaryLauncherData()
+        ld.moduleName = moduleName.get()
+        Util.addToListProperty(secondaryLaunchers, ld)
+        action.execute(ld)
+        ld.check()
     }
 
     void jpackage(Action<JPackageData> action) {

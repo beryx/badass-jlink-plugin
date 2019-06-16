@@ -69,23 +69,9 @@ class JlinkPluginSpec extends Specification {
                 .withGradleVersion(gradleVersion)
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
-        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
-        def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
-        def imageLauncher = new File(imageBinDir, "$expectedLauncherName$launcherExt")
 
         then:
-        result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
-        imageLauncher.exists()
-        imageLauncher.canExecute()
-
-        when:
-        def process = imageLauncher.absolutePath.execute([], imageBinDir)
-        def out = new ByteArrayOutputStream(2048)
-        process.waitForProcessOutput(out, out)
-        def outputText = out.toString()
-
-        then:
-        outputText.trim() == 'LOG: Hello, modular Java!'
+        checkOutput(result, expectedLauncherName, 'LOG: Hello, modular Java!')
 
         where:
         moduleName              | gradleVersion | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
@@ -133,30 +119,17 @@ class JlinkPluginSpec extends Specification {
                 .withGradleVersion('5.2')
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
-        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
-        def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
-        def imageLauncher = new File(imageBinDir, "xmlprint$launcherExt")
 
         then:
-        result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
-        imageLauncher.exists()
-        imageLauncher.canExecute()
-
-        when:
-        def process = imageLauncher.absolutePath.execute([], imageBinDir)
-        def out = new ByteArrayOutputStream(2048)
-        process.waitForProcessOutput(out, out)
-        def outputText = out.toString()
-
-        then:
-        outputText.trim() == '''
-            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-            <product>
-                <id>100</id>
-                <name>pizza</name>
-                <price>3.25</price>
-            </product>         
-        '''.stripIndent().strip()
+        checkOutput(result, 'xmlprint',
+            '''
+                <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+                <product>
+                    <id>100</id>
+                    <name>pizza</name>
+                    <price>3.25</price>
+                </product>         
+            '''.stripIndent().strip())
     }
 
     def "should create image of project with local dependencies"() {
@@ -170,23 +143,9 @@ class JlinkPluginSpec extends Specification {
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
-        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
-        def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
-        def imageLauncher = new File(imageBinDir, "reverseHello$launcherExt")
 
         then:
-        result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
-        imageLauncher.exists()
-        imageLauncher.canExecute()
-
-        when:
-        def process = imageLauncher.absolutePath.execute([], imageBinDir)
-        def out = new ByteArrayOutputStream(2048)
-        process.waitForProcessOutput(out, out)
-        def outputText = out.toString()
-
-        then:
-        outputText.trim() == '!dlrow ,olleH'
+        checkOutput(result, 'reverseHello', '!dlrow ,olleH')
     }
 
     def "should create runtime image of project with BOM"() {
@@ -199,23 +158,45 @@ class JlinkPluginSpec extends Specification {
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
-        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
-        def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
-        def imageLauncher = new File(imageBinDir, "helloBom$launcherExt")
 
         then:
-        result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
-        imageLauncher.exists()
-        imageLauncher.canExecute()
+        checkOutput(result, 'helloBom', '{"from":"Alice","to":"Bob","greeting":"Hello"}')
+    }
 
+    def "should create image of project with multiple launchers"() {
         when:
+
+        File buildFile = setUpBuild('multi-launch')
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withGradleVersion('5.4.1')
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+
+        then:
+        checkOutput(result, 'hello', 'Hello, world!')
+        checkOutput(result, 'helloAgain', 'Hello again!')
+        checkOutput(result, 'howdy', 'Howdy!')
+    }
+
+    private boolean checkOutput(BuildResult result, String imageName, String expectedOutput) {
+        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
+        def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
+
+        assert result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
+
+        def imageLauncher = new File(imageBinDir, "$imageName$launcherExt")
+        assert imageLauncher.exists()
+        assert imageLauncher.canExecute()
+
         def process = imageLauncher.absolutePath.execute([], imageBinDir)
         def out = new ByteArrayOutputStream(2048)
         process.waitForProcessOutput(out, out)
         def outputText = out.toString()
+        assert outputText.trim() == expectedOutput
 
-        then:
-        outputText.trim() == '{"from":"Alice","to":"Bob","greeting":"Hello"}'
+        true
     }
-
 }
