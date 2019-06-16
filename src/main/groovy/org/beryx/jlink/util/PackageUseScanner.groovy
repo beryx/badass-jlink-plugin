@@ -172,14 +172,18 @@ class PackageUseScanner extends ClassVisitor {
     void visitNestHost(String nestHost) {
         LOGGER.debug "visitNestHost($nestHost)"
         usedPackages.addClass(nestHost)
-        super.visitNestHost(nestHost)
+        if(api >= Opcodes.ASM7) {
+            super.visitNestHost(nestHost)
+        }
     }
 
     @Override
     void visitNestMember(String nestMember) {
         LOGGER.debug "visitNestMember($nestMember)"
         usedPackages.addClass(nestMember)
-        super.visitNestMember(nestMember)
+        if(api >= Opcodes.ASM7) {
+            super.visitNestMember(nestMember)
+        }
     }
 
     @Override
