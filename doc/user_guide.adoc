@@ -216,7 +216,7 @@ jlink {
 The plugin generates script files for launching your application.
 You can customize these scripts by configuring the following properties in the `launcher` block.
 
-name:: The base name of the script files used to launch your aplication. +
+name:: The base name of the script files used to launch your application. +
     _defaultValue_: `project.name`
 
 jvmArgs:: list of JVM arguments to be passed to the java executable. +
@@ -267,6 +267,47 @@ jlink {
         args = listOf("--user", "alice")
         unixScriptTemplate = file("unixStartScript.txt")
         windowsScriptTemplate = file("windowsStartScript.txt")
+    }
+    ...
+}
+----
+
+=== secondaryLauncher
+
+The plugin can generate script files for additional applications besides the main one.
+For each additional application you configure a `secondaryLauncher` block.
+This block supports all properties of the `launcher` block and also the following ones:
+
+mainClass:: the main class of this additional application.
+
+moduleName:: the module containing the main class of this additional application. +
+    _defaultValue_: the value of the `moduleName` property in the enclosing `jlink` extension
+
+
+_Usage example_
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+jlink {
+    ...
+    secondaryLauncher {
+        name = 'my-additional-app'
+        mainClass = 'org.example.MyAdditionalApp'
+        args = ['--user', 'emma']
+    }
+    ...
+}
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+jlink {
+    ...
+    launcher {
+        name = "my-additional-app"
+        mainClass = "org.example.MyAdditionalApp"
+        args = listOf("--user", "emma")
     }
     ...
 }
