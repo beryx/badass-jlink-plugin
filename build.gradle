@@ -233,7 +233,27 @@ def getReleases() {
             .getRepository("badass-jlink-plugin")
             .getDirectoryContent("releases", "gh-pages")*.name
     releases.removeAll { !it || it == 'latest' }
-    releases.reverse()
+
+    releases.sort { o1, o2 ->
+        if(!o1) return o2 ? 1 : 0
+        if(!o2) return -1
+        String[] tokens1 = o1.split("\\.")
+        String[] tokens2 = o2.split("\\.")
+        int len = Math.min(tokens1.length, tokens2.length)
+        for(int i=0; i<len; i++) {
+            int result
+            try {
+                int n1 = Integer.parseInt(tokens1[i])
+                int n2 = Integer.parseInt(tokens2[i])
+                result = Integer.compare(n2, n1)
+            } catch (NumberFormatException e) {
+                result = tokens2[i] <=> tokens1[i]
+            }
+            if(result != 0) return result
+        }
+        tokens2.length <=> tokens1.length
+    }
+    releases
 }
 
 def getReleasesMarkdown(List<String> releases, String docBaseUrl) {
