@@ -108,6 +108,7 @@ $(addBlockSwitches);
 <ul class="sectlevel3">
 <li><a href="#_mergedmodule">mergedModule</a></li>
 <li><a href="#_launcher">launcher</a></li>
+<li><a href="#_secondarylauncher">secondaryLauncher</a></li>
 <li><a href="#_jpackage">jpackage</a></li>
 </ul>
 </li>
@@ -552,7 +553,7 @@ You can customize these scripts by configuring the following properties in the <
 <dl>
 <dt class="hdlist1">name</dt>
 <dd>
-<p>The base name of the script files used to launch your aplication.<br>
+<p>The base name of the script files used to launch your application.<br>
 <em>defaultValue</em>: <code>project.name</code></p>
 </dd>
 <dt class="hdlist1">jvmArgs</dt>
@@ -627,6 +628,58 @@ to parse the templates, with the following variables available:</p>
         args = listOf(&quot;--user&quot;, &quot;alice&quot;)
         unixScriptTemplate = file(&quot;unixStartScript.txt&quot;)
         windowsScriptTemplate = file(&quot;windowsStartScript.txt&quot;)
+    }
+    ...
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_secondarylauncher">secondaryLauncher</h4>
+<div class="paragraph">
+<p>The plugin can generate script files for additional applications besides the main one.
+For each additional application you configure a <code>secondaryLauncher</code> block.
+This block supports all properties of the <code>launcher</code> block and also the following ones:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">mainClass</dt>
+<dd>
+<p>the main class of this additional application.</p>
+</dd>
+<dt class="hdlist1">moduleName</dt>
+<dd>
+<p>the module containing the main class of this additional application.<br>
+<em>defaultValue</em>: the value of the <code>moduleName</code> property in the enclosing <code>jlink</code> extension</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p><em>Usage example</em></p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">jlink {
+    ...
+    secondaryLauncher {
+        name = <span class="string"><span class="delimiter">'</span><span class="content">my-additional-app</span><span class="delimiter">'</span></span>
+        mainClass = <span class="string"><span class="delimiter">'</span><span class="content">org.example.MyAdditionalApp</span><span class="delimiter">'</span></span>
+        args = [<span class="string"><span class="delimiter">'</span><span class="content">--user</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">emma</span><span class="delimiter">'</span></span>]
+    }
+    ...
+}</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="kotlin">jlink {
+    ...
+    launcher {
+        name = &quot;my-additional-app&quot;
+        mainClass = &quot;org.example.MyAdditionalApp&quot;
+        args = listOf(&quot;--user&quot;, &quot;emma&quot;)
     }
     ...
 }</code></pre>
