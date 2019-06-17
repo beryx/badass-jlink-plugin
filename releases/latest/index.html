@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.10.4</span>
+<span id="revnumber">version 2.11.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -108,6 +108,7 @@ $(addBlockSwitches);
 <ul class="sectlevel3">
 <li><a href="#_mergedmodule">mergedModule</a></li>
 <li><a href="#_launcher">launcher</a></li>
+<li><a href="#_secondarylauncher">secondaryLauncher</a></li>
 <li><a href="#_jpackage">jpackage</a></li>
 </ul>
 </li>
@@ -184,7 +185,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.10.4'
+    id 'org.beryx.jlink' version '2.11.0'
 }</code></pre>
 </div>
 </div>
@@ -216,7 +217,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.10.4/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.11.0/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -552,7 +553,7 @@ You can customize these scripts by configuring the following properties in the <
 <dl>
 <dt class="hdlist1">name</dt>
 <dd>
-<p>The base name of the script files used to launch your aplication.<br>
+<p>The base name of the script files used to launch your application.<br>
 <em>defaultValue</em>: <code>project.name</code></p>
 </dd>
 <dt class="hdlist1">jvmArgs</dt>
@@ -627,6 +628,58 @@ to parse the templates, with the following variables available:</p>
         args = listOf(&quot;--user&quot;, &quot;alice&quot;)
         unixScriptTemplate = file(&quot;unixStartScript.txt&quot;)
         windowsScriptTemplate = file(&quot;windowsStartScript.txt&quot;)
+    }
+    ...
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_secondarylauncher">secondaryLauncher</h4>
+<div class="paragraph">
+<p>The plugin can generate script files for additional applications besides the main one.
+For each additional application you configure a <code>secondaryLauncher</code> block.
+This block supports all properties of the <code>launcher</code> block and also the following ones:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">mainClass</dt>
+<dd>
+<p>the main class of this additional application.</p>
+</dd>
+<dt class="hdlist1">moduleName</dt>
+<dd>
+<p>the module containing the main class of this additional application.<br>
+<em>defaultValue</em>: the value of the <code>moduleName</code> property in the enclosing <code>jlink</code> extension</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p><em>Usage example</em></p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">jlink {
+    ...
+    secondaryLauncher {
+        name = <span class="string"><span class="delimiter">'</span><span class="content">my-additional-app</span><span class="delimiter">'</span></span>
+        mainClass = <span class="string"><span class="delimiter">'</span><span class="content">org.example.MyAdditionalApp</span><span class="delimiter">'</span></span>
+        args = [<span class="string"><span class="delimiter">'</span><span class="content">--user</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">emma</span><span class="delimiter">'</span></span>]
+    }
+    ...
+}</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="kotlin">jlink {
+    ...
+    launcher {
+        name = &quot;my-additional-app&quot;
+        mainClass = &quot;org.example.MyAdditionalApp&quot;
+        args = listOf(&quot;--user&quot;, &quot;emma&quot;)
     }
     ...
 }</code></pre>
@@ -1009,7 +1062,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.10.4<br>
+Version 2.11.0<br>
 </div>
 </div>
 </body>
