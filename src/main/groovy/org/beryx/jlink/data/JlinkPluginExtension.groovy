@@ -154,6 +154,7 @@ class JlinkPluginExtension {
         Util.addToListProperty(secondaryLaunchers, ld)
         action.execute(ld)
         ld.check()
+        jpackageData.get().addSecondaryLauncher(ld)
     }
 
     void jpackage(Action<JPackageData> action) {

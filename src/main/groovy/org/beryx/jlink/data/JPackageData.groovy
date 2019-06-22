@@ -28,6 +28,7 @@ import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 class JPackageData {
     private final Project project
     private final LauncherData launcherData
+    private final List<SecondaryLauncherData> secondaryLaunchers = []
 
     @Input
     String jpackageHome
@@ -82,8 +83,22 @@ class JPackageData {
     }
 
     @Input
+    List<SecondaryLauncherData> getSecondaryLaunchers() {
+        secondaryLaunchers
+    }
+
+    void addSecondaryLauncher(SecondaryLauncherData launcher) {
+        secondaryLaunchers << launcher
+    }
+
+    @Input
     List<String> getJvmArgs() {
         this.@jvmArgs ?: launcherData.jvmArgs
+    }
+
+    @Input
+    List<String> getArgs() {
+        launcherData.args
     }
 
     @OutputDirectory

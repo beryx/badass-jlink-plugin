@@ -23,6 +23,9 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+
+import java.nio.file.Files
+
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
@@ -57,6 +60,28 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             def jpd = td.jpackageData
             def jpackageExec = "$jpd.jpackageHome/bin/jpackage$EXEC_EXTENSION"
             Util.checkExecutable(jpackageExec)
+
+            Map<String,File> propFiles = [:]
+            jpd.secondaryLaunchers.each { launcher ->
+                def propFile = new File("$td.jlinkBasePath/${launcher.name}.propeties")
+                Files.deleteIfExists(propFile.toPath())
+                propFile.withOutputStream { stream ->
+                    if(launcher.moduleName) {
+                        stream << "module=$launcher.moduleName\n"
+                    }
+                    if(launcher.mainClass) {
+                        stream << "main-class=$launcher.mainClass\n"
+                    }
+                    if(launcher.args) {
+                        stream << "arguments=${launcher.args.join('\\n')}\n"
+                    }
+                    if(launcher.jvmArgs) {
+                        stream << "java-options=${launcher.jvmArgs.join('\\n')}\n"
+                    }
+                }
+                propFiles[launcher.name] = propFile
+            }
+
             commandLine = [jpackageExec,
                            'create-app-image',
                            '--output', outputDir,
@@ -64,7 +89,9 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                            '--module-path', td.jlinkJarsDir,
                            '--module', "$td.moduleName/$td.mainClass",
                            '--runtime-image', td.runtimeImageDir,
-                           *(jpd.jvmArgs ? jpd.jvmArgs.collect{['--java-options', '"'+it+'"']}.flatten() : []),
+                           *(jpd.jvmArgs ? jpd.jvmArgs.collect{['--java-options', '"' + it + '"']}.flatten() : []),
+                           *(jpd.args ? jpd.args.collect{['--arguments', '"' + it + '"']}.flatten() : []),
+                           *(propFiles ? propFiles.collect{['--add-launcher', it.key + '=' +  it.value.absolutePath]}.flatten() : []),
                            *jpd.imageOptions]
         }
         if(result.exitValue != 0) {
