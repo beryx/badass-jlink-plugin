@@ -323,7 +323,7 @@ jpackageHome:: The path to the JDK providing the jpackage tool. +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `BADASS_JLINK_JPACKAGE_HOME` environment variable +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `java.home` system property (only if it points to a JRE containing the `jpackage` tool) +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `JAVA_HOME` environment variable +
-    _usage example_: `jpackageHome = "/usr/lib/jvm/jdk13"`
+    _usage example_: `jpackageHome = "/usr/lib/jvm/jdk14"`
 
 outputDir:: Convenience property for setting both `imageOutputDir` and
 `installerOutputDir` with the value _buildDir_/_outputDir_. +
@@ -380,7 +380,7 @@ _Usage example_
 jlink {
     ...
     jpackage {
-        jpackageHome = '/usr/lib/jvm/jdk13'
+        jpackageHome = '/usr/lib/jvm/jdk14'
         outputDir = 'my-packaging'
         // imageOutputDir = file("$buildDir/my-packaging-image")
         // installerOutputDir = file("$buildDir/my-packaging-installer")
@@ -401,7 +401,7 @@ jlink {
 jlink {
     ...
     jpackage {
-        jpackageHome = "/usr/lib/jvm/jdk13"
+        jpackageHome = "/usr/lib/jvm/jdk14"
         outputDir = "my-packaging"
         // imageOutputDir = file("$buildDir/my-packaging-image")
         // installerOutputDir = file("$buildDir/my-packaging-installer")

@@ -23,6 +23,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.internal.os.OperatingSystem
 
 import java.nio.file.Files
 
@@ -83,7 +84,6 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             }
 
             commandLine = [jpackageExec,
-                           'create-app-image',
                            '--output', outputDir,
                            '--name', jpd.imageName,
                            '--module-path', td.jlinkJarsDir,
@@ -118,29 +118,42 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             }
         }
 
-        def result = project.exec {
-            ignoreExitValue = true
-            standardOutput = new ByteArrayOutputStream()
-            project.ext.jpackageInstallerOutput = {
-                return standardOutput.toString()
+        packageTypes.each { packageType ->
+            def result = project.exec {
+                ignoreExitValue = true
+                standardOutput = new ByteArrayOutputStream()
+                project.ext.jpackageInstallerOutput = {
+                    return standardOutput.toString()
+                }
+                if (td.jpackageData.getImageOutputDir() != td.jpackageData.getInstallerOutputDir()) {
+                    FileUtils.cleanDirectory(td.jpackageData.getInstallerOutputDir())
+                }
+                commandLine = ["$jpd.jpackageHome/bin/jpackage",
+                               '--package-type', packageType,
+                               '--output', td.jpackageData.getInstallerOutputDir(),
+                               '--name', jpd.installerName,
+                               '--app-image', "$appImagePath",
+                               *jpd.installerOptions]
             }
-            if (td.jpackageData.getImageOutputDir() != td.jpackageData.getInstallerOutputDir())
-                FileUtils.cleanDirectory(td.jpackageData.getInstallerOutputDir())
-            commandLine = ["$jpd.jpackageHome/bin/jpackage",
-                           'create-installer',
-                           *(jpd.installerType ? ['--installer-type', jpd.installerType] : []),
-                           '--output', td.jpackageData.getInstallerOutputDir(),
-                           '--name', jpd.installerName,
-                           '--app-image', "$appImagePath",
-                           *jpd.installerOptions]
+            if(result.exitValue != 0) {
+                LOGGER.error(project.ext.jpackageInstallerOutput())
+            } else {
+                LOGGER.info(project.ext.jpackageInstallerOutput())
+            }
+            result.assertNormalExitValue()
+            result.rethrowFailure()
         }
-        if(result.exitValue != 0) {
-            LOGGER.error(project.ext.jpackageInstallerOutput())
-        } else {
-            LOGGER.info(project.ext.jpackageInstallerOutput())
-        }
-        result.assertNormalExitValue()
-        result.rethrowFailure()
     }
 
+    List<String> getPackageTypes() {
+        def jpd = td.jpackageData
+        if(jpd.installerType) return [jpd.installerType]
+        if(OperatingSystem.current().windows) {
+            return ['exe', 'msi']
+        } else if(OperatingSystem.current().macOsX) {
+            return ['rpm', 'deb']
+        } else {
+            return ['pkg', 'dmg']
+        }
+    }
 }
