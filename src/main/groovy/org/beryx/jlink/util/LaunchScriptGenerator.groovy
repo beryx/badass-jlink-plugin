@@ -63,11 +63,13 @@ class LaunchScriptGenerator {
 
     String getScript(Type type) {
         def engine = new SimpleTemplateEngine()
+        def args = launcherData.args.collect{adjustArg(it)}.join(' ')
+        def jvmArgs = launcherData.jvmArgs.collect{adjustArg(it)}.join(' ')
         def bindings = [
                 moduleName: moduleName,
                 mainClassName: mainClassName,
-                args: launcherData.args.join(' '),
-                jvmArgs: launcherData.jvmArgs.join(' '),
+                args: args,
+                jvmArgs: jvmArgs,
         ]
         File templateFile = type.templateProvider.apply(launcherData)
         Template template
@@ -84,5 +86,13 @@ class LaunchScriptGenerator {
             template = engine.createTemplate(templateURL)
         }
         template.make(bindings).toString()
+    }
+
+    static String adjustArg(String arg) {
+        def adjusted = arg.replace('"', '\\"')
+        if(!(adjusted ==~ /[\w\-\+=\/\\,;.:#]+/)) {
+            adjusted = '"' + adjusted + '"'
+        }
+        adjusted
     }
 }

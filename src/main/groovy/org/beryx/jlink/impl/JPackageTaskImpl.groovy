@@ -74,10 +74,10 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                         stream << "main-class=$launcher.mainClass\n"
                     }
                     if(launcher.args) {
-                        stream << "arguments=${launcher.args.join('\\n')}\n"
+                        stream << "arguments=${launcher.args.collect{adjustArg(it)}.join('\\n')}\n"
                     }
                     if(launcher.jvmArgs) {
-                        stream << "java-options=${launcher.jvmArgs.join('\\n')}\n"
+                        stream << "java-options=${launcher.jvmArgs.collect{adjustArg(it)}.join('\\n')}\n"
                     }
                 }
                 propFiles[launcher.name] = propFile
@@ -89,8 +89,8 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                            '--module-path', td.jlinkJarsDir,
                            '--module', "$td.moduleName/$td.mainClass",
                            '--runtime-image', td.runtimeImageDir,
-                           *(jpd.jvmArgs ? jpd.jvmArgs.collect{['--java-options', '"' + it + '"']}.flatten() : []),
-                           *(jpd.args ? jpd.args.collect{['--arguments', '"' + it + '"']}.flatten() : []),
+                           *(jpd.jvmArgs ? jpd.jvmArgs.collect{['--java-options', adjustArg(it)]}.flatten() : []),
+                           *(jpd.args ? jpd.args.collect{['--arguments', adjustArg(it)]}.flatten() : []),
                            *(propFiles ? propFiles.collect{['--add-launcher', it.key + '=' +  it.value.absolutePath]}.flatten() : []),
                            *jpd.imageOptions]
         }
@@ -155,5 +155,15 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         } else {
             return ['pkg', 'dmg']
         }
+    }
+
+    static String adjustArg(String arg) {
+        def adjusted = arg.replace('"', '\\"')
+        if(!(adjusted ==~ /[\w\-\+=\/\\,;.:#]+/)) {
+            adjusted = '"' + adjusted + '"'
+        }
+        // Workaround for https://bugs.openjdk.java.net/browse/JDK-8227641
+        adjusted = adjusted.replace(' ', '\\" \\"')
+        adjusted
     }
 }
