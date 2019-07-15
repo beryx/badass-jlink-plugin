@@ -25,8 +25,11 @@ consisting only of a module descriptor. The module descriptor specifies that the
 <<suggestMergedModuleInfo>>:: Displays the `mergedModule` block that will be used if your `jlink` extension doesn't include one.
   You can use the suggested block as a starting point for your custom `mergedModule` block. +
     _depends on_: `prepareMergedJarsDir`
-<<jpackage>>:: Uses the https://jdk.java.net/jpackage/[jpackage] tool to create a platform-specific application image and installer.  +
+<<jpackageImage>>:: Uses the https://jdk.java.net/jpackage/[jpackage] tool to create a platform-specific application image.  +
     _depends on_: `prepareModulesDir` +
+    _This task is experimental._
+<<jpackage>>:: Uses the https://jdk.java.net/jpackage/[jpackage] tool to create a platform-specific application installer.  +
+    _depends on_: `jpackageImage` +
     _This task is experimental._
 
 A detailed description of these tasks is given in <<taskDetails>>
@@ -566,15 +569,25 @@ _accepted values_: `groovy`, `kotlin`, `java` +
 _usage example_: `./gradlew suggestMergedModuleInfo --language=kotlin`
 
 
+[[jpackageImage]]
+=== jpackageImage
+[subs="attributes",options="nowrap"]
+----
+- create a platform-specific application image in <font color="saddlebrown">imageOutputDir</font> by executing:
+        <i>jpackage --runtime-image <span class="green">imageDir</span> --module-path <span class="teal">jlinkJarsDir</span> ...</i>
+----
+The properties pass:[<font color="saddlebrown">imageOutputDir</font> and <font color="green">imageDir</font>]
+can be configured in the `jpackage` script block.
+
 [[jpackage]]
 === jpackage
 [subs="attributes",options="nowrap"]
 ----
-- create a platform-specific application image in <font color="saddlebrown">imageOutputDir</font> by executing
-        <i>jpackage create-app-image</i> with --module-path=<span class="teal">jlinkJarsDir</span>
-- if <i>skipInstaller</i> is <i>false</i>, create a platform-specific application installer
-        in <font color="cadetblue">installerOutputDir</font> by executing <i>jpackage create-installer</i>
-        with --app-image=<font color="saddlebrown">imageOutputDir</font>/<font color="midnightblue">imageName</font>
+- if <i>skipInstaller</i> is <i>false</i>:
+        create a platform-specific application installer in <font color="cadetblue">installerOutputDir</font> by executing:
+        <i>jpackage --package-type <font color="midnightblue">installerType</font> --app-image=<font color="saddlebrown">imageOutputDir</font>/<font color="midnightblue">imageName</font> ...</i>
 ----
-The properties pass:[<font color="saddlebrown">imageOutputDir</font>, <font color="cadetblue">installerOutputDir</font>, and <font color="midnightblue">imageName</font>]
+The properties pass:[<font color="cadetblue">installerOutputDir</font>, <font color="midnightblue">installerType</font>, <font color="saddlebrown">imageOutputDir</font>, and <font color="midnightblue">imageName</font>]
 can be configured in the `jpackage` script block.
+
+If no pass:[<font color="midnightblue">installerType</font>] has been configured, the plugin will run `jpackage` several times, one for each type supported by the current platform.
