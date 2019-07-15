@@ -21,50 +21,48 @@ import org.beryx.jlink.data.JlinkZipTaskData
 import org.beryx.jlink.data.LauncherData
 import org.beryx.jlink.data.TargetPlatform
 import org.beryx.jlink.impl.JlinkZipTaskImpl
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
+import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFile
 import org.gradle.api.tasks.*
 
 @CompileStatic
 class JlinkZipTask extends BaseTask {
     @Input
-    Provider<Map<String, TargetPlatform>> targetPlatforms
+    Map<String, TargetPlatform> getTargetPlatforms() {
+        extension.getTargetPlatforms().get()
+    }
 
     @Input
-    Property<LauncherData> launcherData
+    LauncherData getLauncherData() {
+        extension.launcherData.get()
+    }
 
     @Internal
-    Property<String> imageName
+    String getImageName() {
+        extension.imageName.get()
+    }
 
     @Internal
-    DirectoryProperty imageDir
+    Directory getImageDir() {
+        extension.imageDir.get()
+    }
 
     @Internal
-    RegularFileProperty imageZip
+    RegularFile getImageZip() {
+        extension.imageZip.get()
+    }
 
     JlinkZipTask() {
         dependsOn(JlinkPlugin.TASK_NAME_JLINK)
         description = 'Creates a zip of the modular runtime image'
     }
 
-    @Override
-    void init(JlinkPluginExtension extension) {
-        super.init(extension)
-        targetPlatforms = extension.targetPlatforms
-        launcherData = extension.launcherData
-        imageName = extension.imageName
-        imageDir = extension.imageDir
-        imageZip = extension.imageZip
-    }
-
     @TaskAction
     void jlinkTaskAction() {
         def taskData = new JlinkZipTaskData()
-        taskData.jlinkBasePath = jlinkBasePath.get()
-        taskData.targetPlatforms = targetPlatforms.get()
-        taskData.launcherData = launcherData.get()
+        taskData.jlinkBasePath = jlinkBasePath
+        taskData.targetPlatforms = targetPlatforms
+        taskData.launcherData = launcherData
         taskData.imageDir = getImageDirAsFile()
         taskData.imageZip = getImageZipAsFile()
         def taskImpl = new JlinkZipTaskImpl(project, taskData)
@@ -73,21 +71,21 @@ class JlinkZipTask extends BaseTask {
 
     @InputDirectory @PathSensitive(PathSensitivity.RELATIVE)
     File getImageDirAsFile() {
-        imageName.get() ? imageDirFromName : imageDir.get().asFile
+        imageName ? imageDirFromName : imageDir.asFile
     }
 
     @OutputFile @PathSensitive(PathSensitivity.NONE)
     File getImageZipAsFile() {
-        imageName.get() ? imageZipFromName : imageZip.get().asFile
+        imageName ? imageZipFromName : imageZip.asFile
     }
 
     @Internal
     File getImageDirFromName() {
-        project.file("$project.buildDir/${imageName.get()}")
+        project.file("$project.buildDir/$imageName")
     }
 
     @Internal
     File getImageZipFromName() {
-        project.file("$project.buildDir/${imageName.get()}.zip")
+        project.file("$project.buildDir/${imageName}.zip")
     }
 }

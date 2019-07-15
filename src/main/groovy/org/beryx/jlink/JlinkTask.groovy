@@ -16,102 +16,92 @@
 package org.beryx.jlink
 
 import groovy.transform.CompileStatic
-import org.beryx.jlink.data.JlinkPluginExtension
-import org.beryx.jlink.data.JlinkTaskData
-import org.beryx.jlink.data.LauncherData
-import org.beryx.jlink.data.SecondaryLauncherData
-import org.beryx.jlink.data.TargetPlatform
+import org.beryx.jlink.data.*
 import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.util.PathUtil
-import org.beryx.jlink.util.Util
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.Directory
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.PathSensitive
-import org.gradle.api.tasks.PathSensitivity
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 
 @CompileStatic
 class JlinkTask extends BaseTask {
     private static final Logger LOGGER = Logging.getLogger(JlinkTask.class);
 
     @Input
-    Property<String> moduleName
+    String getModuleName() {
+        extension.moduleName.get()
+    }
 
     @Input
-    Property<LauncherData> launcherData
+    LauncherData getLauncherData() {
+        extension.launcherData.get()
+    }
 
     @Input
-    ListProperty<SecondaryLauncherData> secondaryLaunchers
+    List<SecondaryLauncherData> getSecondaryLaunchers() {
+        extension.secondaryLaunchers.get()
+    }
 
     @Input
-    Property<String> mainClass
+    String getMainClass() {
+        extension.mainClass.get()
+    }
 
     @Input
-    ListProperty<String> options
+    List<String> getOptions() {
+        extension.options.get()
+    }
 
     @Input
-    ListProperty<String> extraModulePaths
+    List<String> getExtraModulePaths() {
+        extension.extraModulePaths.get()
+    }
 
     @Input
-    Property<String> javaHome
+    String getJavaHome() {
+        extension.javaHome.get()
+    }
 
     @Input
-    Provider<Map<String, TargetPlatform>> targetPlatforms
+    Map<String, TargetPlatform> getTargetPlatforms() {
+        extension.targetPlatforms.get()
+    }
 
     @InputDirectory
-    DirectoryProperty jlinkJarsDir
+    Directory getJlinkJarsDir() {
+        project.layout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
+    }
 
     @Internal
-    Property<String> imageName
+    String getImageName() {
+        extension.imageName.get()
+    }
 
     @Internal
-    DirectoryProperty imageDir
+    Directory getImageDir() {
+        extension.imageDir.get()
+    }
 
     JlinkTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MODULES_DIR)
         description = 'Creates a modular runtime image with jlink'
     }
 
-    @Override
-    void init(JlinkPluginExtension extension) {
-        super.init(extension)
-        launcherData = extension.launcherData
-        secondaryLaunchers = extension.secondaryLaunchers
-        mainClass = extension.mainClass
-        moduleName = extension.moduleName
-        options = extension.options
-        extraModulePaths = extension.extraModulePaths
-        javaHome = extension.javaHome
-        targetPlatforms = extension.targetPlatforms
-        imageName = extension.imageName
-        imageDir = extension.imageDir
-
-        jlinkJarsDir = Util.createDirectoryProperty(project)
-        jlinkJarsDir.set(new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get())))
-    }
-
     @TaskAction
     void jlinkTaskAction() {
         def taskData = new JlinkTaskData()
-        taskData.jlinkBasePath = jlinkBasePath.get()
+        taskData.jlinkBasePath = jlinkBasePath
         taskData.imageDir = getImageDirAsFile()
-        taskData.moduleName = moduleName.get()
-        taskData.launcherData = launcherData.get()
-        taskData.secondaryLaunchers = secondaryLaunchers.get()
-        taskData.mainClass = mainClass.get() ?: defaultMainClass
-        taskData.options = options.get()
-        taskData.extraModulePaths = extraModulePaths.get()
-        taskData.javaHome = javaHome.get()
-        taskData.targetPlatforms = targetPlatforms.get()
-        taskData.jlinkJarsDir = jlinkJarsDir.get().asFile
+        taskData.moduleName = moduleName
+        taskData.launcherData = launcherData
+        taskData.secondaryLaunchers = secondaryLaunchers
+        taskData.mainClass = mainClass ?: defaultMainClass
+        taskData.options = options
+        taskData.extraModulePaths = extraModulePaths
+        taskData.javaHome = javaHome
+        taskData.targetPlatforms = targetPlatforms
+        taskData.jlinkJarsDir = jlinkJarsDir.asFile
 
         def taskImpl = new JlinkTaskImpl(project, taskData)
         taskImpl.execute()
@@ -119,12 +109,12 @@ class JlinkTask extends BaseTask {
 
     @OutputDirectory @PathSensitive(PathSensitivity.RELATIVE)
     File getImageDirAsFile() {
-        imageName.get() ? imageDirFromName : imageDir.get().asFile
+        imageName ? imageDirFromName : imageDir.asFile
     }
 
     @Internal
     File getImageDirFromName() {
-        project.file("$project.buildDir/${imageName.get()}")
+        project.file("$project.buildDir/$imageName")
     }
 
     @Internal
@@ -133,8 +123,8 @@ class JlinkTask extends BaseTask {
         int pos = mainClass.lastIndexOf('/')
         if(pos < 0) return mainClass
         def mainClassModule = mainClass.substring(0, pos)
-        if(mainClassModule != moduleName.get()) {
-            LOGGER.warn("The module name specified in 'mainClassName' ($mainClassModule) has not the expected value (${moduleName.get()}).")
+        if(mainClassModule != moduleName) {
+            LOGGER.warn("The module name specified in 'mainClassName' ($mainClassModule) has not the expected value ($moduleName).")
         }
         mainClass.substring(pos + 1)
     }

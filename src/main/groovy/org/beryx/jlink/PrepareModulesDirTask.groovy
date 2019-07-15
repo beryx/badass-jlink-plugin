@@ -20,10 +20,7 @@ import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.data.PrepareModulesDirTaskData
 import org.beryx.jlink.impl.PrepareModulesDirTaskImpl
 import org.beryx.jlink.util.PathUtil
-import org.beryx.jlink.util.Util
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
+import org.gradle.api.file.Directory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
@@ -32,58 +29,56 @@ import org.gradle.api.tasks.TaskAction
 @CompileStatic
 class PrepareModulesDirTask extends BaseTask {
     @Input
-    Property<String> moduleName
+    String getModuleName() {
+        extension.moduleName.get()
+    }
 
     @Input
-    Property<String> mergedModuleName
+    String getMergedModuleName() {
+        extension.mergedModuleName.get()
+    }
 
     @Input
-    Property<String> javaHome
+    String getJavaHome() {
+        extension.javaHome.get()
+    }
 
     @Input
-    ListProperty<String> forceMergedJarPrefixes
+    List<String> getForceMergedJarPrefixes() {
+        extension.forceMergedJarPrefixes.get()
+    }
 
     @Input
-    ListProperty<String> extraDependenciesPrefixes
+    List<String> getExtraDependenciesPrefixes() {
+        extension.extraDependenciesPrefixes.get()
+    }
 
     @InputDirectory
-    DirectoryProperty delegatingModulesDir
+    Directory getDelegatingModulesDir() {
+        project.layout.projectDirectory.dir(PathUtil.getDelegatingModulesDirPath(jlinkBasePath))
+    }
 
     @OutputDirectory
-    DirectoryProperty jlinkJarsDir
+    Directory getJlinkJarsDir() {
+        project.layout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
+    }
 
     PrepareModulesDirTask() {
         dependsOn(JlinkPlugin.TASK_NAME_CREATE_DELEGATING_MODULES)
         description = 'Prepares the directory containing modules required by the application'
     }
 
-    @Override
-    void init(JlinkPluginExtension extension) {
-        super.init(extension)
-        moduleName = extension.moduleName
-        mergedModuleName = extension.mergedModuleName
-        javaHome = extension.javaHome
-        forceMergedJarPrefixes = extension.forceMergedJarPrefixes
-        extraDependenciesPrefixes = extension.extraDependenciesPrefixes
-
-        delegatingModulesDir = Util.createDirectoryProperty(project)
-        delegatingModulesDir.set(new File(PathUtil.getDelegatingModulesDirPath(jlinkBasePath.get())))
-
-        jlinkJarsDir = Util.createDirectoryProperty(project)
-        jlinkJarsDir.set(new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get())))
-    }
-
     @TaskAction
     void jlinkTaskAction() {
         def taskData = new PrepareModulesDirTaskData()
-        taskData.jlinkBasePath = jlinkBasePath.get()
-        taskData.moduleName = moduleName.get()
-        taskData.mergedModuleName = mergedModuleName.get()
-        taskData.javaHome = javaHome.get()
-        taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
-        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes.get()
-        taskData.delegatingModulesDir = delegatingModulesDir.get().asFile
-        taskData.jlinkJarsDir = jlinkJarsDir.get().asFile
+        taskData.jlinkBasePath = jlinkBasePath
+        taskData.moduleName = moduleName
+        taskData.mergedModuleName = mergedModuleName
+        taskData.javaHome = javaHome
+        taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
+        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
+        taskData.delegatingModulesDir = delegatingModulesDir.asFile
+        taskData.jlinkJarsDir = jlinkJarsDir.asFile
         taskData.tmpModuleInfoDirPath = PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)
 
         def taskImpl = new PrepareModulesDirTaskImpl(project, taskData)

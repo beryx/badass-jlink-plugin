@@ -41,13 +41,13 @@ class JlinkPlugin implements Plugin<Project> {
         }
         project.getPluginManager().apply('application');
         def extension = project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)
-        project.tasks.create(TASK_NAME_PREPARE_MERGED_JARS_DIR, PrepareMergedJarsDirTask, { it.init(extension) })
-        project.tasks.create(TASK_NAME_CREATE_MERGED_MODULE, CreateMergedModuleTask, { it.init(extension) })
-        project.tasks.create(TASK_NAME_CREATE_DELEGATING_MODULES, CreateDelegatingModulesTask, { it.init(extension) })
-        project.tasks.create(TASK_NAME_PREPARE_MODULES_DIR, PrepareModulesDirTask, { it.init(extension) })
-        project.tasks.create(TASK_NAME_JLINK, JlinkTask, { it.init(extension) })
-        project.tasks.create(TASK_NAME_JLINK_ZIP, JlinkZipTask, { it.init(extension) })
-        project.tasks.create(TASK_NAME_JPACKAGE, JPackageTask, { it.init(extension) })
-        project.tasks.create(TASK_NAME_SUGGEST_MERGED_MODULE_INFO, SuggestMergedModuleInfoTask, { it.init(extension) })
+        project.tasks.create(TASK_NAME_PREPARE_MERGED_JARS_DIR, PrepareMergedJarsDirTask)
+        project.tasks.create(TASK_NAME_CREATE_MERGED_MODULE, CreateMergedModuleTask)
+        project.tasks.create(TASK_NAME_CREATE_DELEGATING_MODULES, CreateDelegatingModulesTask)
+        project.tasks.create(TASK_NAME_PREPARE_MODULES_DIR, PrepareModulesDirTask)
+        project.tasks.create(TASK_NAME_JLINK, JlinkTask)
+        project.tasks.create(TASK_NAME_JLINK_ZIP, JlinkZipTask)
+        project.tasks.create(TASK_NAME_JPACKAGE, JPackageTask)
+        project.tasks.create(TASK_NAME_SUGGEST_MERGED_MODULE_INFO, SuggestMergedModuleInfoTask)
     }
 }

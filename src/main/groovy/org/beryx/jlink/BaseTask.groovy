@@ -20,17 +20,20 @@ import org.beryx.jlink.data.JlinkPluginExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 
 @CompileStatic
 class BaseTask extends DefaultTask {
-    @Input
-    Property<String> jlinkBasePath
+    @Internal
+    final JlinkPluginExtension extension
 
     BaseTask() {
+        this.extension = (JlinkPluginExtension)project.extensions.getByName(JlinkPlugin.EXTENSION_NAME)
         group = 'build'
     }
 
-    void init(JlinkPluginExtension extension) {
-        jlinkBasePath = extension.jlinkBasePath
+    @Input
+    String getJlinkBasePath() {
+        extension.jlinkBasePath.get()
     }
 }

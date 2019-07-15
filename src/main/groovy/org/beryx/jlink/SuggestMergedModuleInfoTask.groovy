@@ -22,66 +22,63 @@ import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
 import org.beryx.jlink.impl.SuggestMergedModuleInfoTaskImpl
 import org.beryx.jlink.util.PathUtil
-import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.ListProperty
+import org.gradle.api.file.Directory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 
 @CompileStatic
 class SuggestMergedModuleInfoTask extends BaseTask {
     @Input
-    ListProperty<String> forceMergedJarPrefixes
+    List<String> getForceMergedJarPrefixes() {
+        extension.forceMergedJarPrefixes.get()
+    }
 
     @Input
-    ListProperty<String> extraDependenciesPrefixes
+    List<String> getExtraDependenciesPrefixes() {
+        extension.extraDependenciesPrefixes.get()
+    }
 
     @InputDirectory
-    DirectoryProperty mergedJarsDir
+    Directory getMergedJarsDir() {
+        project.layout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
+    }
 
     @Input
-    Property<String> javaHome
+    String getJavaHome() {
+        extension.javaHome.get()
+    }
+
+    @Internal
+    final Property<JdepsUsage> useJdeps
 
     @Input
-    Property<JdepsUsage> useJdeps
-
-    @Input
-    Property<ModuleInfo.Language> language
+    final Property<ModuleInfo.Language> language
 
     SuggestMergedModuleInfoTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MERGED_JARS_DIR)
         description = 'Suggests a module declaration for the merged module'
         outputs.upToDateWhen { false }
-    }
-
-    @Override
-    void init(JlinkPluginExtension extension) {
-        super.init(extension)
-        forceMergedJarPrefixes = extension.forceMergedJarPrefixes
-        extraDependenciesPrefixes = extension.extraDependenciesPrefixes
-        javaHome = extension.javaHome
-        useJdeps = extension.useJdeps
+        useJdeps = project.objects.property(JdepsUsage)
+        useJdeps.set(JdepsUsage.no)
         language = project.objects.property(ModuleInfo.Language)
         language.set(ModuleInfo.Language.GROOVY)
-
-        mergedJarsDir = Util.createDirectoryProperty(project)
-        mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
     }
 
     @TaskAction
     void suggestMergedModuleInfoAction() {
         def taskData = new SuggestMergedModuleInfoTaskData()
-        taskData.jlinkBasePath = jlinkBasePath.get()
-        taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
-        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes.get()
-        taskData.javaHome = javaHome.get()
+        taskData.jlinkBasePath = jlinkBasePath
+        taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
+        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
+        taskData.javaHome = javaHome
         taskData.useJdeps = useJdeps.get()
         taskData.language = language.get()
-        taskData.mergedJarsDir = mergedJarsDir.get().asFile
+        taskData.mergedJarsDir = mergedJarsDir.asFile
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
 

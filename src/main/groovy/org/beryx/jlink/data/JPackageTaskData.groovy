@@ -35,7 +35,7 @@ class JPackageTaskData extends BaseTaskData {
     JPackageData jpackageData
 
     void configureRuntimeImageDir(JlinkTask jlinkTask) {
-        def jlinkPlatforms = jlinkTask.targetPlatforms.get()
+        def jlinkPlatforms = jlinkTask.targetPlatforms
         if(jpackageData.targetPlatformName) {
             if(!jlinkPlatforms.isEmpty()) {
                 if(!jlinkPlatforms.keySet().contains(jpackageData.targetPlatformName)) {

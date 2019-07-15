@@ -21,11 +21,9 @@ import org.beryx.jlink.data.JPackageTaskData
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.impl.JPackageTaskImpl
 import org.beryx.jlink.util.PathUtil
-import org.beryx.jlink.util.Util
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.Directory
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 
 @CompileStatic
@@ -33,50 +31,49 @@ class JPackageTask extends BaseTask {
     private static final Logger LOGGER = Logging.getLogger(JPackageTask.class)
 
     @Input
-    Property<String> moduleName
+    String getModuleName() {
+        extension.moduleName.get()
+    }
 
     @Input
-    Property<String> mainClass
+    String getMainClass() {
+        extension.mainClass.get()
+    }
 
     @InputDirectory
-    DirectoryProperty jlinkJarsDir
+    Directory getJlinkJarsDir() {
+        project.layout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
+    }
 
     @Input
-    Property<String> imageName
+    String getImageName() {
+        extension.imageName
+    }
 
     @OutputDirectory
-    DirectoryProperty imageDir
+    Directory getImageDir() {
+        extension.imageDir.get()
+    }
 
     @Nested
-    Property<JPackageData> jpackageData
+    JPackageData getJpackageData() {
+        extension.jpackageData.get()
+    }
 
     JPackageTask() {
         dependsOn(JlinkPlugin.TASK_NAME_JLINK)
         description = 'Creates an installable image using the jpackage tool'
     }
 
-    @Override
-    void init(JlinkPluginExtension extension) {
-        super.init(extension)
-        jpackageData = extension.jpackageData
-        mainClass = extension.mainClass
-        moduleName = extension.moduleName
-        imageName = extension.imageName
-        imageDir = extension.imageDir
-
-        jlinkJarsDir = Util.createDirectoryProperty(project)
-        jlinkJarsDir.set(new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get())))
-    }
-
     @TaskAction
     void jpackageTaskAction() {
         def taskData = new JPackageTaskData()
-        taskData.jlinkBasePath = jlinkBasePath.get()
-        taskData.imageDir = imageName.get() ? imageDirFromName : imageDir.get().asFile
-        taskData.moduleName = moduleName.get()
-        taskData.jpackageData = jpackageData.get()
-        taskData.mainClass = mainClass.get() ?: defaultMainClass
-        taskData.jlinkJarsDir = jlinkJarsDir.get().asFile
+        taskData.jlinkBasePath = jlinkBasePath
+        taskData.imageDir = imageName ? imageDirFromName : imageDir.asFile
+        taskData.moduleName = moduleName
+        taskData.jpackageData = jpackageData
+        taskData.mainClass = mainClass ?: defaultMainClass
+        taskData.jlinkJarsDir = jlinkJarsDir.asFile
 
         def jlinkTask = (JlinkTask) project.tasks.getByName(JlinkPlugin.TASK_NAME_JLINK)
         taskData.configureRuntimeImageDir(jlinkTask)
@@ -87,7 +84,7 @@ class JPackageTask extends BaseTask {
 
     @Internal
     File getImageDirFromName() {
-        project.file("$project.buildDir/${imageName.get()}")
+        project.file("$project.buildDir/${imageName}")
     }
 
     @Internal
@@ -96,8 +93,8 @@ class JPackageTask extends BaseTask {
         int pos = mainClass.lastIndexOf('/')
         if(pos < 0) return mainClass
         def mainClassModule = mainClass.substring(0, pos)
-        if(mainClassModule != moduleName.get()) {
-            LOGGER.warn("The module name specified in 'mainClassName' ($mainClassModule) has not the expected value (${moduleName.get()}).")
+        if(mainClassModule != moduleName) {
+            LOGGER.warn("The module name specified in 'mainClassName' ($mainClassModule) has not the expected value (${moduleName}).")
         }
         mainClass.substring(pos + 1)
     }

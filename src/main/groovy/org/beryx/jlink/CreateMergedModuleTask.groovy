@@ -15,8 +15,8 @@
  */
 package org.beryx.jlink
 
-import groovy.transform.CompileStatic
 import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.CreateMergedModuleTaskData
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.JlinkPluginExtension
@@ -24,9 +24,7 @@ import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.impl.CreateMergedModuleTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
+import org.gradle.api.file.Directory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputFile
@@ -35,30 +33,44 @@ import org.gradle.api.tasks.TaskAction
 @CompileStatic
 class CreateMergedModuleTask extends BaseTask {
     @Input
-    ListProperty<String> forceMergedJarPrefixes
+    List<String> getForceMergedJarPrefixes() {
+        extension.forceMergedJarPrefixes.get()
+    }
 
     @Input
-    ListProperty<String> extraDependenciesPrefixes
+    List<String> getExtraDependenciesPrefixes() {
+        extension.extraDependenciesPrefixes.get()
+    }
 
     @Input
-    Property<String> mergedModuleName
+    String getMergedModuleName() {
+        extension.mergedModuleName.get()
+    }
 
     @InputDirectory
-    DirectoryProperty mergedJarsDir
+    Directory getMergedJarsDir() {
+        project.layout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
+    }
 
     @Input
-    Property<ModuleInfo> mergedModuleInfo
+    ModuleInfo getMergedModuleInfo() {
+        extension.mergedModuleInfo.get()
+    }
 
     @Input
-    Property<JdepsUsage> useJdeps
+    JdepsUsage getUseJdeps() {
+        extension.useJdeps.get()
+    }
 
     @Input
-    Property<String> javaHome
+    String getJavaHome() {
+        extension.javaHome.get()
+    }
 
     @OutputFile
     @CompileDynamic
     File getMergedModuleJar() {
-        new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath.get()), "${Util.getArchiveBaseName(project)}.merged.module.jar")
+        new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath), "${Util.getArchiveBaseName(project)}.merged.module.jar")
     }
 
     CreateMergedModuleTask() {
@@ -66,32 +78,18 @@ class CreateMergedModuleTask extends BaseTask {
         description = 'Unpacks all non-modularized jars into a single directory'
     }
 
-    @Override
-    void init(JlinkPluginExtension extension) {
-        super.init(extension)
-        forceMergedJarPrefixes = extension.forceMergedJarPrefixes
-        extraDependenciesPrefixes = extension.extraDependenciesPrefixes
-        mergedModuleName = extension.mergedModuleName
-        mergedModuleInfo = extension.mergedModuleInfo
-        useJdeps = extension.useJdeps
-        javaHome = extension.javaHome
-
-        mergedJarsDir = Util.createDirectoryProperty(project)
-        mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
-    }
-
     @TaskAction
     void createMergedModuleAction() {
         def taskData = new CreateMergedModuleTaskData()
-        taskData.jlinkBasePath = jlinkBasePath.get()
-        taskData.forceMergedJarPrefixes = (List<String>)forceMergedJarPrefixes.get()
-        taskData.extraDependenciesPrefixes = (List<String>)extraDependenciesPrefixes.get()
-        taskData.mergedModuleName = mergedModuleName.get()
-        taskData.mergedModuleInfo = mergedModuleInfo.get()
-        taskData.useJdeps = useJdeps.get()
+        taskData.jlinkBasePath = jlinkBasePath
+        taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
+        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
+        taskData.mergedModuleName = mergedModuleName
+        taskData.mergedModuleInfo = mergedModuleInfo
+        taskData.useJdeps = useJdeps
         taskData.mergedModuleJar = mergedModuleJar
-        taskData.mergedJarsDir = mergedJarsDir.get().asFile
-        taskData.javaHome = javaHome.get()
+        taskData.mergedJarsDir = mergedJarsDir.asFile
+        taskData.javaHome = javaHome
 
         taskData.nonModularJarsDirPath = PathUtil.getNonModularJarsDirPath(taskData.jlinkBasePath)
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)

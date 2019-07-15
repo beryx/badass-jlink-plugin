@@ -21,34 +21,37 @@ import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.impl.PrepareMergedJarsDirTaskImpl
 import org.beryx.jlink.util.JavaVersion
 import org.beryx.jlink.util.PathUtil
-import org.beryx.jlink.util.Util
-import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.Directory
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.Jar
 
 @CompileStatic
 class PrepareMergedJarsDirTask extends BaseTask {
     @Input
-    ListProperty<String> forceMergedJarPrefixes
+    List<String> getForceMergedJarPrefixes() {
+        extension.forceMergedJarPrefixes.get()
+    }
 
     @Input
-    ListProperty<String> extraDependenciesPrefixes
+    List<String> getExtraDependenciesPrefixes() {
+        extension.extraDependenciesPrefixes.get()
+    }
 
     @Input
-    Property<String> javaHome
+    String getJavaHome() {
+        extension.javaHome.get()
+    }
 
     @Optional @Input
-    Property<Integer> jvmVersion
+    Integer getJvmVersion() {
+        extension.jvmVersion.getOrElse(null)
+    }
 
     @OutputDirectory
-    DirectoryProperty mergedJarsDir
+    Directory getMergedJarsDir() {
+        project.layout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
+    }
 
     PrepareMergedJarsDirTask() {
         def jarTasks = project.rootProject.getTasksByName('jar', true).toArray()
@@ -56,31 +59,15 @@ class PrepareMergedJarsDirTask extends BaseTask {
         description = 'Merges all non-modularized jars into a single module'
     }
 
-    @Override
-    void init(JlinkPluginExtension extension) {
-        super.init(extension)
-        forceMergedJarPrefixes = extension.forceMergedJarPrefixes
-        extraDependenciesPrefixes = extension.extraDependenciesPrefixes
-        javaHome = extension.javaHome
-        jvmVersion = extension.jvmVersion
-
-        mergedJarsDir = Util.createDirectoryProperty(project)
-        mergedJarsDir.set(project.layout.buildDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath.get())))
-    }
-
     @TaskAction
     void createMergedModuleAction() {
         def taskData = new PrepareMergedJarsDirTaskData()
-        taskData.jlinkBasePath = jlinkBasePath.get()
-        taskData.forceMergedJarPrefixes = forceMergedJarPrefixes.get()
-        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes.get()
-        taskData.mergedJarsDir = mergedJarsDir.get().asFile
-        taskData.javaHome = javaHome.get()
-        if(jvmVersion.present && jvmVersion.get()) {
-            taskData.jvmVersion = jvmVersion.get()
-        } else {
-            taskData.jvmVersion = JavaVersion.get(taskData.javaHome)
-        }
+        taskData.jlinkBasePath = jlinkBasePath
+        taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
+        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
+        taskData.mergedJarsDir = mergedJarsDir.asFile
+        taskData.javaHome = javaHome
+        taskData.jvmVersion = jvmVersion ?: JavaVersion.get(taskData.javaHome)
 
         taskData.nonModularJarsDirPath = PathUtil.getNonModularJarsDirPath(taskData.jlinkBasePath)
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)

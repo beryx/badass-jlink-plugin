@@ -16,13 +16,11 @@
 package org.beryx.jlink
 
 import groovy.transform.CompileStatic
+import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.impl.CreateDelegatingModulesTaskImpl
-import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.beryx.jlink.util.PathUtil
-import org.beryx.jlink.util.Util
-import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.provider.Property
+import org.gradle.api.file.Directory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
@@ -30,44 +28,40 @@ import org.gradle.api.tasks.TaskAction
 
 @CompileStatic
 class CreateDelegatingModulesTask extends BaseTask {
-    @Input
-    Property<String> mergedModuleName
-
-    @Input
-    Property<String> javaHome
-
-    @InputDirectory
-    DirectoryProperty nonModularJarsDir
-
-    @OutputDirectory
-    DirectoryProperty delegatingModulesDir
-
     CreateDelegatingModulesTask() {
         dependsOn(JlinkPlugin.TASK_NAME_CREATE_MERGED_MODULE)
         description = 'Creates delegating modules for the jars that have been merged into a single module'
     }
 
-    @Override
-    void init(JlinkPluginExtension extension) {
-        super.init(extension)
-        mergedModuleName = extension.mergedModuleName
-        javaHome = extension.javaHome
-
-        nonModularJarsDir = Util.createDirectoryProperty(project)
-        nonModularJarsDir.set(new File(PathUtil.getNonModularJarsDirPath(jlinkBasePath.get())))
-
-        delegatingModulesDir = Util.createDirectoryProperty(project)
-        delegatingModulesDir.set(new File(PathUtil.getDelegatingModulesDirPath(jlinkBasePath.get())))
+    @Input
+    String getMergedModuleName() {
+        extension.mergedModuleName.get()
     }
+
+    @Input
+    String getJavaHome() {
+        extension.javaHome.get()
+    }
+
+    @InputDirectory
+    Directory getNonModularJarsDir() {
+        project.layout.projectDirectory.dir(PathUtil.getNonModularJarsDirPath(jlinkBasePath))
+    }
+
+    @OutputDirectory
+    Directory getDelegatingModulesDir() {
+        project.layout.projectDirectory.dir(PathUtil.getDelegatingModulesDirPath(jlinkBasePath))
+    }
+
 
     @TaskAction
     void createDelegatingModulesAction() {
         def taskData = new CreateDelegatingModulesTaskData()
-        taskData.jlinkBasePath = jlinkBasePath.get()
-        taskData.mergedModuleName = mergedModuleName.get()
-        taskData.javaHome = javaHome.get()
-        taskData.nonModularJarsDir = nonModularJarsDir.get().asFile
-        taskData.delegatingModulesDir = delegatingModulesDir.get().asFile
+        taskData.jlinkBasePath = jlinkBasePath
+        taskData.mergedModuleName = mergedModuleName
+        taskData.javaHome = javaHome
+        taskData.nonModularJarsDir = nonModularJarsDir.asFile
+        taskData.delegatingModulesDir = delegatingModulesDir.asFile
 
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
