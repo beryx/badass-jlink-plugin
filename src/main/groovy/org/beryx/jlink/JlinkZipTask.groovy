@@ -16,7 +16,6 @@
 package org.beryx.jlink
 
 import groovy.transform.CompileStatic
-import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.data.JlinkZipTaskData
 import org.beryx.jlink.data.LauncherData
 import org.beryx.jlink.data.TargetPlatform

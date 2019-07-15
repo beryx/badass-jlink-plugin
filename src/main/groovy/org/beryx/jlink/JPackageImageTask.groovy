@@ -18,7 +18,7 @@ package org.beryx.jlink
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageData
 import org.beryx.jlink.data.JPackageTaskData
-import org.beryx.jlink.impl.JPackageTaskImpl
+import org.beryx.jlink.impl.JPackageImageTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.gradle.api.file.Directory
 import org.gradle.api.logging.Logger
@@ -26,8 +26,8 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.*
 
 @CompileStatic
-class JPackageTask extends BaseTask {
-    private static final Logger LOGGER = Logging.getLogger(JPackageTask.class)
+class JPackageImageTask extends BaseTask {
+    private static final Logger LOGGER = Logging.getLogger(JPackageImageTask.class)
 
     @Input
     String getModuleName() {
@@ -59,8 +59,8 @@ class JPackageTask extends BaseTask {
         extension.jpackageData.get()
     }
 
-    JPackageTask() {
-        dependsOn(JlinkPlugin.TASK_NAME_JPACKAGE_IMAGE)
+    JPackageImageTask() {
+        dependsOn(JlinkPlugin.TASK_NAME_JLINK)
         description = 'Creates an installable image using the jpackage tool'
     }
 
@@ -77,7 +77,7 @@ class JPackageTask extends BaseTask {
         def jlinkTask = (JlinkTask) project.tasks.getByName(JlinkPlugin.TASK_NAME_JLINK)
         taskData.configureRuntimeImageDir(jlinkTask)
 
-        def taskImpl = new JPackageTaskImpl(project, taskData)
+        def taskImpl = new JPackageImageTaskImpl(project, taskData)
         taskImpl.execute()
     }
 

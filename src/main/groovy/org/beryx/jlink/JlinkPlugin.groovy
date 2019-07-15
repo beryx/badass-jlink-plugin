@@ -31,6 +31,7 @@ class JlinkPlugin implements Plugin<Project> {
     final static String TASK_NAME_PREPARE_MODULES_DIR = 'prepareModulesDir'
     final static String TASK_NAME_JLINK = 'jlink'
     final static String TASK_NAME_JLINK_ZIP = 'jlinkZip'
+    final static String TASK_NAME_JPACKAGE_IMAGE = 'jpackageImage'
     final static String TASK_NAME_JPACKAGE = 'jpackage'
     final static String TASK_NAME_SUGGEST_MERGED_MODULE_INFO = 'suggestMergedModuleInfo'
 
@@ -40,13 +41,14 @@ class JlinkPlugin implements Plugin<Project> {
             throw new GradleException("This plugin requires Gradle 4.8 or newer.")
         }
         project.getPluginManager().apply('application');
-        def extension = project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)
+        project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)
         project.tasks.create(TASK_NAME_PREPARE_MERGED_JARS_DIR, PrepareMergedJarsDirTask)
         project.tasks.create(TASK_NAME_CREATE_MERGED_MODULE, CreateMergedModuleTask)
         project.tasks.create(TASK_NAME_CREATE_DELEGATING_MODULES, CreateDelegatingModulesTask)
         project.tasks.create(TASK_NAME_PREPARE_MODULES_DIR, PrepareModulesDirTask)
         project.tasks.create(TASK_NAME_JLINK, JlinkTask)
         project.tasks.create(TASK_NAME_JLINK_ZIP, JlinkZipTask)
+        project.tasks.create(TASK_NAME_JPACKAGE_IMAGE, JPackageImageTask)
         project.tasks.create(TASK_NAME_JPACKAGE, JPackageTask)
         project.tasks.create(TASK_NAME_SUGGEST_MERGED_MODULE_INFO, SuggestMergedModuleInfoTask)
     }

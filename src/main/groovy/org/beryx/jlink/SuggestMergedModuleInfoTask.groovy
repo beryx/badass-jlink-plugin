@@ -17,7 +17,6 @@ package org.beryx.jlink
 
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JdepsUsage
-import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
 import org.beryx.jlink.impl.SuggestMergedModuleInfoTaskImpl

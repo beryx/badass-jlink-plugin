@@ -16,7 +16,6 @@
 package org.beryx.jlink
 
 import groovy.transform.CompileStatic
-import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.data.PrepareModulesDirTaskData
 import org.beryx.jlink.impl.PrepareModulesDirTaskImpl
 import org.beryx.jlink.util.PathUtil
