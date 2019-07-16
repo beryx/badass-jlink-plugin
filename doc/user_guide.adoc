@@ -334,15 +334,15 @@ outputDir:: Convenience property for setting both `imageOutputDir` and
     _usage example_: `outputDir = "my-packaging"`
 
 
-imageOutputDir:: the directory passed as argument to the `--output` option when running `jpackage` in the `create-app-image` mode.
+imageOutputDir:: the directory passed as argument to the `--output` option of `jpackage` when executing the `jpackageImage` task .
     _defaultValue_: `_buildDir_/_outputDir_` +
     _usage example_: `imageOutputDir = file("$buildDir/my-packaging-image")`
 
-imageName:: the argument passed to the `--name` option when running `jpackage` in the `create-app-image` mode. +
+imageName:: the argument passed to the `--name` option when executing the `jpackageImage` task. +
     _defaultValue_: the `name` value configured in the `launcher` block or  `_project.name_` +
     _usage example_: `imageName = "MyApp"`
 
-imageOptions:: list of additional options to be passed to the `jpackage` executable in the `create-app-image` mode. +
+imageOptions:: list of additional options to be passed to the `jpackage` executable when executing the `jpackageImage` task. +
     _defaultValue_: empty list +
     _usage example_: `imageOptions = ["--win-console"]`
 
@@ -354,18 +354,18 @@ installerType:: the type of installer to be generated. +
     _defaultValue_: null (all supported types for the current platform will be generated) +
     _usage example_: `installerType = "rpm"`
 
-installerOutputDir:: the directory passed as argument to the `--output` option when running `jpackage` in the `create-app-image` mode.
+installerOutputDir:: the directory passed as argument to the `--output` option when running `jpackage` when executing the `jpackage` task.
     _defaultValue_: `_buildDir_/_outputDir_` +
     _usage example_: `installerOutputDir = file("$buildDir/my-packaging-installer")`
 
-installerName:: the argument passed to the `--name` option when running `jpackage` in the `create-installer` mode. +
+installerName:: the argument passed to the `--name` option when running `jpackage` when executing the `jpackage` task. +
     _defaultValue_: the `name` value configured in the `launcher` block or  `_project.name_` +
     _usage example_: `installerName = "MyApp"`
 
 jvmArgs:: list of JVM arguments to be passed to the virtual machine. +
     _defaultValue_: the `jvmArgs` value configured in the `launcher` block or an empty list
 
-installerOptions:: list of additional options to be passed to the `jpackage` executable in the `create-installer` mode. +
+installerOptions:: list of additional options to be passed to the `jpackage` executable when executing the `jpackage` task. +
     _defaultValue_: empty list +
     _usage example_: `installerOptions = ["--win-console"]`
 
