@@ -719,19 +719,19 @@ This block supports all properties of the <code>launcher</code> block and also t
 </dd>
 <dt class="hdlist1">imageOutputDir</dt>
 <dd>
-<p>the directory passed as argument to the <code>--output</code> option when running <code>jpackage</code> in the <code>create-app-image</code> mode.
+<p>the directory passed as argument to the <code>--output</code> option of <code>jpackage</code> when executing the <code>jpackageImage</code> task .
 <em>defaultValue</em>: <code><em>buildDir</em>/<em>outputDir</em></code><br>
 <em>usage example</em>: <code>imageOutputDir = file("$buildDir/my-packaging-image")</code></p>
 </dd>
 <dt class="hdlist1">imageName</dt>
 <dd>
-<p>the argument passed to the <code>--name</code> option when running <code>jpackage</code> in the <code>create-app-image</code> mode.<br>
+<p>the argument passed to the <code>--name</code> option when executing the <code>jpackageImage</code> task.<br>
 <em>defaultValue</em>: the <code>name</code> value configured in the <code>launcher</code> block or  <code><em>project.name</em></code><br>
 <em>usage example</em>: <code>imageName = "MyApp"</code></p>
 </dd>
 <dt class="hdlist1">imageOptions</dt>
 <dd>
-<p>list of additional options to be passed to the <code>jpackage</code> executable in the <code>create-app-image</code> mode.<br>
+<p>list of additional options to be passed to the <code>jpackage</code> executable when executing the <code>jpackageImage</code> task.<br>
 <em>defaultValue</em>: empty list<br>
 <em>usage example</em>: <code>imageOptions = ["--win-console"]</code></p>
 </dd>
@@ -749,13 +749,13 @@ This block supports all properties of the <code>launcher</code> block and also t
 </dd>
 <dt class="hdlist1">installerOutputDir</dt>
 <dd>
-<p>the directory passed as argument to the <code>--output</code> option when running <code>jpackage</code> in the <code>create-app-image</code> mode.
+<p>the directory passed as argument to the <code>--output</code> option when running <code>jpackage</code> when executing the <code>jpackage</code> task.
 <em>defaultValue</em>: <code><em>buildDir</em>/<em>outputDir</em></code><br>
 <em>usage example</em>: <code>installerOutputDir = file("$buildDir/my-packaging-installer")</code></p>
 </dd>
 <dt class="hdlist1">installerName</dt>
 <dd>
-<p>the argument passed to the <code>--name</code> option when running <code>jpackage</code> in the <code>create-installer</code> mode.<br>
+<p>the argument passed to the <code>--name</code> option when running <code>jpackage</code> when executing the <code>jpackage</code> task.<br>
 <em>defaultValue</em>: the <code>name</code> value configured in the <code>launcher</code> block or  <code><em>project.name</em></code><br>
 <em>usage example</em>: <code>installerName = "MyApp"</code></p>
 </dd>
@@ -766,7 +766,7 @@ This block supports all properties of the <code>launcher</code> block and also t
 </dd>
 <dt class="hdlist1">installerOptions</dt>
 <dd>
-<p>list of additional options to be passed to the <code>jpackage</code> executable in the <code>create-installer</code> mode.<br>
+<p>list of additional options to be passed to the <code>jpackage</code> executable when executing the <code>jpackage</code> task.<br>
 <em>defaultValue</em>: empty list<br>
 <em>usage example</em>: <code>installerOptions = ["--win-console"]</code></p>
 </dd>
