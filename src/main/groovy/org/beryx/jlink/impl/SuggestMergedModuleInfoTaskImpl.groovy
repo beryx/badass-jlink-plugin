@@ -21,6 +21,7 @@ import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
 import org.beryx.jlink.util.JdepsExecutor
 import org.beryx.jlink.util.SuggestedMergedModuleInfoBuilder
+import org.beryx.jlink.util.SuggestedModulesBuilder
 import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -36,39 +37,56 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
         LOGGER.info("taskData: $taskData")
     }
 
-    @CompileDynamic
     void execute() {
         LOGGER.info("Executing suggestMergedModuleInfo with useJdeps = $td.useJdeps")
+        boolean skipBuilder = false
         if(td.useJdeps != JdepsUsage.no) {
-            try {
-                def jarFilePath = "$td.jlinkBasePath/suggestedMergedModule.jar"
-                new File(jarFilePath).delete()
-                Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDir)
-                def result = new JdepsExecutor(project).genModuleInfo(project.file(jarFilePath),
-                        project.file(td.tmpJarsDirPath), td.jlinkJarsDirPath, td.javaHome)
-                def loggerFun = result.exitValue ? (td.useJdeps == JdepsUsage.yes) ? 'warn' : 'error' : 'info'
-                LOGGER."$loggerFun"(result.output)
-                if(result.exitValue) {
-                    if(td.useJdeps == JdepsUsage.exclusively) {
-                        throw new GradleException("jdeps exited with return code $result.exitValue")
-                    }
-                } else {
-                    println "jdeps generated module-info.java:\n${result.moduleInfoFile?.text}"
-                    return
-                }
-            } catch(Exception e) {
-                if(td.useJdeps == JdepsUsage.exclusively) {
-                    throw new GradleException("jdeps failed", e)
-                }
-                if(LOGGER.infoEnabled) {
-                    LOGGER.info("jdeps failed.", e)
-                } else {
-                    LOGGER.warn("jdeps failed: $e")
-                }
-            }
-            if(td.useJdeps == JdepsUsage.exclusively) return
+            skipBuilder = printJdepsModuleInfo() || (td.useJdeps == JdepsUsage.exclusively)
         }
-        def builder = new SuggestedMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes)
-        println "mergedModule {\n${builder.moduleInfo.toString(4, td.language)}\n}"
+        if(!skipBuilder) {
+            def builder = new SuggestedMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes)
+            println "mergedModule {\n${builder.moduleInfo.toString(4, td.language)}\n}"
+        }
+        if(td.customImageEnabled) {
+            def builder = new SuggestedModulesBuilder(td.javaHome)
+            def modules = builder.getProjectModules(project)
+            println """
+                customImage {
+                    modules = [${modules.join(', ')}]
+                }
+            """.stripIndent()
+        }
+    }
+
+    @CompileDynamic
+    private boolean printJdepsModuleInfo() {
+        try {
+            def jarFilePath = "$td.jlinkBasePath/suggestedMergedModule.jar"
+            new File(jarFilePath).delete()
+            Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDir)
+            def result = new JdepsExecutor(project).genModuleInfo(project.file(jarFilePath),
+                    project.file(td.tmpJarsDirPath), td.jlinkJarsDirPath, td.javaHome)
+            def loggerFun = result.exitValue ? (td.useJdeps == JdepsUsage.yes) ? 'warn' : 'error' : 'info'
+            LOGGER."$loggerFun"(result.output)
+            if (result.exitValue) {
+                if (td.useJdeps == JdepsUsage.exclusively) {
+                    throw new GradleException("jdeps exited with return code $result.exitValue")
+                }
+                return false
+            } else {
+                println "jdeps generated module-info.java:\n${result.moduleInfoFile?.text}"
+                return true
+            }
+        } catch (Exception e) {
+            if (td.useJdeps == JdepsUsage.exclusively) {
+                throw new GradleException("jdeps failed", e)
+            }
+            if (LOGGER.infoEnabled) {
+                LOGGER.info("jdeps failed.", e)
+            } else {
+                LOGGER.warn("jdeps failed: $e")
+            }
+            return false
+        }
     }
 }

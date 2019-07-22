@@ -29,4 +29,5 @@ class SuggestMergedModuleInfoTaskData extends BaseTaskData {
     JdepsUsage useJdeps
     String jlinkJarsDirPath
     String tmpJarsDirPath
+    boolean customImageEnabled
 }

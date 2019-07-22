@@ -50,6 +50,7 @@ class JlinkPluginExtension {
     final Property<String> javaHome
     final Provider<Map<String, TargetPlatform>> targetPlatforms
     final Property<Integer> jvmVersion
+    final Property<CustomImageData> customImageData
 
     final Property<JPackageData> jpackageData
 
@@ -76,6 +77,9 @@ class JlinkPluginExtension {
         def ld = new LauncherData()
         ld.name = project.name
         launcherData.set(ld)
+
+        customImageData = project.objects.property(CustomImageData)
+        customImageData.set(new CustomImageData())
 
         secondaryLaunchers = project.objects.listProperty(SecondaryLauncherData)
         secondaryLaunchers.set(new ArrayList<SecondaryLauncherData>())
@@ -155,6 +159,11 @@ class JlinkPluginExtension {
         action.execute(ld)
         ld.check()
         jpackageData.get().addSecondaryLauncher(ld)
+    }
+
+    void customImage(Action<CustomImageData> action) {
+        customImageData.get().enabled = true
+        action.execute(customImageData.get())
     }
 
     void jpackage(Action<JPackageData> action) {

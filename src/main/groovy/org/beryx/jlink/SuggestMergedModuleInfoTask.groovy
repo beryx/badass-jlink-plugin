@@ -52,6 +52,11 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         extension.javaHome.get()
     }
 
+    @Input
+    boolean isCustomImageEnabled() {
+        extension.customImageData.get().enabled
+    }
+
     @Internal
     final Property<JdepsUsage> useJdeps
 
@@ -80,6 +85,7 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         taskData.mergedJarsDir = mergedJarsDir.asFile
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
+        taskData.customImageEnabled = customImageEnabled
 
         def taskImpl = new SuggestMergedModuleInfoTaskImpl(project, taskData)
         taskImpl.execute()

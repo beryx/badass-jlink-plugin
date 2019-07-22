@@ -20,16 +20,7 @@ import groovy.transform.ToString
 
 @CompileStatic
 @ToString(includeNames = true)
-class JlinkTaskData extends BaseTaskData {
-    File imageDir
-    String moduleName
-    LauncherData launcherData
-    List<SecondaryLauncherData> secondaryLaunchers
-    String mainClass
-    List<String> options
-    String javaHome
-    Map<String,TargetPlatform> targetPlatforms
-    File jlinkJarsDir
-    List<String> extraModulePaths
-    CustomImageData customImageData
+class CustomImageData implements Serializable {
+    boolean enabled = false
+    List<String> jreModules = []
 }

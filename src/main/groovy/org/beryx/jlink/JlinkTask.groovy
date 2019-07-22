@@ -44,6 +44,11 @@ class JlinkTask extends BaseTask {
     }
 
     @Input
+    CustomImageData getCustomImageData() {
+        extension.customImageData.get()
+    }
+
+    @Input
     String getMainClass() {
         extension.mainClass.get()
     }
@@ -96,6 +101,7 @@ class JlinkTask extends BaseTask {
         taskData.moduleName = moduleName
         taskData.launcherData = launcherData
         taskData.secondaryLaunchers = secondaryLaunchers
+        taskData.customImageData = customImageData
         taskData.mainClass = mainClass ?: defaultMainClass
         taskData.options = options
         taskData.extraModulePaths = extraModulePaths

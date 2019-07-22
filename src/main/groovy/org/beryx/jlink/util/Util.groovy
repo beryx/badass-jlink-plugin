@@ -232,6 +232,11 @@ class Util {
         (Set<File>)deps.collect{ it.moduleArtifacts*.file }.flatten() as Set
     }
 
+    static File getArtifact(ResolvedDependency dep) {
+        def artifact = dep.moduleArtifacts.find {it.classifier} ?: dep.moduleArtifacts[0]
+        artifact.file
+    }
+
     static boolean isEmptyJar(File jarFile) {
             def zipFile = new ZipFile(jarFile)
         zipFile.entries().every { ZipEntry entry -> entry.name in ['META-INF/', 'META-INF/MANIFEST.MF']}

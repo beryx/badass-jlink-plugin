@@ -19,6 +19,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkTaskData
 import org.beryx.jlink.util.LaunchScriptGenerator
+import org.beryx.jlink.util.SuggestedModulesBuilder
 import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
@@ -63,12 +64,21 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
             def additionalModulePaths = extraModulePaths.collect {SEP + it}.join('')
             def jlinkExec = "$td.javaHome/bin/jlink$EXEC_EXTENSION"
             Util.checkExecutable(jlinkExec)
-            commandLine = [jlinkExec,
-                           '-v',
-                           *options,
-                           '--module-path', "$jdkHome/jmods/$additionalModulePaths$SEP$jlinkJarsDirAsPath",
-                           '--add-modules', td.moduleName,
-                           '--output', imageDir]
+            if(td.customImageData.enabled) {
+                commandLine = [jlinkExec,
+                               '-v',
+                               *options,
+                               '--module-path', "$jdkHome/jmods/",
+                               '--add-modules', jreModules.join(','),
+                               '--output', imageDir]
+            } else {
+                commandLine = [jlinkExec,
+                               '-v',
+                               *options,
+                               '--module-path', "$jdkHome/jmods/$additionalModulePaths$SEP$jlinkJarsDirAsPath",
+                               '--add-modules', td.moduleName,
+                               '--output', imageDir]
+            }
         }
         if(result.exitValue != 0) {
             LOGGER.error(project.ext.jlinkOutput())
@@ -77,6 +87,10 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         }
         result.assertNormalExitValue()
         result.rethrowFailure()
+    }
+
+    Collection<String> getJreModules() {
+        td.customImageData.jreModules ?: new SuggestedModulesBuilder(td.javaHome).getProjectModules(project)
     }
 
     void createLaunchScripts(File imageDir) {
