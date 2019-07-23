@@ -106,7 +106,7 @@ class JlinkPluginSpec extends Specification {
         where:
         projectDir                  | gradleVersion | imageDir  | imageZip      | expectedLauncherName
         'hello-javafx'              | '4.8'         | 'helloFX' | 'helloFX.zip' | 'helloFX'
-        'hello-javafx-log4j-2.11.1' | '5.0'         | 'image'   | 'image.zip'   | 'helloFX'
+        'hello-javafx-log4j-2.11.1' | '5.5.1'       | 'image'   | 'image.zip'   | 'helloFX'
     }
 
     def "should adjust qualified opens in module-info"() {

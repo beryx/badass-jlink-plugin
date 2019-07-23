@@ -38,9 +38,9 @@ class LaunchScriptGeneratorSpec extends Specification {
 
         where:
         jvmArgs                      | args             | lastLine
-        []                           | []               | '"$DIR/java" -m org.example.hello/org.example.Hello "$@"'
-        ['-Xmx200m']                 | ['Alice']        | '"$DIR/java" -Xmx200m -m org.example.hello/org.example.Hello Alice "$@"'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | '"$DIR/java" -Xmx200m -Ddebug=true -m org.example.hello/org.example.Hello Alice Bob "$@"'
+        []                           | []               | '"$DIR/java" -p "$DIR/../app" -m org.example.hello/org.example.Hello "$@"'
+        ['-Xmx200m']                 | ['Alice']        | '"$DIR/java" -Xmx200m -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice "$@"'
+        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | '"$DIR/java" -Xmx200m -Ddebug=true -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice Bob "$@"'
     }
 
     @Unroll
@@ -61,8 +61,8 @@ class LaunchScriptGeneratorSpec extends Specification {
 
         where:
         jvmArgs                      | args             | lastLine
-        []                           | []               | 'pushd %DIR% & %JAVA_EXEC% -m org.example.hello/org.example.Hello %* & popd'
-        ['-Xmx200m']                 | ['Alice']        | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -m org.example.hello/org.example.Hello Alice %* & popd'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -Ddebug=true -m org.example.hello/org.example.Hello Alice Bob %* & popd'
+        []                           | []               | 'pushd %DIR% & %JAVA_EXEC% -p "%~dp0/../app" -m org.example.hello/org.example.Hello %* & popd'
+        ['-Xmx200m']                 | ['Alice']        | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice %* & popd'
+        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -Ddebug=true -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice Bob %* & popd'
     }
 }

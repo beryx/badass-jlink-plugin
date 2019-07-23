@@ -24,4 +24,5 @@ jlink {
         name = 'helloFX'
     }
     forceMerge('log4j-api')
+    customImage {}
 }
