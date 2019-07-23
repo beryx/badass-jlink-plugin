@@ -84,6 +84,14 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
             LOGGER.error(project.ext.jlinkOutput())
         } else {
             LOGGER.info(project.ext.jlinkOutput())
+
+            new File(imageDir, 'app').mkdirs()
+            if(td.customImageData.enabled) {
+                project.copy {
+                    from td.jlinkJarsDir
+                    into "$imageDir/app"
+                }
+            }
         }
         result.assertNormalExitValue()
         result.rethrowFailure()

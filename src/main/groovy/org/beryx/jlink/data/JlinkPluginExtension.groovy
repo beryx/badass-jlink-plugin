@@ -161,9 +161,11 @@ class JlinkPluginExtension {
         jpackageData.get().addSecondaryLauncher(ld)
     }
 
-    void customImage(Action<CustomImageData> action) {
+    void customImage(Action<CustomImageData> action = null) {
         customImageData.get().enabled = true
-        action.execute(customImageData.get())
+        if(action) {
+            action.execute(customImageData.get())
+        }
     }
 
     void jpackage(Action<JPackageData> action) {
