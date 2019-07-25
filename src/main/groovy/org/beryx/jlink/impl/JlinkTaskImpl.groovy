@@ -69,7 +69,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
                                '-v',
                                *options,
                                '--module-path', "$jdkHome/jmods/",
-                               '--add-modules', jreModules.join(','),
+                               '--add-modules', jdkModules.join(','),
                                '--output', imageDir]
             } else {
                 commandLine = [jlinkExec,
@@ -97,8 +97,8 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         result.rethrowFailure()
     }
 
-    Collection<String> getJreModules() {
-        td.customImageData.jreModules ?: new SuggestedModulesBuilder(td.javaHome).getProjectModules(project)
+    Collection<String> getJdkModules() {
+        td.customImageData.jdkModules ?: new SuggestedModulesBuilder(td.javaHome).getProjectModules(project)
     }
 
     void createLaunchScripts(File imageDir) {
