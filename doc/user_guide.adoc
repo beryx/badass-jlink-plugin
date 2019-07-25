@@ -275,6 +275,7 @@ jlink {
 }
 ----
 
+
 === secondaryLauncher
 
 The plugin can generate script files for additional applications besides the main one.
@@ -311,6 +312,45 @@ jlink {
         name = "my-additional-app"
         mainClass = "org.example.MyAdditionalApp"
         args = listOf("--user", "emma")
+    }
+    ...
+}
+----
+
+
+=== customImage
+__This block is experimental. Breaking changes may occur even in minor or patch releases.__
+
+By default, all application modules are included in the custom runtime image.
+This block allows you to create a custom runtime image containing only some of the application modules.
+
+If the `customImage` block is empty, the plugin will create a JRE containing only the JDK modules required by your application.
+The plugin figures out by itself which JDK modules are needed, but you can use the below property to request a different set of modules.
+
+jdkModules:: list of JDK modules to be included in the generated image. +
+    _defaultValue_: null
+
+
+_Usage example_
+[source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
+.Groovy
+----
+jlink {
+    ...
+    customImage {
+        jdkModules = ['java.desktop', 'java.xml', 'jdk.unsupported']
+    }
+    ...
+}
+----
+
+[source,kotlin,indent=0,subs="verbatim,attributes",role="secondary"]
+.Kotlin
+----
+jlink {
+    ...
+    customImage {
+        jdkModules = listOf("java.desktop", "java.xml", "jdk.unsupported")
     }
     ...
 }
