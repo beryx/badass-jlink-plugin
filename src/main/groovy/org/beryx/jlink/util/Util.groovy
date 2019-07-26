@@ -34,6 +34,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.util.GradleVersion
 
+import java.lang.module.ModuleDescriptor
 import java.lang.module.ModuleFinder
 import java.util.jar.JarFile
 import java.util.regex.Pattern
@@ -312,5 +313,33 @@ class Util {
     static void checkExecutable(File f) {
         if(!f.file) throw new GradleException("$f.absolutePath does not exist.")
         if(!f.canExecute()) throw new GradleException("$f.absolutePath is not executable.")
+    }
+
+    static List<File> getJarsAndMods(Object... modulePath) {
+        List<File> allFiles = []
+        modulePath.each {entry ->
+            File f = (entry instanceof File) ? (File)entry : new File(entry.toString())
+            if(f.file) allFiles.add(f)
+            if(f.directory) {
+                allFiles.addAll(f.listFiles({File ff -> ff.file} as FileFilter))
+            }
+        }
+        allFiles.findAll {it.name.endsWith(".jar") || it.name.endsWith(".jmod")}
+    }
+
+    static ModuleDescriptor getModuleDescriptor(File f) {
+        if(!f.file) throw new IllegalArgumentException("$f is not a file")
+        if(f.name == 'module-info.class') return ModuleDescriptor.read(f.newInputStream())
+        if(!f.name.endsWith('.jar') && !f.name.endsWith('.jmod')) throw new IllegalArgumentException("Unsupported file type: $f")
+        def prefix = f.name.endsWith('.jmod') ? 'classes/' : ''
+        def zipFile = new ZipFile(f)
+        for(entry in zipFile.entries()) {
+            ZipEntry zipEntry = (ZipEntry)entry
+            if(zipEntry.name == "${prefix}module-info.class" as String) {
+                def entryStream = zipFile.getInputStream(zipEntry)
+                return ModuleDescriptor.read(entryStream)
+            }
+        }
+        null
     }
 }
