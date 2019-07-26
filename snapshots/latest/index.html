@@ -109,6 +109,7 @@ $(addBlockSwitches);
 <li><a href="#_mergedmodule">mergedModule</a></li>
 <li><a href="#_launcher">launcher</a></li>
 <li><a href="#_secondarylauncher">secondaryLauncher</a></li>
+<li><a href="#_customimage">customImage</a></li>
 <li><a href="#_jpackage">jpackage</a></li>
 </ul>
 </li>
@@ -687,6 +688,56 @@ This block supports all properties of the <code>launcher</code> block and also t
         name = &quot;my-additional-app&quot;
         mainClass = &quot;org.example.MyAdditionalApp&quot;
         args = listOf(&quot;--user&quot;, &quot;emma&quot;)
+    }
+    ...
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_customimage">customImage</h4>
+<div class="paragraph">
+<p><em>This block is experimental. Breaking changes may occur even in minor or patch releases.</em></p>
+</div>
+<div class="paragraph">
+<p>By default, all application modules are included in the custom runtime image.
+This block allows you to create a custom runtime image containing only some of the application modules.</p>
+</div>
+<div class="paragraph">
+<p>If the <code>customImage</code> block is empty, the plugin will create a JRE containing only the JDK modules required by your application.
+The plugin figures out by itself which JDK modules are needed, but you can use the below property to request a different set of modules.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">jdkModules</dt>
+<dd>
+<p>list of JDK modules to be included in the generated image.<br>
+<em>defaultValue</em>: null</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p><em>Usage example</em></p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">jlink {
+    ...
+    customImage {
+        jdkModules = [<span class="string"><span class="delimiter">'</span><span class="content">java.desktop</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">java.xml</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">jdk.unsupported</span><span class="delimiter">'</span></span>]
+    }
+    ...
+}</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="kotlin">jlink {
+    ...
+    customImage {
+        jdkModules = listOf(&quot;java.desktop&quot;, &quot;java.xml&quot;, &quot;jdk.unsupported&quot;)
     }
     ...
 }</code></pre>
