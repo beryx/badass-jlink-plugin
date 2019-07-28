@@ -345,6 +345,12 @@ You can use the suggested block as a starting point for your custom <code>merged
 <em>defaultValue</em>: <code><em>moduleName</em>.merged.module</code><br>
 <em>usage example</em>: <code>mergedModuleName = 'org.example.myapp.merged.module'</code></p>
 </dd>
+<dt class="hdlist1">mergedModuleJarName</dt>
+<dd>
+<p>The name of the jar containing the merged module.<br>
+<em>defaultValue</em>: <code><em>archiveBaseName</em>.merged.module.jar</code><br>
+<em>usage example</em>: <code>mergedModuleJarName = 'my-merged-module.jar'</code></p>
+</dd>
 <dt class="hdlist1">options</dt>
 <dd>
 <p>A list of options to be passed to <em>jlink</em>.<br>
@@ -697,9 +703,6 @@ This block supports all properties of the <code>launcher</code> block and also t
 <div class="sect3">
 <h4 id="_customimage">customImage</h4>
 <div class="paragraph">
-<p><em>This block is experimental. Breaking changes may occur even in minor or patch releases.</em></p>
-</div>
-<div class="paragraph">
 <p>By default, all application modules are included in the custom runtime image.
 This block allows you to create a custom runtime image containing only some of the application modules.</p>
 </div>
@@ -712,7 +715,13 @@ The plugin figures out by itself which JDK modules are needed, but you can use t
 <dt class="hdlist1">jdkModules</dt>
 <dd>
 <p>list of JDK modules to be included in the generated image.<br>
-<em>defaultValue</em>: null</p>
+<em>defaultValue</em>: null (the plugin figures out by itself which JDK modules are needed)</p>
+</dd>
+<dt class="hdlist1">appModules</dt>
+<dd>
+<p>list of application modules to be included in the generated image.<br>
+Modules required by those in this list will be automatically included.<br>
+<em>defaultValue</em>: null (all application modules are included)</p>
 </dd>
 </dl>
 </div>
