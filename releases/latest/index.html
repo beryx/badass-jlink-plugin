@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.12.0</span>
+<span id="revnumber">version 2.13.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -109,6 +109,7 @@ $(addBlockSwitches);
 <li><a href="#_mergedmodule">mergedModule</a></li>
 <li><a href="#_launcher">launcher</a></li>
 <li><a href="#_secondarylauncher">secondaryLauncher</a></li>
+<li><a href="#_customimage">customImage</a></li>
 <li><a href="#_jpackage">jpackage</a></li>
 </ul>
 </li>
@@ -186,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.12.0'
+    id 'org.beryx.jlink' version '2.13.0'
 }</code></pre>
 </div>
 </div>
@@ -218,7 +219,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.12.0/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.13.0/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -343,6 +344,12 @@ You can use the suggested block as a starting point for your custom <code>merged
 <p>The name of the merged module.<br>
 <em>defaultValue</em>: <code><em>moduleName</em>.merged.module</code><br>
 <em>usage example</em>: <code>mergedModuleName = 'org.example.myapp.merged.module'</code></p>
+</dd>
+<dt class="hdlist1">mergedModuleJarName</dt>
+<dd>
+<p>The name of the jar containing the merged module.<br>
+<em>defaultValue</em>: <code><em>archiveBaseName</em>.merged.module.jar</code><br>
+<em>usage example</em>: <code>mergedModuleJarName = 'my-merged-module.jar'</code></p>
 </dd>
 <dt class="hdlist1">options</dt>
 <dd>
@@ -687,6 +694,59 @@ This block supports all properties of the <code>launcher</code> block and also t
         name = &quot;my-additional-app&quot;
         mainClass = &quot;org.example.MyAdditionalApp&quot;
         args = listOf(&quot;--user&quot;, &quot;emma&quot;)
+    }
+    ...
+}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_customimage">customImage</h4>
+<div class="paragraph">
+<p>By default, all application modules are included in the custom runtime image.
+This block allows you to create a custom runtime image containing only some of the application modules.</p>
+</div>
+<div class="paragraph">
+<p>If the <code>customImage</code> block is empty, the plugin will create a JRE containing only the JDK modules required by your application.
+The plugin figures out by itself which JDK modules are needed, but you can use the below property to request a different set of modules.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">jdkModules</dt>
+<dd>
+<p>list of JDK modules to be included in the generated image.<br>
+<em>defaultValue</em>: null (the plugin figures out by itself which JDK modules are needed)</p>
+</dd>
+<dt class="hdlist1">appModules</dt>
+<dd>
+<p>list of application modules to be included in the generated image.<br>
+Modules required by those in this list will be automatically included.<br>
+<em>defaultValue</em>: null (all application modules are included)</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p><em>Usage example</em></p>
+</div>
+<div class="listingblock primary">
+<div class="title">Groovy</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">jlink {
+    ...
+    customImage {
+        jdkModules = [<span class="string"><span class="delimiter">'</span><span class="content">java.desktop</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">java.xml</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">jdk.unsupported</span><span class="delimiter">'</span></span>]
+    }
+    ...
+}</code></pre>
+</div>
+</div>
+<div class="listingblock secondary">
+<div class="title">Kotlin</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="kotlin">jlink {
+    ...
+    customImage {
+        jdkModules = listOf(&quot;java.desktop&quot;, &quot;java.xml&quot;, &quot;jdk.unsupported&quot;)
     }
     ...
 }</code></pre>
@@ -1083,7 +1143,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.12.0<br>
+Version 2.13.0<br>
 </div>
 </div>
 </body>
