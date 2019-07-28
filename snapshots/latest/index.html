@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.12.1-SNAPSHOT</span>
+<span id="revnumber">version 2.13.1-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -187,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.12.1-SNAPSHOT'
+    id 'org.beryx.jlink' version '2.13.1-SNAPSHOT'
 }</code></pre>
 </div>
 </div>
@@ -733,8 +733,10 @@ Modules required by those in this list will be automatically included.<br>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
+    mergedModuleName = <span class="string"><span class="delimiter">'</span><span class="content">my.merged.module</span><span class="delimiter">'</span></span>
     customImage {
         jdkModules = [<span class="string"><span class="delimiter">'</span><span class="content">java.desktop</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">java.xml</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">jdk.unsupported</span><span class="delimiter">'</span></span>]
+        appModules = [<span class="string"><span class="delimiter">'</span><span class="content">my.merged.module</span><span class="delimiter">'</span></span>]
     }
     ...
 }</code></pre>
@@ -745,8 +747,10 @@ Modules required by those in this list will be automatically included.<br>
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="kotlin">jlink {
     ...
+    mergedModuleName = &quot;my.merged.module&quot;
     customImage {
         jdkModules = listOf(&quot;java.desktop&quot;, &quot;java.xml&quot;, &quot;jdk.unsupported&quot;)
+        appModules = listOf(&quot;my.merged.module&quot;)
     }
     ...
 }</code></pre>
@@ -1143,7 +1147,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.12.1-SNAPSHOT<br>
+Version 2.13.1-SNAPSHOT<br>
 </div>
 </div>
 </body>
