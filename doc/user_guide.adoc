@@ -343,8 +343,10 @@ _Usage example_
 ----
 jlink {
     ...
+    mergedModuleName = 'my.merged.module'
     customImage {
         jdkModules = ['java.desktop', 'java.xml', 'jdk.unsupported']
+        appModules = ['my.merged.module']
     }
     ...
 }
@@ -355,8 +357,10 @@ jlink {
 ----
 jlink {
     ...
+    mergedModuleName = "my.merged.module"
     customImage {
         jdkModules = listOf("java.desktop", "java.xml", "jdk.unsupported")
+        appModules = listOf("my.merged.module")
     }
     ...
 }
