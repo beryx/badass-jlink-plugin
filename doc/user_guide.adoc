@@ -58,6 +58,9 @@ moduleName:: The module name of this application. +
 mergedModuleName:: The name of the merged module. +
     _defaultValue_: `_moduleName_.merged.module` +
     _usage example_: `mergedModuleName = 'org.example.myapp.merged.module'`
+mergedModuleJarName:: The name of the jar containing the merged module. +
+    _defaultValue_: `_archiveBaseName_.merged.module.jar` +
+    _usage example_: `mergedModuleJarName = 'my-merged-module.jar'`
 options:: A list of options to be passed to _jlink_. +
     _defaultValue_: empty list +
     _usage example_: `options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']`
@@ -319,7 +322,6 @@ jlink {
 
 
 === customImage
-__This block is experimental. Breaking changes may occur even in minor or patch releases.__
 
 By default, all application modules are included in the custom runtime image.
 This block allows you to create a custom runtime image containing only some of the application modules.
@@ -328,7 +330,11 @@ If the `customImage` block is empty, the plugin will create a JRE containing onl
 The plugin figures out by itself which JDK modules are needed, but you can use the below property to request a different set of modules.
 
 jdkModules:: list of JDK modules to be included in the generated image. +
-    _defaultValue_: null
+    _defaultValue_: null (the plugin figures out by itself which JDK modules are needed)
+
+appModules:: list of application modules to be included in the generated image. +
+    Modules required by those in this list will be automatically included. +
+    _defaultValue_: null (all application modules are included)
 
 
 _Usage example_
