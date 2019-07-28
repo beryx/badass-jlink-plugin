@@ -37,6 +37,7 @@ class JlinkPluginExtension {
     final RegularFileProperty imageZip
     final Property<String> moduleName
     final Property<String> mergedModuleName
+    final Property<String> mergedModuleJarName
 
     final Property<LauncherData> launcherData
     final ListProperty<SecondaryLauncherData> secondaryLaunchers
@@ -72,6 +73,9 @@ class JlinkPluginExtension {
 
         mergedModuleName = project.objects.property(String)
         mergedModuleName.set(project.provider{Util.getDefaultMergedModuleName(project)})
+
+        mergedModuleJarName = project.objects.property(String)
+        mergedModuleJarName.set(project.provider{"${Util.getArchiveBaseName(project)}.merged.module.jar" as String})
 
         launcherData = project.objects.property(LauncherData)
         def ld = new LauncherData()

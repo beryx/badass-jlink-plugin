@@ -24,6 +24,7 @@ class CreateMergedModuleTaskData extends BaseTaskData {
     List<String> forceMergedJarPrefixes
     List<String> extraDependenciesPrefixes
     String mergedModuleName
+    String mergedModuleJarName
     ModuleInfo mergedModuleInfo
     JdepsUsage useJdeps
     File mergedJarsDir

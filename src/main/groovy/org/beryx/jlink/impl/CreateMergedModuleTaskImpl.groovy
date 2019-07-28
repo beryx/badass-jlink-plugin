@@ -41,7 +41,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
 
     @CompileDynamic
     void execute() {
-        def jarFilePath = "$td.tmpMergedModuleDirPath/${Util.getArchiveBaseName(project)}.merged.module.jar"
+        def jarFilePath = "$td.tmpMergedModuleDirPath/$td.mergedModuleJarName"
         Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDir)
         def modInfoDir = genModuleInfo(project.file(jarFilePath), project.file(td.tmpJarsDirPath), td.mergedModuleName)
         compileModuleInfo(project.file(modInfoDir), project.file(jarFilePath), project.file(td.tmpModuleInfoDirPath))
