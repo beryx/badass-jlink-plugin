@@ -332,6 +332,16 @@ The plugin figures out by itself which JDK modules are needed, but you can use t
 jdkModules:: list of JDK modules to be included in the generated image. +
     _defaultValue_: null (the plugin figures out by itself which JDK modules are needed)
 
+jdkAdditive:: if true, the custom image will contain both the modules in the `jdkModules` list and the JDK modules identified as required by the plugin itself.
+    _defaultValue_: false
+
+In many cases the "suggested" descriptor is just the right one for your merged module, so you don't need to provide a `mergedModule` block.
+In some other cases the "suggested" descriptor is _almost_ right, in the sense that it only misses one or a few clauses.
+In these cases you are allowed to configure only the missing clauses in the `mergedModule` block and instruct the plugin
+to add them to the suggested descriptor by setting the attribute `additive` to true.
+(The default value of `additive` is false.)
+
+
 appModules:: list of application modules to be included in the generated image. +
     Modules required by those in this list will be automatically included. +
     _defaultValue_: null (all application modules are included)
