@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.13.1-SNAPSHOT</span>
+<span id="revnumber">version 2.14.1-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -187,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.13.1-SNAPSHOT'
+    id 'org.beryx.jlink' version '2.14.1-SNAPSHOT'
 }</code></pre>
 </div>
 </div>
@@ -717,6 +717,22 @@ The plugin figures out by itself which JDK modules are needed, but you can use t
 <p>list of JDK modules to be included in the generated image.<br>
 <em>defaultValue</em>: null (the plugin figures out by itself which JDK modules are needed)</p>
 </dd>
+<dt class="hdlist1">jdkAdditive</dt>
+<dd>
+<p>if true, the custom image will contain both the modules in the <code>jdkModules</code> list and the JDK modules identified as required by the plugin itself.
+<em>defaultValue</em>: false</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>In many cases the "suggested" descriptor is just the right one for your merged module, so you don&#8217;t need to provide a <code>mergedModule</code> block.
+In some other cases the "suggested" descriptor is <em>almost</em> right, in the sense that it only misses one or a few clauses.
+In these cases you are allowed to configure only the missing clauses in the <code>mergedModule</code> block and instruct the plugin
+to add them to the suggested descriptor by setting the attribute <code>additive</code> to true.
+(The default value of <code>additive</code> is false.)</p>
+</div>
+<div class="dlist">
+<dl>
 <dt class="hdlist1">appModules</dt>
 <dd>
 <p>list of application modules to be included in the generated image.<br>
@@ -1147,7 +1163,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.13.1-SNAPSHOT<br>
+Version 2.14.1-SNAPSHOT<br>
 </div>
 </div>
 </body>
