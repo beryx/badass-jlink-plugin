@@ -143,7 +143,11 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     }
 
     Collection<String> getJdkModules() {
-        td.customImageData.jdkModules ?: new SuggestedModulesBuilder(td.javaHome).getProjectModules(project)
+        if(td.customImageData.jdkAdditive) {
+            new SuggestedModulesBuilder(td.javaHome).getProjectModules(project) + (td.customImageData.jdkModules ?: [])
+        } else {
+            td.customImageData.jdkModules ?: new SuggestedModulesBuilder(td.javaHome).getProjectModules(project)
+        }
     }
 
     Collection<String> getImageModules() {

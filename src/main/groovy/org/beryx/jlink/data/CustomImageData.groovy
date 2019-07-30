@@ -22,6 +22,7 @@ import groovy.transform.ToString
 @ToString(includeNames = true)
 class CustomImageData implements Serializable {
     boolean enabled = false
+    boolean jdkAdditive = false
     List<String> jdkModules = []
     List<String> appModules = []
 }
