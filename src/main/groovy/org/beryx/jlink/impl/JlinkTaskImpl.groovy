@@ -104,8 +104,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
                 ModuleDescriptor md = Util.getModuleDescriptor(file)
                 if(md) moduleData[md.name()] = new ModuleData(file, md)
             }
-            Set<String> transitiveModules = []
-            addTransitive(transitiveModules, td.moduleName, moduleData)
+            Set<String> transitiveModules = moduleData.keySet()
             LOGGER.info "transitiveModules: $transitiveModules"
 
             Set<String> transitiveImageModules = []

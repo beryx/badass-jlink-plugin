@@ -52,7 +52,7 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
             def modules = builder.getProjectModules(project)
             println """
                 customImage {
-                    modules = [${modules.join(', ')}]
+                    jdkModules = [${modules.join(', ')}]
                 }
             """.stripIndent()
         }
