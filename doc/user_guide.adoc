@@ -422,6 +422,10 @@ installerName:: the argument passed to the `--name` option when running `jpackag
     _defaultValue_: the `name` value configured in the `launcher` block or  `_project.name_` +
     _usage example_: `installerName = "MyApp"`
 
+identifier:: the argument passed to the `--identifier` option when running `jpackage` when executing the `jpackage` task. +
+    _defaultValue_: the the main class name +
+    _usage example_: `identifier = "org.example.MyApp"`
+
 jvmArgs:: list of JVM arguments to be passed to the virtual machine. +
     _defaultValue_: the `jvmArgs` value configured in the `launcher` block or an empty list
 
