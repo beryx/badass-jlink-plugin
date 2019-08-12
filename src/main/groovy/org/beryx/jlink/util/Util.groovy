@@ -261,6 +261,7 @@ class Util {
         }
     }
 
+    @CompileDynamic
     static <T> void addToListProperty(ListProperty<T> listProp, T... values) {
         if(GradleVersion.current() < GradleVersion.version('5.0-milestone-1')) {
             def list = new ArrayList(listProp.get())
