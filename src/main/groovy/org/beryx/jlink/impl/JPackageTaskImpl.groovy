@@ -85,9 +85,9 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         if(OperatingSystem.current().windows) {
             return ['exe', 'msi']
         } else if(OperatingSystem.current().macOsX) {
-            return ['rpm', 'deb']
-        } else {
             return ['pkg', 'dmg']
+        } else {
+            return ['rpm', 'deb']
         }
     }
 }
