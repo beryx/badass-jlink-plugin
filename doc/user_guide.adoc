@@ -71,6 +71,9 @@ javaHome:: The path to the JDK providing the tools needed by the plugin (_javac_
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `java.home` system property (only if it points to a JRE containing the `javac`, `jar`, and `jlink` tools) +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `JAVA_HOME` environment variable +
     _usage example_: `javaHome = '/usr/lib/jvm/open-jdk'`
+configuration:: The name of the Gradle dependency configuration used to execute your application. +
+    _defaultValue_: `'runtimeClasspath'` +
+    _usage example_: `configuration = 'myAppRuntime'`
 
 
 == Methods
@@ -423,7 +426,7 @@ installerName:: the argument passed to the `--name` option when running `jpackag
     _usage example_: `installerName = "MyApp"`
 
 identifier:: the argument passed to the `--identifier` option when running `jpackage` when executing the `jpackage` task. +
-    _defaultValue_: the the main class name +
+    _defaultValue_: the main class name +
     _usage example_: `identifier = "org.example.MyApp"`
 
 jvmArgs:: list of JVM arguments to be passed to the virtual machine. +
