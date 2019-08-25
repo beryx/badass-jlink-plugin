@@ -17,6 +17,7 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
+import org.gradle.api.artifacts.Configuration
 
 @CompileStatic
 @ToString(includeNames = true)
@@ -25,6 +26,7 @@ class SuggestMergedModuleInfoTaskData extends BaseTaskData {
     List<String> extraDependenciesPrefixes
     File mergedJarsDir
     String javaHome
+    Configuration configuration
     ModuleInfo.Language language
     JdepsUsage useJdeps
     String jlinkJarsDirPath

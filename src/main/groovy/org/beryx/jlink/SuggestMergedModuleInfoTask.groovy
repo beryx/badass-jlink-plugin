@@ -53,6 +53,11 @@ class SuggestMergedModuleInfoTask extends BaseTask {
     }
 
     @Input
+    String getConfiguration() {
+        extension.configuration.get()
+    }
+
+    @Input
     boolean isCustomImageEnabled() {
         extension.customImageData.get().enabled
     }
@@ -80,6 +85,7 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
         taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
         taskData.javaHome = javaHome
+        taskData.configuration = project.configurations.getByName(configuration)
         taskData.useJdeps = useJdeps.get()
         taskData.language = language.get()
         taskData.mergedJarsDir = mergedJarsDir.asFile

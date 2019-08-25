@@ -42,6 +42,7 @@ class JlinkPluginExtension {
     final Property<LauncherData> launcherData
     final ListProperty<SecondaryLauncherData> secondaryLaunchers
     final Property<String> mainClass
+    final Property<String> configuration
     final ListProperty<String> forceMergedJarPrefixes
     final ListProperty<String> extraDependenciesPrefixes
     final ListProperty<String> extraModulePaths
@@ -90,6 +91,9 @@ class JlinkPluginExtension {
 
         mainClass = project.objects.property(String)
         mainClass.set('')
+
+        configuration = project.objects.property(String)
+        configuration.set('runtimeClasspath')
 
         forceMergedJarPrefixes = project.objects.listProperty(String)
         forceMergedJarPrefixes.set(new ArrayList<String>())

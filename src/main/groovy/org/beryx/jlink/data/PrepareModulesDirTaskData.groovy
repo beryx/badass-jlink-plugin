@@ -17,6 +17,7 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
+import org.gradle.api.artifacts.Configuration
 
 @CompileStatic
 @ToString(includeNames = true)
@@ -25,6 +26,7 @@ class PrepareModulesDirTaskData extends BaseTaskData {
     String mergedModuleName
     String tmpModuleInfoDirPath
     String javaHome
+    Configuration configuration
     List<String> forceMergedJarPrefixes
     List<String> extraDependenciesPrefixes
 

@@ -38,7 +38,7 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
     void execute() {
         project.delete(td.jlinkBasePath)
         td.mergedJarsDir.mkdirs()
-        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes)
+        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes, td.configuration)
         copyRuntimeJars(depMgr)
         mergeUnpackedContents(new File(td.nonModularJarsDirPath).listFiles() as List)
     }

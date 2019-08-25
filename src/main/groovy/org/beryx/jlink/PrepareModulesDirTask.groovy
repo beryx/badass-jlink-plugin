@@ -43,6 +43,11 @@ class PrepareModulesDirTask extends BaseTask {
     }
 
     @Input
+    String getConfiguration() {
+        extension.configuration.get()
+    }
+
+    @Input
     List<String> getForceMergedJarPrefixes() {
         extension.forceMergedJarPrefixes.get()
     }
@@ -74,6 +79,7 @@ class PrepareModulesDirTask extends BaseTask {
         taskData.moduleName = moduleName
         taskData.mergedModuleName = mergedModuleName
         taskData.javaHome = javaHome
+        taskData.configuration = project.configurations.getByName(configuration)
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
         taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
         taskData.delegatingModulesDir = delegatingModulesDir.asFile

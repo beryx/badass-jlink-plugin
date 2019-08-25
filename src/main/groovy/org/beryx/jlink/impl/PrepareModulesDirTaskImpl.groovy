@@ -43,7 +43,7 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
         }
 
         LOGGER.info("Copying modular jars not required by non-modular jars to ${td.jlinkJarsDir}...")
-        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes)
+        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes, td.configuration)
         project.copy {
             into td.jlinkJarsDir
             from (depMgr.modularJars - depMgr.modularJarsRequiredByNonModularJars)

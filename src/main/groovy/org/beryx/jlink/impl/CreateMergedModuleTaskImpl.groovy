@@ -107,7 +107,14 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
             modInfoJava << "    exports $it;\n"
         }
         if(td.mergedModuleInfo.additive || !td.mergedModuleInfo.enabled) {
-            def builder = new SuggestedMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes)
+            def builder = new SuggestedMergedModuleInfoBuilder(
+                    project: project,
+                    mergedJarsDir: td.mergedJarsDir,
+                    javaHome: td.javaHome,
+                    forceMergedJarPrefixes: td.forceMergedJarPrefixes,
+                    extraDependenciesPrefixes: td.extraDependenciesPrefixes,
+                    configuration: td.configuration
+            )
             modInfoJava << builder.moduleInfo.toString(4)
         }
         if(td.mergedModuleInfo.enabled) {

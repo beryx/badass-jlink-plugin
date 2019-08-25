@@ -44,12 +44,18 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
             skipBuilder = printJdepsModuleInfo() || (td.useJdeps == JdepsUsage.exclusively)
         }
         if(!skipBuilder) {
-            def builder = new SuggestedMergedModuleInfoBuilder(project, td.mergedJarsDir, td.javaHome, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes)
+            def builder = new SuggestedMergedModuleInfoBuilder(
+                    project: project,
+                    mergedJarsDir: td.mergedJarsDir,
+                    javaHome: td.javaHome,
+                    forceMergedJarPrefixes: td.forceMergedJarPrefixes,
+                    extraDependenciesPrefixes: td.extraDependenciesPrefixes,
+                    configuration: td.configuration
+            )
             println "mergedModule {\n${builder.moduleInfo.toString(4, td.language)}\n}"
         }
         if(td.customImageEnabled) {
-            def builder = new SuggestedModulesBuilder(td.javaHome)
-            def modules = builder.getProjectModules(project)
+            def modules = new SuggestedModulesBuilder(td.javaHome, td.configuration).projectModules
             println """
                 customImage {
                     jdkModules = [${modules.join(', ')}]

@@ -19,6 +19,7 @@ import groovy.transform.CompileStatic
 import org.beryx.jlink.data.*
 import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.util.PathUtil
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.Directory
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -51,6 +52,11 @@ class JlinkTask extends BaseTask {
     @Input
     String getMainClass() {
         extension.mainClass.get()
+    }
+
+    @Input
+    String getConfiguration() {
+        extension.configuration.get()
     }
 
     @Input
@@ -103,6 +109,7 @@ class JlinkTask extends BaseTask {
         taskData.secondaryLaunchers = secondaryLaunchers
         taskData.customImageData = customImageData
         taskData.mainClass = mainClass ?: defaultMainClass
+        taskData.configuration = project.configurations.getByName(configuration)
         taskData.options = options
         taskData.extraModulePaths = extraModulePaths
         taskData.javaHome = javaHome

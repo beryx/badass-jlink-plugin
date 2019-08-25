@@ -17,6 +17,7 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
+import org.gradle.api.artifacts.Configuration
 
 @CompileStatic
 @ToString(includeNames = true)
@@ -26,6 +27,7 @@ class JlinkTaskData extends BaseTaskData {
     LauncherData launcherData
     List<SecondaryLauncherData> secondaryLaunchers
     String mainClass
+    Configuration configuration
     List<String> options
     String javaHome
     Map<String,TargetPlatform> targetPlatforms

@@ -71,6 +71,11 @@ class CreateMergedModuleTask extends BaseTask {
         extension.javaHome.get()
     }
 
+    @Input
+    String getConfiguration() {
+        extension.configuration.get()
+    }
+
     @OutputFile
     @CompileDynamic
     File getMergedModuleJar() {
@@ -95,6 +100,7 @@ class CreateMergedModuleTask extends BaseTask {
         taskData.mergedModuleJar = mergedModuleJar
         taskData.mergedJarsDir = mergedJarsDir.asFile
         taskData.javaHome = javaHome
+        taskData.configuration = project.configurations.getByName(configuration)
 
         taskData.nonModularJarsDirPath = PathUtil.getNonModularJarsDirPath(taskData.jlinkBasePath)
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)

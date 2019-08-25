@@ -17,6 +17,7 @@ package org.beryx.jlink.util
 
 import groovy.transform.CompileStatic
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -26,14 +27,16 @@ class SuggestedModulesBuilder {
     private static final Logger LOGGER = Logging.getLogger(SuggestedModulesBuilder)
 
     final String javaHome
+    final Configuration configuration
 
-    SuggestedModulesBuilder(String javaHome) {
+    SuggestedModulesBuilder(String javaHome, Configuration configuration) {
         this.javaHome = javaHome
+        this.configuration = configuration
     }
 
-    Set<String> getProjectModules(Project project) {
+    Set<String> getProjectModules() {
         Set<String> modules = []
-        for(ResolvedDependency dep: project.configurations['runtimeClasspath'].resolvedConfiguration.firstLevelModuleDependencies) {
+        for(ResolvedDependency dep: configuration.resolvedConfiguration.firstLevelModuleDependencies) {
             def f = Util.getArtifact(dep)
             modules.addAll(getModulesRequiredBy(f))
         }

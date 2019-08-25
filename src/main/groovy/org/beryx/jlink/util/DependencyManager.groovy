@@ -18,6 +18,7 @@ package org.beryx.jlink.util
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -58,12 +59,12 @@ class DependencyManager {
         }
     }
 
-    DependencyManager(Project project, List<String> forceMergedJarPrefixes, List<String> extraDependenciesPrefixes) {
+    DependencyManager(Project project, List<String> forceMergedJarPrefixes, List<String> extraDependenciesPrefixes, Configuration configuration) {
         this.project = project
         this.forceMergedJarPrefixes = forceMergedJarPrefixes
         this.extraDependenciesPrefixes = extraDependenciesPrefixes
         allDependencies = []
-        project.configurations['runtimeClasspath'].resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
+        configuration.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
             getArtifacts([dep] as Set).each { f ->
                 def depExt = new DependencyExt(dependency: dep, artifact: f)
                 if(!isEmptyJar(f)) {
@@ -73,7 +74,7 @@ class DependencyManager {
             }
         }
         Set<File> depFiles = allDependencies*.artifact as Set
-        project.configurations['runtimeClasspath'].resolvedConfiguration.files.each { f ->
+        configuration.resolvedConfiguration.files.each { f ->
             if(!isEmptyJar(f) && !depFiles.contains(f)) {
                 allDependencies << new DependencyExt(artifact: f)
             }

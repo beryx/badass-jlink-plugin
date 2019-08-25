@@ -38,6 +38,11 @@ class PrepareMergedJarsDirTask extends BaseTask {
     }
 
     @Input
+    String getConfiguration() {
+        extension.configuration.get()
+    }
+
+    @Input
     String getJavaHome() {
         extension.javaHome.get()
     }
@@ -52,6 +57,7 @@ class PrepareMergedJarsDirTask extends BaseTask {
         project.layout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
     }
 
+
     PrepareMergedJarsDirTask() {
         def jarTasks = project.rootProject.getTasksByName('jar', true).toArray()
         dependsOn(jarTasks)
@@ -65,6 +71,7 @@ class PrepareMergedJarsDirTask extends BaseTask {
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
         taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
         taskData.mergedJarsDir = mergedJarsDir.asFile
+        taskData.configuration = project.configurations.getByName(configuration)
         taskData.javaHome = javaHome
         taskData.jvmVersion = jvmVersion ?: JavaVersion.get(taskData.javaHome)
 
@@ -77,7 +84,7 @@ class PrepareMergedJarsDirTask extends BaseTask {
     }
 
     @InputFile
-    public File getArchivePath() {
+    File getArchivePath() {
         Jar jarTask = (Jar)project.tasks.getByName(JavaPlugin.JAR_TASK_NAME)
         jarTask.archivePath
     }
