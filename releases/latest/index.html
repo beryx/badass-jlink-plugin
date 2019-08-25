@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.14.1</span>
+<span id="revnumber">version 2.15.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -187,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.14.1'
+    id 'org.beryx.jlink' version '2.15.0'
 }</code></pre>
 </div>
 </div>
@@ -219,7 +219,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.14.1/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.15.0/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -366,6 +366,12 @@ You can use the suggested block as a starting point for your custom <code>merged
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>java.home</code> system property (only if it points to a JRE containing the <code>javac</code>, <code>jar</code>, and <code>jlink</code> tools)<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>JAVA_HOME</code> environment variable<br>
 <em>usage example</em>: <code>javaHome = '/usr/lib/jvm/open-jdk'</code></p>
+</dd>
+<dt class="hdlist1">configuration</dt>
+<dd>
+<p>The name of the Gradle dependency configuration used to execute your application.<br>
+<em>defaultValue</em>: <code>'runtimeClasspath'</code><br>
+<em>usage example</em>: <code>configuration = 'myAppRuntime'</code></p>
 </dd>
 </dl>
 </div>
@@ -842,7 +848,7 @@ Modules required by those in this list will be automatically included.<br>
 <dt class="hdlist1">identifier</dt>
 <dd>
 <p>the argument passed to the <code>--identifier</code> option when running <code>jpackage</code> when executing the <code>jpackage</code> task.<br>
-<em>defaultValue</em>: the the main class name<br>
+<em>defaultValue</em>: the main class name<br>
 <em>usage example</em>: <code>identifier = "org.example.MyApp"</code></p>
 </dd>
 <dt class="hdlist1">jvmArgs</dt>
@@ -1169,7 +1175,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.14.1<br>
+Version 2.15.0<br>
 </div>
 </div>
 </body>
