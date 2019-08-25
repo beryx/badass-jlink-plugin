@@ -20,6 +20,8 @@ import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.impl.PrepareMergedJarsDirTaskImpl
 import org.beryx.jlink.util.JavaVersion
 import org.beryx.jlink.util.PathUtil
+import org.beryx.jlink.util.Util
+import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.*
@@ -59,9 +61,12 @@ class PrepareMergedJarsDirTask extends BaseTask {
 
 
     PrepareMergedJarsDirTask() {
-        def jarTasks = project.rootProject.getTasksByName('jar', true).toArray()
-        dependsOn(jarTasks)
         description = 'Merges all non-modularized jars into a single module'
+        project.afterEvaluate {
+            def projects = Util.getAllDependentProjects(project) + project
+            def jarTasks = projects*.getTasksByName('jar', true).flatten() as Task[]
+            dependsOn(jarTasks)
+        }
     }
 
     @TaskAction

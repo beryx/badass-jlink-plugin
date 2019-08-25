@@ -24,6 +24,7 @@ import org.codehaus.groovy.runtime.IOGroovyMethods
 import org.codehaus.groovy.tools.Utilities
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
@@ -342,5 +343,12 @@ class Util {
             }
         }
         null
+    }
+
+    static List<Project> getAllDependentProjects(Project project) {
+        def projectDependencies = project.configurations*.dependencies*.withType(ProjectDependency).flatten() as Set<ProjectDependency>
+        List<Project> dependentProjects = projectDependencies*.dependencyProject
+        dependentProjects.each { dependentProjects += getAllDependentProjects(it) }
+        return dependentProjects.unique()
     }
 }
