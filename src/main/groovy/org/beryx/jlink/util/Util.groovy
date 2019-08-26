@@ -346,9 +346,17 @@ class Util {
     }
 
     static List<Project> getAllDependentProjects(Project project) {
+        getAllDependentProjectsExt(project, new HashSet<Project>())
+    }
+
+    private static List<Project> getAllDependentProjectsExt(Project project, Set<Project> handledProjects) {
+        if(handledProjects.contains(project)) return []
+        handledProjects << project
         def projectDependencies = project.configurations*.dependencies*.withType(ProjectDependency).flatten() as Set<ProjectDependency>
         List<Project> dependentProjects = projectDependencies*.dependencyProject
-        dependentProjects.each { dependentProjects += getAllDependentProjects(it) }
+        dependentProjects.each {
+            dependentProjects += getAllDependentProjectsExt(it, handledProjects)
+        }
         return dependentProjects.unique()
     }
 }
