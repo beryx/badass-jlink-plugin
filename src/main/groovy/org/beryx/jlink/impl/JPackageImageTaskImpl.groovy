@@ -72,12 +72,16 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 propFiles[launcher.name] = propFile
             }
 
+            final def resourceDir = jpd.getResourceDir()
+            final def resourceOpts = (resourceDir == null) ? [] : [ '--resource-dir', resourceDir ]
+
             commandLine = [jpackageExec,
                            '--output', outputDir,
                            '--name', jpd.imageName,
                            '--module-path', td.jlinkJarsDir,
                            '--module', "$td.moduleName/$td.mainClass",
                            '--runtime-image', td.runtimeImageDir,
+                           *resourceOpts,
                            *(jpd.jvmArgs ? jpd.jvmArgs.collect{['--java-options', adjustArg(it)]}.flatten() : []),
                            *(jpd.args ? jpd.args.collect{['--arguments', adjustArg(it)]}.flatten() : []),
                            *(propFiles ? propFiles.collect{['--add-launcher', it.key + '=' +  it.value.absolutePath]}.flatten() : []),

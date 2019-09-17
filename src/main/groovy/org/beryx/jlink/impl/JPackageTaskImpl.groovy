@@ -62,12 +62,17 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 if (td.jpackageData.getImageOutputDir() != td.jpackageData.getInstallerOutputDir()) {
                     FileUtils.cleanDirectory(td.jpackageData.getInstallerOutputDir())
                 }
+
+                final def resourceDir = jpd.getResourceDir()
+                final def resourceOpts = (resourceDir == null) ? [] : [ '--resource-dir', resourceDir ]
+
                 commandLine = ["$jpd.jpackageHome/bin/jpackage",
                                '--package-type', packageType,
                                '--output', td.jpackageData.getInstallerOutputDir(),
                                '--name', jpd.installerName,
                                '--identifier', jpd.identifier ?: td.mainClass,
                                '--app-image', "$appImagePath",
+                               *resourceOpts,
                                *jpd.installerOptions]
             }
             if(result.exitValue != 0) {
