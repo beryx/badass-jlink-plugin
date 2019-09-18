@@ -433,6 +433,10 @@ identifier:: the argument passed to the `--identifier` option when running `jpac
     _defaultValue_: the main class name +
     _usage example_: `identifier = "org.example.MyApp"`
 
+appVersion:: the argument passed to the `--app-version` option when running `jpackage` when executing the `jpackage` and `jpackageImage` tasks. +
+    _defaultValue_: the project version +
+    _usage example_: `appVersion = "1.0.0"`
+
 jvmArgs:: list of JVM arguments to be passed to the virtual machine. +
     _defaultValue_: the `jvmArgs` value configured in the `launcher` block or an empty list
 
