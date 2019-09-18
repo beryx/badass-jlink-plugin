@@ -409,6 +409,10 @@ imageOptions:: list of additional options to be passed to the `jpackage` executa
     _defaultValue_: empty list +
     _usage example_: `imageOptions = ["--win-console"]`
 
+resourceDir:: the directory passed as argument to the `--resource-dir` option when running `jpackage` to create an application installer.
+It is also applicable when creating an application image when you want your own application image instead of the default java image. +
+    _usage example_: `resourceDir = file("$buildDir/my-packaging-resources")`
+
 skipInstaller:: boolean value that lets you generate only the platform-specific application image and skip the generation of the platform-specific application installer. +
     _defaultValue_: false +
     _usage example_: `skipInstaller = true`
