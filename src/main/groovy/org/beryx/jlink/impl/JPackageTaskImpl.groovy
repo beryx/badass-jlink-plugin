@@ -15,9 +15,12 @@
  */
 package org.beryx.jlink.impl
 
+import static org.beryx.jlink.util.Util.EXEC_EXTENSION
+
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageTaskData
+import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
@@ -63,6 +66,9 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                     FileUtils.cleanDirectory(td.jpackageData.getInstallerOutputDir())
                 }
 
+                def jpackageExec = "$jpd.jpackageHome/bin/jpackage$EXEC_EXTENSION"
+                Util.checkExecutable(jpackageExec)
+
                 def appVersion = (jpd.appVersion ?: project.version).toString()
                 def versionOpts = (appVersion == 'unspecified') ? [] : [ '--app-version', appVersion ]
                 if (versionOpts && (!appVersion || !Character.isDigit(appVersion[0] as char))) {
@@ -72,7 +78,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 final def resourceDir = jpd.getResourceDir()
                 final def resourceOpts = (resourceDir == null) ? [] : [ '--resource-dir', resourceDir ]
 
-                commandLine = ["$jpd.jpackageHome/bin/jpackage",
+                commandLine = [jpackageExec,
                                '--package-type', packageType,
                                '--output', td.jpackageData.getInstallerOutputDir(),
                                '--name', jpd.installerName,
