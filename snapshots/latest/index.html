@@ -821,6 +821,12 @@ Modules required by those in this list will be automatically included.<br>
 <em>defaultValue</em>: empty list<br>
 <em>usage example</em>: <code>imageOptions = ["--win-console"]</code></p>
 </dd>
+<dt class="hdlist1">resourceDir</dt>
+<dd>
+<p>the directory passed as argument to the <code>--resource-dir</code> option when running <code>jpackage</code> to create an application installer.
+It is also applicable when creating an application image when you want your own application image instead of the default java image.<br>
+    <em>usage example</em>: <code>resourceDir = file("$buildDir/my-packaging-resources")</code></p>
+</dd>
 <dt class="hdlist1">skipInstaller</dt>
 <dd>
 <p>boolean value that lets you generate only the platform-specific application image and skip the generation of the platform-specific application installer.<br>
