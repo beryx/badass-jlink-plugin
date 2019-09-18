@@ -19,6 +19,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageTaskData
 import org.beryx.jlink.util.Util
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -72,6 +73,12 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 propFiles[launcher.name] = propFile
             }
 
+            def appVersion = (jpd.appVersion ?: project.version).toString()
+            def versionOpts = (appVersion == 'unspecified') ? [] : [ '--app-version', appVersion ]
+            if (versionOpts && (!appVersion || !Character.isDigit(appVersion[0] as char))) {
+                throw new GradleException("The first character of the --app-version argument should be a digit.")
+            }
+
             final def resourceDir = jpd.getResourceDir()
             final def resourceOpts = (resourceDir == null) ? [] : [ '--resource-dir', resourceDir ]
 
@@ -80,6 +87,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                            '--name', jpd.imageName,
                            '--module-path', td.jlinkJarsDir,
                            '--module', "$td.moduleName/$td.mainClass",
+                           *versionOpts,
                            '--runtime-image', td.runtimeImageDir,
                            *resourceOpts,
                            *(jpd.jvmArgs ? jpd.jvmArgs.collect{['--java-options', adjustArg(it)]}.flatten() : []),
