@@ -83,7 +83,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             final def resourceOpts = (resourceDir == null) ? [] : [ '--resource-dir', resourceDir ]
 
             commandLine = [jpackageExec,
-                           '--output', outputDir,
+                           '--dest', outputDir,
                            '--name', jpd.imageName,
                            '--module-path', td.jlinkJarsDir,
                            '--module', "$td.moduleName/$td.mainClass",
