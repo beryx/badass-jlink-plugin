@@ -429,10 +429,6 @@ installerName:: the argument passed to the `--name` option when running `jpackag
     _defaultValue_: the `name` value configured in the `launcher` block or  `_project.name_` +
     _usage example_: `installerName = "MyApp"`
 
-identifier:: the argument passed to the `--identifier` option when running `jpackage` when executing the `jpackage` task. +
-    _defaultValue_: the main class name +
-    _usage example_: `identifier = "org.example.MyApp"`
-
 appVersion:: the argument passed to the `--app-version` option when running `jpackage` when executing the `jpackage` and `jpackageImage` tasks. +
     _defaultValue_: the project version +
     _usage example_: `appVersion = "1.0.0"`
