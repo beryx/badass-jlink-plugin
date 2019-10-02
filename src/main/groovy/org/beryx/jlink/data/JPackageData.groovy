@@ -61,9 +61,6 @@ class JPackageData {
     String installerName
 
     @Input @Optional
-    String identifier
-
-    @Input @Optional
     String appVersion
 
     @Input
