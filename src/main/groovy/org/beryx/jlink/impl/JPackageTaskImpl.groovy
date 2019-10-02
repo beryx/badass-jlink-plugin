@@ -80,7 +80,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
 
                 commandLine = [jpackageExec,
                                '--package-type', packageType,
-                               '--output', td.jpackageData.getInstallerOutputDir(),
+                               '--dest', td.jpackageData.getInstallerOutputDir(),
                                '--name', jpd.installerName,
                                '--identifier', jpd.identifier ?: td.mainClass,
                                *versionOpts,
