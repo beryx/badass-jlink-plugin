@@ -22,7 +22,7 @@ import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.impl.CreateMergedModuleTaskImpl
 import org.beryx.jlink.util.PathUtil
-import org.beryx.jlink.util.Util
+import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -48,7 +48,14 @@ class CreateMergedModuleTask extends BaseTask {
 
     @Input
     String getMergedModuleJarName() {
-        extension.mergedModuleJarName.get()
+        String jarName = extension.mergedModuleJarName.get()
+        if(jarName.endsWith('.jar')) jarName = jarName[0 .. -5]
+        jarName
+    }
+
+    @Input
+    String getMergedModuleJarVersion() {
+        extension.mergedModuleJarVersion.get()
     }
 
     @InputDirectory
@@ -77,9 +84,13 @@ class CreateMergedModuleTask extends BaseTask {
     }
 
     @OutputFile
-    @CompileDynamic
     File getMergedModuleJar() {
-        new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath), mergedModuleJarName)
+        String jarFileName = mergedModuleJarName
+        if(mergedModuleJarVersion && mergedModuleJarVersion != Project.DEFAULT_VERSION) {
+            jarFileName += "-$mergedModuleJarVersion"
+        }
+        jarFileName += ".jar"
+        new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath), jarFileName)
     }
 
     CreateMergedModuleTask() {
@@ -94,7 +105,6 @@ class CreateMergedModuleTask extends BaseTask {
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
         taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
         taskData.mergedModuleName = mergedModuleName
-        taskData.mergedModuleJarName = mergedModuleJarName
         taskData.mergedModuleInfo = mergedModuleInfo
         taskData.useJdeps = useJdeps
         taskData.mergedModuleJar = mergedModuleJar
@@ -102,7 +112,6 @@ class CreateMergedModuleTask extends BaseTask {
         taskData.javaHome = javaHome
         taskData.configuration = project.configurations.getByName(configuration)
 
-        taskData.nonModularJarsDirPath = PathUtil.getNonModularJarsDirPath(taskData.jlinkBasePath)
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpMergedModuleDirPath = PathUtil.getTmpMergedModuleDirPath(taskData.jlinkBasePath)
         taskData.tmpModuleInfoDirPath = PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)

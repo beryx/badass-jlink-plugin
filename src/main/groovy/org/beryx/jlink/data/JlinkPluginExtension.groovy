@@ -38,6 +38,7 @@ class JlinkPluginExtension {
     final Property<String> moduleName
     final Property<String> mergedModuleName
     final Property<String> mergedModuleJarName
+    final Property<String> mergedModuleJarVersion
 
     final Property<LauncherData> launcherData
     final ListProperty<SecondaryLauncherData> secondaryLaunchers
@@ -77,6 +78,9 @@ class JlinkPluginExtension {
 
         mergedModuleJarName = project.objects.property(String)
         mergedModuleJarName.set(project.provider{"${Util.getArchiveBaseName(project)}.merged.module.jar" as String})
+
+        mergedModuleJarVersion = project.objects.property(String)
+        mergedModuleJarVersion.set(project.provider{project.version as String})
 
         launcherData = project.objects.property(LauncherData)
         def ld = new LauncherData()

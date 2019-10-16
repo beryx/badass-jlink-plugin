@@ -138,7 +138,7 @@ class JlinkPluginSpec extends Specification {
         File buildFile = setUpBuild('local-deps')
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
-                .withGradleVersion('5.2')
+                .withGradleVersion('5.6.2')
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
