@@ -95,6 +95,7 @@ class Util {
         }
     }
 
+    @CompileDynamic
     static String getPackage(String entryName) {
         if(!entryName.endsWith('.class')) return null
         int pos = entryName.lastIndexOf('/')
@@ -139,6 +140,7 @@ class Util {
             "synchronized", "this", "throw", "throws", "transient", "true", "try",
             "void", "volatile", "while"] as HashSet
 
+    @CompileDynamic
     static String toModuleName(String s) {
         def name = s.replaceAll('[^0-9A-Za-z_.]', '.')
         int start = 0
@@ -221,6 +223,7 @@ class Util {
         }
     }
 
+    @CompileDynamic
     static File getVersionedDir(File baseDir, int javaVersion) {
         def versionsDir = new File("$baseDir.absolutePath/META-INF/versions")
         if(!versionsDir.directory) return null
@@ -230,6 +233,7 @@ class Util {
         new File(versionsDir, "$version")
     }
 
+    @CompileDynamic
     static Set<File> getArtifacts(Set<ResolvedDependency> deps) {
         (Set<File>)deps.collect{ it.moduleArtifacts*.file }.flatten() as Set
     }
@@ -317,6 +321,7 @@ class Util {
         if(!f.canExecute()) throw new GradleException("$f.absolutePath is not executable.")
     }
 
+    @CompileDynamic
     static List<File> getJarsAndMods(Object... modulePath) {
         List<File> allFiles = []
         modulePath.each {entry ->

@@ -35,6 +35,7 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         LOGGER.info("taskData: $taskData")
     }
 
+    @CompileDynamic
     void execute() {
         project.delete(td.jlinkBasePath)
         td.mergedJarsDir.mkdirs()
@@ -94,6 +95,7 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         Util.createManifest(td.mergedJarsDir, false)
     }
 
+    @CompileDynamic
     private static boolean hasInvalidName(FileTreeElement fte) {
         String path = fte.path
         if(fte.directory) return false

@@ -73,7 +73,7 @@ class JlinkZipTask extends BaseTask {
         imageName ? imageDirFromName : imageDir.asFile
     }
 
-    @OutputFile @PathSensitive(PathSensitivity.NONE)
+    @OutputFile
     File getImageZipAsFile() {
         imageName ? imageZipFromName : imageZip.asFile
     }

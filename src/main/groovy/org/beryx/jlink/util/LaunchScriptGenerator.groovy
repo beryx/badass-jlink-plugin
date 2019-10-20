@@ -17,6 +17,7 @@ package org.beryx.jlink.util
 
 import groovy.text.SimpleTemplateEngine
 import groovy.text.Template
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.beryx.jlink.data.LauncherData
@@ -61,6 +62,7 @@ class LaunchScriptGenerator {
         }
     }
 
+    @CompileDynamic
     String getScript(Type type) {
         def engine = new SimpleTemplateEngine()
         def args = launcherData.args.collect{adjustArg(it)}.join(' ')
