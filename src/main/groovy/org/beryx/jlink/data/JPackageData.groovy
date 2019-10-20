@@ -44,7 +44,7 @@ class JPackageData {
     @Input
     List<String> imageOptions = []
 
-    @Input @Optional
+    @InputDirectory @Optional
     File resourceDir
 
     @Input @Optional
@@ -84,11 +84,6 @@ class JPackageData {
         this.@installerName ?: launcherData.name ?: project.name
     }
 
-    @InputDirectory
-    File getResourceDir() {
-        this.@resourceDir
-    }
-
     @Input
     String getLauncherName() {
         launcherData.name
@@ -96,7 +91,7 @@ class JPackageData {
 
     @Input
     List<SecondaryLauncherData> getSecondaryLaunchers() {
-        secondaryLaunchers
+        this.@secondaryLaunchers
     }
 
     void addSecondaryLauncher(SecondaryLauncherData launcher) {

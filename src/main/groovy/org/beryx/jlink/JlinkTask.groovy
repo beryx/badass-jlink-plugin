@@ -120,7 +120,7 @@ class JlinkTask extends BaseTask {
         taskImpl.execute()
     }
 
-    @OutputDirectory @PathSensitive(PathSensitivity.RELATIVE)
+    @OutputDirectory
     File getImageDirAsFile() {
         imageName ? imageDirFromName : imageDir.asFile
     }

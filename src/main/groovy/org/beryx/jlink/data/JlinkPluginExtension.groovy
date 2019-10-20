@@ -29,7 +29,6 @@ import org.gradle.api.provider.Provider
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
-@ToString(includeNames = true)
 class JlinkPluginExtension {
     final Property<String> jlinkBasePath
     final Property<String> imageName
