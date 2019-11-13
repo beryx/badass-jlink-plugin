@@ -659,7 +659,7 @@ can be configured in the `jpackage` script block.
 ----
 - if <i>skipInstaller</i> is <i>false</i>:
         create a platform-specific application installer in <font color="cadetblue">installerOutputDir</font> by executing:
-        <i>jpackage --package-type <font color="midnightblue">installerType</font> --app-image=<font color="saddlebrown">imageOutputDir</font>/<font color="midnightblue">imageName</font> ...</i>
+        <i>jpackage --type <font color="midnightblue">installerType</font> --app-image=<font color="saddlebrown">imageOutputDir</font>/<font color="midnightblue">imageName</font> ...</i>
 ----
 The properties pass:[<font color="cadetblue">installerOutputDir</font>, <font color="midnightblue">installerType</font>, <font color="saddlebrown">imageOutputDir</font>, and <font color="midnightblue">imageName</font>]
 can be configured in the `jpackage` script block.
