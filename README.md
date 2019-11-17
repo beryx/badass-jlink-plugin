@@ -35,7 +35,8 @@ The following projects illustrate how to use this plugin to create custom runtim
 - [badass-jlink-spring-petclinic](https://github.com/beryx-gist/badass-jlink-spring-petclinic) - creates a custom runtime image of the [Spring PetClinic](https://github.com/spring-projects/spring-petclinic) application.
 - [fxgl-sliding-puzzle](https://github.com/beryx/fxgl-sliding-puzzle/blob/master/README.adoc) - a sliding puzzle game using the [FXGL](https://github.com/AlmasB/FXGL) library.
 - [copper-modular-demo](https://github.com/copper-engine/copper-modular-demo) - creates a custom runtime image of a [COPPER 5](http://copper-engine.org/) modular application. 
-- [javafx-jlink-starter-gradle](https://github.com/brunoborges/javafx-jlink-starter-gradle) - A JavaFX starter project with an Azure Pipelines setup that produces binaries for Windows, Mac, and Linux. 
+- [javafx-jlink-starter-gradle](https://github.com/brunoborges/javafx-jlink-starter-gradle) - A JavaFX starter project with an Azure Pipelines setup that produces binaries for Windows, Mac, and Linux.
+- [pdf-decorator](https://bitbucket.org/walczak_it/pdf-decorator/src/master/) - A [JavaFX tool](http://pdf-decorator.walczak.it/) to add stamps and backgrounds to PDF documents. There's also a [related article](https://walczak.it/blog/distributing-javafx-desktop-applications-without-requiring-jvm-using-jlink-and-jpackage) explaining how to migrate to this plugin. 
 
 ### This is a complex plugin. Please [read the documentation](https://badass-jlink-plugin.beryx.org/releases/latest/) before using it.
 
