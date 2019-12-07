@@ -13,4 +13,5 @@ The following projects illustrate how to use this plugin to create custom runtim
 * https://github.com/beryx/fxgl-sliding-puzzle/blob/master/README.adoc[fxgl-sliding-puzzle] - a sliding puzzle game using the https://github.com/AlmasB/FXGL[FXGL] library.
 * https://github.com/copper-engine/copper-modular-demo[copper-modular-demo] - creates a custom runtime image of a http://copper-engine.org/[COPPER 5] modular application.
 * https://github.com/brunoborges/javafx-jlink-starter-gradle[javafx-jlink-starter-gradle] - A JavaFX starter project with an Azure Pipelines setup that produces binaries for Windows, Mac, and Linux.
+* https://github.com/mockbirds/javafx-springboot-badass-jlink[javafx-springboot-badass-jlink] - A modular JavaFX application with Spring Boot.
 * https://bitbucket.org/walczak_it/pdf-decorator/src/master/[pdf-decorator] - A http://pdf-decorator.walczak.it/[JavaFX tool] to add stamps and backgrounds to PDF documents. There's also a https://walczak.it/blog/distributing-javafx-desktop-applications-without-requiring-jvm-using-jlink-and-jpackage[related article] explaining how to migrate to this plugin.
