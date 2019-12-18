@@ -230,10 +230,16 @@ if (location.href.indexOf('is-external=true') == -1) {
                         <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>void</code></td>
-                            <td class="colLast"><code><strong><a href="#setUseJdeps(java.lang.String)">setUseJdeps</a></strong>(java.lang.String useJdeps)</code><br></td>
+                            <td class="colLast"><code><strong><a href="#setUseConstraints(boolean)">setUseConstraints</a></strong>(boolean useConstraints)</code><br></td>
                         </tr>
                         
                         <tr class="altColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>void</code></td>
+                            <td class="colLast"><code><strong><a href="#setUseJdeps(java.lang.String)">setUseJdeps</a></strong>(java.lang.String useJdeps)</code><br></td>
+                        </tr>
+                        
+                        <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>void</code></td>
                             <td class="colLast"><code><strong><a href="#suggestMergedModuleInfoAction()">suggestMergedModuleInfoAction</a></strong>()</code><br></td>
@@ -394,6 +400,15 @@ boolean <strong>isCustomImageEnabled</strong>()</h4>
                             <li class="blockList">
                                 <h4>@org.gradle.api.tasks.options.Option(option = 'language', description = "The language used to display the module declaration. Accepted values: 'groovy', 'kotlin', 'java'.")
 void <strong>setLanguage</strong>(java.lang.String language)</h4>
+                                <p></p>
+                            </li>
+                        </ul>
+                    
+                        <a name="setUseConstraints(boolean)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>@org.gradle.api.tasks.options.Option(option = 'useConstraints', description = "Specifies that the 'excludeXXX' constraints configured in mergedModule should be taken into account.")
+void <strong>setUseConstraints</strong>(boolean useConstraints)</h4>
                                 <p></p>
                             </li>
                         </ul>
