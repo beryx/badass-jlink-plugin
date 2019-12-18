@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.16.4</span>
+<span id="revnumber">version 2.17.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -187,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.16.4'
+    id 'org.beryx.jlink' version '2.17.0'
 }</code></pre>
 </div>
 </div>
@@ -219,7 +219,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.16.4/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.17.0/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -527,12 +527,49 @@ but it requires quotes around the names of modules, services, and service implem
 <p>If a <code>mergedModule</code> block appears in yout build script, the generated module descriptor will contain the clauses specified in this block.
 Otherwise, the module descriptor is created using the algorithm implemented by the <code>suggestMergedModuleInfo</code> task.</p>
 </div>
-<div class="paragraph">
-<p>In many cases the "suggested" descriptor is just the right one for your merged module, so you don&#8217;t need to provide a <code>mergedModule</code> block.
-In some other cases the "suggested" descriptor is <em>almost</em> right, in the sense that it only misses one or a few clauses.
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><span class="purple"><strong>additive</strong></span></dt>
+<dd>
+<p>In many cases the suggested descriptor is just the right one for your merged module, so you don&#8217;t need to provide a <code>mergedModule</code> block.
+In some other cases the suggested descriptor is <em>almost</em> right, in the sense that it only misses one or a few clauses.
 In these cases you are allowed to configure only the missing clauses in the <code>mergedModule</code> block and instruct the plugin
-to add them to the suggested descriptor by setting the attribute <code>additive</code> to true.
-(The default value of <code>additive</code> is false.)</p>
+to add them to the suggested descriptor by setting the attribute <code>additive</code> to true.<br>
+    <em>defaultValue</em>: <code>false</code></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>There are also situations where the suggested descriptor contains some unwanted clauses.
+The plugin provides a few methods that allow excluding these clauses:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><span class="maroon">excludeRequires</span>(String&#8230;&#8203; <span class="purple">modules</span>)</dt>
+<dd>
+<p>Instructs the plugin to not generate <code>requires</code> clauses for the specified <em>modules</em>.<br>
+<em>usage example</em>: <code>excludeRequires 'java.rmi', 'java-compiler'</code></p>
+</dd>
+<dt class="hdlist1"><span class="maroon">excludeUses</span>(String&#8230;&#8203; <span class="purple">services</span>)</dt>
+<dd>
+<p>Instructs the plugin to not generate <code>uses</code> clauses for the specified <em>services</em>.<br>
+<em>usage example</em>: <code>excludeUses 'java.nio.file.spi.FileSystemProvider'</code></p>
+</dd>
+<dt class="hdlist1"><span class="maroon">excludeProvides</span>(Map <span class="purple">constraints</span>)</dt>
+<dd>
+<p>Instructs the plugin to not generate <code>provides</code> clauses that match the specified <em>constraints</em>.<br>
+The following keys are allowed in the <em>constraints</em> map:<br>
+<span class="purple"><strong>service</strong></span>: the qualified name of the service<br>
+<span class="purple"><strong>implementation</strong></span>: the qualified name of the implementation class<br>
+<span class="purple"><strong>servicePattern</strong></span>: the regular expression to be matched by the qualified name of the service<br>
+<span class="purple"><strong>implementationPattern</strong></span>: the regular expression to be matched by the qualified name of the implementation class <br>
+    <em>usage example</em>: <code>excludeProvides servicePattern: 'org.codehaus.stax2.*'</code></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p>By calling one of the above methods you automatically enable the additive mode.
+This means that is no longer necessary to explicitly set the <code>additive</code> property to <code>true</code>.</p>
 </div>
 <div class="paragraph">
 <p><em>Usage example</em></p>
@@ -543,11 +580,14 @@ to add them to the suggested descriptor by setting the attribute <code>additive<
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
     mergedModule {
-        additive = <span class="predefined-constant">true</span>
+        additive = <span class="predefined-constant">true</span>  <span class="comment">// redundant, because excludeXXX() methods are also present</span>
         requires <span class="string"><span class="delimiter">'</span><span class="content">java.desktop</span><span class="delimiter">'</span></span>
         requires transitive <span class="string"><span class="delimiter">'</span><span class="content">java.sql</span><span class="delimiter">'</span></span>
         uses <span class="string"><span class="delimiter">'</span><span class="content">java.sql.Driver</span><span class="delimiter">'</span></span>
         provides <span class="string"><span class="delimiter">'</span><span class="content">java.sql.Driver</span><span class="delimiter">'</span></span> with <span class="string"><span class="delimiter">'</span><span class="content">org.hsqldb.jdbc.JDBCDriver</span><span class="delimiter">'</span></span>
+        excludeRequires <span class="string"><span class="delimiter">'</span><span class="content">java.compiler</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">java.rmi</span><span class="delimiter">'</span></span>
+        excludeUses <span class="string"><span class="delimiter">'</span><span class="content">org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory</span><span class="delimiter">'</span></span>
+        excludeProvides <span class="key">servicePattern</span>: <span class="string"><span class="delimiter">'</span><span class="content">org.apache.logging.*</span><span class="delimiter">'</span></span>
     }
     ...
 }</code></pre>
@@ -559,10 +599,14 @@ to add them to the suggested descriptor by setting the attribute <code>additive<
 <pre class="CodeRay highlight"><code data-lang="kotlin">jlink {
     ...
     mergedModule {
+        additive = true  // redundant, because excludeXXX() methods are also present
         requires(&quot;java.desktop&quot;)
         requiresTransitive(&quot;java.sql&quot;)
         uses(&quot;java.sql.Driver&quot;)
         provides(&quot;java.sql.Driver&quot;).with(&quot;org.hsqldb.jdbc.JDBCDriver&quot;)
+        excludeRequires(&quot;java.compiler&quot;, &quot;java.rmi&quot;)
+        excludeUses(&quot;org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory&quot;)
+        excludeProvides(mapOf(&quot;servicePattern&quot; to &quot;org.apache.logging.*&quot;))
     }
     ...
 }</code></pre>
@@ -1184,7 +1228,10 @@ can be configured in the <code>jpackage</code> script block.</p>
 <p><a href="https://github.com/brunoborges/javafx-jlink-starter-gradle">javafx-jlink-starter-gradle</a> - A JavaFX starter project with an Azure Pipelines setup that produces binaries for Windows, Mac, and Linux.</p>
 </li>
 <li>
-<p><a href="https://bitbucket.org/walczak_it/pdf-decorator/src/master/">pdf-decorator</a> - A <a href="http://pdf-decorator.walczak.it/">JavaFX tool</a> to add stamps and backgrounds to PDF documents. There&#8217;s also a (<a href="https://walczak.it/blog/distributing-javafx-desktop-applications-without-requiring-jvm-using-jlink-and-jpackage)">related article</a> explaining how to migrate to this plugin.</p>
+<p><a href="https://github.com/mockbirds/javafx-springboot-badass-jlink">javafx-springboot-badass-jlink</a> - A modular JavaFX application with Spring Boot.</p>
+</li>
+<li>
+<p><a href="https://bitbucket.org/walczak_it/pdf-decorator/src/master/">pdf-decorator</a> - A <a href="http://pdf-decorator.walczak.it/">JavaFX tool</a> to add stamps and backgrounds to PDF documents. There&#8217;s also a <a href="https://walczak.it/blog/distributing-javafx-desktop-applications-without-requiring-jvm-using-jlink-and-jpackage">related article</a> explaining how to migrate to this plugin.</p>
 </li>
 </ul>
 </div>
@@ -1193,7 +1240,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.16.4<br>
+Version 2.17.0<br>
 </div>
 </div>
 </body>
