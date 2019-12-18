@@ -17,6 +17,7 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
+import groovy.transform.MapConstructor
 import groovy.transform.ToString
 
 import java.util.stream.Collectors
@@ -26,13 +27,57 @@ import java.util.stream.Collectors
 class ModuleInfo implements Serializable {
     boolean enabled
     boolean additive
-    List<RequiresBuilder> requiresBuilders = []
-    List<UsesBuilder> usesBuilders = []
-    List<ProvidesBuilder> providesBuilders = []
+    final AdditiveConstraints additiveConstraints = new AdditiveConstraints()
+    final List<RequiresBuilder> requiresBuilders = []
+    final List<UsesBuilder> usesBuilders = []
+    final List<ProvidesBuilder> providesBuilders = []
 
     private boolean afterRequiresTransitive = false
 
     static enum Language {JAVA, GROOVY, KOTLIN}
+
+    static class AdditiveConstraints implements Serializable {
+        boolean enabled = false
+        final Set<String> excludedRequires = []
+        final Set<String> excludedUses = []
+        final List<ProvidesConstraint> excludedProvidesConstraints = []
+    }
+
+    void excludeRequires(String... modules) {
+        additiveConstraints.enabled = true
+        additiveConstraints.excludedRequires.addAll(modules)
+    }
+
+    void excludeUses(String... services) {
+        additiveConstraints.enabled = true
+        additiveConstraints.excludedUses.addAll(services)
+    }
+
+    void excludeProvides(Map constraints) {
+        additiveConstraints.enabled = true
+        additiveConstraints.excludedProvidesConstraints.add(new ProvidesConstraint(constraints))
+    }
+
+    @MapConstructor
+    @ToString
+    static class ProvidesConstraint implements Serializable{
+        String service
+        String implementation
+        String servicePattern
+        String implementationPattern
+
+        boolean matches(String svc, String impl) {
+            if(service && svc != service) return false
+            if(implementation && impl != implementation) return false
+            if(servicePattern && !(svc ==~ servicePattern)) return false
+            if(implementationPattern && !(impl ==~ implementationPattern)) return false
+            true
+        }
+    }
+
+    boolean shouldUseSuggestions() {
+        !enabled || additive || additiveConstraints.enabled
+    }
 
     @EqualsAndHashCode
     static class RequiresBuilder implements Serializable {

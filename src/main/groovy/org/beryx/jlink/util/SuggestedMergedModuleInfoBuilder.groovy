@@ -15,6 +15,7 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.Canonical
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
@@ -37,6 +38,7 @@ class SuggestedMergedModuleInfoBuilder {
     List<String> forceMergedJarPrefixes
     List<String> extraDependenciesPrefixes
     Configuration configuration
+    AdditiveConstraints constraints
 
     ModuleInfo getModuleInfo() {
         def info = new ModuleInfo()
@@ -49,13 +51,53 @@ class SuggestedMergedModuleInfoBuilder {
     Set<UsesBuilder> getUsesBuilders() {
         def scanner = new ServiceLoaderUseScanner()
         scanner.scan(mergedJarsDir)
-        scanner.builders
+        def builders = scanner.builders
+        if(constraints?.excludedUses) {
+            builders.removeAll { it.service in constraints.excludedUses }
+        }
+        builders
     }
 
     Set<ProvidesBuilder> getProvidesBuilders() {
         def scanner = new ServiceProviderScanner()
         scanner.scan(mergedJarsDir)
-        scanner.builders
+        def builders = scanner.builders
+
+        if(constraints?.excludedProvidesConstraints) {
+            def providesSet = toSingleProvidesSet(builders, constraints.excludedProvidesConstraints)
+            builders = toProvidesBuilders(providesSet)
+        }
+        builders
+    }
+
+    @Canonical
+    private static class SingleProvides {
+        final String service
+        final String implementation
+    }
+
+    private Set<SingleProvides> toSingleProvidesSet(
+            Set<ProvidesBuilder> builders,
+            List<ProvidesConstraint> providesConstraints) {
+        Set<SingleProvides> providesSet = []
+        builders.each { builder ->
+            builder.implementations.each { implementation ->
+                if(providesConstraints.every { !it.matches(builder.service, implementation)}) {
+                    providesSet << new SingleProvides(builder.service, implementation)
+                }
+            }
+        }
+        providesSet
+    }
+
+    private Set<ProvidesBuilder> toProvidesBuilders(Set<SingleProvides> singleProvidesSet) {
+        Map<String, ProvidesBuilder> builders = [:]
+        singleProvidesSet.each { provides ->
+            builders.compute(provides.service, { svc, builder ->
+                (builder ?: new ProvidesBuilder(svc)).with(provides.implementation)
+            })
+        };
+        new HashSet(builders.values())
     }
 
     @CompileDynamic
@@ -78,6 +120,9 @@ class SuggestedMergedModuleInfoBuilder {
             } else if(moduleName != 'java.base'){
                 builders << new RequiresBuilder(moduleName)
             }
+        }
+        if(constraints?.excludedRequires) {
+            builders.removeAll { it.module in constraints.excludedRequires }
         }
         builders
     }

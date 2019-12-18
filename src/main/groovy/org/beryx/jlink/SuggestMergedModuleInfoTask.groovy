@@ -68,6 +68,8 @@ class SuggestMergedModuleInfoTask extends BaseTask {
     @Input
     final Property<ModuleInfo.Language> language
 
+    private boolean useConstraints = false
+
     SuggestMergedModuleInfoTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MERGED_JARS_DIR)
         description = 'Suggests a module declaration for the merged module'
@@ -88,6 +90,9 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         taskData.configuration = project.configurations.getByName(configuration)
         taskData.useJdeps = useJdeps.get()
         taskData.language = language.get()
+        if(useConstraints) {
+            taskData.additiveConstraints = extension.mergedModuleInfo.get().additiveConstraints
+        }
         taskData.mergedJarsDir = mergedJarsDir.asFile
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
@@ -114,5 +119,10 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         } catch (Exception e) {
             throw new GradleException("Unknown value for option 'language': $language. Accepted values: ${ModuleInfo.Language.values()*.name().join(' / ').toLowerCase()}.")
         }
+    }
+
+    @Option(option = 'useConstraints', description = "Specifies that the 'excludeXXX' constraints configured in mergedModule should be taken into account.")
+    void setUseConstraints(boolean useConstraints) {
+        this.useConstraints = useConstraints
     }
 }

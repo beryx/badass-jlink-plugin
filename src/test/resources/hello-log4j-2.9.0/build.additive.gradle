@@ -1,0 +1,37 @@
+plugins {
+    id 'org.beryx.jlink'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 11
+targetCompatibility = 11
+
+ext.log4jVersion = '2.9.0'
+
+dependencies {
+    compile "org.apache.logging.log4j:log4j-api:$log4jVersion"
+    compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
+    compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
+    compile "javax.xml.bind:jaxb-api:2.3.0"
+}
+
+mainClassName = 'org.beryx.modular.hello.Hello'
+
+compileJava {
+    options.compilerArgs = ['--module-path', classpath.asPath]
+    classpath = files()
+}
+
+jlink {
+    launcher {
+        name = 'hello'
+    }
+    mergedModule {
+        excludeRequires 'java.compiler', 'java.rmi'
+        excludeUses 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory'
+        excludeProvides servicePattern: 'org.apache.logging.*'
+    }
+}

@@ -184,11 +184,32 @@ The plugin automatically exports all packages found in the merged module, theref
 If a `mergedModule` block appears in yout build script, the generated module descriptor will contain the clauses specified in this block.
 Otherwise, the module descriptor is created using the algorithm implemented by the `suggestMergedModuleInfo` task.
 
-In many cases the "suggested" descriptor is just the right one for your merged module, so you don't need to provide a `mergedModule` block.
-In some other cases the "suggested" descriptor is _almost_ right, in the sense that it only misses one or a few clauses.
+[purple]##**additive**##:: In many cases the suggested descriptor is just the right one for your merged module, so you don't need to provide a `mergedModule` block.
+In some other cases the suggested descriptor is _almost_ right, in the sense that it only misses one or a few clauses.
 In these cases you are allowed to configure only the missing clauses in the `mergedModule` block and instruct the plugin
-to add them to the suggested descriptor by setting the attribute `additive` to true.
-(The default value of `additive` is false.)
+to add them to the suggested descriptor by setting the attribute `additive` to true. +
+    _defaultValue_: `false`
+
+There are also situations where the suggested descriptor contains some unwanted clauses.
+The plugin provides a few methods that allow excluding these clauses:
+
+[maroon]##excludeRequires##(String... [purple]##modules##):: Instructs the plugin to not generate `requires` clauses for the specified _modules_. +
+    _usage example_: `excludeRequires 'java.rmi', 'java-compiler'`
+
+[maroon]##excludeUses##(String... [purple]##services##):: Instructs the plugin to not generate `uses` clauses for the specified _services_. +
+    _usage example_: `excludeUses 'java.nio.file.spi.FileSystemProvider'`
+
+[maroon]##excludeProvides##(Map [purple]##constraints##):: Instructs the plugin to not generate `provides` clauses that match the specified _constraints_. +
+The following keys are allowed in the _constraints_ map: +
+[purple]##**service**##: the qualified name of the service +
+[purple]##**implementation**##: the qualified name of the implementation class +
+[purple]##**servicePattern**##: the regular expression to be matched by the qualified name of the service +
+[purple]##**implementationPattern**##: the regular expression to be matched by the qualified name of the implementation class  +
+    _usage example_: `excludeProvides servicePattern: 'org.codehaus.stax2.*'`
+
+
+By calling one of the above methods you automatically enable the additive mode.
+This means that is no longer necessary to explicitly set the `additive` property to `true`.
 
 
 _Usage example_
@@ -198,11 +219,14 @@ _Usage example_
 jlink {
     ...
     mergedModule {
-        additive = true
+        additive = true  // redundant, because excludeXXX() methods are also present
         requires 'java.desktop'
         requires transitive 'java.sql'
         uses 'java.sql.Driver'
         provides 'java.sql.Driver' with 'org.hsqldb.jdbc.JDBCDriver'
+        excludeRequires 'java.compiler', 'java.rmi'
+        excludeUses 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory'
+        excludeProvides servicePattern: 'org.apache.logging.*'
     }
     ...
 }
@@ -214,10 +238,14 @@ jlink {
 jlink {
     ...
     mergedModule {
+        additive = true  // redundant, because excludeXXX() methods are also present
         requires("java.desktop")
         requiresTransitive("java.sql")
         uses("java.sql.Driver")
         provides("java.sql.Driver").with("org.hsqldb.jdbc.JDBCDriver")
+        excludeRequires("java.compiler", "java.rmi")
+        excludeUses("org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory")
+        excludeProvides(mapOf("servicePattern" to "org.apache.logging.*"))
     }
     ...
 }

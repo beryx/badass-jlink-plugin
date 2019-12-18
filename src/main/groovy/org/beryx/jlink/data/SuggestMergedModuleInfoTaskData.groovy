@@ -28,6 +28,7 @@ class SuggestMergedModuleInfoTaskData extends BaseTaskData {
     String javaHome
     Configuration configuration
     ModuleInfo.Language language
+    ModuleInfo.AdditiveConstraints additiveConstraints
     JdepsUsage useJdeps
     String jlinkJarsDirPath
     String tmpJarsDirPath

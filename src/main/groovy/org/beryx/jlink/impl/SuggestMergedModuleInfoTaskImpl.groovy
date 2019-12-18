@@ -50,7 +50,8 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
                     javaHome: td.javaHome,
                     forceMergedJarPrefixes: td.forceMergedJarPrefixes,
                     extraDependenciesPrefixes: td.extraDependenciesPrefixes,
-                    configuration: td.configuration
+                    configuration: td.configuration,
+                    constraints: td.additiveConstraints
             )
             println "mergedModule {\n${builder.moduleInfo.toString(4, td.language)}\n}"
         }

@@ -28,52 +28,59 @@ import java.util.stream.Collectors
 class SuggestMergedModuleInfoSpec extends Specification {
     @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
 
-    static Set<String> GROOVY_DIRECTIVES = [
+    static Set<String> GROOVY_DIRECTIVES_CONSTRAINT = [
             "requires 'java.sql';",
             "requires 'java.naming';",
             "requires 'java.desktop';",
-            "requires 'java.rmi';",
             "requires 'java.logging';",
-            "requires 'java.compiler';",
             "requires 'java.scripting';",
             "requires 'java.xml';",
             "requires 'java.management';",
-            "uses 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory';",
             "uses 'org.apache.logging.log4j.spi.Provider';",
             "provides 'javax.annotation.processing.Processor' with 'org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor';",
+    ]
+    static Set<String> GROOVY_DIRECTIVES = GROOVY_DIRECTIVES_CONSTRAINT + [
+            "requires 'java.rmi';",
+            "requires 'java.compiler';",
+            "uses 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory';",
             "provides 'org.apache.logging.log4j.spi.Provider' with 'org.apache.logging.log4j.core.impl.Log4jProvider';",
             "provides 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory' with 'org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory';",
     ]
 
-    static Set<String> KOTLIN_DIRECTIVES = [
+    static Set<String> KOTLIN_DIRECTIVES_CONSTRAINT = [
             'requires("java.management");',
             'requires("java.naming");',
             'requires("java.logging");',
             'requires("java.scripting");',
             'requires("java.sql");',
-            'requires("java.rmi");',
             'requires("java.xml");',
             'requires("java.desktop");',
-            'requires("java.compiler");',
-            'uses("org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory");',
             'uses("org.apache.logging.log4j.spi.Provider");',
             'provides("javax.annotation.processing.Processor").with("org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor");',
+    ]
+    static Set<String> KOTLIN_DIRECTIVES = KOTLIN_DIRECTIVES_CONSTRAINT + [
+            'requires("java.rmi");',
+            'requires("java.compiler");',
+            'uses("org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory");',
             'provides("org.apache.logging.log4j.spi.Provider").with("org.apache.logging.log4j.core.impl.Log4jProvider");',
             'provides("org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory").with("org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory");'
     ]
-    static Set<String> JAVA_DIRECTIVES = [
+
+    static Set<String> JAVA_DIRECTIVES_CONSTRAINT = [
             "requires java.sql;",
             "requires java.naming;",
             "requires java.desktop;",
-            "requires java.rmi;",
             "requires java.logging;",
-            "requires java.compiler;",
             "requires java.scripting;",
             "requires java.xml;",
             "requires java.management;",
-            "uses org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory;",
             "uses org.apache.logging.log4j.spi.Provider;",
             "provides javax.annotation.processing.Processor with org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor;",
+    ]
+    static Set<String> JAVA_DIRECTIVES = JAVA_DIRECTIVES_CONSTRAINT + [
+            "requires java.rmi;",
+            "requires java.compiler;",
+            "uses org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory;",
             "provides org.apache.logging.log4j.spi.Provider with org.apache.logging.log4j.core.impl.Log4jProvider;",
             "provides org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory with org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory;",
     ]
@@ -84,22 +91,22 @@ class SuggestMergedModuleInfoSpec extends Specification {
     }
 
     @Unroll
-    def "should display the correct module-info for the merged module with #language flavor using Gradle #gradleVersion"() {
+    def "should display the correct module-info for the merged module in #gradleFile with #language flavor using Gradle #gradleVersion"() {
         given:
         new AntBuilder().copy( todir: testProjectDir.root ) {
             fileset( dir: 'src/test/resources/hello-log4j-2.9.0' )
         }
-        File buildFile = new File(testProjectDir.root, "build.gradle")
+        File buildFile = new File(testProjectDir.root, gradleFile)
         def outputWriter = new StringWriter(8192)
 
         when:
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(debug)
                 .withGradleVersion(gradleVersion)
                 .forwardStdOutput(outputWriter)
                 .withProjectDir(buildFile.parentFile)
                 .withPluginClasspath()
-                .withArguments("-is", JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO, '--useJdeps=no', "--language=$language")
+                .withArguments("-is", JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO, '-b', gradleFile, "--useConstraints", "--language=$language")
                 .build();
         def task = result.task(":$JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO")
         println outputWriter
@@ -112,14 +119,20 @@ class SuggestMergedModuleInfoSpec extends Specification {
         def directives = getDirectives(taskOutput, language)
 
         then:
-        directives.size() == 14
+        directives.size() == expectedDirectives.size()
         directives as Set == expectedDirectives
 
         where:
-        language | expectedDirectives | gradleVersion
-        'groovy' | GROOVY_DIRECTIVES  | '4.8'
-        'kotlin' | KOTLIN_DIRECTIVES  | '4.10.3'
-        'java'   | JAVA_DIRECTIVES    | '5.0'
+        language | expectedDirectives           | gradleFile                  | gradleVersion | debug
+        'groovy' | GROOVY_DIRECTIVES            | 'build.gradle'              | '4.8'         | true
+        'kotlin' | KOTLIN_DIRECTIVES            | 'build.gradle'              | '4.10.3'      | true
+        'java'   | JAVA_DIRECTIVES              | 'build.gradle'              | '5.0'         | true
+        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '4.10.3'      | true
+        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '5.6.4'       | true
+        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle'     | '6.0.1'       | true
+        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '5.0'         | false
+        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '5.6.4'       | false
+        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle.kts' | '6.0.1'       | false
     }
 
     List<String> getDirectives(String taskOutput, String language) {
