@@ -569,7 +569,7 @@ The following keys are allowed in the <em>constraints</em> map:<br>
 </div>
 <div class="paragraph">
 <p>By calling one of the above methods you automatically enable the additive mode.
-This means that is no longer necessary to explicitly set the <code>additive</code> property to <code>true</code>.</p>
+This means that it&#8217;s no longer necessary to explicitly set the <code>additive</code> property to <code>true</code>.</p>
 </div>
 <div class="paragraph">
 <p><em>Usage example</em></p>
@@ -669,6 +669,9 @@ to parse the templates, with the following variables available:</p>
 </ul>
 </div>
 <div class="paragraph">
+<p>The values in the <strong>args</strong> and <strong>jvmArgs</strong> lists may contain the placeholder <code>{{BIN_DIR}}</code>, which stands for the <em>bin</em> directory of your custom runtime image.</p>
+</div>
+<div class="paragraph">
 <p><em>Usage example</em></p>
 </div>
 <div class="listingblock primary">
@@ -678,7 +681,7 @@ to parse the templates, with the following variables available:</p>
     ...
     launcher {
         name = <span class="string"><span class="delimiter">'</span><span class="content">my-app</span><span class="delimiter">'</span></span>
-        jvmArgs = [<span class="string"><span class="delimiter">'</span><span class="content">-Dlog4j.debug=true</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">-Dlog4j.configurationFile=./log4j2.xml</span><span class="delimiter">'</span></span>]
+        jvmArgs = [<span class="string"><span class="delimiter">'</span><span class="content">-Dlog4j.debug=true</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml</span><span class="delimiter">'</span></span>]
         args = [<span class="string"><span class="delimiter">'</span><span class="content">--user</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">alice</span><span class="delimiter">'</span></span>]
         unixScriptTemplate = file(<span class="string"><span class="delimiter">'</span><span class="content">unixStartScript.txt</span><span class="delimiter">'</span></span>)
         windowsScriptTemplate = file(<span class="string"><span class="delimiter">'</span><span class="content">windowsStartScript.txt</span><span class="delimiter">'</span></span>)
@@ -694,7 +697,7 @@ to parse the templates, with the following variables available:</p>
     ...
     launcher {
         name = &quot;my-app&quot;
-        jvmArgs = listOf(&quot;-Dlog4j.debug=true&quot;, &quot;-Dlog4j.configurationFile=./log4j2.xml&quot;)
+        jvmArgs = listOf(&quot;-Dlog4j.debug=true&quot;, &quot;-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml&quot;)
         args = listOf(&quot;--user&quot;, &quot;alice&quot;)
         unixScriptTemplate = file(&quot;unixStartScript.txt&quot;)
         windowsScriptTemplate = file(&quot;windowsStartScript.txt&quot;)
@@ -778,17 +781,6 @@ The plugin figures out by itself which JDK modules are needed, but you can use t
 <p>if true, the custom image will contain both the modules in the <code>jdkModules</code> list and the JDK modules identified as required by the plugin itself.
 <em>defaultValue</em>: false</p>
 </dd>
-</dl>
-</div>
-<div class="paragraph">
-<p>In many cases the "suggested" descriptor is just the right one for your merged module, so you don&#8217;t need to provide a <code>mergedModule</code> block.
-In some other cases the "suggested" descriptor is <em>almost</em> right, in the sense that it only misses one or a few clauses.
-In these cases you are allowed to configure only the missing clauses in the <code>mergedModule</code> block and instruct the plugin
-to add them to the suggested descriptor by setting the attribute <code>additive</code> to true.
-(The default value of <code>additive</code> is false.)</p>
-</div>
-<div class="dlist">
-<dl>
 <dt class="hdlist1">appModules</dt>
 <dd>
 <p>list of application modules to be included in the generated image.<br>
