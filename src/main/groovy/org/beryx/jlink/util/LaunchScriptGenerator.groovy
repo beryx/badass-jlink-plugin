@@ -36,20 +36,24 @@ class LaunchScriptGenerator {
         UNIX(
                 '',
                 {LauncherData ld -> ld.unixScriptTemplate},
-                'unixScriptTemplate.txt'),
+                'unixScriptTemplate.txt',
+                '$DIR'),
         WINDOWS(
                 '.bat',
                 {LauncherData ld -> ld.windowsScriptTemplate},
-                'windowsScriptTemplate.txt')
+                'windowsScriptTemplate.txt',
+                '%~dp0')
 
         final String extension
         final Function<LauncherData, File> templateProvider
         final String defaultTemplate
+        final String binDirPlaceholder
 
-        Type(String extension, Function<LauncherData, File> templateProvider, String defaultTemplate) {
+        Type(String extension, Function<LauncherData, File> templateProvider, String defaultTemplate, String binDirPlaceholder) {
             this.extension = extension
             this.templateProvider = templateProvider
             this.defaultTemplate = defaultTemplate
+            this.binDirPlaceholder = binDirPlaceholder
         }
     }
 
@@ -65,8 +69,8 @@ class LaunchScriptGenerator {
     @CompileDynamic
     String getScript(Type type) {
         def engine = new SimpleTemplateEngine()
-        def args = launcherData.args.collect{adjustArg(it)}.join(' ')
-        def jvmArgs = launcherData.jvmArgs.collect{adjustArg(it)}.join(' ')
+        def args = launcherData.args.collect{adjustArg(it, type)}.join(' ')
+        def jvmArgs = launcherData.jvmArgs.collect{adjustArg(it, type)}.join(' ')
         def bindings = [
                 moduleName: moduleName,
                 mainClassName: mainClassName,
@@ -90,11 +94,11 @@ class LaunchScriptGenerator {
         template.make(bindings).toString()
     }
 
-    static String adjustArg(String arg) {
+    static String adjustArg(String arg, Type type) {
         def adjusted = arg.replace('"', '\\"')
         if(!(adjusted ==~ /[\w\-\+=\/\\,;.:#]+/)) {
             adjusted = '"' + adjusted + '"'
         }
-        adjusted
+        adjusted.replace('{{BIN_DIR}}', type.binDirPlaceholder)
     }
 }

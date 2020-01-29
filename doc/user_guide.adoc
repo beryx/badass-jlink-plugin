@@ -209,7 +209,7 @@ The following keys are allowed in the _constraints_ map: +
 
 
 By calling one of the above methods you automatically enable the additive mode.
-This means that is no longer necessary to explicitly set the `additive` property to `true`.
+This means that it's no longer necessary to explicitly set the `additive` property to `true`.
 
 
 _Usage example_
@@ -279,6 +279,8 @@ to parse the templates, with the following variables available:
 - jvmArgs
 - args
 
+The values in the *args* and *jvmArgs* lists may contain the placeholder `{{BIN_DIR}}`, which stands for the _bin_ directory of your custom runtime image.
+
 _Usage example_
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -287,7 +289,7 @@ jlink {
     ...
     launcher {
         name = 'my-app'
-        jvmArgs = ['-Dlog4j.debug=true', '-Dlog4j.configurationFile=./log4j2.xml']
+        jvmArgs = ['-Dlog4j.debug=true', '-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml']
         args = ['--user', 'alice']
         unixScriptTemplate = file('unixStartScript.txt')
         windowsScriptTemplate = file('windowsStartScript.txt')
@@ -303,7 +305,7 @@ jlink {
     ...
     launcher {
         name = "my-app"
-        jvmArgs = listOf("-Dlog4j.debug=true", "-Dlog4j.configurationFile=./log4j2.xml")
+        jvmArgs = listOf("-Dlog4j.debug=true", "-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml")
         args = listOf("--user", "alice")
         unixScriptTemplate = file("unixStartScript.txt")
         windowsScriptTemplate = file("windowsStartScript.txt")
@@ -368,13 +370,6 @@ jdkModules:: list of JDK modules to be included in the generated image. +
 
 jdkAdditive:: if true, the custom image will contain both the modules in the `jdkModules` list and the JDK modules identified as required by the plugin itself.
     _defaultValue_: false
-
-In many cases the "suggested" descriptor is just the right one for your merged module, so you don't need to provide a `mergedModule` block.
-In some other cases the "suggested" descriptor is _almost_ right, in the sense that it only misses one or a few clauses.
-In these cases you are allowed to configure only the missing clauses in the `mergedModule` block and instruct the plugin
-to add them to the suggested descriptor by setting the attribute `additive` to true.
-(The default value of `additive` is false.)
-
 
 appModules:: list of application modules to be included in the generated image. +
     Modules required by those in this list will be automatically included. +

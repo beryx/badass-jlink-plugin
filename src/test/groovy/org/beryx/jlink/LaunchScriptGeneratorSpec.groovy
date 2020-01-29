@@ -37,10 +37,11 @@ class LaunchScriptGeneratorSpec extends Specification {
         scriptLines[2].replace('  ', ' ') == lastLine
 
         where:
-        jvmArgs                      | args             | lastLine
-        []                           | []               | '"$DIR/java" -p "$DIR/../app" -m org.example.hello/org.example.Hello "$@"'
-        ['-Xmx200m']                 | ['Alice']        | '"$DIR/java" -Xmx200m -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice "$@"'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | '"$DIR/java" -Xmx200m -Ddebug=true -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice Bob "$@"'
+        jvmArgs                      | args                         | lastLine
+        []                           | []                           | '"$DIR/java" -p "$DIR/../app" -m org.example.hello/org.example.Hello "$@"'
+        ['-Xmx200m']                 | ['Alice']                    | '"$DIR/java" -Xmx200m -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice "$@"'
+        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | '"$DIR/java" -Xmx200m -Ddebug=true -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice Bob "$@"'
+        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | '"$DIR/java" -cp "$DIR/data" -p "$DIR/../app" -m org.example.hello/org.example.Hello "$DIR/../names.txt" "$@"'
     }
 
     @Unroll
@@ -60,9 +61,10 @@ class LaunchScriptGeneratorSpec extends Specification {
         scriptLines[3].replace('  ', ' ') == lastLine
 
         where:
-        jvmArgs                      | args             | lastLine
-        []                           | []               | 'pushd %DIR% & %JAVA_EXEC% -p "%~dp0/../app" -m org.example.hello/org.example.Hello %* & popd'
-        ['-Xmx200m']                 | ['Alice']        | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice %* & popd'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob'] | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -Ddebug=true -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice Bob %* & popd'
+        jvmArgs                      | args                         | lastLine
+        []                           | []                           | 'pushd %DIR% & %JAVA_EXEC% -p "%~dp0/../app" -m org.example.hello/org.example.Hello %* & popd'
+        ['-Xmx200m']                 | ['Alice']                    | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice %* & popd'
+        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -Ddebug=true -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice Bob %* & popd'
+        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | 'pushd %DIR% & %JAVA_EXEC% -cp "%~dp0/data" -p "%~dp0/../app" -m org.example.hello/org.example.Hello "%~dp0/../names.txt" %* & popd'
     }
 }

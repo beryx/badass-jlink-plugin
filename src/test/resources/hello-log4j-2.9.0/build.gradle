@@ -52,19 +52,4 @@ tasks.jlink.doLast {
         from('src/main/resources')
         into("$buildDir/image/bin")
     }
-    adjustStartScripts()
-}
-
-def adjustStartScripts() {
-    ['hello', 'hello.bat'].each { script ->
-        def scriptFile = new File("$buildDir/image/bin/$script")
-        if(scriptFile.file) {
-            def quotes = script.endsWith('.bat') ? '' : '"'
-            def binDir = script.endsWith('.bat') ? '%~dp0' : '.'
-            def newText = scriptFile.text
-            newText = newText.replace('JLINK_VM_OPTIONS=',
-                    "JLINK_VM_OPTIONS=${quotes}-Dlog4j.configurationFile=$binDir/log4j2.xml${quotes}")
-            scriptFile.newWriter().withWriter {w -> w << newText}
-        }
-    }
 }
