@@ -72,18 +72,15 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
                     project.delete(td.tmpModuleInfoDirPath)
                     def moduleInfoFile = new File("$td.tmpModuleInfoDirPath/$moduleInfoPath")
                     project.mkdir(moduleInfoFile.parent)
+                    project.copy {
+                        from project.zipTree(jar.path)
+                        into td.tmpModuleInfoDirPath
+                    }
                     moduleInfoFile.withOutputStream { stream ->
                         stream << descriptorBytes
                     }
-                    project.exec {
-                        commandLine "$td.javaHome/bin/jar",
-                                '--update',
-                                '--file',
-                                jar.path,
-                                '-C',
-                                td.tmpModuleInfoDirPath,
-                                moduleInfoPath
-                    }
+                    project.delete(jar)
+                    Util.createJar(project, jar, project.file(td.tmpModuleInfoDirPath))
                 }
             }
         }

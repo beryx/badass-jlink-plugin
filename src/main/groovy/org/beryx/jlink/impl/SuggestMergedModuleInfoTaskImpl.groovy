@@ -70,7 +70,7 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
         try {
             def jarFilePath = "$td.jlinkBasePath/suggestedMergedModule.jar"
             new File(jarFilePath).delete()
-            Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDir)
+            Util.createJar(project, jarFilePath, td.mergedJarsDir)
             def result = new JdepsExecutor(project).genModuleInfo(project.file(jarFilePath),
                     project.file(td.tmpJarsDirPath), td.jlinkJarsDirPath, td.javaHome)
             def loggerFun = result.exitValue ? (td.useJdeps == JdepsUsage.yes) ? 'warn' : 'error' : 'info'

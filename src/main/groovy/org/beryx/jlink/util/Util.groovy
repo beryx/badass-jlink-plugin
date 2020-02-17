@@ -37,7 +37,15 @@ import org.gradle.util.GradleVersion
 
 import java.lang.module.ModuleDescriptor
 import java.lang.module.ModuleFinder
+import java.nio.file.FileSystem
+import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
+import java.util.jar.JarEntry
 import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
 import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
@@ -170,18 +178,26 @@ class Util {
         if(multiRelease) mf << 'Multi-Release: true\n'
     }
 
-    @CompileDynamic
-    static void createJar(Project project, String javaHome, String jarFilePath, Object contentDir) {
-        project.file(jarFilePath).parentFile.mkdirs()
-        project.exec {
-            commandLine "$javaHome/bin/jar",
-                    '--create',
-                    '--file',
-                    jarFilePath,
-                    '--no-manifest',
-                    '-C',
-                    contentDir,
-                    '.'
+    // see https://github.com/gradle/gradle/blob/e411cc70f9645138232b427ed63159d7cbc00523/subprojects/core/src/main/java/org/gradle/api/internal/file/archive/ZipCopyAction.java#L42-L56
+    private static final long CONSTANT_TIME_FOR_ZIP_ENTRIES = new GregorianCalendar(1980, Calendar.FEBRUARY, 1, 0, 0, 0).timeInMillis
+
+    static void createJar(Project project, Object jarFileOrPath, File contentDir) {
+        LOGGER.info "Archive $contentDir into ${jarFileOrPath}..."
+        File jarFile = project.file(jarFileOrPath)
+        jarFile.parentFile.mkdirs()
+        jarFile.withOutputStream { fout ->
+            JarOutputStream out = new JarOutputStream(fout)
+            List<File> contentFiles = []
+            contentDir.eachFileRecurse(FileType.FILES) { contentFiles << it }
+            int prefixLen = contentDir.path.length() + 1
+            contentFiles.sort {it.path}.each { file ->
+                def entryName = file.path.substring(prefixLen).replace('\\', '/')
+                def entry = new JarEntry(entryName)
+                entry.time = CONSTANT_TIME_FOR_ZIP_ENTRIES
+                out.putNextEntry(entry)
+                file.withInputStream { out << it }
+            }
+            out.finish()
         }
     }
 

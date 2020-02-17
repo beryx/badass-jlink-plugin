@@ -38,11 +38,6 @@ class PrepareModulesDirTask extends BaseTask {
     }
 
     @Input
-    String getJavaHome() {
-        extension.javaHome.get()
-    }
-
-    @Input
     String getConfiguration() {
         extension.configuration.get()
     }
@@ -78,7 +73,6 @@ class PrepareModulesDirTask extends BaseTask {
         taskData.jlinkBasePath = jlinkBasePath
         taskData.moduleName = moduleName
         taskData.mergedModuleName = mergedModuleName
-        taskData.javaHome = javaHome
         taskData.configuration = project.configurations.getByName(configuration)
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
         taskData.extraDependenciesPrefixes = extraDependenciesPrefixes

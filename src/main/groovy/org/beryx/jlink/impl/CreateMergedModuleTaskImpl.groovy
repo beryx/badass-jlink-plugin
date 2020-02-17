@@ -42,16 +42,15 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
     @CompileDynamic
     void execute() {
         def jarFilePath = "$td.tmpMergedModuleDirPath/$td.mergedModuleJar.name"
-        Util.createJar(project, td.javaHome, jarFilePath, td.mergedJarsDir)
+        Util.createJar(project, jarFilePath, td.mergedJarsDir)
         def modInfoDir = genModuleInfo(project.file(jarFilePath), project.file(td.tmpJarsDirPath), td.mergedModuleName)
         compileModuleInfo(project.file(modInfoDir), project.file(jarFilePath), project.file(td.tmpModuleInfoDirPath))
-        LOGGER.info("Copy from $jarFilePath into ${td.mergedModuleJar}...")
+        LOGGER.info("Copy from $td.mergedJarsDir into ${td.tmpModuleInfoDirPath}...")
         project.copy {
-            from jarFilePath
-            into td.jlinkJarsDirPath
+            from td.mergedJarsDir
+            into td.tmpModuleInfoDirPath
         }
-        LOGGER.info("Insert module-info from $td.tmpModuleInfoDirPath into ${td.mergedModuleJar}...")
-        insertModuleInfo(td.mergedModuleJar, project.file(td.tmpModuleInfoDirPath))
+        Util.createJar(project, td.mergedModuleJar, project.file(td.tmpModuleInfoDirPath))
     }
 
     File genModuleInfo(File jarFile, File targetDir) {
@@ -136,24 +135,10 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         project.exec {
             commandLine "$td.javaHome/bin/javac",
                     '-p',
-                    "$moduleJar.parentFile$SEP$td.jlinkJarsDirPath",
+                    "$td.mergedJarsDir$SEP$td.jlinkJarsDirPath",
                     '-d',
                     targetDir.path,
                     "$moduleInfoJavaDir/module-info.java"
-        }
-    }
-
-    @CompileDynamic
-    def insertModuleInfo(File moduleJar, File moduleInfoClassDir) {
-        LOGGER.info("Inserting module-info into ${moduleJar}...")
-        project.exec {
-            commandLine "$td.javaHome/bin/jar",
-                    '--update',
-                    '--file',
-                    moduleJar.path,
-                    '-C',
-                    moduleInfoClassDir.path,
-                    'module-info.class'
         }
     }
 }

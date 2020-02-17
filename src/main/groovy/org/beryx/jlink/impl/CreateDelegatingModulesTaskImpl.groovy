@@ -70,7 +70,7 @@ class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModul
         result.rethrowFailure()
 
         def targetJarPath = new File(targetDir, jarFile.name).path
-        Util.createJar(project, td.javaHome, targetJarPath, td.tmpModuleInfoDirPath)
+        Util.createJar(project, targetJarPath, project.file(td.tmpModuleInfoDirPath))
     }
 
     File genDelegatingModuleInfo(File jarFile, String targetDirPath) {
