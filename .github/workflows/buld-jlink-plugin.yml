@@ -24,4 +24,4 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew $GRADLE_BUILD_OPTS build asciidoc --scan
     - name: Run publish if necessary
-        run: ./publish.sh
+      run: ./publish.sh
