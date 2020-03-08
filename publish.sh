@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ev
 
-if [ "${github.ref}" == "master" ]; then
+if [ "${GITHUB_REF}" == "master" ]; then
   if [ "$(git ls-remote origin gh-pages)" == "" ]; then
     echo Start gitPublishPush with ghPageType=init
     ./gradlew --no-daemon -i -s gitPublishPush --rerun-tasks -PghPageType=init
