@@ -40,20 +40,20 @@ class ModuleInfoAdjusterSpec extends Specification {
         when:
         tmpDir.newFile('module-info.class').newOutputStream() << descriptor
         def md = ModuleFinder.of(tmpDir.root.toPath()).findAll().first().descriptor()
-        def qExports = md.exports().findAll {it.qualified}.collect{it.toString()} as Set
-        def qOpens = md.opens().findAll {it.qualified}.collect{it.toString()} as Set
+        def qExports = md.exports().findAll {it.qualified}.collect{[it.source(), it.targets()]} as Set
+        def qOpens = md.opens().findAll {it.qualified}.collect{[it.source(), it.targets()]} as Set
 
         then:
         qExports == [
-                'sun.awt to [jdk.unsupported.desktop, jdk.accessibility, my.merged.module]',
-                'java.awt.dnd.peer to [jdk.unsupported.desktop]',
-                'sun.swing to [jdk.unsupported.desktop]',
-                'sun.awt.dnd to [jdk.unsupported.desktop]',
+                ['sun.awt', ['jdk.unsupported.desktop', 'jdk.accessibility', 'my.merged.module'] as Set],
+                ['java.awt.dnd.peer', ['jdk.unsupported.desktop'] as Set],
+                ['sun.swing', ['jdk.unsupported.desktop'] as Set],
+                ['sun.awt.dnd', ['jdk.unsupported.desktop'] as Set],
         ] as Set
 
         qOpens == [
-                'com.sun.java.swing.plaf.windows to [jdk.jconsole, my.merged.module]',
-                'javax.swing.plaf.basic to [jdk.jconsole, my.merged.module]',
+                ['com.sun.java.swing.plaf.windows', ['jdk.jconsole', 'my.merged.module'] as Set],
+                ['javax.swing.plaf.basic', ['jdk.jconsole', 'my.merged.module'] as Set],
         ] as Set
     }
 }
