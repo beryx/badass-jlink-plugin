@@ -16,6 +16,8 @@ dependencies {
     compile "org.apache.logging.log4j:log4j-core:$log4jVersion"
     compile "org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion"
     compile "javax.xml.bind:jaxb-api:2.3.0"
+    compile 'com.twelvemonkeys.imageio:imageio-jpeg:3.5'
+    compile 'com.twelvemonkeys.imageio:imageio-tiff:3.5'
 }
 
 mainClassName = 'org.beryx.modular.hello.Hello'
@@ -38,12 +40,18 @@ jlink {
     mergedModule {
         requires 'java.naming';
         requires 'java.xml';
+        requires 'java.datatransfer';
         requires 'java.management';
         requires 'java.scripting';
         requires 'java.desktop';
 
         uses 'org.apache.logging.log4j.spi.Provider';
         provides 'org.apache.logging.log4j.spi.Provider' with 'org.apache.logging.log4j.core.impl.Log4jProvider';
+        provides 'javax.imageio.spi.ImageReaderSpi' with 'com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageReaderSpi',
+                'com.twelvemonkeys.imageio.plugins.tiff.BigTIFFImageReaderSpi',
+                'com.twelvemonkeys.imageio.plugins.tiff.TIFFImageReaderSpi';
+        provides 'javax.imageio.spi.ImageWriterSpi' with 'com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageWriterSpi',
+                'com.twelvemonkeys.imageio.plugins.tiff.TIFFImageWriterSpi';
     }
 }
 

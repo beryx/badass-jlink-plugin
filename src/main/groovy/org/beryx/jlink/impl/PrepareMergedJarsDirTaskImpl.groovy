@@ -71,14 +71,18 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         if(jars.empty) return
         LOGGER.info("Merging content into ${td.mergedJarsDir}...")
 
+        TreeMap<String, String> services = [:]
         jars.each { jar ->
             project.delete(td.tmpJarsDirPath)
             project.copy {
                 from project.zipTree(jar)
                 into td.tmpJarsDirPath
-                exclude 'module-info.class', 'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/SIG-*'
+                exclude 'module-info.class', 'META-INF/services/*', 'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/SIG-*'
                 exclude { hasInvalidName(it) }
             }
+
+            appendServices(services, jar)
+
             def versionedDir = Util.getVersionedDir(new File(td.tmpJarsDirPath), td.jvmVersion)
             if(versionedDir?.directory) {
                 project.copy {
@@ -92,6 +96,7 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
                 project.ant.move file: td.tmpJarsDirPath, tofile: td.mergedJarsDir
             }
         }
+        writeServiceFiles(services)
         Util.createManifest(td.mergedJarsDir, false)
     }
 
@@ -110,5 +115,23 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
             LOGGER.warn("Excluding $path from the merged module.")
         }
         return invalid
+    }
+
+    @CompileDynamic
+    void appendServices(Map<String, String> services, File jar) {
+        def svcFiles = project.zipTree(jar).matching {
+            include 'META-INF/services/*'
+        }
+        svcFiles?.files?.each { f ->
+            def oldText = services[f.name] ?: ''
+            if(oldText && !oldText.endsWith('\n')) oldText += '\n'
+            services[f.name] = oldText + f.text
+        }
+    }
+
+    void writeServiceFiles(Map<String, String> services) {
+        services.each { name, text ->
+            new File("$td.mergedJarsDir/META-INF/services/$name").write(text)
+        }
     }
 }

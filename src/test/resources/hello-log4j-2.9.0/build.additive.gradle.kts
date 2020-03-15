@@ -18,6 +18,8 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
     implementation("javax.xml.bind:jaxb-api:2.3.0")
+    implementation("com.twelvemonkeys.imageio:imageio-jpeg:3.5")
+    implementation("com.twelvemonkeys.imageio:imageio-tiff:3.5")
 }
 
 application {

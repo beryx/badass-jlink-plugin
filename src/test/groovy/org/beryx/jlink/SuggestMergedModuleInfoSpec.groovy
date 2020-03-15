@@ -35,9 +35,13 @@ class SuggestMergedModuleInfoSpec extends Specification {
             "requires 'java.logging';",
             "requires 'java.scripting';",
             "requires 'java.xml';",
+            "requires 'java.datatransfer';",
             "requires 'java.management';",
             "uses 'org.apache.logging.log4j.spi.Provider';",
             "provides 'javax.annotation.processing.Processor' with 'org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor';",
+            "provides 'javax.imageio.spi.ImageReaderSpi' with 'com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageReaderSpi', 'com.twelvemonkeys.imageio.plugins.tiff.BigTIFFImageReaderSpi', 'com.twelvemonkeys.imageio.plugins.tiff.TIFFImageReaderSpi';",
+            "provides 'javax.imageio.spi.ImageWriterSpi' with 'com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageWriterSpi', 'com.twelvemonkeys.imageio.plugins.tiff.TIFFImageWriterSpi';",
+
     ]
     static Set<String> GROOVY_DIRECTIVES = GROOVY_DIRECTIVES_CONSTRAINT + [
             "requires 'java.rmi';",
@@ -48,6 +52,7 @@ class SuggestMergedModuleInfoSpec extends Specification {
     ]
 
     static Set<String> KOTLIN_DIRECTIVES_CONSTRAINT = [
+            'requires("java.datatransfer");',
             'requires("java.management");',
             'requires("java.naming");',
             'requires("java.logging");',
@@ -57,13 +62,15 @@ class SuggestMergedModuleInfoSpec extends Specification {
             'requires("java.desktop");',
             'uses("org.apache.logging.log4j.spi.Provider");',
             'provides("javax.annotation.processing.Processor").with("org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor");',
+            'provides("javax.imageio.spi.ImageReaderSpi").with("com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageReaderSpi", "com.twelvemonkeys.imageio.plugins.tiff.BigTIFFImageReaderSpi", "com.twelvemonkeys.imageio.plugins.tiff.TIFFImageReaderSpi");',
+            'provides("javax.imageio.spi.ImageWriterSpi").with("com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageWriterSpi", "com.twelvemonkeys.imageio.plugins.tiff.TIFFImageWriterSpi");',
     ]
     static Set<String> KOTLIN_DIRECTIVES = KOTLIN_DIRECTIVES_CONSTRAINT + [
             'requires("java.rmi");',
             'requires("java.compiler");',
             'uses("org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory");',
             'provides("org.apache.logging.log4j.spi.Provider").with("org.apache.logging.log4j.core.impl.Log4jProvider");',
-            'provides("org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory").with("org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory");'
+            'provides("org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory").with("org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory");',
     ]
 
     static Set<String> JAVA_DIRECTIVES_CONSTRAINT = [
@@ -73,9 +80,12 @@ class SuggestMergedModuleInfoSpec extends Specification {
             "requires java.logging;",
             "requires java.scripting;",
             "requires java.xml;",
+            "requires java.datatransfer;",
             "requires java.management;",
             "uses org.apache.logging.log4j.spi.Provider;",
             "provides javax.annotation.processing.Processor with org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor;",
+            "provides javax.imageio.spi.ImageReaderSpi with com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageReaderSpi, com.twelvemonkeys.imageio.plugins.tiff.BigTIFFImageReaderSpi, com.twelvemonkeys.imageio.plugins.tiff.TIFFImageReaderSpi;",
+            "provides javax.imageio.spi.ImageWriterSpi with com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageWriterSpi, com.twelvemonkeys.imageio.plugins.tiff.TIFFImageWriterSpi;",
     ]
     static Set<String> JAVA_DIRECTIVES = JAVA_DIRECTIVES_CONSTRAINT + [
             "requires java.rmi;",
@@ -145,6 +155,8 @@ class SuggestMergedModuleInfoSpec extends Specification {
         int endPos = taskOutput.indexOf(blockEnd, startPos)
         assert endPos >= 0
         def content = taskOutput.substring(startPos, endPos)
-        content.lines().map{it.trim()}.filter{!it.empty}.collect(Collectors.toList())
+        content = content.lines().map{it.trim()}.filter{!it.empty}.collect(Collectors.joining('\n'))
+        content = content.replace(',\n', ', ')
+        content.lines().collect(Collectors.toList())
     }
 }
