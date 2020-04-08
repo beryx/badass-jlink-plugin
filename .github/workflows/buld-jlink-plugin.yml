@@ -24,4 +24,6 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew $GRADLE_BUILD_OPTS build asciidoc --scan
     - name: Run publish if necessary
+      env: # Or as an environment variable
+        GRGIT_USER: ${{ secrets.GRGIT_USER }}
       run: ./publish.sh
