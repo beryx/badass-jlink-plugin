@@ -4,6 +4,7 @@ on: [push]
 
 jobs:
   build:
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
