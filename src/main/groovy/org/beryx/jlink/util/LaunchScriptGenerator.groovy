@@ -58,6 +58,7 @@ class LaunchScriptGenerator {
     }
 
     void generate(String targetDirPath) {
+        new File(targetDirPath).mkdirs()
         for(type in Type.values()) {
             def scriptText = getScript(type)
             def scriptFile = new File(targetDirPath, "${launcherData.name}${type.extension}")
