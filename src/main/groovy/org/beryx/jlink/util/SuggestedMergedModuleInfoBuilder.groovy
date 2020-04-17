@@ -116,7 +116,7 @@ class SuggestedMergedModuleInfoBuilder {
         scanner.externalPackages.each { pkg ->
             def moduleName = moduleManager.exportMap[pkg]
             if(!moduleName) {
-                LOGGER.info("Cannot find module exporting $pkg")
+                LOGGER.info("Cannot find module exporting $pkg (used by the merged module)")
             } else if(moduleName != 'java.base'){
                 builders << new RequiresBuilder(moduleName)
             }

@@ -31,11 +31,18 @@ class JlinkPluginSpec extends Specification {
         println "CLEANUP"
     }
 
-    def setUpBuild(String projectDir) {
+    def setUpBuild(String projectDir, String buildScriptName = 'build.gradle') {
         new AntBuilder().copy(todir: testProjectDir.root) {
-            fileset(dir: "src/test/resources/$projectDir")
+            def options = [dir: "src/test/resources/$projectDir"]
+            if(buildScriptName != 'build.gradle') {
+                options.excludes = 'build.gradle'
+            }
+            fileset(options)
         }
-        new File(testProjectDir.root, "build.gradle")
+        if(buildScriptName != 'build.gradle') {
+            new File(testProjectDir.root, buildScriptName).renameTo("$testProjectDir.root/build.gradle")
+        }
+        new File(testProjectDir.root, 'build.gradle')
     }
 
     def setUpHelloLogbackBuild(String moduleName, String launcherName, String mainClass, String mergedModuleName) {
@@ -56,6 +63,21 @@ class JlinkPluginSpec extends Specification {
         |'''.stripMargin()
         buildFile << '}\n'
         println "Executing build script:\n${buildFile.text}"
+    }
+
+    def "should be compatible with the new JPMS features introduced in Gradle 6.4"() {
+        when:
+        setUpBuild('hello-logback', 'build.modular.gradle')
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withProjectDir(testProjectDir.root)
+                .withPluginClasspath()
+                .withGradleVersion('6.4-rc-1')
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+
+        then:
+        checkOutput(result, 'modular-hello', 'LOG: Hello, modular Java!')
     }
 
     @Unroll

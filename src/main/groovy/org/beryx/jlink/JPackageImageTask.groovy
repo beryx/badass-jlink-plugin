@@ -85,16 +85,4 @@ class JPackageImageTask extends BaseTask {
     File getImageDirFromName() {
         project.file("$project.buildDir/${imageName}")
     }
-
-    @Internal
-    String getDefaultMainClass() {
-        def mainClass = project['mainClassName'] as String
-        int pos = mainClass.lastIndexOf('/')
-        if(pos < 0) return mainClass
-        def mainClassModule = mainClass.substring(0, pos)
-        if(mainClassModule != moduleName) {
-            LOGGER.warn("The module name specified in 'mainClassName' ($mainClassModule) has not the expected value (${moduleName}).")
-        }
-        mainClass.substring(pos + 1)
-    }
 }

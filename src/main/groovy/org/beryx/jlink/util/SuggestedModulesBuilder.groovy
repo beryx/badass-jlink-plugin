@@ -36,6 +36,7 @@ class SuggestedModulesBuilder {
 
     Set<String> getProjectModules() {
         Set<String> modules = []
+        LOGGER.info("Retrieving project modules for configuration $configuration.name")
         for(ResolvedDependency dep: configuration.resolvedConfiguration.firstLevelModuleDependencies) {
             def f = Util.getArtifact(dep)
             modules.addAll(getModulesRequiredBy(f))
@@ -60,7 +61,7 @@ class SuggestedModulesBuilder {
         scanner.externalPackages.each { pkg ->
             def moduleName = moduleManager.exportMap[pkg]
             if(!moduleName) {
-                LOGGER.info("Cannot find module exporting $pkg")
+                LOGGER.info("Cannot find module exporting $pkg (required by $jarOrDir.name)")
             } else if(moduleName != 'java.base'){
                 modules << moduleName
             }

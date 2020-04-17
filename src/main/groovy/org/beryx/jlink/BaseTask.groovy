@@ -15,14 +15,19 @@
  */
 package org.beryx.jlink
 
+import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.gradle.api.DefaultTask
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 
 @CompileStatic
 class BaseTask extends DefaultTask {
+    private static final Logger LOGGER = Logging.getLogger(BaseTask.class);
+
     @Internal
     final JlinkPluginExtension extension
 
@@ -35,4 +40,49 @@ class BaseTask extends DefaultTask {
     String getJlinkBasePath() {
         extension.jlinkBasePath.get()
     }
+    @Internal
+    String getDefaultMainClass() {
+        def mainClass = defaultMainClassModern
+        if(!mainClass) return defaultMainClassLegacy
+        def mainModule = defaultModuleModern
+        def moduleName = extension.moduleName.get()
+        if(mainModule != moduleName) {
+            LOGGER.warn("The module name specified in 'application.mainModule' ($mainModule) has not the expected value ($moduleName).")
+        }
+        mainClass
+    }
+
+    @CompileDynamic
+    @Internal
+    String getDefaultMainClassModern() {
+        try {
+            return project.application?.mainClass?.get() as String
+        } catch (Exception e) {
+            return null
+        }
+    }
+
+    @CompileDynamic
+    @Internal
+    String getDefaultModuleModern() {
+        try {
+            return project.application?.mainModule?.get() as String
+        } catch (Exception e) {
+            return null
+        }
+    }
+
+    @Internal
+    String getDefaultMainClassLegacy() {
+        def mainClass = project['mainClassName'] as String
+        int pos = mainClass.lastIndexOf('/')
+        if(pos < 0) return mainClass
+        def mainClassModule = mainClass.substring(0, pos)
+        def moduleName = extension.moduleName.get()
+        if(mainClassModule != moduleName) {
+            LOGGER.warn("The module name specified in 'mainClassName' ($mainClassModule) has not the expected value ($moduleName).")
+        }
+        mainClass.substring(pos + 1)
+    }
 }
+
