@@ -21,6 +21,7 @@ import org.beryx.jlink.data.JlinkTaskData
 import org.beryx.jlink.util.LaunchScriptGenerator
 import org.beryx.jlink.util.SuggestedModulesBuilder
 import org.beryx.jlink.util.Util
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -56,6 +57,9 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
 
     @CompileDynamic
     void runJlink(File imageDir, String jdkHome, List<String> extraModulePaths, List<String> options) {
+        if(!new File("$jdkHome/jmods/java.base.jmod").file) {
+            throw new GradleException("java.base module not found in $jdkHome${File.separator}jmods")
+        }
         project.delete(imageDir)
         def result = project.exec {
             ignoreExitValue = true
