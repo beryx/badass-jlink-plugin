@@ -55,6 +55,9 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             }
         }
 
+        if (td.jpackageData.getImageOutputDir() != td.jpackageData.getInstallerOutputDir()) {
+            project.delete(project.files(td.jpackageData.getInstallerOutputDir()))
+        }
         packageTypes.each { packageType ->
             def result = project.exec {
                 ignoreExitValue = true
@@ -62,10 +65,6 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 project.ext.jpackageInstallerOutput = {
                     return standardOutput.toString()
                 }
-                if (td.jpackageData.getImageOutputDir() != td.jpackageData.getInstallerOutputDir()) {
-                    project.delete(project.files(td.jpackageData.getInstallerOutputDir()))
-                }
-
                 def jpackageExec = "$jpd.jpackageHome/bin/jpackage$EXEC_EXTENSION"
                 Util.checkExecutable(jpackageExec)
 

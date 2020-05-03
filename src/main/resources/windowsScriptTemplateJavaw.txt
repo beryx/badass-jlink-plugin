@@ -1,0 +1,4 @@
+@echo off
+set DIR="%~dp0"
+set JAVA_EXEC="%DIR:"=%\\javaw"
+pushd %DIR% & start "${moduleName}" %JAVA_EXEC% ${jvmArgs} -p "%~dp0/../app" -m ${moduleName}/${mainClassName} ${args} %* & popd

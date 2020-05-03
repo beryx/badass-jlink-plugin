@@ -37,22 +37,27 @@ class LaunchScriptGenerator {
                 '',
                 {LauncherData ld -> ld.unixScriptTemplate},
                 'unixScriptTemplate.txt',
+                'unixScriptTemplate.txt',
                 '$DIR'),
         WINDOWS(
                 '.bat',
                 {LauncherData ld -> ld.windowsScriptTemplate},
                 'windowsScriptTemplate.txt',
+                'windowsScriptTemplateJavaw.txt',
                 '%~dp0')
 
         final String extension
         final Function<LauncherData, File> templateProvider
         final String defaultTemplate
+        final String defaultTemplateNoConsole
         final String binDirPlaceholder
 
-        Type(String extension, Function<LauncherData, File> templateProvider, String defaultTemplate, String binDirPlaceholder) {
+        Type(String extension, Function<LauncherData, File> templateProvider,
+             String defaultTemplate, String defaultTemplateNoConsole, String binDirPlaceholder) {
             this.extension = extension
             this.templateProvider = templateProvider
             this.defaultTemplate = defaultTemplate
+            this.defaultTemplateNoConsole = defaultTemplateNoConsole
             this.binDirPlaceholder = binDirPlaceholder
         }
     }
@@ -86,7 +91,8 @@ class LaunchScriptGenerator {
             }
             template = engine.createTemplate(templateFile)
         } else {
-            def templateURL = LaunchScriptGenerator.class.getResource("/$type.defaultTemplate")
+            def templateName = launcherData.noConsole ? type.defaultTemplateNoConsole : type.defaultTemplate
+            def templateURL = LaunchScriptGenerator.class.getResource("/$templateName")
             if(!templateURL) {
                 throw new GradleException("Template resource $templateFile not found.")
             }

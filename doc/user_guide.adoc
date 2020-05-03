@@ -265,6 +265,10 @@ jvmArgs:: list of JVM arguments to be passed to the java executable. +
 args:: list of arguments to be passed to the application. +
     _defaultValue_: empty list
 
+noConsole:: This boolean property has an effect only on Windows. It is ignord on other platforms. +
+If true, the application will be launched without an associated console window (using `javaw` instead of `java`). +
+_defaultValue_: false
+
 unixScriptTemplate:: the template for generating the script file for Unix-like systems. +
     _defaultValue_: null (the plugin uses its own template)
 

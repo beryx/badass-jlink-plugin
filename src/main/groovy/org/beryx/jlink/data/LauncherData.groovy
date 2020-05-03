@@ -26,4 +26,5 @@ class LauncherData implements Serializable {
     List<String> args = []
     File unixScriptTemplate
     File windowsScriptTemplate
+    boolean noConsole
 }

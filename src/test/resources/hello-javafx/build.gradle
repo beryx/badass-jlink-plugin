@@ -21,5 +21,6 @@ jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
     launcher {
         name = 'helloFX'
+        noConsole = true
     }
 }
