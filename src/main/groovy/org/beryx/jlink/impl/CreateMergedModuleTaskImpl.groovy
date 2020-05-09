@@ -27,6 +27,7 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
+import java.lang.module.ModuleFinder
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
@@ -132,13 +133,35 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
             from(project.zipTree(moduleJar))
             into(targetDir)
         }
+
         project.exec {
-            commandLine "$td.javaHome/bin/javac",
-                    '-p',
-                    "$td.mergedJarsDir$SEP$td.jlinkJarsDirPath",
-                    '-d',
-                    targetDir.path,
-                    "$moduleInfoJavaDir/module-info.java"
+            commandLine = [
+                "$td.javaHome/bin/javac",
+                *versionOpts,
+                '-p',
+                "$td.mergedJarsDir$SEP$td.jlinkJarsDirPath",
+                '-d',
+                targetDir.path,
+                "$moduleInfoJavaDir/module-info.java"
+            ]
         }
+    }
+
+    private List<String> getVersionOpts() {
+        def version = td.mergedModuleInfo.version
+        if(!version) {
+            def archiveFile = Util.getArchiveFile(project)
+            def moduleRef = ModuleFinder.of(archiveFile.toPath()).findAll().find()
+            if(moduleRef) {
+                moduleRef.descriptor().version().ifPresent{v -> version = v.toString()}
+            }
+            if(!version) {
+                def projectVersion = project.version as String
+                if(projectVersion && projectVersion != Project.DEFAULT_VERSION) {
+                    version = projectVersion
+                }
+            }
+        }
+        (!version || version == Project.DEFAULT_VERSION) ? [] : [ '--module-version', version ]
     }
 }

@@ -184,11 +184,16 @@ The plugin automatically exports all packages found in the merged module, theref
 If a `mergedModule` block appears in yout build script, the generated module descriptor will contain the clauses specified in this block.
 Otherwise, the module descriptor is created using the algorithm implemented by the `suggestMergedModuleInfo` task.
 
+[purple]##**version**##:: The version of the merged module. +
+    _defaultValue_: the version of the main module, if available; otherwise, the project version +
+    _usage example_: `version = "1.0.0"`
+
 [purple]##**additive**##:: In many cases the suggested descriptor is just the right one for your merged module, so you don't need to provide a `mergedModule` block.
 In some other cases the suggested descriptor is _almost_ right, in the sense that it only misses one or a few clauses.
 In these cases you are allowed to configure only the missing clauses in the `mergedModule` block and instruct the plugin
 to add them to the suggested descriptor by setting the attribute `additive` to true. +
-    _defaultValue_: `false`
+    _defaultValue_: `false` +
+    _usage example_: `additive = true`
 
 There are also situations where the suggested descriptor contains some unwanted clauses.
 The plugin provides a few methods that allow excluding these clauses:

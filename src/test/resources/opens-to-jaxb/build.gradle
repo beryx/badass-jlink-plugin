@@ -8,6 +8,8 @@ repositories {
     jcenter()
 }
 
+version = '1.2.3'
+
 ext.moduleName = 'org.example.jaxb'
 mainClassName = 'org.example.jaxb/org.example.jaxb.XMLPrinter'
 
@@ -18,6 +20,7 @@ dependencies {
 jlink {
     forceMerge 'jaxb'
     mergedModule {
+        version = '9.8.7'
         requires 'java.logging';
         requires 'java.xml';
         requires 'com.sun.xml.txw2';

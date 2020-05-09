@@ -25,6 +25,7 @@ import java.util.stream.Collectors
 @CompileStatic
 @ToString(includeNames = true)
 class ModuleInfo implements Serializable {
+    String version
     boolean enabled
     boolean additive
     final AdditiveConstraints additiveConstraints = new AdditiveConstraints()

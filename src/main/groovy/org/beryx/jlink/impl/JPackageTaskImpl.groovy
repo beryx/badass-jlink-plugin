@@ -69,7 +69,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 Util.checkExecutable(jpackageExec)
 
                 def appVersion = (jpd.appVersion ?: project.version).toString()
-                def versionOpts = (appVersion == 'unspecified') ? [] : [ '--app-version', appVersion ]
+                def versionOpts = (appVersion == Project.DEFAULT_VERSION) ? [] : [ '--app-version', appVersion ]
                 if (versionOpts && (!appVersion || !Character.isDigit(appVersion[0] as char))) {
                     throw new GradleException("The first character of the --app-version argument should be a digit.")
                 }

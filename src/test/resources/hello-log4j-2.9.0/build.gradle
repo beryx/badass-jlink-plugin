@@ -38,6 +38,7 @@ jlink {
         name = 'hello'
     }
     mergedModule {
+        version = '5.4.3'
         requires 'java.naming';
         requires 'java.xml';
         requires 'java.datatransfer';

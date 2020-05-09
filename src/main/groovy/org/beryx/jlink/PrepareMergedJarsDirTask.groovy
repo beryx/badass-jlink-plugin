@@ -90,7 +90,6 @@ class PrepareMergedJarsDirTask extends BaseTask {
 
     @InputFile
     File getArchivePath() {
-        Jar jarTask = (Jar)project.tasks.getByName(JavaPlugin.JAR_TASK_NAME)
-        jarTask.archivePath
+        Util.getArchiveFile(project)
     }
 }

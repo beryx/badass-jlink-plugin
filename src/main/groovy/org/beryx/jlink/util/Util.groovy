@@ -30,9 +30,11 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.util.GradleVersion
 
 import java.lang.module.ModuleDescriptor
@@ -263,6 +265,16 @@ class Util {
             def zipFile = new ZipFile(jarFile)
         zipFile.entries().every { ZipEntry entry -> entry.name in ['META-INF/', 'META-INF/MANIFEST.MF']}
      }
+
+    @CompileDynamic
+    static File getArchiveFile(Project project) {
+        Jar jarTask = (Jar) project.tasks.getByName(JavaPlugin.JAR_TASK_NAME)
+        if(GradleVersion.current() < GradleVersion.version('5.1')) {
+            return jarTask.archivePath
+        } else {
+            return jarTask.archiveFile.getOrNull()?.asFile
+        }
+    }
 
     @CompileDynamic
     static DirectoryProperty createDirectoryProperty(Project project) {
