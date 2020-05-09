@@ -529,13 +529,20 @@ Otherwise, the module descriptor is created using the algorithm implemented by t
 </div>
 <div class="dlist">
 <dl>
+<dt class="hdlist1"><span class="purple"><strong>version</strong></span></dt>
+<dd>
+<p>The version of the merged module.<br>
+<em>defaultValue</em>: the version of the main module, if available; otherwise, the project version<br>
+<em>usage example</em>: <code>version = "1.0.0"</code></p>
+</dd>
 <dt class="hdlist1"><span class="purple"><strong>additive</strong></span></dt>
 <dd>
 <p>In many cases the suggested descriptor is just the right one for your merged module, so you don&#8217;t need to provide a <code>mergedModule</code> block.
 In some other cases the suggested descriptor is <em>almost</em> right, in the sense that it only misses one or a few clauses.
 In these cases you are allowed to configure only the missing clauses in the <code>mergedModule</code> block and instruct the plugin
 to add them to the suggested descriptor by setting the attribute <code>additive</code> to true.<br>
-    <em>defaultValue</em>: <code>false</code></p>
+    <em>defaultValue</em>: <code>false</code><br>
+    <em>usage example</em>: <code>additive = true</code></p>
 </dd>
 </dl>
 </div>
