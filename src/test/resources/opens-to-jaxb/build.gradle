@@ -11,7 +11,7 @@ repositories {
 version = '1.2.3'
 
 ext.moduleName = 'org.example.jaxb'
-mainClassName = 'org.example.jaxb/org.example.jaxb.XMLPrinter'
+mainClassName = 'org.example.jaxb.XMLPrinter'
 
 dependencies {
     implementation 'org.glassfish.jaxb:jaxb-runtime:2.3.2'

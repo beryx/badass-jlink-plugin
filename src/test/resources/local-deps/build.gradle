@@ -7,7 +7,7 @@ group 'org.example'
 version '1.0'
 
 sourceCompatibility = 11
-mainClassName = "org.example/org.example.Hello"
+mainClassName = "org.example.Hello"
 
 repositories {
     mavenCentral()

@@ -8,7 +8,7 @@ repositories {
 }
 
 ext.moduleName = 'org.example.multi'
-mainClassName = 'org.example.multi/org.example.multi.Hello'
+mainClassName = 'org.example.multi.Hello'
 
 jlink {
     launcher {
