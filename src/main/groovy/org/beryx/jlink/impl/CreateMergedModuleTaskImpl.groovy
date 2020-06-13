@@ -28,6 +28,7 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
 import java.lang.module.ModuleFinder
+import java.lang.module.ModuleReference
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
@@ -151,7 +152,13 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         def version = td.mergedModuleInfo.version
         if(!version) {
             def archiveFile = Util.getArchiveFile(project)
-            def moduleRef = ModuleFinder.of(archiveFile.toPath()).findAll().find()
+            ModuleReference moduleRef = null
+            try {
+                moduleRef = ModuleFinder.of(archiveFile.toPath()).findAll().find()
+            } catch (e) {
+                LOGGER.error("Error retrieving module ${archiveFile.toPath()}: ", e.cause?:e.message)
+                throw e
+            }
             if(moduleRef) {
                 moduleRef.descriptor().version().ifPresent{v -> version = v.toString()}
             }

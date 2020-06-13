@@ -84,6 +84,8 @@ class JlinkPluginExtension {
         launcherData = project.objects.property(LauncherData)
         def ld = new LauncherData()
         ld.name = project.name
+        ld.args = Util.getDefaultArgs(project)
+        ld.jvmArgs = Util.getDefaultJvmArgs(project)
         launcherData.set(ld)
 
         customImageData = project.objects.property(CustomImageData)

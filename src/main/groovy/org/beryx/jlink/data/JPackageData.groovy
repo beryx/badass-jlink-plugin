@@ -66,6 +66,8 @@ class JPackageData {
     @Input
     List<String> installerOptions = []
 
+    List<String> args = []
+
     List<String> jvmArgs = []
 
     JPackageData(Project project, LauncherData launcherData) {
@@ -105,7 +107,7 @@ class JPackageData {
 
     @Input
     List<String> getArgs() {
-        launcherData.args
+        this.@args ?: launcherData.args
     }
 
     @OutputDirectory

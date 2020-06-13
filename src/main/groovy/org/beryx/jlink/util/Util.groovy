@@ -39,12 +39,6 @@ import org.gradle.util.GradleVersion
 
 import java.lang.module.ModuleDescriptor
 import java.lang.module.ModuleFinder
-import java.nio.file.FileSystem
-import java.nio.file.FileSystems
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.Paths
-import java.nio.file.StandardCopyOption
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.jar.JarOutputStream
@@ -391,5 +385,23 @@ class Util {
             dependentProjects += getAllDependentProjectsExt(it, handledProjects)
         }
         return dependentProjects.unique()
+    }
+
+    @CompileDynamic
+    static List<String> getDefaultJvmArgs(Project project) {
+        try {
+            return project.application?.applicationDefaultJvmArgs
+        } catch (Exception e) {
+            return []
+        }
+    }
+
+    @CompileDynamic
+    static List<String> getDefaultArgs(Project project) {
+        try {
+            return project.tasks.run?.args
+        } catch (Exception e) {
+            return []
+        }
     }
 }

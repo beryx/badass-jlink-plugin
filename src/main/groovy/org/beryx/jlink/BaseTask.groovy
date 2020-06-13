@@ -85,4 +85,3 @@ class BaseTask extends DefaultTask {
         mainClass.substring(pos + 1)
     }
 }
-

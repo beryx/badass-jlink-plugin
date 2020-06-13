@@ -265,10 +265,10 @@ name:: The base name of the script files used to launch your application. +
     _defaultValue_: `project.name`
 
 jvmArgs:: list of JVM arguments to be passed to the java executable. +
-    _defaultValue_: empty list
+    _defaultValue_: the arguments configured in the `applicationDefaultJvmArgs` property of the `application` extension
 
 args:: list of arguments to be passed to the application. +
-    _defaultValue_: empty list
+    _defaultValue_: the arguments configured in the `args` property of the `run` task
 
 noConsole:: This boolean property has an effect only on Windows. It is ignored on other platforms. +
 If true, the application will be launched without an associated console window (using `javaw` instead of `java`). +
@@ -470,6 +470,9 @@ appVersion:: the argument passed to the `--app-version` option when running `jpa
 
 jvmArgs:: list of JVM arguments to be passed to the virtual machine. +
     _defaultValue_: the `jvmArgs` value configured in the `launcher` block or an empty list
+
+args:: list of arguments to be passed to the application. +
+    _defaultValue_: the `args` value configured in the `launcher` block or an empty list
 
 installerOptions:: list of additional options to be passed to the `jpackage` executable when executing the `jpackage` task. +
     _defaultValue_: empty list +
