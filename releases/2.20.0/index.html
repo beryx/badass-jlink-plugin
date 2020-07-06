@@ -282,14 +282,12 @@ You can use the suggested block as a starting point for your custom <code>merged
 <dt class="hdlist1"><a href="#jpackageImage">jpackageImage</a></dt>
 <dd>
 <p>Uses the <a href="https://jdk.java.net/jpackage/">jpackage</a> tool to create a platform-specific application image. <br>
-<em>depends on</em>: <code>prepareModulesDir</code><br>
-<em>This task is experimental.</em></p>
+<em>depends on</em>: <code>prepareModulesDir</code><br></p>
 </dd>
 <dt class="hdlist1"><a href="#jpackage">jpackage</a></dt>
 <dd>
 <p>Uses the <a href="https://jdk.java.net/jpackage/">jpackage</a> tool to create a platform-specific application installer. <br>
-<em>depends on</em>: <code>jpackageImage</code><br>
-<em>This task is experimental.</em></p>
+<em>depends on</em>: <code>jpackageImage</code><br></p>
 </dd>
 </dl>
 </div>
@@ -470,7 +468,20 @@ determine the location of the image directory and of the image archive.<br>
 &nbsp;&nbsp;&nbsp;&nbsp; <em>Methods:</em><br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="maroon">addOptions</span>(String&#8230;&#8203; <span class="purple">options</span>): an alternative way of setting the <code>options</code> property.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="maroon">addExtraModulePath</span>(String <span class="purple">path</span>): pass the specified path to the <code>--module-path</code> option of jlink.<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This method can be used to specify the location of the platform-specific OpenJFX modules.</p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This method can be used to specify the location of the platform-specific OpenJFX modules.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="maroon">jdkDownload</span>(String <span class="purple">downloadUrl</span>, Closure <span class="purple">downloadConfig</span>=null): helper method for setting <span class="purple">jdkHome</span>.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; It downloads and unpacks a JDK distribution from the given URL.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The optional closure allows configuring the following parameters:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - <span class="purple">downloadDir</span>: the directory in which the distribution is downloaded and unpacked.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>defaultValue</em>: <code><em>buildDir</em>/jdks/<em>targetPlatform-name</em></code><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - <span class="purple">archiveName</span>: the name under which the archived distribution should be saved.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>defaultValue</em>: <code>jdk</code><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - <span class="purple">archiveExtension</span>: accepted values: <code>tar.gz</code> and <code>zip</code>.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>defaultValue</em>: <code>null</code> (inferred from the URL)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - <span class="purple">pathToHome</span>: the relative path to the JDK home in the unpacked distribution.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>defaultValue</em>: <code>null</code> (inferred by scanning the unpacked distribution)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - <span class="purple">overwrite</span>: if <code>true</code>, the plugin overwrites an already existing distribution.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>defaultValue</em>: <code>false</code></p>
 </dd>
 </dl>
 </div>
@@ -488,17 +499,25 @@ determine the location of the image directory and of the image archive.<br>
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
     targetPlatform(<span class="string"><span class="delimiter">&quot;</span><span class="content">linux-s390x</span><span class="delimiter">&quot;</span></span>) {
-        jdkHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/jvm/linux-s390x/jdk-11.0.2+9</span><span class="delimiter">&quot;</span></span>
+        jdkHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/jvm/linux-s390x/jdk-14.0.1_7</span><span class="delimiter">&quot;</span></span>
         addOptions(<span class="string"><span class="delimiter">&quot;</span><span class="content">--endian</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">big</span><span class="delimiter">&quot;</span></span>)
         addExtraModulePath(<span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/openjfx/linux-s390x/jmods</span><span class="delimiter">&quot;</span></span>)
     }
-    targetPlatform(<span class="string"><span class="delimiter">&quot;</span><span class="content">mac</span><span class="delimiter">&quot;</span></span>) {
-        jdkHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/jvm/mac/jdk-11.0.2+9</span><span class="delimiter">&quot;</span></span>
-        addExtraModulePath(<span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/openjfx/mac/jmods</span><span class="delimiter">&quot;</span></span>)
-    }
+
     targetPlatform(<span class="string"><span class="delimiter">&quot;</span><span class="content">win</span><span class="delimiter">&quot;</span></span>) {
-        jdkHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/jvm/win/jdk-11.0.2+9</span><span class="delimiter">&quot;</span></span>
+        jdkHome = jdkDownload(<span class="string"><span class="delimiter">&quot;</span><span class="content">https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7.1/OpenJDK14U-jdk_x64_windows_hotspot_14.0.1_7.zip</span><span class="delimiter">&quot;</span></span>)
         addExtraModulePath(<span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/openjfx/win/jmods</span><span class="delimiter">&quot;</span></span>)
+    }
+
+    targetPlatform(<span class="string"><span class="delimiter">&quot;</span><span class="content">mac</span><span class="delimiter">&quot;</span></span>) {
+        jdkHome = jdkDownload(<span class="string"><span class="delimiter">&quot;</span><span class="content">https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7/OpenJDK14U-jdk_x64_mac_hotspot_14.0.1_7.tar.gz</span><span class="delimiter">&quot;</span></span>) {
+            downloadDir = <span class="string"><span class="delimiter">&quot;</span><span class="inline"><span class="inline-delimiter">$</span>buildDir</span><span class="content">/myMac</span><span class="delimiter">&quot;</span></span>
+            archiveName = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-mac-jdk</span><span class="delimiter">&quot;</span></span>
+            archiveExtension = <span class="string"><span class="delimiter">&quot;</span><span class="content">tar.gz</span><span class="delimiter">&quot;</span></span>
+            pathToHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">jdk-14.0.1+7/Contents/Home</span><span class="delimiter">&quot;</span></span>
+            overwrite = <span class="predefined-constant">true</span>
+        }
+        addExtraModulePath(<span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/openjfx/mac/jmods</span><span class="delimiter">&quot;</span></span>)
     }
     ...
 }</code></pre>
@@ -837,7 +856,7 @@ Modules required by those in this list will be automatically included.<br>
 <div class="sect3">
 <h4 id="_jpackage">jpackage</h4>
 <div class="paragraph">
-<p>This experimental script block allows you to customize the <a href="https://jdk.java.net/jpackage/">jpackage</a>-based generation of platform-specific application images and installers.</p>
+<p>This script block allows you to customize the <a href="https://jdk.java.net/jpackage/">jpackage</a>-based generation of platform-specific application images and installers.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -934,7 +953,7 @@ It is also applicable when creating an application image when you want your own 
 It specifies which of the images produced by jlink should be used as runtime image by jpackage.
 Its value must match the name provided in one of the calls to the <code>targetPlatform</code> method.<br>
 <em>defaultValue</em>: null<br>
-<em>usage example</em>: <code>targetPlatform = "linux"</code></p>
+<em>usage example</em>: <code>targetPlatformName = "linux"</code></p>
 </dd>
 </dl>
 </div>
