@@ -16,7 +16,6 @@
 package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
-import groovy.transform.ToString
 import org.beryx.jlink.util.Util
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -30,6 +29,7 @@ import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
 class JlinkPluginExtension {
+    private final Project project
     final Property<String> jlinkBasePath
     final Property<String> imageName
     final DirectoryProperty imageDir
@@ -57,6 +57,7 @@ class JlinkPluginExtension {
     final Property<JPackageData> jpackageData
 
     JlinkPluginExtension(Project project) {
+        this.project = project
         jlinkBasePath = project.objects.property(String)
         jlinkBasePath.set(project.provider{"$project.buildDir/jlinkbase" as String})
 
@@ -147,11 +148,11 @@ class JlinkPluginExtension {
     }
 
     void targetPlatform(String name, String jdkHome, List<String> options = []) {
-        Util.putToMapProvider(targetPlatforms, name, new TargetPlatform(name, jdkHome, options))
+        Util.putToMapProvider(targetPlatforms, name, new TargetPlatform(project, name, jdkHome, options))
     }
 
     void targetPlatform(String name, Action<TargetPlatform> action) {
-        def targetPlatform = new TargetPlatform(name)
+        def targetPlatform = new TargetPlatform(project, name)
         action.execute(targetPlatform)
         Util.putToMapProvider(targetPlatforms, name, targetPlatform)
     }

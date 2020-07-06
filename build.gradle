@@ -103,7 +103,7 @@ dependencies {
 
 shadowJar {
     configurations = [project.configurations.plugin]
-    classifier = null
+    archiveClassifier = null
     dependencies {
         include(dependency("org.ow2.asm:asm:$asmVersion"))
         include(dependency("org.ow2.asm:asm-commons:$asmVersion"))

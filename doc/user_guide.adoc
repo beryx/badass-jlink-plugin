@@ -27,10 +27,8 @@ consisting only of a module descriptor. The module descriptor specifies that the
     _depends on_: `prepareMergedJarsDir`
 <<jpackageImage>>:: Uses the https://jdk.java.net/jpackage/[jpackage] tool to create a platform-specific application image.  +
     _depends on_: `prepareModulesDir` +
-    _This task is experimental._
 <<jpackage>>:: Uses the https://jdk.java.net/jpackage/[jpackage] tool to create a platform-specific application installer.  +
     _depends on_: `jpackageImage` +
-    _This task is experimental._
 
 A detailed description of these tasks is given in <<taskDetails>>
 
@@ -141,7 +139,20 @@ determine the location of the image directory and of the image archive. +
 &nbsp;&nbsp;&nbsp;&nbsp; _Methods:_ +
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [maroon]##addOptions##(String... [purple]##options##): an alternative way of setting the `options` property. +
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [maroon]##addExtraModulePath##(String [purple]##path##): pass the specified path to the `--module-path` option of jlink. +
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This method can be used to specify the location of the platform-specific OpenJFX modules.
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; This method can be used to specify the location of the platform-specific OpenJFX modules. +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; [maroon]##jdkDownload##(String [purple]##downloadUrl##, Closure [purple]##downloadConfig##=null): helper method for setting [purple]##jdkHome##. +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; It downloads and unpacks a JDK distribution from the given URL. +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The optional closure allows configuring the following parameters: +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - [purple]##downloadDir##: the directory in which the distribution is downloaded and unpacked. +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _defaultValue_: `_buildDir_/jdks/_targetPlatform-name_` +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - [purple]##archiveName##: the name under which the archived distribution should be saved. +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _defaultValue_: `jdk` +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - [purple]##archiveExtension##: accepted values: `tar.gz` and `zip`. +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _defaultValue_: `null` (inferred from the URL) +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - [purple]##pathToHome##: the relative path to the JDK home in the unpacked distribution. +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _defaultValue_: `null` (inferred by scanning the unpacked distribution) +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - [purple]##overwrite##: if `true`, the plugin overwrites an already existing distribution. +
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; _defaultValue_: `false`
 
 [cols="1,100", frame=none, grid=none]
 |===
@@ -151,22 +162,32 @@ a| a| .Usage example
 jlink {
     ...
     targetPlatform("linux-s390x") {
-        jdkHome = "/usr/lib/jvm/linux-s390x/jdk-11.0.2+9"
+        jdkHome = "/usr/lib/jvm/linux-s390x/jdk-14.0.1_7"
         addOptions("--endian", "big")
         addExtraModulePath("/usr/lib/openjfx/linux-s390x/jmods")
     }
-    targetPlatform("mac") {
-        jdkHome = "/usr/lib/jvm/mac/jdk-11.0.2+9"
-        addExtraModulePath("/usr/lib/openjfx/mac/jmods")
-    }
+
     targetPlatform("win") {
-        jdkHome = "/usr/lib/jvm/win/jdk-11.0.2+9"
+        jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7.1/OpenJDK14U-jdk_x64_windows_hotspot_14.0.1_7.zip")
         addExtraModulePath("/usr/lib/openjfx/win/jmods")
+    }
+
+    targetPlatform("mac") {
+        jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7/OpenJDK14U-jdk_x64_mac_hotspot_14.0.1_7.tar.gz") {
+            downloadDir = "$buildDir/myMac"
+            archiveName = "my-mac-jdk"
+            archiveExtension = "tar.gz"
+            pathToHome = "jdk-14.0.1+7/Contents/Home"
+            overwrite = true
+        }
+        addExtraModulePath("/usr/lib/openjfx/mac/jmods")
     }
     ...
 }
 ----
 |===
+
+
 
 [[scriptBlocks]]
 == Script blocks
@@ -416,7 +437,7 @@ jlink {
 
 === jpackage
 
-This experimental script block allows you to customize the https://jdk.java.net/jpackage/[jpackage]-based generation of platform-specific application images and installers.
+This script block allows you to customize the https://jdk.java.net/jpackage/[jpackage]-based generation of platform-specific application images and installers.
 
 jpackageHome:: The path to the JDK providing the jpackage tool. +
     _defaultValue_: the first non-empty value from: +
@@ -482,7 +503,7 @@ targetPlatformName:: This property is required only when using the `targetPlatfo
     It specifies which of the images produced by jlink should be used as runtime image by jpackage.
     Its value must match the name provided in one of the calls to the `targetPlatform` method. +
     _defaultValue_: null +
-    _usage example_: `targetPlatform = "linux"`
+    _usage example_: `targetPlatformName = "linux"`
 
 
 _Usage example_

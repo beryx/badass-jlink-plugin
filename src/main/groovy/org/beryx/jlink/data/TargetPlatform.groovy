@@ -16,18 +16,34 @@
 package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
+import org.beryx.jlink.util.JdkUtil
+import org.gradle.api.Project
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
 
 @CompileStatic
 class TargetPlatform implements Serializable {
+    private static final Logger LOGGER = Logging.getLogger(TargetPlatform.class)
+
+    transient private final Project project
     final String name
-    String jdkHome
+    private Serializable jdkHome
     List<String> options = []
     List<String> extraModulePaths = []
 
-    TargetPlatform(String name, String jdkHome = '', List<String> options = []) {
+    TargetPlatform(Project project, String name, String jdkHome = '', List<String> options = []) {
+        this.project = project
         this.name = name
-        this.jdkHome = jdkHome
+        this.@jdkHome = jdkHome
         this.options.addAll(options)
+    }
+
+    String getJdkHome() {
+        (this.@jdkHome == null) ? null : this.@jdkHome.toString()
+    }
+
+    void setJdkHome(Serializable jdkHome) {
+        this.@jdkHome = jdkHome
     }
 
     void addOptions(String... opts) {
@@ -36,5 +52,33 @@ class TargetPlatform implements Serializable {
 
     void addExtraModulePath(String path) {
         extraModulePaths << path
+    }
+
+    private static class LazyString implements Serializable {
+        final Closure<String> closure
+        LazyString(Closure<String> closure) {
+            this.closure = closure
+        }
+
+        @Lazy String string = closure.call()
+
+        @Override
+        String toString() {
+            string
+        }
+    }
+
+    LazyString jdkDownload(String downloadUrl, Closure downloadConfig = null) {
+        def options = new JdkUtil.JdkDownloadOptions(project, name, downloadUrl)
+        if(downloadConfig) {
+            downloadConfig.delegate = options
+            downloadConfig(options)
+        }
+        return new LazyString({
+            def relativePathToHome = JdkUtil.downloadFrom(downloadUrl, options)
+            def pathToHome = "$options.downloadDir/$relativePathToHome"
+            LOGGER.info("Home of downloaded JDK distribution: $pathToHome")
+            return pathToHome as String
+        })
     }
 }

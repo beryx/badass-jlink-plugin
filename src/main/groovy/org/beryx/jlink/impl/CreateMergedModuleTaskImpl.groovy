@@ -24,6 +24,7 @@ import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateMergedModuleTaskData
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.CopySpec
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -41,16 +42,16 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         LOGGER.info("taskData: $taskData")
     }
 
-    @CompileDynamic
     void execute() {
         def jarFilePath = "$td.tmpMergedModuleDirPath/$td.mergedModuleJar.name"
         Util.createJar(project, jarFilePath, td.mergedJarsDir)
         def modInfoDir = genModuleInfo(project.file(jarFilePath), project.file(td.tmpJarsDirPath), td.mergedModuleName)
         compileModuleInfo(project.file(modInfoDir), project.file(jarFilePath), project.file(td.tmpModuleInfoDirPath))
         LOGGER.info("Copy from $td.mergedJarsDir into ${td.tmpModuleInfoDirPath}...")
-        project.copy {
-            from td.mergedJarsDir
-            into td.tmpModuleInfoDirPath
+        project.copy { CopySpec spec ->
+            spec.from td.mergedJarsDir
+            spec.into td.tmpModuleInfoDirPath
+            spec.exclude "**/module-info.class"
         }
         Util.createJar(project, td.mergedModuleJar, project.file(td.tmpModuleInfoDirPath))
     }
@@ -60,7 +61,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
     }
 
     File genModuleInfo(File jarFile, File targetDir, String moduleName) {
-        LOGGER.info("Generating module-info in ${targetDir}...")
+        LOGGER.info("Generating module-info of module $moduleName in ${targetDir}...")
         project.delete(targetDir)
         targetDir.mkdirs()
         def moduleInfoFile = genModuleInfoJdeps(jarFile, targetDir)
@@ -128,7 +129,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
 
     @CompileDynamic
     def compileModuleInfo(File moduleInfoJavaDir, File moduleJar, File targetDir) {
-        LOGGER.info("Compiling module-info from ${moduleInfoJavaDir}...")
+        LOGGER.info("Compiling module-info from ${moduleInfoJavaDir} into ${targetDir}...")
         project.delete(targetDir)
         project.copy {
             from(project.zipTree(moduleJar))

@@ -39,7 +39,6 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
 
     @CompileDynamic
     void execute() {
-        LOGGER.warn("The jpackage task is experimental. Use it at your own risk.")
         def result = project.exec {
             ignoreExitValue = true
             standardOutput = new ByteArrayOutputStream()
