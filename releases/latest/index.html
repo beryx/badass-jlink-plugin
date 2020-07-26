@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.21.0</span>
+<span id="revnumber">version 2.21.1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -187,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.21.0'
+    id 'org.beryx.jlink' version '2.21.1'
 }</code></pre>
 </div>
 </div>
@@ -219,7 +219,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.21.0/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.21.1/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -444,16 +444,16 @@ These options will pe passed to <em>jlink</em> in addition to those provided by 
     ...
 }</code></pre>
 </div>
-</div></div></td>
-</tr>
-</tbody>
-</table>
+</div>
 <div class="paragraph">
 <p>For a project named <code>hello</code>, executing the <code>jlinkZip</code> task with the above configuration, and assuming default values for the other properties,
 the plugin will generate the platform-specific images in the directories
 <code>build/image/hello-linux-x64</code> and <code>build/image/hello-linux-s390x</code>.
 The archived images will be available in <code>build/image-linux-x64.zip</code> and <code>build/image-linux-s390x.zip</code>.</p>
-</div>
+</div></div></td>
+</tr>
+</tbody>
+</table>
 <div class="dlist">
 <dl>
 <dt class="hdlist1"><span class="maroon">targetPlatform</span>(String <span class="purple">name</span>, Action&lt;TargetPlatform&gt; <span class="purple">action</span>)</dt>
@@ -1269,7 +1269,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.21.0<br>
+Version 2.21.1<br>
 </div>
 </div>
 </body>
