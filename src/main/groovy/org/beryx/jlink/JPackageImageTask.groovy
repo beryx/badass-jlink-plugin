@@ -72,7 +72,6 @@ class JPackageImageTask extends BaseTask {
         taskData.moduleName = moduleName
         taskData.jpackageData = jpackageData
         taskData.mainClass = mainClass ?: defaultMainClass
-        taskData.jlinkJarsDir = jlinkJarsDir.asFile
 
         def jlinkTask = (JlinkTask) project.tasks.getByName(JlinkPlugin.TASK_NAME_JLINK)
         taskData.configureRuntimeImageDir(jlinkTask)

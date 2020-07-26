@@ -85,7 +85,6 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                            '--type', 'app-image',
                            '--dest', outputDir,
                            '--name', jpd.imageName,
-                           '--module-path', td.jlinkJarsDir,
                            '--module', "$td.moduleName/$td.mainClass",
                            *versionOpts,
                            '--runtime-image', td.runtimeImageDir,
