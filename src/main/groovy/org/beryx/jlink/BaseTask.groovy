@@ -19,6 +19,7 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.gradle.api.DefaultTask
+import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
@@ -75,6 +76,7 @@ class BaseTask extends DefaultTask {
     @Internal
     String getDefaultMainClassLegacy() {
         def mainClass = project['mainClassName'] as String
+        if(!mainClass) throw new GradleException("mainClass not configured")
         int pos = mainClass.lastIndexOf('/')
         if(pos < 0) return mainClass
         def mainClassModule = mainClass.substring(0, pos)
