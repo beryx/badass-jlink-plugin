@@ -934,13 +934,31 @@ It is also applicable when creating an application image when you want your own 
 <dt class="hdlist1">jvmArgs</dt>
 <dd>
 <p>list of JVM arguments to be passed to the virtual machine.<br>
-<em>defaultValue</em>: the <code>jvmArgs</code> value configured in the <code>launcher</code> block or an empty list</p>
+<em>defaultValue</em>: the <code>jvmArgs</code> value configured in the <code>launcher</code> block, or the arguments configured in the <code>applicationDefaultJvmArgs</code> property of the <code>application</code> extension</p>
 </dd>
 <dt class="hdlist1">args</dt>
 <dd>
 <p>list of arguments to be passed to the application.<br>
-<em>defaultValue</em>: the <code>args</code> value configured in the <code>launcher</code> block or an empty list</p>
+<em>defaultValue</em>: the <code>args</code> value configured in the <code>launcher</code> block, or the arguments configured in the <code>args</code> property of the <code>run</code> task</p>
 </dd>
+</dl>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
+If <strong>args</strong> or <strong>jvmArgs</strong> is not set, and the default value is taken from the <code>launcher</code> block, it may contain the placeholder <code>{{BIN_DIR}}</code>.
+The plugin replaces this placeholder with <code>$APPDIR/..</code> when passing the arguments to <code>jpackage</code>.
+This is the correct approach in most cases. If not, you need to explicitly configure <strong>args</strong> or <strong>jvmArgs</strong> in the <code>jpackage</code> block.
+</td>
+</tr>
+</table>
+</div>
+<div class="dlist">
+<dl>
 <dt class="hdlist1">installerOptions</dt>
 <dd>
 <p>list of additional options to be passed to the <code>jpackage</code> executable when executing the <code>jpackage</code> task.<br>
