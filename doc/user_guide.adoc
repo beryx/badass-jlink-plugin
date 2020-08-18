@@ -489,10 +489,14 @@ appVersion:: the argument passed to the `--app-version` option when running `jpa
     _usage example_: `appVersion = "1.0.0"`
 
 jvmArgs:: list of JVM arguments to be passed to the virtual machine. +
-    _defaultValue_: the `jvmArgs` value configured in the `launcher` block or an empty list
+    _defaultValue_: the `jvmArgs` value configured in the `launcher` block, or the arguments configured in the `applicationDefaultJvmArgs` property of the `application` extension
 
 args:: list of arguments to be passed to the application. +
-    _defaultValue_: the `args` value configured in the `launcher` block or an empty list
+    _defaultValue_: the `args` value configured in the `launcher` block, or the arguments configured in the `args` property of the `run` task
+
+NOTE: If *args* or *jvmArgs* is not set, and the default value is taken from the `launcher` block, it may contain the placeholder `{{BIN_DIR}}`.
+The plugin replaces this placeholder with `$APPDIR/..` when passing the arguments to `jpackage`.
+This is the correct approach in most cases. If not, you need to explicitly configure *args* or *jvmArgs* in the `jpackage` block.
 
 installerOptions:: list of additional options to be passed to the `jpackage` executable when executing the `jpackage` task. +
     _defaultValue_: empty list +
