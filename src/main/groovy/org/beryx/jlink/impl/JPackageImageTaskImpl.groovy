@@ -110,7 +110,6 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         }
         // Workaround for https://bugs.openjdk.java.net/browse/JDK-8227641
         adjusted = adjusted.replace(' ', '\\" \\"')
-        File.separator
         adjusted = adjusted.replace('{{BIN_DIR}}', '$APPDIR' + File.separator + '..')
         adjusted
     }

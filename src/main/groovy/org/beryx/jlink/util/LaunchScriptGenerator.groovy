@@ -38,27 +38,32 @@ class LaunchScriptGenerator {
                 {LauncherData ld -> ld.unixScriptTemplate},
                 'unixScriptTemplate.txt',
                 'unixScriptTemplate.txt',
-                '$DIR'),
+                '$DIR',
+                '\\$$1'),
         WINDOWS(
                 '.bat',
                 {LauncherData ld -> ld.windowsScriptTemplate},
                 'windowsScriptTemplate.txt',
                 'windowsScriptTemplateJavaw.txt',
-                '%~dp0')
+                '%~dp0',
+                '%$1%')
 
         final String extension
         final Function<LauncherData, File> templateProvider
         final String defaultTemplate
         final String defaultTemplateNoConsole
         final String binDirPlaceholder
+        final String envVarReplacement
 
         Type(String extension, Function<LauncherData, File> templateProvider,
-             String defaultTemplate, String defaultTemplateNoConsole, String binDirPlaceholder) {
+             String defaultTemplate, String defaultTemplateNoConsole,
+             String binDirPlaceholder, String envVarReplacement) {
             this.extension = extension
             this.templateProvider = templateProvider
             this.defaultTemplate = defaultTemplate
             this.defaultTemplateNoConsole = defaultTemplateNoConsole
             this.binDirPlaceholder = binDirPlaceholder
+            this.envVarReplacement = envVarReplacement
         }
     }
 
@@ -106,6 +111,8 @@ class LaunchScriptGenerator {
         if(!(adjusted ==~ /[\w\-\+=\/\\,;.:#]+/)) {
             adjusted = '"' + adjusted + '"'
         }
-        adjusted.replace('{{BIN_DIR}}', type.binDirPlaceholder)
+        adjusted = adjusted.replace('{{BIN_DIR}}', type.binDirPlaceholder)
+        adjusted = adjusted.replaceAll(/\{\{([\w.]+)}}/, type.envVarReplacement)
+        return adjusted
     }
 }

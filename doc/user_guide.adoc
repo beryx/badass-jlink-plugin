@@ -107,7 +107,7 @@ determine the location of the image directory and of the image archive. +
 [purple]##**jdkHome**##: the path to the target platform JDK. +
 [purple]##**options**##: an optional list of platform-specific options.
 These options will pe passed to _jlink_ in addition to those provided by the `options` property of the `jlink` extension. +
-_NOTE_: This is only a convenience method. There is a more powerful `targetPlatform` method (described below), which allows configuring additional parameters of the target platform.
+[purple]##_NOTE_##: This is only a convenience method. There is a more powerful `targetPlatform` method (described below), which allows configuring additional parameters of the target platform.
 
 [cols="1,100", frame=none, grid=none]
 |===
@@ -310,6 +310,8 @@ to parse the templates, with the following variables available:
 
 The values in the *args* and *jvmArgs* lists may contain the placeholder `{{BIN_DIR}}`, which stands for the _bin_ directory of your custom runtime image.
 
+You can include the value of an environment variable in a JVM argument by enclosing the name of the environment variable between `{{` and `}}`.
+
 _Usage example_
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -318,7 +320,10 @@ jlink {
     ...
     launcher {
         name = 'my-app'
-        jvmArgs = ['-Dlog4j.debug=true', '-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml']
+        jvmArgs = [
+            '-Dlog4j.debug=true', '-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml',
+            '-DdbHost', '{{PGHOST}}'
+        ]
         args = ['--user', 'alice']
         unixScriptTemplate = file('unixStartScript.txt')
         windowsScriptTemplate = file('windowsStartScript.txt')
@@ -334,7 +339,10 @@ jlink {
     ...
     launcher {
         name = "my-app"
-        jvmArgs = listOf("-Dlog4j.debug=true", "-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml")
+        jvmArgs = listOf(
+            "-Dlog4j.debug=true", "-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml",
+            "-DdbHost", "{{PGHOST}}"
+        )
         args = listOf("--user", "alice")
         unixScriptTemplate = file("unixStartScript.txt")
         windowsScriptTemplate = file("windowsStartScript.txt")
@@ -494,9 +502,11 @@ jvmArgs:: list of JVM arguments to be passed to the virtual machine. +
 args:: list of arguments to be passed to the application. +
     _defaultValue_: the `args` value configured in the `launcher` block, or the arguments configured in the `args` property of the `run` task
 
-NOTE: If *args* or *jvmArgs* is not set, and the default value is taken from the `launcher` block, it may contain the placeholder `{{BIN_DIR}}`.
+[purple]##_NOTE_##: If *args* or *jvmArgs* is not set, and the default value is taken from the `launcher` block, it may contain the placeholder `{{BIN_DIR}}`.
 The plugin replaces this placeholder with `$APPDIR/..` when passing the arguments to `jpackage`.
-This is the correct approach in most cases. If not, you need to explicitly configure *args* or *jvmArgs* in the `jpackage` block.
+This is the correct approach in most cases. If not, you need to explicitly configure *args* or *jvmArgs* in the `jpackage` block. +
+Currently, jpackage doesn't support environment variables in `--java-options`.
+Therefore, you cannot use environment variable names enclosed between `{{` and `}}` in `jvmArgs`.
 
 installerOptions:: list of additional options to be passed to the `jpackage` executable when executing the `jpackage` task. +
     _defaultValue_: empty list +
@@ -707,7 +717,7 @@ _usage example_: `./gradlew suggestMergedModuleInfo --language=kotlin`
 [subs="attributes",options="nowrap"]
 ----
 - create a platform-specific application image in <font color="saddlebrown">imageOutputDir</font> by executing:
-        <i>jpackage --runtime-image <span class="green">imageDir</span> --module-path <span class="teal">jlinkJarsDir</span> ...</i>
+        <i>jpackage --type app-image --runtime-image <span class="green">imageDir</span> --module-path <span class="teal">jlinkJarsDir</span> ...</i>
 ----
 The properties pass:[<font color="saddlebrown">imageOutputDir</font> and <font color="green">imageDir</font>]
 can be configured in the `jpackage` script block.
