@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.21.3</span>
+<span id="revnumber">version 2.21.4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -187,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.21.3'
+    id 'org.beryx.jlink' version '2.21.4'
 }</code></pre>
 </div>
 </div>
@@ -219,7 +219,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.21.3/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.21.4/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -421,7 +421,7 @@ determine the location of the image directory and of the image archive.<br>
 <span class="purple"><strong>jdkHome</strong></span>: the path to the target platform JDK.<br>
 <span class="purple"><strong>options</strong></span>: an optional list of platform-specific options.
 These options will pe passed to <em>jlink</em> in addition to those provided by the <code>options</code> property of the <code>jlink</code> extension.<br>
-<em>NOTE</em>: This is only a convenience method. There is a more powerful <code>targetPlatform</code> method (described below), which allows configuring additional parameters of the target platform.</p>
+<span class="purple"><em>NOTE</em></span>: This is only a convenience method. There is a more powerful <code>targetPlatform</code> method (described below), which allows configuring additional parameters of the target platform.</p>
 </dd>
 </dl>
 </div>
@@ -704,6 +704,9 @@ to parse the templates, with the following variables available:</p>
 <p>The values in the <strong>args</strong> and <strong>jvmArgs</strong> lists may contain the placeholder <code>{{BIN_DIR}}</code>, which stands for the <em>bin</em> directory of your custom runtime image.</p>
 </div>
 <div class="paragraph">
+<p>You can include the value of an environment variable in a JVM argument by enclosing the name of the environment variable between <code>{{</code> and <code>}}</code>.</p>
+</div>
+<div class="paragraph">
 <p><em>Usage example</em></p>
 </div>
 <div class="listingblock primary">
@@ -713,7 +716,10 @@ to parse the templates, with the following variables available:</p>
     ...
     launcher {
         name = <span class="string"><span class="delimiter">'</span><span class="content">my-app</span><span class="delimiter">'</span></span>
-        jvmArgs = [<span class="string"><span class="delimiter">'</span><span class="content">-Dlog4j.debug=true</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml</span><span class="delimiter">'</span></span>]
+        jvmArgs = [
+            <span class="string"><span class="delimiter">'</span><span class="content">-Dlog4j.debug=true</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml</span><span class="delimiter">'</span></span>,
+            <span class="string"><span class="delimiter">'</span><span class="content">-DdbHost</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">{{PGHOST}}</span><span class="delimiter">'</span></span>
+        ]
         args = [<span class="string"><span class="delimiter">'</span><span class="content">--user</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">alice</span><span class="delimiter">'</span></span>]
         unixScriptTemplate = file(<span class="string"><span class="delimiter">'</span><span class="content">unixStartScript.txt</span><span class="delimiter">'</span></span>)
         windowsScriptTemplate = file(<span class="string"><span class="delimiter">'</span><span class="content">windowsStartScript.txt</span><span class="delimiter">'</span></span>)
@@ -729,7 +735,10 @@ to parse the templates, with the following variables available:</p>
     ...
     launcher {
         name = &quot;my-app&quot;
-        jvmArgs = listOf(&quot;-Dlog4j.debug=true&quot;, &quot;-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml&quot;)
+        jvmArgs = listOf(
+            &quot;-Dlog4j.debug=true&quot;, &quot;-Dlog4j.configurationFile={{BIN_DIR}}/log4j2.xml&quot;,
+            &quot;-DdbHost&quot;, &quot;{{PGHOST}}&quot;
+        )
         args = listOf(&quot;--user&quot;, &quot;alice&quot;)
         unixScriptTemplate = file(&quot;unixStartScript.txt&quot;)
         windowsScriptTemplate = file(&quot;windowsStartScript.txt&quot;)
@@ -943,19 +952,12 @@ It is also applicable when creating an application image when you want your own 
 </dd>
 </dl>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<i class="fa icon-note" title="Note"></i>
-</td>
-<td class="content">
-If <strong>args</strong> or <strong>jvmArgs</strong> is not set, and the default value is taken from the <code>launcher</code> block, it may contain the placeholder <code>{{BIN_DIR}}</code>.
+<div class="paragraph">
+<p><span class="purple"><em>NOTE</em></span>: If <strong>args</strong> or <strong>jvmArgs</strong> is not set, and the default value is taken from the <code>launcher</code> block, it may contain the placeholder <code>{{BIN_DIR}}</code>.
 The plugin replaces this placeholder with <code>$APPDIR/..</code> when passing the arguments to <code>jpackage</code>.
-This is the correct approach in most cases. If not, you need to explicitly configure <strong>args</strong> or <strong>jvmArgs</strong> in the <code>jpackage</code> block.
-</td>
-</tr>
-</table>
+This is the correct approach in most cases. If not, you need to explicitly configure <strong>args</strong> or <strong>jvmArgs</strong> in the <code>jpackage</code> block.<br>
+Currently, jpackage doesn&#8217;t support environment variables in <code>--java-options</code>.
+Therefore, you cannot use environment variable names enclosed between <code>{{</code> and <code>}}</code> in <code>jvmArgs</code>.</p>
 </div>
 <div class="dlist">
 <dl>
@@ -1208,7 +1210,7 @@ The table below shows the variable names of the subdirectories created here and 
 <div class="listingblock">
 <div class="content">
 <pre class="nowrap">- create a platform-specific application image in <font color="saddlebrown">imageOutputDir</font> by executing:
-        <i>jpackage --runtime-image <span class="green">imageDir</span> --module-path <span class="teal">jlinkJarsDir</span> ...</i></pre>
+        <i>jpackage --type app-image --runtime-image <span class="green">imageDir</span> --module-path <span class="teal">jlinkJarsDir</span> ...</i></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1287,7 +1289,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.21.3<br>
+Version 2.21.4<br>
 </div>
 </div>
 </body>
