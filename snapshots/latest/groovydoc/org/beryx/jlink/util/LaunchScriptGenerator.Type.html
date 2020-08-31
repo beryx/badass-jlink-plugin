@@ -170,10 +170,15 @@ if (location.href.indexOf('is-external=true') == -1) {
                         
                         <tr class="rowColor">
                             <td class="colFirst"><code><strong>java.lang.String</strong></code>&nbsp;</td>
-                            <td class="colLast"><code><a href="#extension">extension</a></code><br></td>
+                            <td class="colLast"><code><a href="#envVarReplacement">envVarReplacement</a></code><br></td>
                         </tr>
                         
                         <tr class="altColor">
+                            <td class="colFirst"><code><strong>java.lang.String</strong></code>&nbsp;</td>
+                            <td class="colLast"><code><a href="#extension">extension</a></code><br></td>
+                        </tr>
+                        
+                        <tr class="rowColor">
                             <td class="colFirst"><code><strong>java.util.function.Function&lt;<a href='../../../../org/beryx/jlink/data/LauncherData.html' title='LauncherData'>LauncherData</a>, java.io.File&gt;</strong></code>&nbsp;</td>
                             <td class="colLast"><code><a href="#templateProvider">templateProvider</a></code><br></td>
                         </tr>
@@ -201,8 +206,8 @@ if (location.href.indexOf('is-external=true') == -1) {
                         
                         <tr class="altColor">
                             <td class="colFirst">
-                                <code><a href="#LaunchScriptGenerator.Type(java.lang.String, Function<LauncherData, File>, java.lang.String, java.lang.String, java.lang.String)">LaunchScriptGenerator.Type</a>
-                                (java.lang.String extension, java.util.function.Function&lt;<a href='../../../../org/beryx/jlink/data/LauncherData.html' title='LauncherData'>LauncherData</a>, java.io.File&gt; templateProvider, java.lang.String defaultTemplate, java.lang.String defaultTemplateNoConsole, java.lang.String binDirPlaceholder)</code><br></td>
+                                <code><a href="#LaunchScriptGenerator.Type(java.lang.String, Function<LauncherData, File>, java.lang.String, java.lang.String, java.lang.String, java.lang.String)">LaunchScriptGenerator.Type</a>
+                                (java.lang.String extension, java.util.function.Function&lt;<a href='../../../../org/beryx/jlink/data/LauncherData.html' title='LauncherData'>LauncherData</a>, java.io.File&gt; templateProvider, java.lang.String defaultTemplate, java.lang.String defaultTemplateNoConsole, java.lang.String binDirPlaceholder, java.lang.String envVarReplacement)</code><br></td>
                         </tr>
                         
                     </table>
@@ -304,6 +309,14 @@ if (location.href.indexOf('is-external=true') == -1) {
                             </li>
                         </ul>
                     
+                        <a name="envVarReplacement"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>final&nbsp;java.lang.String <strong>envVarReplacement</strong></h4>
+                                <p></p>
+                            </li>
+                        </ul>
+                    
                         <a name="extension"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
@@ -334,10 +347,10 @@ if (location.href.indexOf('is-external=true') == -1) {
                 </a>
                     <h3>Constructor Detail</h3>
                     
-                        <a name="LaunchScriptGenerator.Type(java.lang.String, Function<LauncherData, File>, java.lang.String, java.lang.String, java.lang.String)"><!-- --></a>
+                        <a name="LaunchScriptGenerator.Type(java.lang.String, Function<LauncherData, File>, java.lang.String, java.lang.String, java.lang.String, java.lang.String)"><!-- --></a>
                         <ul class="blockListLast">
                             <li class="blockList">
-                                <h4><strong>LaunchScriptGenerator.Type</strong>(java.lang.String extension, java.util.function.Function&lt;<a href='../../../../org/beryx/jlink/data/LauncherData.html' title='LauncherData'>LauncherData</a>, java.io.File&gt; templateProvider, java.lang.String defaultTemplate, java.lang.String defaultTemplateNoConsole, java.lang.String binDirPlaceholder)</h4>
+                                <h4><strong>LaunchScriptGenerator.Type</strong>(java.lang.String extension, java.util.function.Function&lt;<a href='../../../../org/beryx/jlink/data/LauncherData.html' title='LauncherData'>LauncherData</a>, java.io.File&gt; templateProvider, java.lang.String defaultTemplate, java.lang.String defaultTemplateNoConsole, java.lang.String binDirPlaceholder, java.lang.String envVarReplacement)</h4>
                                 <p></p>
                             </li>
                         </ul>
