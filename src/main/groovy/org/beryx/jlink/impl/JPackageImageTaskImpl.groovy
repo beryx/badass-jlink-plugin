@@ -53,7 +53,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
 
             Map<String,File> propFiles = [:]
             jpd.secondaryLaunchers.each { launcher ->
-                def propFile = new File("$td.jlinkBasePath/${launcher.name}.propeties")
+                def propFile = new File("$td.jlinkBasePath/${launcher.name}.properties")
                 Files.deleteIfExists(propFile.toPath())
                 propFile.withOutputStream { stream ->
                     if(launcher.moduleName) {
