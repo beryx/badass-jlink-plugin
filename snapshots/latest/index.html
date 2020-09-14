@@ -769,6 +769,23 @@ This block supports all properties of the <code>launcher</code> block and also t
 </dl>
 </div>
 <div class="paragraph">
+<p>The following properties affect only the launchers produced by jpackage:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">icon</dt>
+<dd>
+<p>the path to the icon used for this additional launcher.<br>
+<em>defaultValue</em>: null (the icon of the main launcher is used)</p>
+</dd>
+<dt class="hdlist1">winConsole</dt>
+<dd>
+<p>boolean value specifying whether Windows should start the application in a console window.<br>
+<em>defaultValue</em>: null (the win-console settings of the main launcher are used)</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
 <p><em>Usage example</em></p>
 </div>
 <div class="listingblock primary">
@@ -939,6 +956,12 @@ It is also applicable when creating an application image when you want your own 
 <p>the argument passed to the <code>--app-version</code> option when running <code>jpackage</code> when executing the <code>jpackage</code> and <code>jpackageImage</code> tasks.<br>
 <em>defaultValue</em>: the project version<br>
 <em>usage example</em>: <code>appVersion = "1.0.0"</code></p>
+</dd>
+<dt class="hdlist1">icon</dt>
+<dd>
+<p>the path to the custom application icon.<br>
+<em>This is a convenience property equivalent to configuring <code>--icon</code> in the <code>imageOptions</code> list.</em><br>
+<em>defaultValue</em>: null (the default icon is used)</p>
 </dd>
 <dt class="hdlist1">jvmArgs</dt>
 <dd>
