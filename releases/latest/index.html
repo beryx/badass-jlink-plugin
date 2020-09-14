@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.21.4</span>
+<span id="revnumber">version 2.22.0</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -187,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.21.4'
+    id 'org.beryx.jlink' version '2.22.0'
 }</code></pre>
 </div>
 </div>
@@ -219,7 +219,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.21.4/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.22.0/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -769,6 +769,23 @@ This block supports all properties of the <code>launcher</code> block and also t
 </dl>
 </div>
 <div class="paragraph">
+<p>The following properties affect only the launchers produced by jpackage:</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">icon</dt>
+<dd>
+<p>the path to the icon used for this additional launcher.<br>
+<em>defaultValue</em>: null (the icon of the main launcher is used)</p>
+</dd>
+<dt class="hdlist1">winConsole</dt>
+<dd>
+<p>boolean value specifying whether Windows should start the application in a console window.<br>
+<em>defaultValue</em>: null (the win-console settings of the main launcher are used)</p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
 <p><em>Usage example</em></p>
 </div>
 <div class="listingblock primary">
@@ -939,6 +956,12 @@ It is also applicable when creating an application image when you want your own 
 <p>the argument passed to the <code>--app-version</code> option when running <code>jpackage</code> when executing the <code>jpackage</code> and <code>jpackageImage</code> tasks.<br>
 <em>defaultValue</em>: the project version<br>
 <em>usage example</em>: <code>appVersion = "1.0.0"</code></p>
+</dd>
+<dt class="hdlist1">icon</dt>
+<dd>
+<p>the path to the custom application icon.<br>
+<em>This is a convenience property equivalent to configuring <code>--icon</code> in the <code>imageOptions</code> list.</em><br>
+<em>defaultValue</em>: null (the default icon is used)</p>
 </dd>
 <dt class="hdlist1">jvmArgs</dt>
 <dd>
@@ -1289,7 +1312,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.21.4<br>
+Version 2.22.0<br>
 </div>
 </div>
 </body>
