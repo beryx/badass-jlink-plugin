@@ -363,6 +363,13 @@ mainClass:: the main class of this additional application.
 moduleName:: the module containing the main class of this additional application. +
     _defaultValue_: the value of the `moduleName` property in the enclosing `jlink` extension
 
+The following properties affect only the launchers produced by jpackage:
+
+icon:: the path to the icon used for this additional launcher. +
+    _defaultValue_: null (the icon of the main launcher is used)
+
+winConsole:: boolean value specifying whether Windows should start the application in a console window. +
+    _defaultValue_: null (the win-console settings of the main launcher are used)
 
 _Usage example_
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
@@ -495,6 +502,10 @@ installerName:: the argument passed to the `--name` option when running `jpackag
 appVersion:: the argument passed to the `--app-version` option when running `jpackage` when executing the `jpackage` and `jpackageImage` tasks. +
     _defaultValue_: the project version +
     _usage example_: `appVersion = "1.0.0"`
+
+icon:: the path to the custom application icon. +
+    _This is a convenience property equivalent to configuring `--icon` in the `imageOptions` list._ +
+    _defaultValue_: null (the default icon is used)
 
 jvmArgs:: list of JVM arguments to be passed to the virtual machine. +
     _defaultValue_: the `jvmArgs` value configured in the `launcher` block, or the arguments configured in the `applicationDefaultJvmArgs` property of the `application` extension

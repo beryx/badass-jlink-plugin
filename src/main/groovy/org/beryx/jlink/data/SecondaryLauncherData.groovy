@@ -25,6 +25,9 @@ import org.gradle.api.GradleException
 class SecondaryLauncherData extends LauncherData {
     String moduleName
     String mainClass
+    String appVersion
+    String icon
+    Boolean winConsole
 
     @CompileDynamic
     void check() {

@@ -68,6 +68,15 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                     if(launcher.jvmArgs) {
                         stream << "java-options=${launcher.jvmArgs.collect{adjustArg(it)}.join('\\n')}\n"
                     }
+                    if(launcher.appVersion) {
+                        stream << "app-version=$launcher.appVersion\n"
+                    }
+                    if(launcher.icon) {
+                        stream << "icon=$launcher.icon\n"
+                    }
+                    if(launcher.winConsole != null) {
+                        stream << "win-console=$launcher.winConsole\n"
+                    }
                 }
                 propFiles[launcher.name] = propFile
             }
@@ -78,6 +87,8 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 throw new GradleException("The first character of the --app-version argument should be a digit.")
             }
 
+            def iconOpts = jpd.icon ? [ '--icon', jpd.icon ] : []
+
             final def resourceDir = jpd.getResourceDir()
             final def resourceOpts = (resourceDir == null) ? [] : [ '--resource-dir', resourceDir ]
 
@@ -87,6 +98,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                            '--name', jpd.imageName,
                            '--module', "$td.moduleName/$td.mainClass",
                            *versionOpts,
+                           *iconOpts,
                            '--runtime-image', td.runtimeImageDir,
                            *resourceOpts,
                            *(jpd.jvmArgs ? jpd.jvmArgs.collect{['--java-options', adjustArg(it)]}.flatten() : []),

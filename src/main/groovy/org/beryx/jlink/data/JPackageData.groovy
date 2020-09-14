@@ -63,6 +63,9 @@ class JPackageData {
     @Input @Optional
     String appVersion
 
+    @Input @Optional
+    String icon
+
     @Input
     List<String> installerOptions = []
 
