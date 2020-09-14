@@ -21,7 +21,7 @@ import org.gradle.api.Project
 
 @CompileStatic
 class BaseTaskImpl<DATA extends BaseTaskData> {
-    static String SEP = File.pathSeparatorChar
+    public final static String SEP = File.pathSeparatorChar
 
     final Project project
     final DATA td
