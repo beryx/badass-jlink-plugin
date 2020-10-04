@@ -59,7 +59,9 @@ mergedModuleName:: The name of the merged module. +
 mergedModuleJarName:: The base name of the jar containing the merged module. +
     _defaultValue_: `_archiveBaseName_.merged.module` +
     _usage example_: `mergedModuleJarName = 'my-merged-module'`
-mergedModuleJarVersion:: The version of the jar containing the merged module. +
+mergedModuleJarVersion:: The version of the merged module. +
+[red]##This property is deprecated and it will be removed in a future release. Use the _version_ property of the _mergedModule_ block instead.
+If both this property and the _version_ property of the _mergedModule_ block are used, _version_ takes precedence. ## +
     _defaultValue_: `project.version` +
     _usage example_: `mergedModuleJarVersion = '2.1.7'`
 options:: A list of options to be passed to _jlink_. +
