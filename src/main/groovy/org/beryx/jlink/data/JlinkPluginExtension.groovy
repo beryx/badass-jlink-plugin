@@ -37,6 +37,9 @@ class JlinkPluginExtension {
     final Property<String> moduleName
     final Property<String> mergedModuleName
     final Property<String> mergedModuleJarName
+
+    /** @deprecated - use  {@link ModuleInfo#version} instead */
+    @Deprecated(since = "2.22.1", forRemoval = true)
     final Property<String> mergedModuleJarVersion
 
     final Property<LauncherData> launcherData

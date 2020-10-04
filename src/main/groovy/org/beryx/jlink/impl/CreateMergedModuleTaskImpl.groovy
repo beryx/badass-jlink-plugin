@@ -150,7 +150,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
     }
 
     private List<String> getVersionOpts() {
-        def version = td.mergedModuleInfo.version
+        def version = td.mergedModuleVersion
         if(!version) {
             def archiveFile = Util.getArchiveFile(project)
             ModuleReference moduleRef = null

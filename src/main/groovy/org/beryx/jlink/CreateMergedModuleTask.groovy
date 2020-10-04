@@ -15,7 +15,7 @@
  */
 package org.beryx.jlink
 
-import groovy.transform.CompileDynamic
+
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.CreateMergedModuleTaskData
 import org.beryx.jlink.data.JdepsUsage
@@ -54,8 +54,8 @@ class CreateMergedModuleTask extends BaseTask {
     }
 
     @Input
-    String getMergedModuleJarVersion() {
-        extension.mergedModuleJarVersion.get()
+    String getMergedModuleVersion() {
+        mergedModuleInfo.version ?: extension.mergedModuleJarVersion.get()
     }
 
     @InputDirectory
@@ -86,8 +86,8 @@ class CreateMergedModuleTask extends BaseTask {
     @OutputFile
     File getMergedModuleJar() {
         String jarFileName = mergedModuleJarName
-        if(mergedModuleJarVersion && mergedModuleJarVersion != Project.DEFAULT_VERSION) {
-            jarFileName += "-$mergedModuleJarVersion"
+        if(mergedModuleVersion && mergedModuleVersion != Project.DEFAULT_VERSION) {
+            jarFileName += "-$mergedModuleVersion"
         }
         jarFileName += ".jar"
         new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath), jarFileName)
@@ -105,6 +105,7 @@ class CreateMergedModuleTask extends BaseTask {
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
         taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
         taskData.mergedModuleName = mergedModuleName
+        taskData.mergedModuleJarVersion = extension.mergedModuleJarVersion.get()
         taskData.mergedModuleInfo = mergedModuleInfo
         taskData.useJdeps = useJdeps
         taskData.mergedModuleJar = mergedModuleJar
