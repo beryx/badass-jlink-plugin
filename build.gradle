@@ -27,6 +27,10 @@ plugins {
     id "org.ajoberstar.git-publish" version "2.1.1"
 }
 
+if(JavaVersion.current() != JavaVersion.VERSION_11) {
+    throw new GradleException("Please use Java 11 to execute this Gradle build")
+}
+
 project.version.with {
     major = badassJlinkPluginVersionMajor as int
     minor= badassJlinkPluginVersionMinor as int
