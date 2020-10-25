@@ -158,8 +158,12 @@ class DependencyManager {
             for(ResolvedDependency child: dep.dependency.children) {
                 getArtifacts([child] as Set).each { f ->
                     def childExt = new DependencyExt(dependency: child, artifact: f)
-                    if(!isEmptyJar(f)) descendants << childExt
-                    collectAllDescendants(childExt, descendants)
+                    if(!isEmptyJar(f)) {
+                        descendants << childExt
+                        if(!(childExt in descendants)) {
+                            collectAllDescendants(childExt, descendants)
+                        }
+                    }
                 }
             }
         }
