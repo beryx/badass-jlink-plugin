@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.22.3</span>
+<span id="revnumber">version 2.22.4</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -187,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.22.3'
+    id 'org.beryx.jlink' version '2.22.4'
 }</code></pre>
 </div>
 </div>
@@ -219,7 +219,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.22.3/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.22.4/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -703,7 +703,17 @@ to parse the templates, with the following variables available:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>The values in the <strong>args</strong> and <strong>jvmArgs</strong> lists may contain the placeholder <code>{{BIN_DIR}}</code>, which stands for the <em>bin</em> directory of your custom runtime image.</p>
+<p>The values in the <strong>args</strong> and <strong>jvmArgs</strong> lists may contain the following placeholders:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>{{BIN_DIR}}</code> - the <em>bin</em> directory of the custom runtime image</p>
+</li>
+<li>
+<p><code>{{HOME_DIR}}</code> - user&#8217;s home directory (<code>$HOME</code> on Unix-like systems, <code>%USERPROFILE%</code> on Windows)</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>You can include the value of an environment variable in a JVM argument by enclosing the name of the environment variable between <code>{{</code> and <code>}}</code>.</p>
@@ -1314,7 +1324,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.22.3<br>
+Version 2.22.4<br>
 </div>
 </div>
 </body>
