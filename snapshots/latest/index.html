@@ -703,7 +703,17 @@ to parse the templates, with the following variables available:</p>
 </ul>
 </div>
 <div class="paragraph">
-<p>The values in the <strong>args</strong> and <strong>jvmArgs</strong> lists may contain the placeholder <code>{{BIN_DIR}}</code>, which stands for the <em>bin</em> directory of your custom runtime image.</p>
+<p>The values in the <strong>args</strong> and <strong>jvmArgs</strong> lists may contain the following placeholders:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>{{BIN_DIR}}</code> - the <em>bin</em> directory of the custom runtime image</p>
+</li>
+<li>
+<p><code>{{HOME_DIR}}</code> - user&#8217;s home directory (<code>$HOME</code> on Unix-like systems, <code>%USERPROFILE%</code> on Windows)</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
 <p>You can include the value of an environment variable in a JVM argument by enclosing the name of the environment variable between <code>{{</code> and <code>}}</code>.</p>
