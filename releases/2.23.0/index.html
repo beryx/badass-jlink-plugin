@@ -11,81 +11,81 @@
 <link rel="stylesheet" href="./asciidoctor.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
-<style>
-.hidden {
-    display: none;
-}
-
-.switch {
-    border-width: 1px 1px 0 1px;
-    border-style: solid;
-    border-color: #7a2518;
-    display: inline-block;
-}
-
-.switch--item {
-    padding: 10px;
-    background-color: #ffffff;
-    color: #7a2518;
-    display: inline-block;
-    cursor: pointer;
-}
-
-.switch--item.selected {
-    background-color: #7a2519;
-    color: #ffffff;
-}
-
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
-<script type="text/javascript">
-function addBlockSwitches() {
-    $('.primary').each(function() {
-        primary = $(this);
-        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
-        primary.children('.title').remove();
-    });
-    $('.secondary').each(function(idx, node) {
-        secondary = $(node);
-        primary = findPrimary(secondary);
-        switchItem = createSwitchItem(secondary, primary.children('.switch'));
-        switchItem.content.addClass('hidden');
-        findPrimary(secondary).append(switchItem.content);
-        secondary.remove();
-    });
-}
-
-function createBlockSwitch(primary) {
-    blockSwitch = $('<div class="switch"></div>');
-    primary.prepend(blockSwitch);
-    return blockSwitch;
-}
-
-function findPrimary(secondary) {
-    candidate = secondary.prev();
-    while (!candidate.is('.primary')) {
-        candidate = candidate.prev();
-    }
-    return candidate;
-}
-
-function createSwitchItem(block, blockSwitch) {
-    blockName = block.children('.title').text();
-    content = block.children('.content').first().append(block.next('.colist'));
-    item = $('<div class="switch--item">' + blockName + '</div>');
-    item.on('click', '', content, function(e) {
-        $(this).addClass('selected');
-        $(this).siblings().removeClass('selected');
-        e.data.siblings('.content').addClass('hidden');
-        e.data.removeClass('hidden');
-    });
-    blockSwitch.append(item);
-    return {'item': item, 'content': content};
-}
-
-$(addBlockSwitches);
-
-</script>
+<style>
+.hidden {
+    display: none;
+}
+
+.switch {
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
+    border-color: #7a2518;
+    display: inline-block;
+}
+
+.switch--item {
+    padding: 10px;
+    background-color: #ffffff;
+    color: #7a2518;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.switch--item.selected {
+    background-color: #7a2519;
+    color: #ffffff;
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+<script type="text/javascript">
+function addBlockSwitches() {
+    $('.primary').each(function() {
+        primary = $(this);
+        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
+        primary.children('.title').remove();
+    });
+    $('.secondary').each(function(idx, node) {
+        secondary = $(node);
+        primary = findPrimary(secondary);
+        switchItem = createSwitchItem(secondary, primary.children('.switch'));
+        switchItem.content.addClass('hidden');
+        findPrimary(secondary).append(switchItem.content);
+        secondary.remove();
+    });
+}
+
+function createBlockSwitch(primary) {
+    blockSwitch = $('<div class="switch"></div>');
+    primary.prepend(blockSwitch);
+    return blockSwitch;
+}
+
+function findPrimary(secondary) {
+    candidate = secondary.prev();
+    while (!candidate.is('.primary')) {
+        candidate = candidate.prev();
+    }
+    return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+    blockName = block.children('.title').text();
+    content = block.children('.content').first().append(block.next('.colist'));
+    item = $('<div class="switch--item">' + blockName + '</div>');
+    item.on('click', '', content, function(e) {
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
+        e.data.siblings('.content').addClass('hidden');
+        e.data.removeClass('hidden');
+    });
+    blockSwitch.append(item);
+    return {'item': item, 'content': content};
+}
+
+$(addBlockSwitches);
+
+</script>
 
 </head>
 <body class="article toc2 toc-left">
@@ -107,10 +107,29 @@ $(addBlockSwitches);
 <li><a href="#scriptBlocks">Script blocks</a>
 <ul class="sectlevel3">
 <li><a href="#_mergedmodule">mergedModule</a></li>
+<li><a href="#_launcher">launcher</a></li>
+<li><a href="#_secondarylauncher">secondaryLauncher</a></li>
+<li><a href="#_customimage">customImage</a></li>
+<li><a href="#_jpackage">jpackage</a></li>
+</ul>
+</li>
+<li><a href="#_how_it_works">How it works</a></li>
+<li><a href="#taskDetails">Task details</a>
+<ul class="sectlevel3">
+<li><a href="#prepareMergedJarsDir">prepareMergedJarsDir</a></li>
+<li><a href="#createMergedModule">createMergedModule</a></li>
+<li><a href="#createDelegatingModules">createDelegatingModules</a></li>
+<li><a href="#prepareModulesDir">prepareModulesDir</a></li>
+<li><a href="#jlink">jlink</a></li>
+<li><a href="#jlinkZip">jlinkZip</a></li>
+<li><a href="#suggestMergedModuleInfo">suggestMergedModuleInfo</a></li>
+<li><a href="#jpackageImage">jpackageImage</a></li>
+<li><a href="#jpackage">jpackage</a></li>
 </ul>
 </li>
 </ul>
 </li>
+<li><a href="#examples">Examples</a></li>
 </ul>
 </div>
 </div>
@@ -509,6 +528,39 @@ determine the location of the image directory and of the image archive.<br>
 </tr>
 </tbody>
 </table>
+<div class="dlist">
+<dl>
+<dt class="hdlist1"><span class="maroon">enableCds</span>()</dt>
+<dd>
+<p><span class="red">Experimental</span><br>
+Enables Class Data Sharing (CDS).<br></p>
+</dd>
+</dl>
+</div>
+<table class="tableblock frame-none grid-none stretch">
+<colgroup>
+<col style="width: 0.99%;">
+<col style="width: 99.01%;">
+</colgroup>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><div class="content"></div></td>
+<td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
+<div class="title">Usage example</div>
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">runtime {
+    ...
+    enableCds()
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>When the <code>enableCds</code> method is used, the plugin creates a base CDS archive of the image by executing
+<code>$imageDir/bin/java -Xshare:dump</code>. This means that you cannot use <code>enableCds</code> when targeting another platform.</p>
+</div></div></td>
+</tr>
+</tbody>
+</table>
 </div>
 <div class="sect2">
 <h3 id="scriptBlocks">Script blocks</h3>
@@ -621,35 +673,6 @@ This means that it&#8217;s no longer necessary to explicitly set the <code>addit
 }</code></pre>
 </div>
 </div>
-<div class="dlist">
-<dl>
-<dt class="hdlist1"><span class="maroon">enableCds</span>()</dt>
-<dd>
-<p><span class="red">Experimental</span><br>
-Enables Class Data Sharing (CDS).<br></p>
-</dd>
-</dl>
-</div>
-<table class="tableblock frame-none grid-none stretch">
-<colgroup>
-<col style="width: 0.99%;">
-<col style="width: 99.01%;">
-</colgroup>
-<tbody>
-<tr>
-<td class="tableblock halign-left valign-top"><div class="content"></div></td>
-<td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
-<div class="title">Usage example</div>
-<div class="content">
-<pre class="CodeRay highlight"><code data-lang="groovy">runtime {
-    ...
-    enableCds()
-}</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>When the <code>enableCds</code> method is used, the plugin creates a base CDS archive of the image by executing
-<code>$imageDir/bin/java -Xshare:dump</code>. This means that you cannot use <code>enableCds</code> when targeting another platform.</p>
 </div>
 <div class="sect3">
 <h4 id="_launcher">launcher</h4>
@@ -1068,6 +1091,7 @@ Its value must match the name provided in one of the calls to the <code>targetPl
 </div>
 </div>
 </div>
+</div>
 <div class="sect2">
 <h3 id="_how_it_works">How it works</h3>
 <div class="paragraph">
@@ -1280,6 +1304,8 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 </div>
 </div>
+</div>
+</div>
 <div class="sect1">
 <h2 id="examples">Examples</h2>
 <div class="sectionbody">
@@ -1325,13 +1351,6 @@ can be configured in the <code>jpackage</code> script block.</p>
 <p><a href="https://bitbucket.org/walczak_it/pdf-decorator/src/master/">pdf-decorator</a> - A <a href="http://pdf-decorator.walczak.it/">JavaFX tool</a> to add stamps and backgrounds to PDF documents. There&#8217;s also a <a href="https://walczak.it/blog/distributing-javafx-desktop-applications-without-requiring-jvm-using-jlink-and-jpackage">related article</a> explaining how to migrate to this plugin.</p>
 </li>
 </ul>
-</div>
-</div>
-</div></div></td>
-</tr>
-</tbody>
-</table>
-</div>
 </div>
 </div>
 </div>
