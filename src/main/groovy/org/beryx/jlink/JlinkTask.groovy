@@ -93,6 +93,11 @@ class JlinkTask extends BaseTask {
         extension.imageDir.get()
     }
 
+    @Input
+    boolean isCdsEnabled() {
+        extension.cdsEnabled.get()
+    }
+
     JlinkTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MODULES_DIR)
         description = 'Creates a modular runtime image with jlink'
@@ -114,6 +119,7 @@ class JlinkTask extends BaseTask {
         taskData.javaHome = javaHome
         taskData.targetPlatforms = targetPlatforms
         taskData.jlinkJarsDir = jlinkJarsDir.asFile
+        taskData.cdsEnabled = cdsEnabled
 
         def taskImpl = new JlinkTaskImpl(project, taskData)
         taskImpl.execute()

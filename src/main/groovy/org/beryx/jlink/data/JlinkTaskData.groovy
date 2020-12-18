@@ -34,4 +34,5 @@ class JlinkTaskData extends BaseTaskData {
     File jlinkJarsDir
     List<String> extraModulePaths
     CustomImageData customImageData
+    boolean cdsEnabled
 }

@@ -278,6 +278,24 @@ jlink {
 }
 ----
 
+[maroon]##enableCds##():: [red]##Experimental## +
+Enables Class Data Sharing (CDS). +
+
+[cols="1,100", frame=none, grid=none]
+|===
+a| a| .Usage example
+[source,groovy]
+----
+runtime {
+    ...
+    enableCds()
+}
+----
+
+When the `enableCds` method is used, the plugin creates a base CDS archive of the image by executing
+`$imageDir/bin/java -Xshare:dump`. This means that you cannot use `enableCds` when targeting another platform.
+
+
 === launcher
 
 The plugin generates script files for launching your application.

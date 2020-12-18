@@ -37,6 +37,7 @@ class JlinkPluginExtension {
     final Property<String> moduleName
     final Property<String> mergedModuleName
     final Property<String> mergedModuleJarName
+    final Property<Boolean> cdsEnabled
 
     /** @deprecated - use  {@link ModuleInfo#version} instead */
     @Deprecated(since = "2.22.1", forRemoval = true)
@@ -132,6 +133,9 @@ class JlinkPluginExtension {
         jpackageData = project.objects.property(JPackageData)
         def jpd = new JPackageData(project, ld)
         jpackageData.set(jpd)
+
+        cdsEnabled = project.objects.property(Boolean)
+        cdsEnabled.set(false)
     }
 
     void addExtraDependencies(String... dependencies) {
@@ -187,6 +191,10 @@ class JlinkPluginExtension {
 
     void jpackage(Action<JPackageData> action) {
         action.execute(jpackageData.get())
+    }
+
+    void enableCds() {
+        cdsEnabled.set(true)
     }
 
     private static String getDefaultJavaHome() {
