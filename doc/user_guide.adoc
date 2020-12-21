@@ -207,7 +207,7 @@ Enables Class Data Sharing (CDS). +
 a| a| .Usage example
 [source,groovy]
 ----
-runtime {
+jlink {
     ...
     enableCds()
 }
@@ -217,7 +217,7 @@ runtime {
 
 [source,groovy]
 ----
-runtime {
+jlink {
     ...
     enableCds {
         sharedArchiveFile = "{{HOME_DIR}}/myApp.jsa"
