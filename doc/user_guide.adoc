@@ -440,7 +440,7 @@ jdkAdditive:: if true, the custom image will contain both the modules in the `jd
 
 appModules:: list of application modules to be included in the generated image. +
     Modules required by those in this list will be automatically included. +
-    _defaultValue_: null (all application modules are included)
+    _defaultValue_: null (no application modules are included)
 
 
 _Usage example_

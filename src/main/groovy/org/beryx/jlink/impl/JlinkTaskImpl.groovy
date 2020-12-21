@@ -43,17 +43,17 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         if(td.targetPlatforms) {
             td.targetPlatforms.values().each { platform ->
                 File imageDir = new File(td.imageDir, "$td.launcherData.name-$platform.name")
-                createCustomImage(imageDir,
+                createRuntimeImage(imageDir,
                         platform.jdkHome ?: td.javaHome,
                         td.extraModulePaths + platform.extraModulePaths,
                         td.options + platform.options)
             }
         } else {
-            createCustomImage(td.imageDir, td.javaHome, td.extraModulePaths, td.options)
+            createRuntimeImage(td.imageDir, td.javaHome, td.extraModulePaths, td.options)
         }
     }
 
-    void createCustomImage(File imageDir, String jdkHome, List<String> extraModulePaths, List<String> options) {
+    void createRuntimeImage(File imageDir, String jdkHome, List<String> extraModulePaths, List<String> options) {
         runJlink(imageDir, jdkHome, extraModulePaths, options)
         createCDSArchive(imageDir)
         createLaunchScripts(imageDir)

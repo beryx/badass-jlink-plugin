@@ -16,6 +16,7 @@
 package org.beryx.jlink
 
 import groovy.transform.CompileStatic
+import org.beryx.jlink.data.CustomImageData
 import org.beryx.jlink.data.JPackageData
 import org.beryx.jlink.data.JPackageTaskData
 import org.beryx.jlink.impl.JPackageImageTaskImpl
@@ -39,6 +40,11 @@ class JPackageImageTask extends BaseTask {
         extension.mainClass.get()
     }
 
+    @Input
+    CustomImageData getCustomImageData() {
+        extension.customImageData.get()
+    }
+
     @InputDirectory
     Directory getJlinkJarsDir() {
         project.layout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
@@ -46,7 +52,7 @@ class JPackageImageTask extends BaseTask {
 
     @Input
     String getImageName() {
-        extension.imageName
+        extension.imageName.get()
     }
 
     @OutputDirectory
@@ -70,6 +76,7 @@ class JPackageImageTask extends BaseTask {
         taskData.jlinkBasePath = jlinkBasePath
         taskData.imageDir = imageName ? imageDirFromName : imageDir.asFile
         taskData.moduleName = moduleName
+        taskData.customImageData = customImageData
         taskData.jpackageData = jpackageData
         taskData.mainClass = mainClass ?: defaultMainClass
 

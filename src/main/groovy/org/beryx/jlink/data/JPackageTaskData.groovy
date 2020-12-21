@@ -29,6 +29,7 @@ class JPackageTaskData extends BaseTaskData {
 
     String moduleName
     String mainClass
+    CustomImageData customImageData
     File imageDir
     File runtimeImageDir
     JPackageData jpackageData
