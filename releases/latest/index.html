@@ -11,81 +11,81 @@
 <link rel="stylesheet" href="./asciidoctor.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
-<style>
-.hidden {
-    display: none;
-}
-
-.switch {
-    border-width: 1px 1px 0 1px;
-    border-style: solid;
-    border-color: #7a2518;
-    display: inline-block;
-}
-
-.switch--item {
-    padding: 10px;
-    background-color: #ffffff;
-    color: #7a2518;
-    display: inline-block;
-    cursor: pointer;
-}
-
-.switch--item.selected {
-    background-color: #7a2519;
-    color: #ffffff;
-}
-
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
-<script type="text/javascript">
-function addBlockSwitches() {
-    $('.primary').each(function() {
-        primary = $(this);
-        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
-        primary.children('.title').remove();
-    });
-    $('.secondary').each(function(idx, node) {
-        secondary = $(node);
-        primary = findPrimary(secondary);
-        switchItem = createSwitchItem(secondary, primary.children('.switch'));
-        switchItem.content.addClass('hidden');
-        findPrimary(secondary).append(switchItem.content);
-        secondary.remove();
-    });
-}
-
-function createBlockSwitch(primary) {
-    blockSwitch = $('<div class="switch"></div>');
-    primary.prepend(blockSwitch);
-    return blockSwitch;
-}
-
-function findPrimary(secondary) {
-    candidate = secondary.prev();
-    while (!candidate.is('.primary')) {
-        candidate = candidate.prev();
-    }
-    return candidate;
-}
-
-function createSwitchItem(block, blockSwitch) {
-    blockName = block.children('.title').text();
-    content = block.children('.content').first().append(block.next('.colist'));
-    item = $('<div class="switch--item">' + blockName + '</div>');
-    item.on('click', '', content, function(e) {
-        $(this).addClass('selected');
-        $(this).siblings().removeClass('selected');
-        e.data.siblings('.content').addClass('hidden');
-        e.data.removeClass('hidden');
-    });
-    blockSwitch.append(item);
-    return {'item': item, 'content': content};
-}
-
-$(addBlockSwitches);
-
-</script>
+<style>
+.hidden {
+    display: none;
+}
+
+.switch {
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
+    border-color: #7a2518;
+    display: inline-block;
+}
+
+.switch--item {
+    padding: 10px;
+    background-color: #ffffff;
+    color: #7a2518;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.switch--item.selected {
+    background-color: #7a2519;
+    color: #ffffff;
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+<script type="text/javascript">
+function addBlockSwitches() {
+    $('.primary').each(function() {
+        primary = $(this);
+        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
+        primary.children('.title').remove();
+    });
+    $('.secondary').each(function(idx, node) {
+        secondary = $(node);
+        primary = findPrimary(secondary);
+        switchItem = createSwitchItem(secondary, primary.children('.switch'));
+        switchItem.content.addClass('hidden');
+        findPrimary(secondary).append(switchItem.content);
+        secondary.remove();
+    });
+}
+
+function createBlockSwitch(primary) {
+    blockSwitch = $('<div class="switch"></div>');
+    primary.prepend(blockSwitch);
+    return blockSwitch;
+}
+
+function findPrimary(secondary) {
+    candidate = secondary.prev();
+    while (!candidate.is('.primary')) {
+        candidate = candidate.prev();
+    }
+    return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+    blockName = block.children('.title').text();
+    content = block.children('.content').first().append(block.next('.colist'));
+    item = $('<div class="switch--item">' + blockName + '</div>');
+    item.on('click', '', content, function(e) {
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
+        e.data.siblings('.content').addClass('hidden');
+        e.data.removeClass('hidden');
+    });
+    blockSwitch.append(item);
+    return {'item': item, 'content': content};
+}
+
+$(addBlockSwitches);
+
+</script>
 
 </head>
 <body class="article toc2 toc-left">
@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.23.0</span>
+<span id="revnumber">version 2.23.1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -107,7 +107,7 @@ $(addBlockSwitches);
 <li><a href="#scriptBlocks">Script blocks</a>
 <ul class="sectlevel3">
 <li><a href="#_mergedmodule">mergedModule</a></li>
-<li><a href="#_launcher">launcher</a></li>
+<li><a href="#launcher">launcher</a></li>
 <li><a href="#_secondarylauncher">secondaryLauncher</a></li>
 <li><a href="#_customimage">customImage</a></li>
 <li><a href="#_jpackage">jpackage</a></li>
@@ -187,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.23.0'
+    id 'org.beryx.jlink' version '2.23.1'
 }</code></pre>
 </div>
 </div>
@@ -219,7 +219,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.23.0/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v2.23.1/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -528,12 +528,19 @@ determine the location of the image directory and of the image archive.<br>
 </tr>
 </tbody>
 </table>
-<div class="dlist">
+<div id="cds" class="dlist">
 <dl>
-<dt class="hdlist1"><span class="maroon">enableCds</span>()</dt>
+<dt class="hdlist1"><span class="maroon">enableCds</span>(Action&lt;CdsData&gt; <span class="purple">action</span> = null)</dt>
 <dd>
-<p><span class="red">Experimental</span><br>
-Enables Class Data Sharing (CDS).<br></p>
+<p><span class="red">Experimental - requires Java 13 or newer</span><br>
+Enables Class Data Sharing (CDS).<br>
+<span class="purple"><strong>action</strong></span>: an optional script block for configuring the class data sharing.<br>
+&nbsp;&nbsp;&nbsp;&nbsp; <em>Parameters:</em><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="purple"><strong>sharedArchiveFile</strong></span>: the path and name of the class data sharing archive file.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; It supports the Mustache syntax and placeholders described in the <a href="#launcher">launcher</a> section.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <em>defaultValue:</em><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <code>lib/server/&lt;appName&gt;.jsa</code> on Unix-like systems<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <code>bin\server\&lt;appName&gt;.jsa</code> on Windows</p>
 </dd>
 </dl>
 </div>
@@ -548,15 +555,39 @@ Enables Class Data Sharing (CDS).<br></p>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="title">Usage example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="groovy">jlink {
+<pre class="CodeRay highlight"><code data-lang="groovy">runtime {
     ...
     enableCds()
 }</code></pre>
 </div>
 </div>
 <div class="paragraph">
+<p>&nbsp;&nbsp;&nbsp;&nbsp; or</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="CodeRay highlight"><code data-lang="groovy">runtime {
+    ...
+    enableCds {
+        sharedArchiveFile = <span class="string"><span class="delimiter">&quot;</span><span class="content">{{HOME_DIR}}/myApp.jsa</span><span class="delimiter">&quot;</span></span>
+    }
+}</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>When the <code>enableCds</code> method is used, the plugin creates a base CDS archive of the image by executing
 <code>$imageDir/bin/java -Xshare:dump</code>. This means that you cannot use <code>enableCds</code> when targeting another platform.</p>
+</div>
+<div class="paragraph">
+<p>When the <code>customImage</code> method is used, some modules are not included in the custom runtime image.
+In this case, to allow class data sharing for the excluded modules, the plugin also configures a dynamic AppCDS archive in the start scripts.
+If no file is found at the <code>sharedArchiveFile</code> location, the application is started with the <code>-XX:ArchiveClassesAtExit</code> option,
+which will create a dynamic AppCDS archive at this location.
+Otherwise, the application is started with the <code>-XX:SharedArchiveFile</code> option and uses the existing AppCDS archive.</p>
+</div>
+<div class="paragraph">
+<p><span class="purple"><em>NOTE</em></span>: Start scripts are not included in the installable packages generated by <code>jpackage</code>.
+As a result, only the base CDS archive of the image is used by the packaged application.</p>
 </div></div></td>
 </tr>
 </tbody>
@@ -578,7 +609,7 @@ but it requires quotes around the names of modules, services, and service implem
 <p>The plugin automatically exports all packages found in the merged module, therefore the DSL does not support <code>exports</code> directives.</p>
 </div>
 <div class="paragraph">
-<p>If a <code>mergedModule</code> block appears in yout build script, the generated module descriptor will contain the clauses specified in this block.
+<p>If a <code>mergedModule</code> block appears in your build script, the generated module descriptor will contain the clauses specified in this block.
 Otherwise, the module descriptor is created using the algorithm implemented by the <code>suggestMergedModuleInfo</code> task.</p>
 </div>
 <div class="dlist">
@@ -675,11 +706,23 @@ This means that it&#8217;s no longer necessary to explicitly set the <code>addit
 </div>
 </div>
 <div class="sect3">
-<h4 id="_launcher">launcher</h4>
+<h4 id="launcher">launcher</h4>
 <div class="paragraph">
 <p>The plugin generates script files for launching your application.
-You can customize these scripts by configuring the following properties in the <code>launcher</code> block.</p>
+These script files can be customized by configuring the <code>launcher</code> block.</p>
 </div>
+<div class="paragraph">
+<p>Environment variables can be included by using the <a href="https://en.wikipedia.org/wiki/Mustache_(template_system)">Mustache syntax</a>,
+that is, by enclosing their name between <code>{{</code> and <code>}}</code>.
+Additionally, you can use the following placeholders:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>{{BIN_DIR}}</code> - the <em>bin</em> directory of the custom runtime image</p>
+</li>
+<li>
+<p><code>{{HOME_DIR}}</code> - user&#8217;s home directory (<code>$HOME</code> on Unix-like systems, <code>%USERPROFILE%</code> on Windows)</p>
 <div class="dlist">
 <dl>
 <dt class="hdlist1">name</dt>
@@ -715,6 +758,9 @@ If true, the application will be launched without an associated console window (
 </dd>
 </dl>
 </div>
+</li>
+</ul>
+</div>
 <div class="paragraph">
 <p>The plugin uses <a href="http://docs.groovy-lang.org/latest/html/api/groovy/text/SimpleTemplateEngine.html">Groovy&#8217;s SimpleTemplateEngine</a>
 to parse the templates, with the following variables available:</p>
@@ -734,22 +780,6 @@ to parse the templates, with the following variables available:</p>
 <p>args</p>
 </li>
 </ul>
-</div>
-<div class="paragraph">
-<p>The values in the <strong>args</strong> and <strong>jvmArgs</strong> lists may contain the following placeholders:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p><code>{{BIN_DIR}}</code> - the <em>bin</em> directory of the custom runtime image</p>
-</li>
-<li>
-<p><code>{{HOME_DIR}}</code> - user&#8217;s home directory (<code>$HOME</code> on Unix-like systems, <code>%USERPROFILE%</code> on Windows)</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>You can include the value of an environment variable in a JVM argument by enclosing the name of the environment variable between <code>{{</code> and <code>}}</code>.</p>
 </div>
 <div class="paragraph">
 <p><em>Usage example</em></p>
@@ -888,7 +918,7 @@ The plugin figures out by itself which JDK modules are needed, but you can use t
 <dd>
 <p>list of application modules to be included in the generated image.<br>
 Modules required by those in this list will be automatically included.<br>
-<em>defaultValue</em>: null (all application modules are included)</p>
+<em>defaultValue</em>: null (no application modules are included)</p>
 </dd>
 </dl>
 </div>
@@ -1357,7 +1387,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.23.0<br>
+Version 2.23.1<br>
 </div>
 </div>
 </body>
