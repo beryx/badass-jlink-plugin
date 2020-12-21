@@ -33,15 +33,15 @@ class LaunchScriptGeneratorSpec extends Specification {
 
         then:
         scriptLines[0] == '#!/bin/sh'
-        scriptLines[1] == 'DIR="${0%/*}"'
-        scriptLines[2].replace('  ', ' ') == lastLine
+        scriptLines[4] == 'DIR="${0%/*}"'
+        scriptLines[-1].replace('  ', ' ') == lastLine
 
         where:
         jvmArgs                      | args                         | lastLine
-        []                           | []                           | '"$DIR/java" -p "$DIR/../app" -m org.example.hello/org.example.Hello "$@"'
-        ['-Xmx200m']                 | ['Alice']                    | '"$DIR/java" -Xmx200m -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice "$@"'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | '"$DIR/java" -Xmx200m -Ddebug=true -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice Bob "$@"'
-        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | '"$DIR/java" -cp "$DIR/data" -p "$DIR/../app" -m org.example.hello/org.example.Hello "$DIR/../names.txt" "$@"'
+        []                           | []                           | '"$DIR/java" $CDS_JVM_OPTS -p "$DIR/../app" -m org.example.hello/org.example.Hello "$@"'
+        ['-Xmx200m']                 | ['Alice']                    | '"$DIR/java" $CDS_JVM_OPTS -Xmx200m -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice "$@"'
+        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | '"$DIR/java" $CDS_JVM_OPTS -Xmx200m -Ddebug=true -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice Bob "$@"'
+        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | '"$DIR/java" $CDS_JVM_OPTS -cp "$DIR/data" -p "$DIR/../app" -m org.example.hello/org.example.Hello "$DIR/../names.txt" "$@"'
     }
 
     @Unroll
@@ -58,13 +58,13 @@ class LaunchScriptGeneratorSpec extends Specification {
         scriptLines[0] == '@echo off'
         scriptLines[1] == 'set DIR="%~dp0"'
         scriptLines[2] == 'set JAVA_EXEC="%DIR:"=%\\java"'
-        scriptLines[3].replace('  ', ' ') == lastLine
+        scriptLines[-1].replace('  ', ' ') == lastLine
 
         where:
         jvmArgs                      | args                         | lastLine
-        []                           | []                           | 'pushd %DIR% & %JAVA_EXEC% -p "%~dp0/../app" -m org.example.hello/org.example.Hello %* & popd'
-        ['-Xmx200m']                 | ['Alice']                    | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice %* & popd'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | 'pushd %DIR% & %JAVA_EXEC% -Xmx200m -Ddebug=true -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice Bob %* & popd'
-        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | 'pushd %DIR% & %JAVA_EXEC% -cp "%~dp0/data" -p "%~dp0/../app" -m org.example.hello/org.example.Hello "%~dp0/../names.txt" %* & popd'
+        []                           | []                           | 'pushd %DIR% & %JAVA_EXEC% %CDS_JVM_OPTS% -p "%~dp0/../app" -m org.example.hello/org.example.Hello %* & popd'
+        ['-Xmx200m']                 | ['Alice']                    | 'pushd %DIR% & %JAVA_EXEC% %CDS_JVM_OPTS% -Xmx200m -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice %* & popd'
+        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | 'pushd %DIR% & %JAVA_EXEC% %CDS_JVM_OPTS% -Xmx200m -Ddebug=true -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice Bob %* & popd'
+        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | 'pushd %DIR% & %JAVA_EXEC% %CDS_JVM_OPTS% -cp "%~dp0/data" -p "%~dp0/../app" -m org.example.hello/org.example.Hello "%~dp0/../names.txt" %* & popd'
     }
 }
