@@ -94,8 +94,8 @@ class JlinkTask extends BaseTask {
     }
 
     @Input
-    boolean isCdsEnabled() {
-        extension.cdsEnabled.get()
+    CdsData getCdsData() {
+        extension.cdsData.get()
     }
 
     JlinkTask() {
@@ -119,7 +119,7 @@ class JlinkTask extends BaseTask {
         taskData.javaHome = javaHome
         taskData.targetPlatforms = targetPlatforms
         taskData.jlinkJarsDir = jlinkJarsDir.asFile
-        taskData.cdsEnabled = cdsEnabled
+        taskData.cdsData = cdsData
 
         def taskImpl = new JlinkTaskImpl(project, taskData)
         taskImpl.execute()

@@ -1,3 +1,15 @@
 #!/bin/sh
+SCRIPT_NAME=\$(basename "\$0")
+APP_NAME=\${SCRIPT_NAME%.sh}
+
 DIR="\${0%/*}"
-"\$DIR/java" ${jvmArgs} -p "\$DIR/../app" -m ${moduleName}/${mainClassName} ${args} "\$@"
+
+<% if ( System.properties['BADASS_CDS_ARCHIVE_FILE_LINUX'] ) { %>
+CDS_ARCHIVE_FILE="<%= System.properties['BADASS_CDS_ARCHIVE_FILE_LINUX'] %>"
+CDS_JVM_OPTS="-XX:ArchiveClassesAtExit=\$CDS_ARCHIVE_FILE"
+if [ -f "\$CDS_ARCHIVE_FILE" ]; then
+    CDS_JVM_OPTS="-XX:SharedArchiveFile=\$CDS_ARCHIVE_FILE"
+fi
+<% } %>
+
+"\$DIR/java" \$CDS_JVM_OPTS ${jvmArgs} -p "\$DIR/../app" -m ${moduleName}/${mainClassName} ${args} "\$@"

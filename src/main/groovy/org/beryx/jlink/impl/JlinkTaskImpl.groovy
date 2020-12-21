@@ -40,6 +40,10 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     }
 
     void execute() {
+        if(td.cdsData.enabled && td.customImageData.enabled) {
+            System.properties['BADASS_CDS_ARCHIVE_FILE_LINUX'] = td.cdsData.sharedArchiveFile ?: '$DIR/../lib/server/$APP_NAME.jsa'
+            System.properties['BADASS_CDS_ARCHIVE_FILE_WINDOWS'] = td.cdsData.sharedArchiveFile ?: '%~dp0\\server\\%~n0.jsa'
+        }
         if(td.targetPlatforms) {
             td.targetPlatforms.values().each { platform ->
                 File imageDir = new File(td.imageDir, "$td.launcherData.name-$platform.name")
@@ -61,7 +65,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
 
     @CompileDynamic
     void createCDSArchive(File imageDir) {
-        if(td.cdsEnabled) {
+        if(td.cdsData.enabled) {
             project.exec {
                 commandLine = ["$imageDir/bin/java", "-Xshare:dump"]
             }
