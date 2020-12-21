@@ -555,7 +555,7 @@ Enables Class Data Sharing (CDS).<br>
 <td class="tableblock halign-left valign-top"><div class="content"><div class="listingblock">
 <div class="title">Usage example</div>
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="groovy">runtime {
+<pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
     enableCds()
 }</code></pre>
@@ -566,7 +566,7 @@ Enables Class Data Sharing (CDS).<br>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="CodeRay highlight"><code data-lang="groovy">runtime {
+<pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
     enableCds {
         sharedArchiveFile = <span class="string"><span class="delimiter">&quot;</span><span class="content">{{HOME_DIR}}/myApp.jsa</span><span class="delimiter">&quot;</span></span>
