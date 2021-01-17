@@ -15,8 +15,8 @@
  */
 package org.beryx.jlink.impl
 
-import static org.beryx.jlink.util.Util.EXEC_EXTENSION
-
+import java.nio.file.Files
+import java.nio.file.Paths
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageTaskData
@@ -26,6 +26,8 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.internal.os.OperatingSystem
+
+import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
 class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
@@ -38,25 +40,32 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
 
     @CompileDynamic
     void execute() {
-        if(td.jpackageData.skipInstaller) {
+        def jpd = td.jpackageData
+        if(jpd.skipInstaller) {
             LOGGER.info("Skipping create-installer")
             return
         }
-        def jpd = td.jpackageData
-        def appImagePath = "${td.jpackageData.getImageOutputDir()}/$jpd.imageName"
-        if(org.gradle.internal.os.OperatingSystem.current().macOsX) {
+        def appImagePath = "$jpd.imageOutputDir/$jpd.imageName"
+        def os = OperatingSystem.current()
+        if(os.windows && jpd.imageName != jpd.installerName) { // Workaround for https://github.com/beryx/badass-jlink-plugin/issues/169
+            def appImageExe = Paths.get(appImagePath, "${jpd.imageName}.exe")
+            def newAppImageExe = Paths.get(appImagePath, "${jpd.installerName}.exe")
+            LOGGER.info "Copying $appImageExe into $newAppImageExe"
+            Files.copy(appImageExe, newAppImageExe)
+        }
+        if(os.macOsX) {
             def appImageDir = new File(appImagePath)
             if(!appImageDir.directory) {
-                def currImagePath = "${td.jpackageData.getImageOutputDir()}/${jpd.imageName}.app"
+                def currImagePath = "$jpd.imageOutputDir/${jpd.imageName}.app"
                 if(!new File(currImagePath).directory) {
-                    throw new GradleException("Unable to find the application image in ${td.jpackageData.getImageOutputDir()}")
+                    throw new GradleException("Unable to find the application image in $jpd.imageOutputDir")
                 }
                 appImagePath = currImagePath
             }
         }
 
-        if (td.jpackageData.getImageOutputDir() != td.jpackageData.getInstallerOutputDir()) {
-            project.delete(project.files(td.jpackageData.getInstallerOutputDir()))
+        if (jpd.imageOutputDir != jpd.installerOutputDir) {
+            project.delete(project.files(jpd.installerOutputDir))
         }
         packageTypes.each { packageType ->
             def result = project.exec {
@@ -74,12 +83,12 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                     throw new GradleException("The first character of the --app-version argument should be a digit.")
                 }
 
-                final def resourceDir = jpd.getResourceDir()
+                final def resourceDir = jpd.resourceDir
                 final def resourceOpts = (resourceDir == null) ? [] : [ '--resource-dir', resourceDir ]
 
                 commandLine = [jpackageExec,
                                '--type', packageType,
-                               '--dest', td.jpackageData.getInstallerOutputDir(),
+                               '--dest', jpd.installerOutputDir,
                                '--name', jpd.installerName,
                                *versionOpts,
                                '--app-image', "$appImagePath",
@@ -90,6 +99,9 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 LOGGER.error(project.ext.jpackageInstallerOutput())
             } else {
                 LOGGER.info(project.ext.jpackageInstallerOutput())
+                if(os.windows && jpd.imageName != jpd.installerName) { // Workaround for https://github.com/beryx/badass-jlink-plugin/issues/169
+                    new File("$appImagePath/${jpd.installerName}.exe").delete()
+                }
             }
             result.assertNormalExitValue()
             result.rethrowFailure()
