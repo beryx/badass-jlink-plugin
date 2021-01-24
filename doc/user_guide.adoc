@@ -531,7 +531,8 @@ imageOutputDir:: the directory passed as argument to the `--output` option of `j
 
 imageName:: the argument passed to the `--name` option when executing the `jpackageImage` task. +
     _defaultValue_: the `name` value configured in the `launcher` block or  `_project.name_` +
-    _usage example_: `imageName = "MyApp"`
+    _usage example_: `imageName = "MyApp"` +
+    It's recommended to use the same value as for the *installerName* property.
 
 imageOptions:: list of additional options to be passed to the `jpackage` executable when executing the `jpackageImage` task. +
     _defaultValue_: empty list +
@@ -555,7 +556,8 @@ installerOutputDir:: the directory passed as argument to the `--output` option w
 
 installerName:: the argument passed to the `--name` option when running `jpackage` when executing the `jpackage` task. +
     _defaultValue_: the `name` value configured in the `launcher` block or  `_project.name_` +
-    _usage example_: `installerName = "MyApp"`
+    _usage example_: `installerName = "MyApp"` +
+    It's recommended to use the same value as for the *imageName* property.
 
 appVersion:: the argument passed to the `--app-version` option when running `jpackage` when executing the `jpackage` and `jpackageImage` tasks. +
     _defaultValue_: the project version +
