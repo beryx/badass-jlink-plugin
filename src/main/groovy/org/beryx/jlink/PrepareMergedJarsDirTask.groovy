@@ -46,7 +46,7 @@ class PrepareMergedJarsDirTask extends BaseTask {
 
     @Input
     String getJavaHome() {
-        extension.javaHome.get()
+        javaHomeOrDefault
     }
 
     @Optional @Input

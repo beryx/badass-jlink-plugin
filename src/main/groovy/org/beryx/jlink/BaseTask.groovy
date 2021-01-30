@@ -18,12 +18,15 @@ package org.beryx.jlink
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
+import org.beryx.jlink.util.Util
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+
+import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
 class BaseTask extends DefaultTask {
@@ -41,6 +44,25 @@ class BaseTask extends DefaultTask {
     String getJlinkBasePath() {
         extension.jlinkBasePath.get()
     }
+
+    @Internal
+    String getJavaHomeOrDefault() {
+        return extension.javaHome.present ? extension.javaHome.get() : defaultJavaHome
+    }
+
+    @Internal
+    String getDefaultJavaHome() {
+        def value = System.properties['badass.jlink.java.home']
+        if(value) return value
+        value = System.getenv('BADASS_JLINK_JAVA_HOME')
+        if(value) return value
+        value = Util.getDefaultToolchainJavaHome(project)
+        if(value) return value
+        value = System.properties['java.home']
+        if(['javac', 'jar', 'jlink'].every { new File("$value/bin/$it$EXEC_EXTENSION").file }) return value
+        return System.getenv('JAVA_HOME')
+    }
+
     @Internal
     String getDefaultMainClass() {
         def mainClass = defaultMainClassModern

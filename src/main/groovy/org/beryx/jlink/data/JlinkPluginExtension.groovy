@@ -25,8 +25,6 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 
-import static org.beryx.jlink.util.Util.EXEC_EXTENSION
-
 @CompileStatic
 class JlinkPluginExtension {
     private final Project project
@@ -124,7 +122,6 @@ class JlinkPluginExtension {
         useJdeps.set(JdepsUsage.no)
 
         javaHome = project.objects.property(String)
-        javaHome.set(getDefaultJavaHome())
 
         targetPlatforms = Util.createMapProperty(project, String, TargetPlatform)
 
@@ -198,15 +195,5 @@ class JlinkPluginExtension {
         if(action) {
             action.execute(cdsData.get())
         }
-    }
-
-    private static String getDefaultJavaHome() {
-        def value = System.properties['badass.jlink.java.home']
-        if(value) return value
-        value = System.getenv('BADASS_JLINK_JAVA_HOME')
-        if(value) return value
-        value = System.properties['java.home']
-        if(['javac', 'jar', 'jlink'].every { new File("$value/bin/$it$EXEC_EXTENSION").file }) return value
-        return System.getenv('JAVA_HOME')
     }
 }

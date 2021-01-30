@@ -17,9 +17,11 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
+import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
@@ -76,7 +78,7 @@ class JPackageData {
     JPackageData(Project project, LauncherData launcherData) {
         this.project = project
         this.launcherData = launcherData
-        this.jpackageHome = defaultJPackageHome
+        this.jpackageHome = ''
     }
 
     @Input
@@ -123,11 +125,18 @@ class JPackageData {
         this.@installerOutputDir ?: project.file("$project.buildDir/$outputDir")
     }
 
+    @Internal
+    String getJPackageHomeOrDefault() {
+        return jpackageHome ?: defaultJPackageHome
+    }
 
-    private static String getDefaultJPackageHome() {
+    @Internal
+    String getDefaultJPackageHome() {
         def value = System.properties['badass.jlink.jpackage.home']
         if(value) return value
         value = System.getenv('BADASS_JLINK_JPACKAGE_HOME')
+        if(value) return value
+        value = Util.getDefaultToolchainJavaHome(project)
         if(value) return value
         value = System.properties['java.home']
         if(new File("$value/bin/jpackage$EXEC_EXTENSION").file) return value

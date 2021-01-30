@@ -39,7 +39,7 @@ class CreateDelegatingModulesTask extends BaseTask {
 
     @Input
     String getJavaHome() {
-        extension.javaHome.get()
+        javaHomeOrDefault
     }
 
     @InputDirectory

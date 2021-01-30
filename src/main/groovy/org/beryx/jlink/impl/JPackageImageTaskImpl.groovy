@@ -60,7 +60,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
 
     private List<String> createCommandLine() {
         def jpd = td.jpackageData
-        def jpackageExec = "$jpd.jpackageHome/bin/jpackage$EXEC_EXTENSION" as String
+        def jpackageExec = "${jpd.getJPackageHomeOrDefault()}/bin/jpackage$EXEC_EXTENSION" as String
         Util.checkExecutable(jpackageExec)
 
         Map<String,File> propFiles = [:]

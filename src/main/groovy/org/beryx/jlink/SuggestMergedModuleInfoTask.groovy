@@ -49,7 +49,7 @@ class SuggestMergedModuleInfoTask extends BaseTask {
 
     @Input
     String getJavaHome() {
-        extension.javaHome.get()
+        javaHomeOrDefault
     }
 
     @Input
