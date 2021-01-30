@@ -268,76 +268,82 @@ if (location.href.indexOf('is-external=true') == -1) {
                         <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;java.lang.String</code></td>
-                            <td class="colLast"><code><strong><a href="#getFallbackModuleNameFromJarFile(java.io.File)">getFallbackModuleNameFromJarFile</a></strong>(java.io.File f)</code><br></td>
+                            <td class="colLast"><code><strong><a href="#getDefaultToolchainJavaHome(org.gradle.api.Project)">getDefaultToolchainJavaHome</a></strong>(org.gradle.api.Project project)</code><br></td>
                         </tr>
                         
                         <tr class="altColor">
+                            <td class="colFirst"><code></code></td>
+                            <td class="colLast"><code>static&nbsp;java.lang.String</code></td>
+                            <td class="colLast"><code><strong><a href="#getFallbackModuleNameFromJarFile(java.io.File)">getFallbackModuleNameFromJarFile</a></strong>(java.io.File f)</code><br></td>
+                        </tr>
+                        
+                        <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;java.lang.String</code></td>
                             <td class="colLast"><code><strong><a href="#getFallbackModuleNameFromJarName(java.lang.String)">getFallbackModuleNameFromJarName</a></strong>(java.lang.String s)</code><br></td>
                         </tr>
                         
-                        <tr class="rowColor">
+                        <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;java.util.List&lt;java.io.File&gt;</code></td>
                             <td class="colLast"><code><strong><a href="#getJarsAndMods(java.lang.Object)">getJarsAndMods</a></strong>(java.lang.Object... modulePath)</code><br></td>
                         </tr>
                         
-                        <tr class="altColor">
+                        <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;java.lang.module.ModuleDescriptor</code></td>
                             <td class="colLast"><code><strong><a href="#getModuleDescriptor(java.io.File)">getModuleDescriptor</a></strong>(java.io.File f)</code><br></td>
                         </tr>
                         
-                        <tr class="rowColor">
+                        <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;java.lang.String</code></td>
                             <td class="colLast"><code><strong><a href="#getModuleName(java.io.File)">getModuleName</a></strong>(java.io.File f)</code><br></td>
                         </tr>
                         
-                        <tr class="altColor">
+                        <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;java.lang.String</code></td>
                             <td class="colLast"><code><strong><a href="#getModuleNameFrom(java.lang.String, java.lang.String)">getModuleNameFrom</a></strong>(java.lang.String moduleInfoText, java.lang.String fileName = 'module-info.java')</code><br></td>
                         </tr>
                         
-                        <tr class="rowColor">
+                        <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;java.lang.String</code></td>
                             <td class="colLast"><code><strong><a href="#getPackage(java.lang.String)">getPackage</a></strong>(java.lang.String entryName)</code><br></td>
                         </tr>
                         
-                        <tr class="altColor">
+                        <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;java.io.File</code></td>
                             <td class="colLast"><code><strong><a href="#getVersionedDir(java.io.File, int)">getVersionedDir</a></strong>(java.io.File baseDir, int javaVersion)</code><br></td>
                         </tr>
                         
-                        <tr class="rowColor">
+                        <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;boolean</code></td>
                             <td class="colLast"><code><strong><a href="#isEmptyJar(java.io.File)">isEmptyJar</a></strong>(java.io.File jarFile)</code><br></td>
                         </tr>
                         
-                        <tr class="altColor">
+                        <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;boolean</code></td>
                             <td class="colLast"><code><strong><a href="#isValidClassFileReference(java.lang.String)">isValidClassFileReference</a></strong>(java.lang.String name)</code><br></td>
                         </tr>
                         
-                        <tr class="rowColor">
+                        <tr class="altColor">
                             <td class="colFirst"><code>&lt;K, V&gt;</code></td>
                             <td class="colLast"><code>static&nbsp;void</code></td>
                             <td class="colLast"><code><strong><a href="#putToMapProvider(Provider<Map<K, V>>, K, V)">putToMapProvider</a></strong>(org.gradle.api.provider.Provider&lt;java.util.Map&lt;K, V&gt;&gt; mapProvider, K key, V value)</code><br></td>
                         </tr>
                         
-                        <tr class="altColor">
+                        <tr class="rowColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;void</code></td>
                             <td class="colLast"><code><strong><a href="#scan(java.io.File, Closure<Void>)">scan</a></strong>(java.io.File file, groovy.lang.Closure&lt;java.lang.Void&gt; action)</code><br></td>
                         </tr>
                         
-                        <tr class="rowColor">
+                        <tr class="altColor">
                             <td class="colFirst"><code></code></td>
                             <td class="colLast"><code>static&nbsp;java.lang.String</code></td>
                             <td class="colLast"><code><strong><a href="#toModuleName(java.lang.String)">toModuleName</a></strong>(java.lang.String s)</code><br></td>
@@ -562,6 +568,14 @@ static&nbsp;java.util.List&lt;java.lang.String&gt; <strong>getDefaultJvmArgs</st
                             <li class="blockList">
                                 <h4>@groovy.transform.CompileDynamic
 static&nbsp;java.lang.String <strong>getDefaultModuleName</strong>(org.gradle.api.Project project)</h4>
+                                <p></p>
+                            </li>
+                        </ul>
+                    
+                        <a name="getDefaultToolchainJavaHome(org.gradle.api.Project)"><!-- --></a>
+                        <ul class="blockListLast">
+                            <li class="blockList">
+                                <h4>static&nbsp;java.lang.String <strong>getDefaultToolchainJavaHome</strong>(org.gradle.api.Project project)</h4>
                                 <p></p>
                             </li>
                         </ul>

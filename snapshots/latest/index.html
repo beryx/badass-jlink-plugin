@@ -363,12 +363,17 @@ If both this property and the <em>version</em> property of the <em>mergedModule<
 <em>defaultValue</em>: empty list<br>
 <em>usage example</em>: <code>options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']</code></p>
 </dd>
+</dl>
+</div>
+<div id="javaHome" class="dlist">
+<dl>
 <dt class="hdlist1">javaHome</dt>
 <dd>
 <p>The path to the JDK providing the tools needed by the plugin (<em>javac</em>, <em>jar</em>, <em>jlink</em> etc.).<br>
 <em>defaultValue</em>: the first non-empty value from:<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>badass.jlink.java.home</code> system property<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>BADASS_JLINK_JAVA_HOME</code> environment variable<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <a href="https://docs.gradle.org/current/userguide/toolchains.html">Java toolchain</a> configured in the Gradle script <br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>java.home</code> system property (only if it points to a JRE containing the <code>javac</code>, <code>jar</code>, and <code>jlink</code> tools)<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>JAVA_HOME</code> environment variable<br>
 <em>usage example</em>: <code>javaHome = '/usr/lib/jvm/open-jdk'</code></p>
@@ -959,7 +964,7 @@ Modules required by those in this list will be automatically included.<br>
 <div class="paragraph">
 <p>This script block allows you to customize the <a href="https://jdk.java.net/jpackage/">jpackage</a>-based generation of platform-specific application images and installers.</p>
 </div>
-<div class="dlist">
+<div id="jpackageHome" class="dlist">
 <dl>
 <dt class="hdlist1">jpackageHome</dt>
 <dd>
@@ -967,6 +972,7 @@ Modules required by those in this list will be automatically included.<br>
 <em>defaultValue</em>: the first non-empty value from:<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>badass.jlink.jpackage.home</code> system property<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>BADASS_JLINK_JPACKAGE_HOME</code> environment variable<br>
+    &nbsp;&nbsp;&nbsp;&nbsp; - the <a href="https://docs.gradle.org/current/userguide/toolchains.html">Java toolchain</a> configured in the Gradle script <br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>java.home</code> system property (only if it points to a JRE containing the <code>jpackage</code> tool)<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>JAVA_HOME</code> environment variable<br>
 <em>usage example</em>: <code>jpackageHome = "/usr/lib/jvm/jdk14"</code></p>
