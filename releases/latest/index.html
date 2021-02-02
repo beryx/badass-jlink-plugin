@@ -400,10 +400,10 @@ You can call this method multiple times.<br>
 </dd>
 <dt class="hdlist1"><span class="maroon">forceMerge</span>(String&#8230;&#8203; <span class="purple">jarPrefixes</span>)</dt>
 <dd>
-<p>Instructs the plugin to include all dependencies matching the given prefixes into the merged module.
+<p>Instructs the plugin to include all dependencies matching the given prefixes into the merged module. (Note that these are prefixes of the names of the JAR files to be merged.)<br>
 This method is useful when the plugin should handle one or more modular jars as non-modular.
 You can call this method multiple times.<br>
-    <em>usage example</em>: <code>forceMerge 'jakarta.xml.bind-api'</code></p>
+    <em>usage example</em>: <code>forceMerge 'slf4j'</code></p>
 </dd>
 <dt class="hdlist1"><span class="maroon">addExtraDependencies</span>(String&#8230;&#8203; <span class="purple">jarPrefixes</span>)</dt>
 <dd>
