@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.23.3-SNAPSHOT</span>
+<span id="revnumber">version 2.23.4-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -187,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.23.3-SNAPSHOT'
+    id 'org.beryx.jlink' version '2.23.4-SNAPSHOT'
 }</code></pre>
 </div>
 </div>
@@ -400,10 +400,10 @@ You can call this method multiple times.<br>
 </dd>
 <dt class="hdlist1"><span class="maroon">forceMerge</span>(String&#8230;&#8203; <span class="purple">jarPrefixes</span>)</dt>
 <dd>
-<p>Instructs the plugin to include all dependencies matching the given prefixes into the merged module.
+<p>Instructs the plugin to include all dependencies matching the given prefixes into the merged module. (Note that these are prefixes of the names of the JAR files to be merged.)<br>
 This method is useful when the plugin should handle one or more modular jars as non-modular.
 You can call this method multiple times.<br>
-    <em>usage example</em>: <code>forceMerge 'jakarta.xml.bind-api'</code></p>
+    <em>usage example</em>: <code>forceMerge 'slf4j'</code></p>
 </dd>
 <dt class="hdlist1"><span class="maroon">addExtraDependencies</span>(String&#8230;&#8203; <span class="purple">jarPrefixes</span>)</dt>
 <dd>
@@ -1395,7 +1395,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.23.3-SNAPSHOT<br>
+Version 2.23.4-SNAPSHOT<br>
 </div>
 </div>
 </body>
