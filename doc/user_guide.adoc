@@ -25,9 +25,9 @@ consisting only of a module descriptor. The module descriptor specifies that the
 <<suggestMergedModuleInfo>>:: Displays the `mergedModule` block that will be used if your `jlink` extension doesn't include one.
   You can use the suggested block as a starting point for your custom `mergedModule` block. +
     _depends on_: `prepareMergedJarsDir`
-<<jpackageImage>>:: Uses the https://docs.oracle.com/en/java/javase/14/docs/specs/man/jpackage.html[jpackage] tool to create a platform-specific application image.  +
+<<jpackageImage>>:: Uses the https://openjdk.java.net/jeps/392[jpackage] tool to create a platform-specific application image.  +
     _depends on_: `prepareModulesDir` +
-<<jpackage>>:: Uses the https://docs.oracle.com/en/java/javase/14/docs/specs/man/jpackage.html[jpackage] tool to create a platform-specific application installer.  +
+<<jpackage>>:: Uses the https://openjdk.java.net/jeps/392[jpackage] tool to create a platform-specific application installer.  +
     _depends on_: `jpackageImage` +
 
 A detailed description of these tasks is given in <<taskDetails>>
@@ -521,7 +521,7 @@ jpackageHome:: The path to the JDK providing the jpackage tool. +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the https://docs.gradle.org/current/userguide/toolchains.html[Java toolchain] configured in the Gradle script  +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `java.home` system property (only if it points to a JRE containing the `jpackage` tool) +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `JAVA_HOME` environment variable +
-    _usage example_: `jpackageHome = "/usr/lib/jvm/jdk14"`
+    _usage example_: `jpackageHome = "/usr/lib/jvm/jdk16"`
 
 outputDir:: Convenience property for setting both `imageOutputDir` and
 `installerOutputDir` with the value _buildDir_/_outputDir_. +
@@ -601,7 +601,7 @@ _Usage example_
 jlink {
     ...
     jpackage {
-        jpackageHome = '/usr/lib/jvm/jdk14'
+        jpackageHome = '/usr/lib/jvm/jdk16'
         outputDir = 'my-packaging'
         // imageOutputDir = file("$buildDir/my-packaging-image")
         // installerOutputDir = file("$buildDir/my-packaging-installer")
@@ -622,7 +622,7 @@ jlink {
 jlink {
     ...
     jpackage {
-        jpackageHome = "/usr/lib/jvm/jdk14"
+        jpackageHome = "/usr/lib/jvm/jdk16"
         outputDir = "my-packaging"
         // imageOutputDir = file("$buildDir/my-packaging-image")
         // installerOutputDir = file("$buildDir/my-packaging-installer")
