@@ -88,10 +88,10 @@ It is an alternative way of setting the `options` property.
 You can call this method multiple times. +
     _usage example_: `addOptions '--no-header-files', '--no-man-pages'`
 
-[maroon]##forceMerge##(String... [purple]##jarPrefixes##):: Instructs the plugin to include all dependencies matching the given prefixes into the merged module.
+[maroon]##forceMerge##(String... [purple]##jarPrefixes##):: Instructs the plugin to include all dependencies matching the given prefixes into the merged module. (Note that these are prefixes of the names of the JAR files to be merged.) +
 This method is useful when the plugin should handle one or more modular jars as non-modular.
 You can call this method multiple times. +
-    _usage example_: `forceMerge 'jakarta.xml.bind-api'`
+    _usage example_: `forceMerge 'slf4j'`
 
 
 [maroon]##addExtraDependencies##(String... [purple]##jarPrefixes##):: Instructs the plugin to treat all jars matching the given prefixes as dependencies of the merged module. +
