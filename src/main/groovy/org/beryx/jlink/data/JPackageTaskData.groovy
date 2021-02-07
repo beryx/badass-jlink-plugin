@@ -57,6 +57,6 @@ class JPackageTaskData extends BaseTaskData {
         } else {
             runtimeImageDir = jlinkTask.imageDirAsFile
         }
-        LOGGER.debug("runtimeImageDir: $runtimeImageDir")
+        LOGGER.info("runtimeImageDir: $runtimeImageDir")
     }
 }

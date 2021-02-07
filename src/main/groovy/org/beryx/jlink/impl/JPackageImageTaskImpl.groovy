@@ -106,7 +106,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
 
         List<String> moduleOrJarOpts = []
         if (td.customImageData.enabled) {
-            def appDir = new File(td.imageDir, 'app')
+            def appDir = new File(td.runtimeImageDir, 'app')
             moduleOrJarOpts += ['--input', appDir.absolutePath]
             String mainJarName = Util.getArchiveFile(project).name
             def mainJar = new File(appDir, mainJarName)
