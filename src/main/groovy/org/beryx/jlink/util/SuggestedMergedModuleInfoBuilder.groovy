@@ -111,7 +111,7 @@ class SuggestedMergedModuleInfoBuilder {
 
         def depMgr = new DependencyManager(project, forceMergedJarPrefixes, extraDependenciesPrefixes, configuration)
         def exportsMap = new ModuleManager(javaHome)
-                .getExportsMap(*depMgr.modularJars.toArray(), new File("$javaHome/jmods"))
+                .getExportsMap(*depMgr.modularJars*.absolutePath.toArray(), "$javaHome/jmods")
         def builders = new HashSet<RequiresBuilder>()
 
         scanner.externalPackages.each { pkg ->
