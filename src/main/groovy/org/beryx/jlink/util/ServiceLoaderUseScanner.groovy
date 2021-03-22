@@ -76,7 +76,7 @@ class ServiceLoaderUseScanner {
         final Set<String> usedServices = new HashSet<>()
 
         ServiceLoaderClassVisitor(){
-            super(Opcodes.ASM8)
+            super(Opcodes.ASM9)
         }
 
         @Override
@@ -97,7 +97,7 @@ class ServiceLoaderUseScanner {
         private Type lastType
 
         ServiceLoaderMethodVisitor(Set<String> usedServices){
-            super(Opcodes.ASM8)
+            super(Opcodes.ASM9)
             this.usedServices = usedServices
         }
 

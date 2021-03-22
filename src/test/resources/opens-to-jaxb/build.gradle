@@ -5,7 +5,7 @@ plugins {
 }
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 version = '1.2.3'

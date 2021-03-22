@@ -3,7 +3,6 @@ import org.kohsuke.github.*
 
 buildscript {
     repositories {
-        jcenter()
         maven {
             url "https://plugins.gradle.org/m2/"
         }
@@ -46,10 +45,9 @@ ext.badassJlinkPluginTag = Boolean.valueOf(badassJlinkPluginReleaseBuild) ? "v$e
 group = 'org.beryx'
 version = badassJlinkPluginVersion
 
-ext.asmVersion = '8.0.1'
+ext.asmVersion = '9.1'
 
 repositories {
-    jcenter()
     mavenCentral()
 }
 

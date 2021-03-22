@@ -31,7 +31,7 @@ class PackageUseScanner extends ClassVisitor {
 
     private class ScannerMethodVisitor extends MethodVisitor {
         ScannerMethodVisitor(MethodVisitor methodVisitor) {
-            super(Opcodes.ASM8, methodVisitor)
+            super(Opcodes.ASM9, methodVisitor)
         }
 
         @Override
@@ -119,7 +119,7 @@ class PackageUseScanner extends ClassVisitor {
 
 
     PackageUseScanner() {
-        super(Opcodes.ASM8)
+        super(Opcodes.ASM9)
     }
 
     Set<String> getExternalPackages() {
@@ -171,7 +171,7 @@ class PackageUseScanner extends ClassVisitor {
     void visitNestHost(String nestHost) {
         LOGGER.debug "visitNestHost($nestHost)"
         usedPackages.addClass(nestHost)
-        if(api >= Opcodes.ASM8) {
+        if(api >= Opcodes.ASM9) {
             super.visitNestHost(nestHost)
         }
     }
@@ -180,7 +180,7 @@ class PackageUseScanner extends ClassVisitor {
     void visitNestMember(String nestMember) {
         LOGGER.debug "visitNestMember($nestMember)"
         usedPackages.addClass(nestMember)
-        if(api >= Opcodes.ASM8) {
+        if(api >= Opcodes.ASM9) {
             super.visitNestMember(nestMember)
         }
     }

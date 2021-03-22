@@ -81,7 +81,7 @@ class ModuleInfoAdjuster {
         boolean adjusted = false
 
         ModuleInfoClassVisitor(ClassWriter cw){
-            super(Opcodes.ASM8, cw)
+            super(Opcodes.ASM9, cw)
         }
 
         @Override
@@ -92,7 +92,7 @@ class ModuleInfoAdjuster {
 
         private class QualifiedModuleVisitor extends ModuleVisitor {
             QualifiedModuleVisitor(ModuleVisitor defaultModuleVisitor) {
-                super(Opcodes.ASM8, defaultModuleVisitor)
+                super(Opcodes.ASM9, defaultModuleVisitor)
             }
 
             @Override
