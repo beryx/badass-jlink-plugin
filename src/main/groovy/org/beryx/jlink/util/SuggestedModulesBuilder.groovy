@@ -55,11 +55,11 @@ class SuggestedModulesBuilder {
         }
         LOGGER.debug("External packages used by the merged service:\n\t${scanner.externalPackages.join('\n\t')}")
 
-        def moduleManager = new ModuleManager(new File("$javaHome/jmods"))
+        def exportMap = new ModuleManager(javaHome).getExportsMap("$javaHome/jmods")
         def modules = new HashSet<String>()
 
         scanner.externalPackages.each { pkg ->
-            def moduleName = moduleManager.exportMap[pkg]
+            def moduleName = exportMap[pkg]
             if(!moduleName) {
                 LOGGER.info("Cannot find module exporting $pkg (required by $jarOrDir.name)")
             } else if(moduleName != 'java.base'){

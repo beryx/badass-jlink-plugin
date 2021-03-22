@@ -21,10 +21,10 @@ import spock.lang.Specification
 class ModuleManagerSpec extends Specification {
     def "should correctly retrieve the names of the referenced packages"() {
         given:
-        def moduleManager = new ModuleManager("src/test/resources/libs")
+        def moduleManager = new ModuleManager(System.properties['java.home'])
 
         when:
-        def map = moduleManager.exportMap
+        def map = moduleManager.getExportsMap(new File("src/test/resources/libs").absolutePath)
 
         then:
         map['java.util.concurrent'] == 'java.base'
