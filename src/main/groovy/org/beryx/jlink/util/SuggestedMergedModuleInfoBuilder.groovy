@@ -110,11 +110,12 @@ class SuggestedMergedModuleInfoBuilder {
         LOGGER.debug("External packages used by the merged service:\n\t${scanner.externalPackages.join('\n\t')}")
 
         def depMgr = new DependencyManager(project, forceMergedJarPrefixes, extraDependenciesPrefixes, configuration)
-        def moduleManager = new ModuleManager(*depMgr.modularJars.toArray(), new File("$javaHome/jmods"))
+        def exportsMap = new ModuleManager(javaHome)
+                .getExportsMap(*depMgr.modularJars.toArray(), new File("$javaHome/jmods"))
         def builders = new HashSet<RequiresBuilder>()
 
         scanner.externalPackages.each { pkg ->
-            def moduleName = moduleManager.exportMap[pkg]
+            def moduleName = exportsMap[pkg]
             if(!moduleName) {
                 LOGGER.info("Cannot find module exporting $pkg (used by the merged module)")
             } else if(moduleName != 'java.base'){
