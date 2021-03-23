@@ -50,7 +50,7 @@ class ModuleManager {
         exportMap
     }
 
-    static final String sourceCode = '''
+    static final String sourceCode = """
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -98,27 +98,7 @@ public class ModuleManager {
         return exports;
     }
 
-    private static ModuleDescriptor getModuleDescriptor(File f) {
-        try {
-            if(!f.isFile()) throw new IllegalArgumentException(f + " is not a file");
-            if(f.getName().equals("module-info.class")) {
-                return ModuleDescriptor.read(new FileInputStream(f));
-            }
-            if(!f.getName().endsWith(".jar") && !f.getName().endsWith(".jmod")) throw new IllegalArgumentException("Unsupported file type: " + f);
-            String prefix = f.getName().endsWith(".jmod") ? "classes/" : "";
-            ZipFile zipFile = new ZipFile(f);
-            for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
-                ZipEntry entry = entries.nextElement();
-                if(entry.getName().equals(prefix + "module-info.class")) {
-                    InputStream entryStream = zipFile.getInputStream(entry);
-                    return ModuleDescriptor.read(entryStream);
-                }
-            }
-            return null;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    $SourceCodeConstants.GET_MODULE_DESCRIPTOR
 }
-'''
+"""
 }

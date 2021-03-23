@@ -48,8 +48,8 @@ class SourceCodeRunner {
         def javacProc = javacCmd.execute(null as String[], path.toFile())
         def javacErrOutput = new StringBuilder()
         javacProc.consumeProcessErrorStream(javacErrOutput)
-        if (!javacProc.waitFor(30, TimeUnit.SECONDS)) {
-            throw new GradleException("javac ${className}.java hasn't exited after 30 seconds.")
+        if (!javacProc.waitFor(timeoutSeconds, TimeUnit.SECONDS)) {
+            throw new GradleException("javac ${className}.java hasn't exited after $timeoutSeconds seconds.")
         }
         String javacOutput = javacProc.text
         LOGGER.info(javacOutput)

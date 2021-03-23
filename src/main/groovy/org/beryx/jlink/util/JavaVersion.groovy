@@ -20,12 +20,20 @@ import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
-import java.nio.file.Files
-import java.util.concurrent.TimeUnit
-
 @CompileStatic
 class JavaVersion {
-    private static final Logger LOGGER = Logging.getLogger(JavaVersion.class);
+    private static final Logger LOGGER = Logging.getLogger(JavaVersion.class)
+
+    static int get(String javaHome) {
+        def runner = new SourceCodeRunner(javaHome, 'JavaVersion', sourceCode)
+        String javaOutput = runner.getOutput()
+        LOGGER.info "javaVersion($javaHome): $javaOutput"
+        try {
+            return javaOutput as int
+        } catch (Exception e) {
+            throw new GradleException("Cannot parse java version: $javaOutput")
+        }
+    }
 
     static final String sourceCode = '''
 import java.lang.reflect.Method;
@@ -58,47 +66,4 @@ public class JavaVersion {
     }
 }
 '''
-
-    static int get(String javaHome) {
-        def path = Files.createTempDirectory("badass-")
-        def javaFile = path.resolve('JavaVersion.java').toFile()
-        javaFile << sourceCode
-
-        def javacCmd = "$javaHome/bin/javac -cp . -d . JavaVersion.java"
-        LOGGER.info("Executing: $javacCmd")
-        def javacProc = javacCmd.execute(null as String[], path.toFile())
-        def javacErrOutput = new StringBuilder()
-        javacProc.consumeProcessErrorStream(javacErrOutput)
-        if(!javacProc.waitFor(30, TimeUnit.SECONDS)) {
-            throw new GradleException("javac JavaVersion.java hasn't exited after 30 seconds.")
-        }
-        String javacOutput = javacProc.text
-        LOGGER.info(javacOutput)
-        if(javacProc.exitValue()) {
-            throw new GradleException("javac JavaVersion.java failed: $javacErrOutput")
-        }
-        if(javacErrOutput.size() > 0) LOGGER.error("javac failed: $javacErrOutput")
-
-        def javaCmd = "$javaHome/bin/java -cp . JavaVersion"
-        LOGGER.info("Executing: $javaCmd")
-        def javaProc = javaCmd.execute(null as String[], path.toFile())
-        def javaErrOutput = new StringBuilder()
-        javaProc.consumeProcessErrorStream(javaErrOutput)
-        if(!javaProc.waitFor(30, TimeUnit.SECONDS)) {
-            throw new GradleException("java JavaVersion hasn't exited after 30 seconds.")
-        }
-
-        String javaOutput = javaProc.text
-        LOGGER.info(javaOutput)
-        if(javaProc.exitValue()) {
-            throw new GradleException("java JavaVersion failed: $javaErrOutput")
-        }
-        if(javaErrOutput.size() > 0) LOGGER.error("java failed: $javaErrOutput")
-
-        try {
-            return javaOutput as int
-        } catch (Exception e) {
-            throw new GradleException("Cannot parse java version: $javaOutput")
-        }
-    }
 }

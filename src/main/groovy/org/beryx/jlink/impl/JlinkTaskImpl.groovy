@@ -18,21 +18,23 @@ package org.beryx.jlink.impl
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkTaskData
-import org.beryx.jlink.util.LaunchScriptGenerator
-import org.beryx.jlink.util.SuggestedModulesBuilder
-import org.beryx.jlink.util.Util
+import org.beryx.jlink.util.*
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-
-import java.lang.module.ModuleDescriptor
 
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
 class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     private static final Logger LOGGER = Logging.getLogger(JlinkZipTaskImpl.class);
+
+    static class ModuleData {
+        String name
+        File file
+        Set<String> requires
+    }
 
     JlinkTaskImpl(Project project, JlinkTaskData taskData) {
         super(project, taskData)
@@ -105,25 +107,13 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         result.rethrowFailure()
     }
 
-    static class ModuleData {
-        String name
-        File file
-        Set<String> requires
-
-        ModuleData(File file, ModuleDescriptor md) {
-            this.file = file
-            this.name = md.name()
-            this.requires = new HashSet(md.requires().collect {it.name()})
-        }
-    }
-
     @CompileDynamic
     private void copyNonImageModules(File imageDir, List<String> modulePaths) {
         if (td.customImageData.enabled) {
             Map<String, ModuleData> moduleData = [:]
             Util.getJarsAndMods(modulePaths.toArray()).each { file ->
-                ModuleDescriptor md = Util.getModuleDescriptor(file)
-                if(md) moduleData[md.name()] = new ModuleData(file, md)
+                ModuleData md = getModuleData(file)
+                if(md) moduleData[md.name] = md
             }
             Set<String> transitiveModules = moduleData.keySet()
             LOGGER.info "transitiveModules: $transitiveModules"
@@ -195,4 +185,50 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
             secondaryGenerator.generate("$imageDir/bin")
         }
     }
+
+    private ModuleData getModuleData(File f) {
+        def runner = new SourceCodeRunner(td.javaHome, 'ModuleData', sourceCode)
+        def output = runner.getOutput(f.absolutePath)
+        if(!output) return null
+        def tokens = output.split(':')
+        if(tokens.length != 2) {
+            LOGGER.warn("getModuleData($f): output contains $tokens.length  + tokens: " + output)
+            return null
+        }
+        ModuleData moduleData = new ModuleData()
+        moduleData.file = f
+        moduleData.name = tokens[0]
+        moduleData.requires = new HashSet<>(tokens[1].split(',').collect())
+        return moduleData
+    }
+
+    static final String sourceCode = """
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.module.ModuleDescriptor;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+
+public class ModuleData {
+    public static void main(String[] args) {
+        if(args.length != 1) throw new IllegalArgumentException("ModuleData expects one argument.");
+        File f = new File(args[0]);
+        ModuleDescriptor md = getModuleDescriptor(f);
+        if(md != null && !md.exports().isEmpty()) {
+            String requires = md.requires().stream()
+                    .map(ModuleDescriptor.Requires::name)
+                    .collect(Collectors.joining(","));
+            System.out.println(md.name() + ":" + requires);
+        }
+    }
+    $SourceCodeConstants.GET_MODULE_DESCRIPTOR
+}
+"""
 }

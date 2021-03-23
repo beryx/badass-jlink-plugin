@@ -39,7 +39,6 @@ import org.gradle.api.tasks.bundling.Jar
 import org.gradle.jvm.toolchain.JavaToolchainService
 import org.gradle.util.GradleVersion
 
-import java.lang.module.ModuleDescriptor
 import java.lang.module.ModuleFinder
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
@@ -356,22 +355,6 @@ class Util {
             }
         }
         allFiles.findAll {it.name.endsWith(".jar") || it.name.endsWith(".jmod")}
-    }
-
-    static ModuleDescriptor getModuleDescriptor(File f) {
-        if(!f.file) throw new IllegalArgumentException("$f is not a file")
-        if(f.name == 'module-info.class') return ModuleDescriptor.read(f.newInputStream())
-        if(!f.name.endsWith('.jar') && !f.name.endsWith('.jmod')) throw new IllegalArgumentException("Unsupported file type: $f")
-        def prefix = f.name.endsWith('.jmod') ? 'classes/' : ''
-        def zipFile = new ZipFile(f)
-        for(entry in zipFile.entries()) {
-            ZipEntry zipEntry = (ZipEntry)entry
-            if(zipEntry.name == "${prefix}module-info.class" as String) {
-                def entryStream = zipFile.getInputStream(zipEntry)
-                return ModuleDescriptor.read(entryStream)
-            }
-        }
-        null
     }
 
     static List<Project> getAllDependentProjects(Project project) {
