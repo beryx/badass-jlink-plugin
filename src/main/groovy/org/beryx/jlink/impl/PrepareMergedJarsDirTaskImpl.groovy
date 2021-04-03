@@ -130,8 +130,10 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
     }
 
     void writeServiceFiles(Map<String, String> services) {
+        def svcDir = new File("$td.mergedJarsDir/META-INF/services")
+        svcDir.mkdirs()
         services.each { name, text ->
-            new File("$td.mergedJarsDir/META-INF/services/$name").write(text)
+            new File(svcDir, name).write(text)
         }
     }
 }
