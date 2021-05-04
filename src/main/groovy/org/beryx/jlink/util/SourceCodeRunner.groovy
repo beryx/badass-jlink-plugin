@@ -47,7 +47,7 @@ class SourceCodeRunner {
         LOGGER.info("Executing: $javacCmd")
         def javacProc = javacCmd.execute(null as String[], path.toFile())
         def javacErrOutput = new StringBuilder()
-        javacProc.consumeProcessErrorStream(javacErrOutput)
+        def javacErrThread = javacProc.consumeProcessErrorStream(javacErrOutput)
         if (!javacProc.waitFor(timeoutSeconds, TimeUnit.SECONDS)) {
             throw new GradleException("javac ${className}.java hasn't exited after $timeoutSeconds seconds.")
         }
@@ -56,6 +56,8 @@ class SourceCodeRunner {
         if (javacProc.exitValue()) {
             throw new GradleException("javac ${className}.java failed: $javacErrOutput")
         }
+        javacErrThread.join()
+        javacProc.closeStreams()
         if (javacErrOutput.size() > 0) LOGGER.error("javac failed: $javacErrOutput")
 
         def cmdArray = ["$javaHome/bin/java", "-cp", ".", "${className}"]
@@ -67,10 +69,15 @@ class SourceCodeRunner {
 
         def javaErrOutput = new StringBuilder()
         def javaOutput = new StringBuilder()
-        javaProc.consumeProcessOutput(javaOutput, javaErrOutput)
+
+        Thread javaOutThread = javaProc.consumeProcessOutputStream(javaOutput)
+        Thread javaErrThread = javaProc.consumeProcessErrorStream(javaErrOutput)
         if (!javaProc.waitFor(timeoutSeconds, TimeUnit.SECONDS)) {
             throw new GradleException("java ${className} hasn't exited after $timeoutSeconds seconds.")
         }
+        javaOutThread.join()
+        javaErrThread.join()
+        javaProc.closeStreams()
 
         LOGGER.info(javaOutput.toString())
         if (javaProc.exitValue()) {
