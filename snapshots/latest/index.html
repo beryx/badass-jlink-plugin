@@ -418,6 +418,17 @@ Including <code>addExtraDependencies("javafx")</code> into the <code>jlink</code
 You can call this method multiple times.<br>
     <em>usage example</em>: <code>addExtraModulePath '/usr/lib/jmods'</code></p>
 </dd>
+</dl>
+</div>
+<div id="jarExclude" class="dlist">
+<dl>
+<dt class="hdlist1"><span class="maroon">jarExclude</span>(String <span class="purple">jarPrefix</span>, String&#8230;&#8203; <span class="purple">excludePatterns</span>)</dt>
+<dd>
+<p>Instructs the <code>prepareMergedJarsDir</code> task to exclude some files and/or directories when unpacking the non-modular dependencies.<br>
+<span class="purple"><strong>jarPrefix</strong></span>: prefix of the names of the JAR files for which the excludePatterns apply.<br>
+<span class="purple"><strong>excludePatterns</strong></span>: ANT like exclude patterns.<br>
+<em>usage example</em>: <code>jarExclude("netty", "**/license/")</code></p>
+</dd>
 <dt class="hdlist1"><span class="maroon">targetPlatform</span>(String <span class="purple">name</span>, String <span class="purple">jdkHome</span>, List&lt;String&gt; <span class="purple">options</span> = [])</dt>
 <dd>
 <p>Instructs the plugin to generate an application image for a specific platform.<br>
