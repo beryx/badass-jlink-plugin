@@ -31,4 +31,5 @@ class PrepareMergedJarsDirTaskData extends BaseTaskData {
     Configuration configuration
     String javaHome
     int jvmVersion
+    Map<String,List<String>> jarExcludes
 }

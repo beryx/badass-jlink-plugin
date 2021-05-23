@@ -103,6 +103,12 @@ Including `addExtraDependencies("javafx")` into the `jlink` block solves this pr
 You can call this method multiple times. +
     _usage example_: `addExtraModulePath '/usr/lib/jmods'`
 
+[#jarExclude]
+[maroon]##jarExclude##(String [purple]##jarPrefix##, String... [purple]##excludePatterns##):: Instructs the `prepareMergedJarsDir` task to exclude some files and/or directories when unpacking the non-modular dependencies. +
+[purple]##**jarPrefix**##: prefix of the names of the JAR files for which the excludePatterns apply. +
+[purple]##**excludePatterns**##: ANT like exclude patterns. +
+_usage example_: `jarExclude("netty", "**/license/")`
+
 [maroon]##targetPlatform##(String [purple]##name##, String [purple]##jdkHome##, List<String> [purple]##options## = []):: Instructs the plugin to generate an application image for a specific platform. +
 By default, the plugin generates an image for the platform it runs on.
 To create images for other platforms, you need to call the `targetPlatform` method (one call per target platform). +

@@ -73,31 +73,51 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
 
         TreeMap<String, String> services = [:]
         jars.each { jar ->
-            project.delete(td.tmpJarsDirPath)
-            project.copy {
-                from project.zipTree(jar)
-                into td.tmpJarsDirPath
-                exclude 'module-info.class', 'META-INF/services/*', 'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/SIG-*'
-                exclude { hasInvalidName(it) }
-            }
-
-            appendServices(services, jar)
-
-            def versionedDir = Util.getVersionedDir(new File(td.tmpJarsDirPath), td.jvmVersion)
-            if(versionedDir?.directory) {
+            LOGGER.debug("Merging ${jar}...")
+            try {
+                project.delete(td.tmpJarsDirPath)
+                List<String> excludesOfJar = getExcludesOf(jar)
                 project.copy {
-                    from versionedDir
+                    from project.zipTree(jar)
                     into td.tmpJarsDirPath
-                    exclude 'module-info.class'
+                    exclude 'module-info.class', 'META-INF/services/*', 'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/SIG-*'
+                    exclude { hasInvalidName(it) }
+                    if(excludesOfJar) {
+                        exclude excludesOfJar
+                    }
                 }
-            }
-            if(new File(td.tmpJarsDirPath).directory) {
-                project.delete("$td.tmpJarsDirPath/META-INF/versions")
-                project.ant.move file: td.tmpJarsDirPath, tofile: td.mergedJarsDir
+
+                appendServices(services, jar)
+
+                def versionedDir = Util.getVersionedDir(new File(td.tmpJarsDirPath), td.jvmVersion)
+                if(versionedDir?.directory) {
+                    project.copy {
+                        from versionedDir
+                        into td.tmpJarsDirPath
+                        exclude 'module-info.class'
+                    }
+                }
+                if(new File(td.tmpJarsDirPath).directory) {
+                    project.delete("$td.tmpJarsDirPath/META-INF/versions")
+                    project.ant.move file: td.tmpJarsDirPath, tofile: td.mergedJarsDir
+                }
+            } catch (Exception e) {
+                LOGGER.error("Failed to merge unpacked content of $jar")
+                throw e
             }
         }
         writeServiceFiles(services)
         Util.createManifest(td.mergedJarsDir, false)
+    }
+
+    private List<String> getExcludesOf(File jar) {
+        List<String> excludes = []
+        td.jarExcludes.each {prefix, list ->
+            if(jar.name.startsWith(prefix)) {
+                excludes.addAll(list)
+            }
+        }
+        excludes
     }
 
     @CompileDynamic

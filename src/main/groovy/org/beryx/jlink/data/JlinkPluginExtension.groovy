@@ -57,6 +57,7 @@ class JlinkPluginExtension {
     final Property<CustomImageData> customImageData
 
     final Property<JPackageData> jpackageData
+    final Provider<Map<String, List<String>>> jarExcludes
 
     JlinkPluginExtension(Project project) {
         this.project = project
@@ -133,6 +134,12 @@ class JlinkPluginExtension {
 
         cdsData = project.objects.property(CdsData)
         cdsData.set(new CdsData())
+
+        jarExcludes = Util.createMapProperty(project, String, List) as Provider<Map<String, List<String>>>
+    }
+
+    void jarExclude(String jarPrefix, String... excludePatterns) {
+        Util.putToMapProvider(jarExcludes, jarPrefix, excludePatterns as List)
     }
 
     void addExtraDependencies(String... dependencies) {

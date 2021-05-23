@@ -42,3 +42,15 @@ The following projects illustrate how to use this plugin to create custom runtim
 ### This is a complex plugin. Please [read the documentation](https://badass-jlink-plugin.beryx.org/releases/latest/) before using it.
 
 See the [list of all releases](https://github.com/beryx/badass-jlink-plugin/blob/gh-pages/releases.md) if you use an older version of this plugin. 
+
+<table>
+<tr>
+<td>
+<h3>Thanks to</h3>
+JetBrains for the IntelliJ IDEA licenses.
+</td>
+<td style="border: none;">
+<a href="https://www.jetbrains.com/"><img src="https://github.com/beryx/badass-jlink-plugin/raw/master/doc/img/jetbrains.png" width="100"></a>
+</td>
+</tr>
+</table>

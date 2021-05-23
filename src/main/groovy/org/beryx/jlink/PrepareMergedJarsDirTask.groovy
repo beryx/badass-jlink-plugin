@@ -23,9 +23,7 @@ import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
 import org.gradle.api.Task
 import org.gradle.api.file.Directory
-import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.tasks.*
-import org.gradle.api.tasks.bundling.Jar
 
 @CompileStatic
 class PrepareMergedJarsDirTask extends BaseTask {
@@ -59,6 +57,11 @@ class PrepareMergedJarsDirTask extends BaseTask {
         project.layout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
     }
 
+    @Input
+    Map<String, List<String>> getJarExcludes() {
+        extension.jarExcludes.get()
+    }
+
 
     PrepareMergedJarsDirTask() {
         description = 'Merges all non-modularized jars into a single module'
@@ -83,6 +86,8 @@ class PrepareMergedJarsDirTask extends BaseTask {
         taskData.nonModularJarsDirPath = PathUtil.getNonModularJarsDirPath(taskData.jlinkBasePath)
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
+
+        taskData.jarExcludes = jarExcludes
 
         def taskImpl = new PrepareMergedJarsDirTaskImpl(project, taskData)
         taskImpl.execute()
