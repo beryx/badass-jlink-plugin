@@ -34,6 +34,11 @@ class JlinkTask extends BaseTask {
     }
 
     @Input
+    String getMergedModuleName() {
+        extension.mergedModuleName.get()
+    }
+
+    @Input
     LauncherData getLauncherData() {
         extension.launcherData.get()
     }
@@ -109,6 +114,7 @@ class JlinkTask extends BaseTask {
         taskData.jlinkBasePath = jlinkBasePath
         taskData.imageDir = getImageDirAsFile()
         taskData.moduleName = moduleName
+        taskData.mergedModuleName = mergedModuleName
         taskData.launcherData = launcherData
         taskData.secondaryLaunchers = secondaryLaunchers
         taskData.customImageData = customImageData

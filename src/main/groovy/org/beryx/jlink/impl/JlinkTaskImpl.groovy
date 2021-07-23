@@ -169,7 +169,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         if(td.customImageData.enabled) {
             return appModules + jdkModules
         } else {
-            return [td.moduleName]
+            return [td.moduleName, td.mergedModuleName]
         }
     }
 

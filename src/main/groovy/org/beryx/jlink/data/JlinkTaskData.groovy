@@ -24,6 +24,7 @@ import org.gradle.api.artifacts.Configuration
 class JlinkTaskData extends BaseTaskData {
     File imageDir
     String moduleName
+    String mergedModuleName
     LauncherData launcherData
     List<SecondaryLauncherData> secondaryLaunchers
     String mainClass
