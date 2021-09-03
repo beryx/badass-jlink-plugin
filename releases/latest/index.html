@@ -11,81 +11,81 @@
 <link rel="stylesheet" href="./asciidoctor.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <link rel="stylesheet" href="./coderay-asciidoctor.css">
-<style>
-.hidden {
-    display: none;
-}
-
-.switch {
-    border-width: 1px 1px 0 1px;
-    border-style: solid;
-    border-color: #7a2518;
-    display: inline-block;
-}
-
-.switch--item {
-    padding: 10px;
-    background-color: #ffffff;
-    color: #7a2518;
-    display: inline-block;
-    cursor: pointer;
-}
-
-.switch--item.selected {
-    background-color: #7a2519;
-    color: #ffffff;
-}
-
-</style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
-<script type="text/javascript">
-function addBlockSwitches() {
-    $('.primary').each(function() {
-        primary = $(this);
-        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
-        primary.children('.title').remove();
-    });
-    $('.secondary').each(function(idx, node) {
-        secondary = $(node);
-        primary = findPrimary(secondary);
-        switchItem = createSwitchItem(secondary, primary.children('.switch'));
-        switchItem.content.addClass('hidden');
-        findPrimary(secondary).append(switchItem.content);
-        secondary.remove();
-    });
-}
-
-function createBlockSwitch(primary) {
-    blockSwitch = $('<div class="switch"></div>');
-    primary.prepend(blockSwitch);
-    return blockSwitch;
-}
-
-function findPrimary(secondary) {
-    candidate = secondary.prev();
-    while (!candidate.is('.primary')) {
-        candidate = candidate.prev();
-    }
-    return candidate;
-}
-
-function createSwitchItem(block, blockSwitch) {
-    blockName = block.children('.title').text();
-    content = block.children('.content').first().append(block.next('.colist'));
-    item = $('<div class="switch--item">' + blockName + '</div>');
-    item.on('click', '', content, function(e) {
-        $(this).addClass('selected');
-        $(this).siblings().removeClass('selected');
-        e.data.siblings('.content').addClass('hidden');
-        e.data.removeClass('hidden');
-    });
-    blockSwitch.append(item);
-    return {'item': item, 'content': content};
-}
-
-$(addBlockSwitches);
-
-</script>
+<style>
+.hidden {
+    display: none;
+}
+
+.switch {
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
+    border-color: #7a2518;
+    display: inline-block;
+}
+
+.switch--item {
+    padding: 10px;
+    background-color: #ffffff;
+    color: #7a2518;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.switch--item.selected {
+    background-color: #7a2519;
+    color: #ffffff;
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+<script type="text/javascript">
+function addBlockSwitches() {
+    $('.primary').each(function() {
+        primary = $(this);
+        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
+        primary.children('.title').remove();
+    });
+    $('.secondary').each(function(idx, node) {
+        secondary = $(node);
+        primary = findPrimary(secondary);
+        switchItem = createSwitchItem(secondary, primary.children('.switch'));
+        switchItem.content.addClass('hidden');
+        findPrimary(secondary).append(switchItem.content);
+        secondary.remove();
+    });
+}
+
+function createBlockSwitch(primary) {
+    blockSwitch = $('<div class="switch"></div>');
+    primary.prepend(blockSwitch);
+    return blockSwitch;
+}
+
+function findPrimary(secondary) {
+    candidate = secondary.prev();
+    while (!candidate.is('.primary')) {
+        candidate = candidate.prev();
+    }
+    return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+    blockName = block.children('.title').text();
+    content = block.children('.content').first().append(block.next('.colist'));
+    item = $('<div class="switch--item">' + blockName + '</div>');
+    item.on('click', '', content, function(e) {
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
+        e.data.siblings('.content').addClass('hidden');
+        e.data.removeClass('hidden');
+    });
+    blockSwitch.append(item);
+    return {'item': item, 'content': content};
+}
+
+$(addBlockSwitches);
+
+</script>
 
 </head>
 <body class="article toc2 toc-left">
@@ -432,6 +432,7 @@ You can call this method multiple times.<br>
 <dt class="hdlist1"><span class="maroon">targetPlatform</span>(String <span class="purple">name</span>, String <span class="purple">jdkHome</span>, List&lt;String&gt; <span class="purple">options</span> = [])</dt>
 <dd>
 <p>Instructs the plugin to generate an application image for a specific platform.<br>
+<span class="red"><strong>This method is not for configuring the installable packages produced by jpackage.</strong></span> <a href="#jpackageWarning">See details</a><br>
 By default, the plugin generates an image for the platform it runs on.
 To create images for other platforms, you need to call the <code>targetPlatform</code> method (one call per target platform).<br>
 <span class="purple"><strong>name</strong></span>: an identifier of your choice that will be appended to the <code>imageDir</code> and <code>imageZip</code> properties to
@@ -477,6 +478,7 @@ The archived images will be available in <code>build/image-linux-x64.zip</code> 
 <dt class="hdlist1"><span class="maroon">targetPlatform</span>(String <span class="purple">name</span>, Action&lt;TargetPlatform&gt; <span class="purple">action</span>)</dt>
 <dd>
 <p>This more powerful version of the <code>targetPlatform</code> method allows configuring the target platform parameters using a script block.<br>
+<span class="red"><strong>This method is not for configuring the installable packages produced by jpackage.</strong></span> <a href="#jpackageWarning">See details</a><br>
 <span class="purple"><strong>name</strong></span>: an identifier of your choice that will be appended to the <code>imageDir</code> and <code>imageZip</code> properties to
 determine the location of the image directory and of the image archive.<br>
 <span class="purple"><strong>action</strong></span>: a script block for configuring the target platform parameters.<br>
@@ -1093,6 +1095,34 @@ Its value must match the name provided in one of the calls to the <code>targetPl
 <em>usage example</em>: <code>targetPlatformName = "linux"</code></p>
 </dd>
 </dl>
+</div>
+<div id="jpackageWarning" class="admonitionblock warning">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-warning" title="Warning"></i>
+</td>
+<td class="content">
+<span class="red"><strong>In contrast to jlink, <em>jpackage</em> is not able to produce installers for other platforms.</strong></span>
+For example, to create an installer for Linux, you must run jpackage on a Linux machine.
+You cannot do it on a Windows or Mac platform.
+</td>
+</tr>
+</table>
+</div>
+<div class="admonitionblock tip">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-tip" title="Tip"></i>
+</td>
+<td class="content">
+If you need to create installers for more than one platform, it&#8217;s probably better not to use <em>targetPlatform</em>.
+Instead, you run the same build on different machines.
+If your project is on GitHub, you can automate this by using GitHub Actions, as seen in <a href="https://github.com/beryx-gist/badass-jlink-example-log4j2-javafx">this example</a>.
+</td>
+</tr>
+</table>
 </div>
 <div class="paragraph">
 <p><em>Usage example</em></p>
