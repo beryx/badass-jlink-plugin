@@ -110,6 +110,7 @@ You can call this method multiple times. +
 _usage example_: `jarExclude("netty", "**/license/")`
 
 [maroon]##targetPlatform##(String [purple]##name##, String [purple]##jdkHome##, List<String> [purple]##options## = []):: Instructs the plugin to generate an application image for a specific platform. +
+[red]##**This method is not for configuring the installable packages produced by jpackage.**## <<jpackageWarning, See details>> +
 By default, the plugin generates an image for the platform it runs on.
 To create images for other platforms, you need to call the `targetPlatform` method (one call per target platform). +
 [purple]##**name**##: an identifier of your choice that will be appended to the `imageDir` and `imageZip` properties to
@@ -140,6 +141,7 @@ The archived images will be available in `build/image-linux-x64.zip` and `build/
 |===
 
 [maroon]##targetPlatform##(String [purple]##name##, Action<TargetPlatform> [purple]##action##):: This more powerful version of the `targetPlatform` method allows configuring the target platform parameters using a script block. +
+[red]##**This method is not for configuring the installable packages produced by jpackage.**## <<jpackageWarning, See details>> +
 [purple]##**name**##: an identifier of your choice that will be appended to the `imageDir` and `imageZip` properties to
 determine the location of the image directory and of the image archive. +
 [purple]##**action**##: a script block for configuring the target platform parameters. +
@@ -598,6 +600,15 @@ targetPlatformName:: This property is required only when using the `targetPlatfo
     Its value must match the name provided in one of the calls to the `targetPlatform` method. +
     _defaultValue_: null +
     _usage example_: `targetPlatformName = "linux"`
+
+[#jpackageWarning]
+WARNING: [red]##**In contrast to jlink, _jpackage_ is not able to produce installers for other platforms.**##
+For example, to create an installer for Linux, you must run jpackage on a Linux machine.
+You cannot do it on a Windows or Mac platform.
+
+TIP: If you need to create installers for more than one platform, it's probably better not to use _targetPlatform_.
+Instead, you run the same build on different machines.
+If your project is on GitHub, you can automate this by using GitHub Actions, as seen in https://github.com/beryx-gist/badass-jlink-example-log4j2-javafx[this example].
 
 
 _Usage example_
