@@ -107,12 +107,12 @@ class JPackageData {
 
     @Input
     List<String> getJvmArgs() {
-        this.@jvmArgs ?: launcherData.jvmArgs
+        this.@jvmArgs ?: launcherData.getJvmArgs(project)
     }
 
     @Input
     List<String> getArgs() {
-        this.@args ?: launcherData.args
+        this.@args ?: launcherData.getArgs(project)
     }
 
     @OutputDirectory

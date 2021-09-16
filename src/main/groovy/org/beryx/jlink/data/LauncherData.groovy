@@ -17,14 +17,37 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
+import org.beryx.jlink.util.Util
+import org.gradle.api.Project
 
 @CompileStatic
 @ToString(includeNames = true)
 class LauncherData implements Serializable {
+    private static final List<String> UNDEFINED_ARGS = ['<UNDEFINED>']
+
+    private List<String> configuredArgs = UNDEFINED_ARGS
+    private List<String> configuredJvmArgs = UNDEFINED_ARGS
+
     String name
-    List<String> jvmArgs = []
-    List<String> args = []
     File unixScriptTemplate
     File windowsScriptTemplate
     boolean noConsole
+
+    LauncherData(String name) {
+        this.name = name
+    }
+
+    List<String> getArgs(Project project) {
+        (configuredArgs != UNDEFINED_ARGS) ? configuredArgs : Util.getDefaultArgs(project)
+    }
+    void setArgs(List<String> args) {
+        this.configuredArgs = args
+    }
+
+    List<String> getJvmArgs(Project project) {
+        (configuredJvmArgs != UNDEFINED_ARGS) ? configuredJvmArgs : Util.getDefaultJvmArgs(project)
+    }
+    void setJvmArgs(List<String> jvmArgs) {
+        this.configuredJvmArgs = jvmArgs
+    }
 }

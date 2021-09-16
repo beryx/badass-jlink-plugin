@@ -86,10 +86,7 @@ class JlinkPluginExtension {
         mergedModuleJarVersion.set(project.provider{project.version as String})
 
         launcherData = project.objects.property(LauncherData)
-        def ld = new LauncherData()
-        ld.name = project.name
-        ld.args = Util.getDefaultArgs(project)
-        ld.jvmArgs = Util.getDefaultJvmArgs(project)
+        def ld = new LauncherData(project.name)
         launcherData.set(ld)
 
         customImageData = project.objects.property(CustomImageData)
@@ -178,7 +175,7 @@ class JlinkPluginExtension {
     }
 
     void secondaryLauncher(Action<LauncherData> action) {
-        def ld = new SecondaryLauncherData()
+        def ld = new SecondaryLauncherData(null)
         ld.moduleName = moduleName.get()
         Util.addToListProperty(secondaryLaunchers, ld)
         action.execute(ld)

@@ -29,6 +29,10 @@ class SecondaryLauncherData extends LauncherData {
     String icon
     Boolean winConsole
 
+    SecondaryLauncherData(String name) {
+        super(name)
+    }
+
     @CompileDynamic
     void check() {
         ["name", "moduleName", "mainClass"].each {

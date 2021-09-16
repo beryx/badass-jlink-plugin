@@ -17,17 +17,20 @@ package org.beryx.jlink.util
 
 import groovy.text.SimpleTemplateEngine
 import groovy.text.Template
-import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.beryx.jlink.data.LauncherData
 import org.gradle.api.GradleException
+import org.gradle.api.Project
 
 import java.util.function.Function
+import java.util.stream.Collectors
+import java.util.stream.Stream
 
 @CompileStatic
 @TupleConstructor
 class LaunchScriptGenerator {
+    final Project project
     final String moduleName
     final String mainClassName
     final LauncherData launcherData
@@ -82,11 +85,17 @@ class LaunchScriptGenerator {
         }
     }
 
-    @CompileDynamic
     String getScript(Type type) {
         def engine = new SimpleTemplateEngine()
-        def args = launcherData.args.collect{adjustArg(it, type)}.join(' ')
-        def jvmArgs = launcherData.jvmArgs.collect{adjustArg(it, type)}.join(' ')
+
+        def args = launcherData.getArgs(project).stream()
+                .map{adjustArg(it, type) as CharSequence}
+                .collect(Collectors.joining(' '))
+
+        def jvmArgs = launcherData.getJvmArgs(project).stream()
+                .map{adjustArg(it, type) as CharSequence}
+                .collect(Collectors.joining(' '))
+
         def bindings = [
                 moduleName: moduleName,
                 mainClassName: mainClassName,

@@ -24,11 +24,10 @@ class LaunchScriptGeneratorSpec extends Specification {
     @Unroll
     def "should generate the correct unix script with jvmArgs=#jvmArgs and args=#args"() {
         when:
-        LauncherData ld = new LauncherData()
-        ld.name = 'hello'
+        LauncherData ld = new LauncherData('hello')
         ld.args = args
         ld.jvmArgs = jvmArgs
-        def generator = new LaunchScriptGenerator('org.example.hello', 'org.example.Hello', ld)
+        def generator = new LaunchScriptGenerator(null, 'org.example.hello', 'org.example.Hello', ld)
         def scriptLines = generator.getScript(LaunchScriptGenerator.Type.UNIX).readLines()
 
         then:
@@ -47,11 +46,10 @@ class LaunchScriptGeneratorSpec extends Specification {
     @Unroll
     def "should generate the correct windows script with jvmArgs=#jvmArgs and args=#args"() {
         when:
-        LauncherData ld = new LauncherData()
-        ld.name = 'hello'
+        LauncherData ld = new LauncherData('hello')
         ld.args = args
         ld.jvmArgs = jvmArgs
-        def generator = new LaunchScriptGenerator('org.example.hello', 'org.example.Hello', ld)
+        def generator = new LaunchScriptGenerator(null, 'org.example.hello', 'org.example.Hello', ld)
         def scriptLines = generator.getScript(LaunchScriptGenerator.Type.WINDOWS).readLines()
 
         then:

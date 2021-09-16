@@ -74,11 +74,15 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 if(launcher.mainClass) {
                     stream << "main-class=$launcher.mainClass\n"
                 }
-                if(launcher.args) {
-                    stream << "arguments=${launcher.args.collect{adjustArg(it)}.join('\\n')}\n"
+
+                def args = launcher.getArgs(project)
+                if(args) {
+                    stream << "arguments=${args.collect{adjustArg(it)}.join('\\n')}\n"
                 }
-                if(launcher.jvmArgs) {
-                    stream << "java-options=${launcher.jvmArgs.collect{adjustArg(it)}.join('\\n')}\n"
+
+                def jvmArgs = launcher.getJvmArgs(project)
+                if(jvmArgs) {
+                    stream << "java-options=${jvmArgs.collect{adjustArg(it)}.join('\\n')}\n"
                 }
                 if(launcher.appVersion) {
                     stream << "app-version=$launcher.appVersion\n"

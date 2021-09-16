@@ -178,10 +178,10 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     }
 
     void createLaunchScripts(File imageDir) {
-        def generator = new LaunchScriptGenerator(td.moduleName, td.mainClass, td.launcherData)
+        def generator = new LaunchScriptGenerator(project, td.moduleName, td.mainClass, td.launcherData)
         generator.generate("$imageDir/bin")
         td.secondaryLaunchers.each { launcher ->
-            def secondaryGenerator = new LaunchScriptGenerator(launcher.moduleName, launcher.mainClass, launcher)
+            def secondaryGenerator = new LaunchScriptGenerator(project, launcher.moduleName, launcher.mainClass, launcher)
             secondaryGenerator.generate("$imageDir/bin")
         }
     }
