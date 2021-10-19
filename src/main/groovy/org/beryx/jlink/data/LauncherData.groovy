@@ -25,8 +25,8 @@ import org.gradle.api.Project
 class LauncherData implements Serializable {
     private static final List<String> UNDEFINED_ARGS = ['<UNDEFINED>']
 
-    private List<String> configuredArgs = UNDEFINED_ARGS
-    private List<String> configuredJvmArgs = UNDEFINED_ARGS
+    List<String> args = UNDEFINED_ARGS
+    List<String> jvmArgs = UNDEFINED_ARGS
 
     String name
     File unixScriptTemplate
@@ -37,17 +37,11 @@ class LauncherData implements Serializable {
         this.name = name
     }
 
-    List<String> getArgs(Project project) {
-        (configuredArgs != UNDEFINED_ARGS) ? configuredArgs : Util.getDefaultArgs(project)
-    }
-    void setArgs(List<String> args) {
-        this.configuredArgs = args
+    List<String> getEffectiveArgs(Project project) {
+        (args != UNDEFINED_ARGS) ? args : Util.getDefaultArgs(project)
     }
 
-    List<String> getJvmArgs(Project project) {
-        (configuredJvmArgs != UNDEFINED_ARGS) ? configuredJvmArgs : Util.getDefaultJvmArgs(project)
-    }
-    void setJvmArgs(List<String> jvmArgs) {
-        this.configuredJvmArgs = jvmArgs
+    List<String> getEffectiveJvmArgs(Project project) {
+        (jvmArgs != UNDEFINED_ARGS) ? jvmArgs : Util.getDefaultJvmArgs(project)
     }
 }

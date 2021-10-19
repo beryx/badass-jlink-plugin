@@ -17,7 +17,6 @@ package org.beryx.jlink.impl
 
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
-import org.beryx.jlink.data.JPackageData
 import org.beryx.jlink.data.JPackageTaskData
 import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
@@ -75,12 +74,12 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                     stream << "main-class=$launcher.mainClass\n"
                 }
 
-                def args = launcher.getArgs(project)
+                def args = launcher.getEffectiveArgs(project)
                 if(args) {
                     stream << "arguments=${args.collect{adjustArg(it)}.join('\\n')}\n"
                 }
 
-                def jvmArgs = launcher.getJvmArgs(project)
+                def jvmArgs = launcher.getEffectiveJvmArgs(project)
                 if(jvmArgs) {
                     stream << "java-options=${jvmArgs.collect{adjustArg(it)}.join('\\n')}\n"
                 }

@@ -25,7 +25,6 @@ import org.gradle.api.Project
 
 import java.util.function.Function
 import java.util.stream.Collectors
-import java.util.stream.Stream
 
 @CompileStatic
 @TupleConstructor
@@ -88,11 +87,11 @@ class LaunchScriptGenerator {
     String getScript(Type type) {
         def engine = new SimpleTemplateEngine()
 
-        def args = launcherData.getArgs(project).stream()
+        def args = launcherData.getEffectiveArgs(project).stream()
                 .map{adjustArg(it, type) as CharSequence}
                 .collect(Collectors.joining(' '))
 
-        def jvmArgs = launcherData.getJvmArgs(project).stream()
+        def jvmArgs = launcherData.getEffectiveJvmArgs(project).stream()
                 .map{adjustArg(it, type) as CharSequence}
                 .collect(Collectors.joining(' '))
 
