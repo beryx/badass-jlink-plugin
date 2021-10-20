@@ -150,7 +150,7 @@ class ModuleInfo implements Serializable {
         final String service
 
         UsesBuilder(String service) {
-            this.service = service.replace('$', '.')
+            this.service = adjustQualifiedName(service)
         }
 
         @Override
@@ -185,12 +185,12 @@ class ModuleInfo implements Serializable {
         final TreeSet<String> implementations = new TreeSet<>()
 
         ProvidesBuilder(String service) {
-            this.service = service.replace('$', '.')
+            this.service = adjustQualifiedName(service)
         }
 
         ProvidesBuilder with(String... implementations) {
             for(s in implementations) {
-                this.implementations.add(s.replace('$', '.'))
+                this.implementations.add(adjustQualifiedName(s))
             }
             this
         }
@@ -240,5 +240,13 @@ class ModuleInfo implements Serializable {
         for(builder in usesBuilders) { entries << blanks + builder.toString(language)}
         for(builder in providesBuilders) { entries << blanks + builder.toString(language)}
         entries.join('\n')
+    }
+
+    private static String adjustQualifiedName(String s) {
+        int idx = s.indexOf('.$')
+        String notAdjusted = (idx < 0) ? '' : s.substring(idx)
+        String toAdjust =  (idx < 0) ? s : s.substring(0, idx)
+        String adjusted = toAdjust.replaceAll('([^.])\\$', '$1.')
+        return adjusted + notAdjusted
     }
 }
