@@ -83,6 +83,9 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                     throw new GradleException("The first character of the --app-version argument should be a digit.")
                 }
 
+                def vendor = jpd.getVendor()
+                def vendorOpts = ['--vendor',vendor]
+
                 final def resourceDir = jpd.resourceDir
                 final def resourceOpts = (resourceDir == null) ? [] : [ '--resource-dir', resourceDir ]
 
@@ -91,6 +94,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                                '--dest', jpd.installerOutputDir,
                                '--name', jpd.installerName,
                                *versionOpts,
+                               *vendorOpts,
                                '--app-image', "$appImagePath",
                                *resourceOpts,
                                *jpd.installerOptions]

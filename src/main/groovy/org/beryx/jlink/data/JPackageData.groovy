@@ -65,6 +65,8 @@ class JPackageData {
     @Input @Optional
     String appVersion
 
+    String vendor
+
     @Input @Optional
     String icon
 
@@ -94,6 +96,11 @@ class JPackageData {
     @Input
     String getLauncherName() {
         launcherData.name
+    }
+
+    @Input
+    String getVendor(){
+        this.@vendor ?: 'Unknown';
     }
 
     @Input
