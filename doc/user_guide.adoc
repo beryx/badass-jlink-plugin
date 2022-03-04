@@ -579,6 +579,10 @@ icon:: the path to the custom application icon. +
     _This is a convenience property equivalent to configuring `--icon` in the `imageOptions` list._ +
     _defaultValue_: null (the default icon is used)
 
+vendor:: the vendor name. +
+_This is a convenience property equivalent to configuring `--vendor` in the `imageOptions` list._ +
+_defaultValue_: `Unknown`
+
 jvmArgs:: list of JVM arguments to be passed to the virtual machine. +
     _defaultValue_: the `jvmArgs` value configured in the `launcher` block, or the arguments configured in the `applicationDefaultJvmArgs` property of the `application` extension
 
