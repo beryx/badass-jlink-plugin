@@ -45,7 +45,7 @@ ext.badassJlinkPluginTag = Boolean.valueOf(badassJlinkPluginReleaseBuild) ? "v$e
 group = 'org.beryx'
 version = badassJlinkPluginVersion
 
-ext.asmVersion = '9.2'
+ext.asmVersion = '9.3'
 
 repositories {
     mavenCentral()
