@@ -26,8 +26,8 @@ plugins {
     id "org.ajoberstar.git-publish" version "4.1.1"
 }
 
-if(JavaVersion.current() != JavaVersion.VERSION_11) {
-    throw new GradleException("Please use Java 11 to execute this Gradle build")
+if(JavaVersion.current() < JavaVersion.VERSION_11) {
+    throw new GradleException("Please use at least Java 11 to execute this Gradle build")
 }
 
 project.version.with {
