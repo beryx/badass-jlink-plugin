@@ -97,7 +97,7 @@ class ModuleInfoAdjuster {
             void visitExport(String pkg, int access, String... modules) {
                 if(modules && nonModularModules.any { modules.contains(it) }) {
                     adjusted = true
-                    super.visitExport(pkg, access, modules + mergedModule)
+                    super.visitExport(pkg, access, (String[]) (modules + mergedModule))
                 } else {
                     super.visitExport(pkg, access, modules)
                 }
@@ -107,7 +107,7 @@ class ModuleInfoAdjuster {
             void visitOpen(String pkg, int access, String... modules) {
                 if(modules && nonModularModules.any { modules.contains(it) }) {
                     adjusted = true
-                    super.visitOpen(pkg, access, modules + mergedModule)
+                    super.visitOpen(pkg, access, (String[]) (modules + mergedModule))
                 } else {
                     super.visitOpen(pkg, access, modules)
                 }
