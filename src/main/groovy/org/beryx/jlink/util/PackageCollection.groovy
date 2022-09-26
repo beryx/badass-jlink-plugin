@@ -20,7 +20,7 @@ import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.objectweb.asm.Type
+import groovyjarjarasm.asm.Type
 
 @ToString
 @CompileStatic

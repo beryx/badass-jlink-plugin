@@ -18,11 +18,11 @@ package org.beryx.jlink.util
 import groovy.transform.CompileStatic
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import org.objectweb.asm.ClassReader
-import org.objectweb.asm.ClassVisitor
-import org.objectweb.asm.ClassWriter
-import org.objectweb.asm.ModuleVisitor
-import org.objectweb.asm.Opcodes
+import groovyjarjarasm.asm.ClassReader
+import groovyjarjarasm.asm.ClassVisitor
+import groovyjarjarasm.asm.ClassWriter
+import groovyjarjarasm.asm.ModuleVisitor
+import groovyjarjarasm.asm.Opcodes
 
 import java.util.regex.Pattern
 
