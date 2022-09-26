@@ -99,10 +99,8 @@ class JlinkPluginSpec extends Specification {
         moduleName              | gradleVersion | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
         'modular.example.hello' | '7.5.1'       | null         | null                        | null                                | 'modular-hello'
         'modular.example.hello' | '7.5.1'       | 'run-hello'  | null                        | null                                | 'run-hello'
-        null                    | '4.8'         | null         | null                        | null                                | 'modular-hello'
-        'modular.example.hello' | '4.10.3'      | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
         null                    | '5.0'         | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
-        'modular.example.hello' | '5.6.3'       | null         | null                        | null                                | 'modular-hello'
+        'modular.example.hello' | '5.6.4'       | null         | null                        | null                                | 'modular-hello'
         'modular.example.hello' | '6.0'         | 'run-hello'  | 'org.example.modular.Hello' | null                                | 'run-hello'
         'modular.example.hello' | '6.8.1'       | 'run-hello'  | null                        | null                                | 'run-hello'
     }
