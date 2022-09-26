@@ -99,6 +99,7 @@ dependencies {
     testImplementation('org.spockframework:spock-junit4:2.2-groovy-3.0') {
         exclude module: 'groovy-all'
     }
+    
     testImplementation 'cglib:cglib-nodep:3.3.0'
     testImplementation 'org.objenesis:objenesis:3.3'
     testImplementation ('com.athaydes:spock-reports:2.3.1-groovy-3.0') { transitive = false}
@@ -150,6 +151,7 @@ test {
     testLogging {
         exceptionFormat = 'full'
     }
+    useJUnitPlatform()
 }
 
 asciidoctor {
