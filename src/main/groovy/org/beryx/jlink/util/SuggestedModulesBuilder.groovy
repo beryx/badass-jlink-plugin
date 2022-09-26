@@ -15,14 +15,12 @@
  */
 package org.beryx.jlink.util
 
-import groovy.transform.CompileStatic
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
-@CompileStatic
 class SuggestedModulesBuilder {
     private static final Logger LOGGER = Logging.getLogger(SuggestedModulesBuilder)
 

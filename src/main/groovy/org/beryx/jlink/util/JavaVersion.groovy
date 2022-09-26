@@ -15,12 +15,10 @@
  */
 package org.beryx.jlink.util
 
-import groovy.transform.CompileStatic
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
-@CompileStatic
 class JavaVersion {
     private static final Logger LOGGER = Logging.getLogger(JavaVersion.class)
 

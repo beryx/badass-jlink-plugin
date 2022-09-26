@@ -15,8 +15,6 @@
  */
 package org.beryx.jlink.impl
 
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
 import org.beryx.jlink.util.JdepsExecutor
@@ -28,7 +26,6 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
-@CompileStatic
 class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleInfoTaskData> {
     private static final Logger LOGGER = Logging.getLogger(SuggestMergedModuleInfoTaskImpl.class);
 
@@ -65,7 +62,6 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
         }
     }
 
-    @CompileDynamic
     private boolean printJdepsModuleInfo() {
         try {
             def jarFilePath = "$td.jlinkBasePath/suggestedMergedModule.jar"

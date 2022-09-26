@@ -15,15 +15,12 @@
  */
 package org.beryx.jlink.util
 
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import groovyjarjarasm.asm.Type
 
 @ToString
-@CompileStatic
 class PackageCollection {
     private static final Logger LOGGER = Logging.getLogger(PackageCollection.class);
 
@@ -33,12 +30,10 @@ class PackageCollection {
         packages << adjust(pkg)
     }
 
-    @CompileDynamic
     void addDescriptor(String descriptor) {
         addTypes(Type.getType(descriptor))
     }
 
-    @CompileDynamic
     void addTypes(Type... types) {
         types.each { Type type ->
             switch(type.sort) {

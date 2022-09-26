@@ -15,15 +15,12 @@
  */
 package org.beryx.jlink.impl
 
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
 import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
-@CompileStatic
 class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModulesTaskData> {
     private static final Logger LOGGER = Logging.getLogger(CreateDelegatingModulesTaskImpl.class);
 
@@ -41,7 +38,6 @@ class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModul
         }
     }
 
-    @CompileDynamic
     def createDelegatingModule(File jarFile, String tmpDirPath, File targetDir) {
         def moduleDir = genDelegatingModuleInfo(jarFile, tmpDirPath)
         if(!moduleDir) return

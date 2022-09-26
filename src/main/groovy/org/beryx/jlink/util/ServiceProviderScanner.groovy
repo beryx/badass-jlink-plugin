@@ -15,13 +15,11 @@
  */
 package org.beryx.jlink.util
 
-import groovy.transform.CompileStatic
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
 import static org.beryx.jlink.data.ModuleInfo.ProvidesBuilder
 
-@CompileStatic
 class ServiceProviderScanner {
     private static final Logger LOGGER = Logging.getLogger(ServiceProviderScanner.class);
     final Set<ProvidesBuilder> builders = new HashSet<>()

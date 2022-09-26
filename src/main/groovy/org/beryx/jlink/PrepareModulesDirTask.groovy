@@ -15,7 +15,6 @@
  */
 package org.beryx.jlink
 
-import groovy.transform.CompileStatic
 import org.beryx.jlink.data.PrepareModulesDirTaskData
 import org.beryx.jlink.impl.PrepareModulesDirTaskImpl
 import org.beryx.jlink.util.PathUtil
@@ -25,7 +24,6 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
-@CompileStatic
 class PrepareModulesDirTask extends BaseTask {
     @Input
     String getModuleName() {

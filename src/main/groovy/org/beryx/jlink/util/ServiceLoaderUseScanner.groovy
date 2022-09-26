@@ -37,14 +37,12 @@
 
 package org.beryx.jlink.util
 
-import groovy.transform.CompileStatic
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import groovyjarjarasm.asm.*
 
 import static org.beryx.jlink.data.ModuleInfo.UsesBuilder
 
-@CompileStatic
 class ServiceLoaderUseScanner {
     private static final Logger LOGGER = Logging.getLogger(ServiceLoaderUseScanner.class);
 

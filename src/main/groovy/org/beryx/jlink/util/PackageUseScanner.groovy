@@ -15,12 +15,10 @@
  */
 package org.beryx.jlink.util
 
-import groovy.transform.CompileStatic
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import groovyjarjarasm.asm.*
 
-@CompileStatic
 class PackageUseScanner extends ClassVisitor {
     private static final Logger LOGGER = Logging.getLogger(PackageUseScanner.class);
     

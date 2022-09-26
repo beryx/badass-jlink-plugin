@@ -134,15 +134,15 @@ class SuggestMergedModuleInfoSpec extends Specification {
 
         where:
         language | expectedDirectives           | gradleFile                  | gradleVersion | debug
-        'groovy' | GROOVY_DIRECTIVES            | 'build.gradle'              | '4.8'         | true
-        'kotlin' | KOTLIN_DIRECTIVES            | 'build.gradle'              | '4.10.3'      | true
-        'java'   | JAVA_DIRECTIVES              | 'build.gradle'              | '5.0'         | true
-        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '4.10.3'      | true
-        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '5.6.4'       | true
-        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle'     | '6.0.1'       | true
-        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '5.0'         | false
-        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '5.6.4'       | false
-        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle.kts' | '6.0.1'       | false
+        'groovy' | GROOVY_DIRECTIVES            | 'build.gradle'              | '7.3'         | true
+        'kotlin' | KOTLIN_DIRECTIVES            | 'build.gradle'              | '7.4'         | true
+        'java'   | JAVA_DIRECTIVES              | 'build.gradle'              | '7.5.1'       | true
+        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '7.5'         | true
+        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '7.5.1'       | true
+        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle'     | '7.4.2'       | true
+        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '7.5.1'       | false
+        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '7.3'         | false
+        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle.kts' | '7.4'         | false
     }
 
     List<String> getDirectives(String taskOutput, String language) {

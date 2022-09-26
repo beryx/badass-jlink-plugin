@@ -15,8 +15,6 @@
  */
 package org.beryx.jlink.impl
 
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageTaskData
 import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
@@ -28,7 +26,6 @@ import java.nio.file.Files
 
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
-@CompileStatic
 class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
     private static final Logger LOGGER = Logging.getLogger(JPackageImageTaskImpl.class);
 
@@ -37,7 +34,6 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         LOGGER.info("taskData: $taskData")
     }
 
-    @CompileDynamic
     void execute() {
         project.delete(td.jpackageData.imageOutputDir)
         def result = project.exec {
@@ -129,7 +125,6 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         return createCommandLine(jpackageExec, moduleOrJarOpts, versionOpts, iconOpts, resourceOpts, propFiles)
     }
 
-    @CompileDynamic
     private List<String> createCommandLine(
             String jpackageExec,
             List<String> moduleOrJarOpts,

@@ -45,8 +45,6 @@ ext.badassJlinkPluginTag = Boolean.valueOf(badassJlinkPluginReleaseBuild) ? "v$e
 group = 'org.beryx'
 version = badassJlinkPluginVersion
 
-ext.asmVersion = '9.3'
-
 repositories {
     mavenCentral()
 }
@@ -82,16 +80,11 @@ configurations {
 }
 
 dependencies {
-    implementation gradleTestKit()
     implementation localGroovy()
-
+    implementation gradleApi()
+    implementation gradleTestKit()
+    
     implementation group: 'org.slf4j', name: 'slf4j-api', version: '2.0.2'
-
-    plugin "org.ow2.asm:asm:$asmVersion"
-    plugin "org.ow2.asm:asm-commons:$asmVersion"
-    plugin "org.ow2.asm:asm-tree:$asmVersion"
-    plugin "org.ow2.asm:asm-util:$asmVersion"
-    plugin "org.ow2.asm:asm-analysis:$asmVersion"
 
     testImplementation('org.spockframework:spock-core:2.2-groovy-3.0') {
         exclude module: 'groovy-all'
@@ -110,14 +103,6 @@ dependencies {
 shadowJar {
     configurations = [project.configurations.plugin]
     archiveClassifier = null
-    dependencies {
-        include(dependency("org.ow2.asm:asm:$asmVersion"))
-        include(dependency("org.ow2.asm:asm-commons:$asmVersion"))
-        include(dependency("org.ow2.asm:asm-tree:$asmVersion"))
-        include(dependency("org.ow2.asm:asm-util:$asmVersion"))
-        include(dependency("org.ow2.asm:asm-anaysis:$asmVersion"))
-    }
-    relocate 'org.objectweb.asm', 'org.beryx.jlink.shadow.asm'
 }
 
 jar.enabled = false
