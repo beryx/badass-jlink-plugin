@@ -72,7 +72,7 @@ class JlinkPluginSpec extends Specification {
                 .withDebug(true)
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
-                .withGradleVersion('6.4.1')
+                .withGradleVersion('7.5.1')
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
 
@@ -97,6 +97,8 @@ class JlinkPluginSpec extends Specification {
 
         where:
         moduleName              | gradleVersion | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
+        'modular.example.hello' | '7.5.1'       | null         | null                        | null                                | 'modular-hello'
+        'modular.example.hello' | '7.5.1'       | 'run-hello'  | null                        | null                                | 'run-hello'
         null                    | '4.8'         | null         | null                        | null                                | 'modular-hello'
         'modular.example.hello' | '4.10.3'      | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
         null                    | '5.0'         | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
@@ -129,6 +131,8 @@ class JlinkPluginSpec extends Specification {
 
         where:
         projectDir                  | gradleVersion | imageDir  | imageZip      | expectedLauncherName
+        'hello-javafx'              | '7.5.1'       | 'helloFX' | 'helloFX.zip' | 'helloFX'
+        'hello-javafx-log4j-2.11.1' | '7.5.1'       | 'image'   | 'image.zip'   | 'helloFX'
         'hello-javafx'              | '4.8'         | 'helloFX' | 'helloFX.zip' | 'helloFX'
         'hello-javafx-log4j-2.11.1' | '6.8.1'       | 'image'   | 'image.zip'   | 'helloFX'
     }
@@ -140,7 +144,7 @@ class JlinkPluginSpec extends Specification {
                 .withDebug(true)
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
-                .withGradleVersion('6.8.1')
+                .withGradleVersion('7.5.1')
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
 
@@ -162,7 +166,7 @@ class JlinkPluginSpec extends Specification {
         File buildFile = setUpBuild('local-deps')
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
-                .withGradleVersion('6.8.1')
+                .withGradleVersion('7.5.1')
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
@@ -177,7 +181,7 @@ class JlinkPluginSpec extends Specification {
         File buildFile = setUpBuild('hello-bom')
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
-                .withGradleVersion('6.8.1')
+                .withGradleVersion('7.5.1')
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
@@ -193,7 +197,7 @@ class JlinkPluginSpec extends Specification {
         File buildFile = setUpBuild('multi-launch')
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
-                .withGradleVersion('6.8.1')
+                .withGradleVersion('7.5.1')
                 .withProjectDir(testProjectDir.root)
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
