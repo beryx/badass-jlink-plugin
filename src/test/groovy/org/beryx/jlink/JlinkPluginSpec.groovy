@@ -147,12 +147,12 @@ class JlinkPluginSpec extends Specification {
         then:
         checkOutput(result, 'xmlprint',
             '''
-                <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-                <product>
-                    <id>100</id>
-                    <name>pizza</name>
-                    <price>3.25</price>
-                </product>         
+            <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+            <product>
+                <id>100</id>
+                <name>pizza</name>
+                <price>3.25</price>
+            </product>         
             '''.stripIndent().strip())
     }
 
