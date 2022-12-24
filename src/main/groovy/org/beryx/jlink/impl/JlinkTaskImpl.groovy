@@ -15,6 +15,8 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkTaskData
 import org.beryx.jlink.util.*
 import org.gradle.api.GradleException
@@ -24,6 +26,7 @@ import org.gradle.api.logging.Logging
 
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
+@CompileStatic
 class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     private static final Logger LOGGER = Logging.getLogger(JlinkZipTaskImpl.class);
 
@@ -62,6 +65,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         createLaunchScripts(imageDir)
     }
 
+    @CompileDynamic
     void createCDSArchive(File imageDir) {
         if(td.cdsData.enabled) {
             project.exec {
@@ -70,6 +74,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         }
     }
 
+    @CompileDynamic
     void runJlink(File imageDir, String jdkHome, List<String> extraModulePaths, List<String> options) {
         if(!new File("$jdkHome/jmods/java.base.jmod").file) {
             throw new GradleException("java.base module not found in $jdkHome${File.separator}jmods")
@@ -102,6 +107,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         result.rethrowFailure()
     }
 
+    @CompileDynamic
     private void copyNonImageModules(File imageDir, List<String> modulePaths) {
         if (td.customImageData.enabled) {
             Map<String, ModuleData> moduleData = [:]

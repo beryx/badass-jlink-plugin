@@ -15,9 +15,12 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import org.gradle.api.GradleException
 
+@CompileStatic
 @ToString(includeNames = true, includeSuper = true)
 class SecondaryLauncherData extends LauncherData {
     String moduleName
@@ -30,6 +33,7 @@ class SecondaryLauncherData extends LauncherData {
         super(name)
     }
 
+    @CompileDynamic
     void check() {
         ["name", "moduleName", "mainClass"].each {
             if(!this."$it") throw new GradleException("Property '$it' not set in 'secondaryLauncher' block")

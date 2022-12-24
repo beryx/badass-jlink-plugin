@@ -15,6 +15,7 @@
  */
 package org.beryx.jlink
 
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkZipTaskData
 import org.beryx.jlink.data.LauncherData
 import org.beryx.jlink.data.TargetPlatform
@@ -23,6 +24,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.file.RegularFile
 import org.gradle.api.tasks.*
 
+@CompileStatic
 class JlinkZipTask extends BaseTask {
     @Input
     Map<String, TargetPlatform> getTargetPlatforms() {

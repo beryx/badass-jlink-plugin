@@ -17,15 +17,14 @@ package org.beryx.jlink
 
 
 import org.beryx.jlink.util.Util
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
 import spock.lang.Unroll
 
-import java.nio.file.Files
+import java.nio.file.Path
 
 class UtilSpec extends Specification {
-    @Rule final TemporaryFolder tmpDir = new TemporaryFolder()
+    @TempDir Path tmpDir
 
     @Unroll
     def "toModuleName(#name) should be #moduleName"() {
@@ -73,8 +72,8 @@ class UtilSpec extends Specification {
     @Unroll
     def "should retrieve the correct dir for javaVersion=#javaVersion"() {
         when:
-        new AntBuilder().unzip( src: "src/test/resources/libs/multi-release-hello.jar", dest: tmpDir.root.absolutePath )
-        def dir = Util.getVersionedDir(tmpDir.root, javaVersion)
+        new AntBuilder().unzip( src: "src/test/resources/libs/multi-release-hello.jar", dest: tmpDir.toAbsolutePath() )
+        def dir = Util.getVersionedDir(tmpDir.toFile(), javaVersion)
 
         then:
         dir?.name == expectedDir

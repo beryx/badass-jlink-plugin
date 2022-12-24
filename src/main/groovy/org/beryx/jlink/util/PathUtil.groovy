@@ -15,7 +15,9 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.CompileStatic
 
+@CompileStatic
 class PathUtil {
     static String getNonModularJarsDirPath(String jlinkBasePath) { "$jlinkBasePath/nonmodjars" }
     static String getMergedJarsDirPath(String jlinkBasePath) { "$jlinkBasePath/mergedjars" }

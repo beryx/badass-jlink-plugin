@@ -9,7 +9,7 @@ repositories {
 sourceCompatibility = 11
 targetCompatibility = 11
 
-ext.log4jVersion = '2.9.0'
+ext.log4jVersion = '2.19.0'
 
 dependencies {
     implementation "org.apache.logging.log4j:log4j-api:$log4jVersion"
@@ -20,7 +20,9 @@ dependencies {
     implementation 'com.twelvemonkeys.imageio:imageio-tiff:3.5'
 }
 
-mainClassName = 'org.beryx.modular.hello.Hello'
+application {
+    mainClass = 'org.beryx.modular.hello.Hello'
+}
 
 compileJava {
     options.compilerArgs = ['--module-path', classpath.asPath]

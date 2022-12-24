@@ -15,10 +15,12 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 
+@CompileStatic
 @ToString(includeNames = true)
 class LauncherData implements Serializable {
     private static final List<String> UNDEFINED_ARGS = ['<UNDEFINED>']

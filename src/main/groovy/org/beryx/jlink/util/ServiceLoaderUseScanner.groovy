@@ -37,12 +37,14 @@
 
 package org.beryx.jlink.util
 
+import groovy.transform.CompileStatic
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import groovyjarjarasm.asm.*
+import org.objectweb.asm.*
 
 import static org.beryx.jlink.data.ModuleInfo.UsesBuilder
 
+@CompileStatic
 class ServiceLoaderUseScanner {
     private static final Logger LOGGER = Logging.getLogger(ServiceLoaderUseScanner.class);
 
@@ -53,7 +55,7 @@ class ServiceLoaderUseScanner {
     private Set<String> unresolvedInvocations = []
 
     List<String> scan(File file) {
-        def invalidEntries = []
+        List<String> invalidEntries = []
         Util.scan(file, { String basePath, String path, InputStream inputStream ->
             if(Util.isValidClassFileReference(path)) {
                 LOGGER.trace("scanning ServiceLoader use in: $path")
@@ -63,7 +65,7 @@ class ServiceLoaderUseScanner {
                     cv.usedServices.each {service -> builders << new UsesBuilder(service)}
                 } catch (Exception e) {
                     LOGGER.info("Failed to scan $path", e)
-                    invalidEntries << "${basePath}/${path}"
+                    invalidEntries << ("${basePath}/${path}" as String)
                 }
             }
         } as Closure)

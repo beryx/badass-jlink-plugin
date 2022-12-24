@@ -15,10 +15,12 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.CompileStatic
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
-import groovyjarjarasm.asm.*
+import org.objectweb.asm.*
 
+@CompileStatic
 class PackageUseScanner extends ClassVisitor {
     private static final Logger LOGGER = Logging.getLogger(PackageUseScanner.class);
     
@@ -202,7 +204,7 @@ class PackageUseScanner extends ClassVisitor {
     }
 
     List<String> scan(File file) {
-        def invalidEntries = []
+        List<String> invalidEntries = []
         Util.scan(file, { String basePath, String path, InputStream inputStream ->
             if(Util.isValidClassFileReference(path)) {
                 LOGGER.trace("processing: $path")
@@ -211,7 +213,7 @@ class PackageUseScanner extends ClassVisitor {
                     cr.accept(this, 0)
                 } catch (Exception e) {
                     LOGGER.info("Failed to scan $path", e)
-                    invalidEntries << "${basePath}/${path}"
+                    invalidEntries << ("${basePath}/${path}" as String)
                 }
             }
         } as Closure)

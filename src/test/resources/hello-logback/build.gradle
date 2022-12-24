@@ -16,11 +16,14 @@ dependencies {
     implementation 'javax.xml.bind:jaxb-api:2.3.0'
 }
 
-mainClassName = 'org.example.modular.Hello'
+application {
+    mainClass = 'org.example.modular.Hello'
+}
+
 jar {
     manifest {
         attributes 'Implementation-Title': "modular-hello",
-                'Main-Class': mainClassName
+                'Main-Class': application.mainClass
     }
 }
 

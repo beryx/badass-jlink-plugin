@@ -1,13 +1,16 @@
 plugins {
     id 'org.beryx.jlink'
-    id 'org.javamodularity.moduleplugin' version '1.8.12'
+    id "org.javamodularity.moduleplugin" version "1.8.12"
 }
 
 group 'org.example'
 version '1.0'
 
 sourceCompatibility = 11
-mainClassName = "org.example.Hello"
+
+application {
+    mainClass = "org.example.Hello"
+}
 
 repositories {
     mavenCentral()

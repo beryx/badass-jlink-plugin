@@ -48,7 +48,7 @@ jlinkBasePath:: The path to the base directory that will be used by the plugin t
     _defaultValue_: `_buildDir_/jlinkbase` +
     _usage example_: `jlinkBasePath = "$buildDir/my-jlinkbase"`
 mainClass:: The main class to be provided as part of the `--launcher` option of _jlink_. +
-    _defaultValue_: `project.mainClassName` (from the https://docs.gradle.org/current/userguide/application_plugin.html[Application plugin]) +
+    _defaultValue_: `application.mainClass` (from the https://docs.gradle.org/current/userguide/application_plugin.html[Application plugin]) +
     _usage example_: `mainClass = 'org.example.MyApp'`
 moduleName:: The module name of this application. +
     _defaultValue_: the module name specified in this application's _module-info.java_ +

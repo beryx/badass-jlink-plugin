@@ -17,6 +17,8 @@ package org.beryx.jlink.impl
 
 import java.nio.file.Files
 import java.nio.file.Paths
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageTaskData
 import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
@@ -27,6 +29,7 @@ import org.gradle.internal.os.OperatingSystem
 
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
+@CompileStatic
 class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
     private static final Logger LOGGER = Logging.getLogger(JPackageTaskImpl.class);
 
@@ -35,6 +38,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         LOGGER.info("taskData: $taskData")
     }
 
+    @CompileDynamic
     void execute() {
         def jpd = td.jpackageData
         if(jpd.skipInstaller) {

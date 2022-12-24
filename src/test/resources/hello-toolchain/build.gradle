@@ -1,0 +1,50 @@
+plugins {
+    id 'org.beryx.jlink'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.slf4j:slf4j-api:1.7.25'
+    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'bouncycastle:bcprov-jdk16:140'
+    implementation 'javax.xml.bind:jaxb-api:2.3.0'
+}
+
+application {
+    mainModule = "modular.example.hello"
+    mainClass = "org.example.modular.Hello"
+}
+
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(19)
+        vendor = JvmVendorSpec.ADOPTIUM
+    }
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Title': "hello-toolchain",
+                'Main-Class': application.mainClass
+    }
+}
+
+compileJava {
+    options.compilerArgs = ['--module-path', classpath.asPath]
+    classpath = files()
+}
+
+tasks.withType(JavaCompile).each { it.options.compilerArgs.add('--enable-preview') }
+tasks.withType(JavaExec).each { it.jvmArgs.add('--enable-preview') }
+
+jlink {
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    mergedModule {
+        requires 'java.naming';
+        requires 'java.xml';
+    }
+}

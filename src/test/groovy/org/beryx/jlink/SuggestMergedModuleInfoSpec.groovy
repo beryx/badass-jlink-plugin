@@ -18,37 +18,36 @@ package org.beryx.jlink
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
 import spock.lang.Unroll
 
+import java.nio.file.Path
 import java.util.stream.Collectors
 
 class SuggestMergedModuleInfoSpec extends Specification {
-    @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
+    @TempDir Path testProjectDir
 
     static Set<String> GROOVY_DIRECTIVES_CONSTRAINT = [
-            "requires 'java.sql';",
+            "requires 'java.management';",
             "requires 'java.naming';",
-            "requires 'java.desktop';",
             "requires 'java.logging';",
             "requires 'java.scripting';",
+            "requires 'java.sql';",
             "requires 'java.xml';",
+            "requires 'java.desktop';",
             "requires 'java.datatransfer';",
-            "requires 'java.management';",
-            "uses 'org.apache.logging.log4j.spi.Provider';",
             "provides 'javax.annotation.processing.Processor' with 'org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor';",
-            "provides 'javax.imageio.spi.ImageReaderSpi' with 'com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageReaderSpi', 'com.twelvemonkeys.imageio.plugins.tiff.BigTIFFImageReaderSpi', 'com.twelvemonkeys.imageio.plugins.tiff.TIFFImageReaderSpi';",
             "provides 'javax.imageio.spi.ImageWriterSpi' with 'com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageWriterSpi', 'com.twelvemonkeys.imageio.plugins.tiff.TIFFImageWriterSpi';",
-
+            "provides 'javax.imageio.spi.ImageReaderSpi' with 'com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageReaderSpi', 'com.twelvemonkeys.imageio.plugins.tiff.BigTIFFImageReaderSpi', 'com.twelvemonkeys.imageio.plugins.tiff.TIFFImageReaderSpi';",
     ]
+
     static Set<String> GROOVY_DIRECTIVES = GROOVY_DIRECTIVES_CONSTRAINT + [
             "requires 'java.rmi';",
             "requires 'java.compiler';",
-            "uses 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory';",
             "provides 'org.apache.logging.log4j.spi.Provider' with 'org.apache.logging.log4j.core.impl.Log4jProvider';",
             "provides 'org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory' with 'org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory';",
+            "provides 'org.apache.logging.log4j.core.util.ContextDataProvider' with 'org.apache.logging.log4j.core.impl.ThreadContextDataProvider';",
     ]
 
     static Set<String> KOTLIN_DIRECTIVES_CONSTRAINT = [
@@ -60,7 +59,6 @@ class SuggestMergedModuleInfoSpec extends Specification {
             'requires("java.sql");',
             'requires("java.xml");',
             'requires("java.desktop");',
-            'uses("org.apache.logging.log4j.spi.Provider");',
             'provides("javax.annotation.processing.Processor").with("org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor");',
             'provides("javax.imageio.spi.ImageReaderSpi").with("com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageReaderSpi", "com.twelvemonkeys.imageio.plugins.tiff.BigTIFFImageReaderSpi", "com.twelvemonkeys.imageio.plugins.tiff.TIFFImageReaderSpi");',
             'provides("javax.imageio.spi.ImageWriterSpi").with("com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageWriterSpi", "com.twelvemonkeys.imageio.plugins.tiff.TIFFImageWriterSpi");',
@@ -68,9 +66,9 @@ class SuggestMergedModuleInfoSpec extends Specification {
     static Set<String> KOTLIN_DIRECTIVES = KOTLIN_DIRECTIVES_CONSTRAINT + [
             'requires("java.rmi");',
             'requires("java.compiler");',
-            'uses("org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory");',
             'provides("org.apache.logging.log4j.spi.Provider").with("org.apache.logging.log4j.core.impl.Log4jProvider");',
             'provides("org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory").with("org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory");',
+            'provides("org.apache.logging.log4j.core.util.ContextDataProvider").with("org.apache.logging.log4j.core.impl.ThreadContextDataProvider");',
     ]
 
     static Set<String> JAVA_DIRECTIVES_CONSTRAINT = [
@@ -82,7 +80,6 @@ class SuggestMergedModuleInfoSpec extends Specification {
             "requires java.xml;",
             "requires java.datatransfer;",
             "requires java.management;",
-            "uses org.apache.logging.log4j.spi.Provider;",
             "provides javax.annotation.processing.Processor with org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor;",
             "provides javax.imageio.spi.ImageReaderSpi with com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageReaderSpi, com.twelvemonkeys.imageio.plugins.tiff.BigTIFFImageReaderSpi, com.twelvemonkeys.imageio.plugins.tiff.TIFFImageReaderSpi;",
             "provides javax.imageio.spi.ImageWriterSpi with com.twelvemonkeys.imageio.plugins.jpeg.JPEGImageWriterSpi, com.twelvemonkeys.imageio.plugins.tiff.TIFFImageWriterSpi;",
@@ -90,9 +87,9 @@ class SuggestMergedModuleInfoSpec extends Specification {
     static Set<String> JAVA_DIRECTIVES = JAVA_DIRECTIVES_CONSTRAINT + [
             "requires java.rmi;",
             "requires java.compiler;",
-            "uses org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory;",
             "provides org.apache.logging.log4j.spi.Provider with org.apache.logging.log4j.core.impl.Log4jProvider;",
             "provides org.apache.logging.log4j.message.ThreadDumpMessage.ThreadInfoFactory with org.apache.logging.log4j.core.message.ExtendedThreadInfoFactory;",
+            "provides org.apache.logging.log4j.core.util.ContextDataProvider with org.apache.logging.log4j.core.impl.ThreadContextDataProvider;",
     ]
 
 
@@ -103,10 +100,10 @@ class SuggestMergedModuleInfoSpec extends Specification {
     @Unroll
     def "should display the correct module-info for the merged module in #gradleFile with #language flavor using Gradle #gradleVersion"() {
         given:
-        new AntBuilder().copy( todir: testProjectDir.root ) {
-            fileset( dir: 'src/test/resources/hello-log4j-2.9.0' )
+        new AntBuilder().copy( todir: testProjectDir ) {
+            fileset( dir: 'src/test/resources/hello-log4j-2.19.0' )
         }
-        File buildFile = new File(testProjectDir.root, gradleFile)
+        File buildFile = new File(testProjectDir.toFile(), gradleFile)
         def outputWriter = new StringWriter(8192)
 
         when:
@@ -134,15 +131,15 @@ class SuggestMergedModuleInfoSpec extends Specification {
 
         where:
         language | expectedDirectives           | gradleFile                  | gradleVersion | debug
-        'groovy' | GROOVY_DIRECTIVES            | 'build.gradle'              | '7.3'         | true
-        'kotlin' | KOTLIN_DIRECTIVES            | 'build.gradle'              | '7.4'         | true
-        'java'   | JAVA_DIRECTIVES              | 'build.gradle'              | '7.5.1'       | true
-        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '7.5'         | true
-        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '7.5.1'       | true
-        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle'     | '7.4.2'       | true
-        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '7.5.1'       | false
-        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '7.3'         | false
-        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle.kts' | '7.4'         | false
+        'groovy' | GROOVY_DIRECTIVES            | 'build.gradle'              | '7.0'         | true
+        'kotlin' | KOTLIN_DIRECTIVES            | 'build.gradle'              | '7.6'         | true
+        'java'   | JAVA_DIRECTIVES              | 'build.gradle'              | '7.2'         | true
+        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '7.6'         | true
+        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '7.0'         | true
+        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle'     | '7.6'         | true
+        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '7.2'         | false
+        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '7.6'         | false
+        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle.kts' | '7.6'         | false
     }
 
     List<String> getDirectives(String taskOutput, String language) {

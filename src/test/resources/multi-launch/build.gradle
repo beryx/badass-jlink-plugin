@@ -1,5 +1,5 @@
 plugins {
-    id 'org.javamodularity.moduleplugin' version '1.8.12'
+    id "org.javamodularity.moduleplugin" version "1.8.12"
     id 'org.beryx.jlink'
 }
 
@@ -8,7 +8,10 @@ repositories {
 }
 
 ext.moduleName = 'org.example.multi'
-mainClassName = 'org.example.multi.Hello'
+
+application {
+    mainClass = 'org.example.multi.Hello'
+}
 
 jlink {
     launcher {

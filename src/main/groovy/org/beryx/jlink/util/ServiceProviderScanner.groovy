@@ -15,17 +15,19 @@
  */
 package org.beryx.jlink.util
 
+import groovy.transform.CompileStatic
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
 import static org.beryx.jlink.data.ModuleInfo.ProvidesBuilder
 
+@CompileStatic
 class ServiceProviderScanner {
     private static final Logger LOGGER = Logging.getLogger(ServiceProviderScanner.class);
     final Set<ProvidesBuilder> builders = new HashSet<>()
 
     List<String> scan(File file) {
-        def invalidEntries = []
+        List<String> invalidEntries = []
         Util.scan(file, { String basePath, String path, InputStream inputStream ->
             if(path.startsWith('META-INF/services/')) {
                 try {
@@ -48,7 +50,7 @@ class ServiceProviderScanner {
                     }
                 } catch (Exception e) {
                     LOGGER.info("Failed to scan $path", e)
-                    invalidEntries << "${basePath}/${path}"
+                    invalidEntries << ("${basePath}/${path}" as String)
                 }
             }
         } as Closure)

@@ -16,7 +16,9 @@ javafx {
     modules = ['javafx.controls']
 }
 
-mainClassName = "org.example.HelloFX"
+application {
+    mainClass = "org.example.HelloFX"
+}
 
 jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']

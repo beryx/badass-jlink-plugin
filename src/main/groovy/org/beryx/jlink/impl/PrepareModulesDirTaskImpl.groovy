@@ -15,6 +15,8 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.PrepareModulesDirTaskData
 import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.ModuleInfoAdjuster
@@ -23,6 +25,7 @@ import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
+@CompileStatic
 class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> {
     private static final Logger LOGGER = Logging.getLogger(PrepareModulesDirTaskImpl.class);
 
@@ -31,6 +34,7 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
         LOGGER.info("taskData: $taskData")
     }
 
+    @CompileDynamic
     void execute() {
         LOGGER.info("Copying delegating modules to ${td.jlinkJarsDir}...")
         project.copy {
@@ -56,6 +60,7 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
         def targetPath = "$td.jlinkJarsDir/${td.moduleName}.jar"
     }
 
+    @CompileDynamic
     private void adjustModuleDescriptors(DependencyManager depMgr) {
         def nonModularModules = depMgr.nonModularJars.collect { Util.getModuleName(it) }
         def adjuster = new ModuleInfoAdjuster(td.mergedModuleName, nonModularModules)

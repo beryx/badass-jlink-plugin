@@ -15,11 +15,13 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.CompileStatic
 import org.beryx.jlink.util.JdkUtil
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
+@CompileStatic
 class TargetPlatform implements Serializable {
     private static final Logger LOGGER = Logging.getLogger(TargetPlatform.class)
 

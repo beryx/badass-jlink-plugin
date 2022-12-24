@@ -16,6 +16,8 @@
 package org.beryx.jlink.util
 
 import groovy.transform.Canonical
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.beryx.jlink.data.ModuleInfo
 import org.gradle.api.Project
@@ -25,6 +27,7 @@ import org.gradle.api.logging.Logging
 
 import static org.beryx.jlink.data.ModuleInfo.*
 
+@CompileStatic
 @TupleConstructor
 class SuggestedMergedModuleInfoBuilder {
     private static final Logger LOGGER = Logging.getLogger(SuggestedMergedModuleInfoBuilder.class);
@@ -97,6 +100,7 @@ class SuggestedMergedModuleInfoBuilder {
         new HashSet(builders.values())
     }
 
+    @CompileDynamic
     Set<RequiresBuilder> getRequiresBuilders() {
         def scanner = new PackageUseScanner()
         def invalidFiles = scanner.scan(mergedJarsDir)

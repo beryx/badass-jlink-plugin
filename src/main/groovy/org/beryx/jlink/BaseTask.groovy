@@ -15,6 +15,8 @@
  */
 package org.beryx.jlink
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.util.Util
 import org.gradle.api.DefaultTask
@@ -26,6 +28,7 @@ import org.gradle.api.tasks.Internal
 
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
+@CompileStatic
 class BaseTask extends DefaultTask {
     private static final Logger LOGGER = Logging.getLogger(BaseTask.class);
 
@@ -63,7 +66,6 @@ class BaseTask extends DefaultTask {
     @Internal
     String getDefaultMainClass() {
         def mainClass = defaultMainClassModern
-        if(!mainClass) return defaultMainClassLegacy
         def mainModule = defaultModuleModern
         def moduleName = extension.moduleName.get()
         if(mainModule != moduleName) {
@@ -72,6 +74,7 @@ class BaseTask extends DefaultTask {
         mainClass
     }
 
+    @CompileDynamic
     @Internal
     String getDefaultMainClassModern() {
         try {
@@ -81,6 +84,7 @@ class BaseTask extends DefaultTask {
         }
     }
 
+    @CompileDynamic
     @Internal
     String getDefaultModuleModern() {
         try {
@@ -88,19 +92,5 @@ class BaseTask extends DefaultTask {
         } catch (Exception e) {
             return null
         }
-    }
-
-    @Internal
-    String getDefaultMainClassLegacy() {
-        def mainClass = project['mainClassName'] as String
-        if(!mainClass) throw new GradleException("mainClass not configured")
-        int pos = mainClass.lastIndexOf('/')
-        if(pos < 0) return mainClass
-        def mainClassModule = mainClass.substring(0, pos)
-        def moduleName = extension.moduleName.get()
-        if(mainClassModule != moduleName) {
-            LOGGER.warn("The module name specified in 'mainClassName' ($mainClassModule) has not the expected value ($moduleName).")
-        }
-        mainClass.substring(pos + 1)
     }
 }

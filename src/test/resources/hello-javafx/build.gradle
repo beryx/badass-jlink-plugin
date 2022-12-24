@@ -12,7 +12,9 @@ javafx {
     modules = ['javafx.controls']
 }
 
-mainClassName = "org.example.HelloFX"
+application {
+    mainClass = "org.example.HelloFX"
+}
 
 jlink {
     imageName = 'helloFX'

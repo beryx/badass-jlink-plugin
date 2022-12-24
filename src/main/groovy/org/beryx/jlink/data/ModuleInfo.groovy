@@ -15,14 +15,16 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.CompileStatic
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.MapConstructor
 import groovy.transform.ToString
 
 import java.util.stream.Collectors
 
+@CompileStatic
 @ToString(includeNames = true)
-class ModuleInfo implements Serializable, GroovyObject {
+class ModuleInfo implements Serializable {
     String version
     boolean enabled
     boolean additive

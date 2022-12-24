@@ -18,21 +18,23 @@ package org.beryx.jlink
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
+import spock.lang.IgnoreIf
 import spock.lang.Specification
+import spock.lang.TempDir
 import spock.lang.Unroll
 import spock.util.environment.OperatingSystem
 
+import java.nio.file.Path
+
 class JlinkPluginSpec extends Specification {
-    @Rule final TemporaryFolder testProjectDir = new TemporaryFolder()
+    @TempDir Path testProjectDir
 
     def cleanup() {
         println "CLEANUP"
     }
 
     def setUpBuild(String projectDir, String buildScriptName = 'build.gradle') {
-        new AntBuilder().copy(todir: testProjectDir.root) {
+        new AntBuilder().copy(todir: testProjectDir) {
             def options = [dir: "src/test/resources/$projectDir"]
             if(buildScriptName != 'build.gradle') {
                 options.excludes = 'build.gradle'
@@ -40,9 +42,9 @@ class JlinkPluginSpec extends Specification {
             fileset(options)
         }
         if(buildScriptName != 'build.gradle') {
-            new File(testProjectDir.root, buildScriptName).renameTo("$testProjectDir.root/build.gradle")
+            new File(testProjectDir.toFile(), buildScriptName).renameTo("$testProjectDir/build.gradle")
         }
-        new File(testProjectDir.root, 'build.gradle')
+        new File(testProjectDir.toFile(), 'build.gradle')
     }
 
     def setUpHelloLogbackBuild(String moduleName, String launcherName, String mainClass, String mergedModuleName) {
@@ -70,14 +72,30 @@ class JlinkPluginSpec extends Specification {
         setUpBuild('hello-logback', 'build.modular.gradle')
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withGradleVersion('7.5.1')
+                .withGradleVersion('7.6')
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
 
         then:
         checkOutput(result, 'modular-hello', 'LOG: Hello, modular Java!')
+    }
+
+    @IgnoreIf({ os.windows })
+    def "should use configured toolchain"() {
+        when:
+        setUpBuild('hello-toolchain')
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withGradleVersion('7.6')
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+
+        then:
+        checkOutput(result, 'hello-toolchain', 'LOG: line from: (30,80) to: (20,50)')
     }
 
     @Unroll
@@ -86,7 +104,7 @@ class JlinkPluginSpec extends Specification {
         setUpHelloLogbackBuild(moduleName, launcherName, mainClass, mergedModuleName)
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion(gradleVersion)
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
@@ -97,10 +115,12 @@ class JlinkPluginSpec extends Specification {
 
         where:
         moduleName              | gradleVersion | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
-        'modular.example.hello' | '7.5.1'       | null         | null                        | null                                | 'modular-hello'
-        'modular.example.hello' | '7.5.1'       | 'run-hello'  | null                        | null                                | 'run-hello'
-        null                    | '7.3'         | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
-        'modular.example.hello' | '7.3'         | null         | null                        | null                                | 'modular-hello'
+        null                    | '7.6'         | null         | null                        | null                                | 'modular-hello'
+        'modular.example.hello' | '7.0'         | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
+        null                    | '7.2'         | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
+        'modular.example.hello' | '7.6'         | null         | null                        | null                                | 'modular-hello'
+        'modular.example.hello' | '7.0'         | 'run-hello'  | 'org.example.modular.Hello' | null                                | 'run-hello'
+        'modular.example.hello' | '7.6'         | 'run-hello'  | null                        | null                                | 'run-hello'
     }
 
     @Unroll
@@ -110,14 +130,14 @@ class JlinkPluginSpec extends Specification {
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
                 .withGradleVersion(gradleVersion)
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK_ZIP, "-is")
                 .build();
-        def imageBinDir = new File(testProjectDir.root, "build/$imageDir/bin")
+        def imageBinDir = new File(testProjectDir.toFile(), "build/$imageDir/bin")
         def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
         def imageLauncher = new File(imageBinDir, "$expectedLauncherName$launcherExt")
-        def imageZipFile = new File(testProjectDir.root, "build/$imageZip")
+        def imageZipFile = new File(testProjectDir.toFile(), "build/$imageZip")
 
         then:
         result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
@@ -127,10 +147,8 @@ class JlinkPluginSpec extends Specification {
 
         where:
         projectDir                  | gradleVersion | imageDir  | imageZip      | expectedLauncherName
-        'hello-javafx'              | '7.5.1'       | 'helloFX' | 'helloFX.zip' | 'helloFX'
-        'hello-javafx-log4j-2.11.1' | '7.5.1'       | 'image'   | 'image.zip'   | 'helloFX'
-        'hello-javafx'              | '7.3'         | 'helloFX' | 'helloFX.zip' | 'helloFX'
-        'hello-javafx-log4j-2.11.1' | '7.3'         | 'image'   | 'image.zip'   | 'helloFX'
+        'hello-javafx'              | '7.0'         | 'helloFX' | 'helloFX.zip' | 'helloFX'
+        'hello-javafx-log4j-2.11.1' | '7.6'         | 'image'   | 'image.zip'   | 'helloFX'
     }
 
     def "should adjust qualified opens in module-info"() {
@@ -138,9 +156,9 @@ class JlinkPluginSpec extends Specification {
         File buildFile = setUpBuild('opens-to-jaxb')
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
-                .withProjectDir(testProjectDir.root)
+                .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withGradleVersion('7.5.1')
+                .withGradleVersion('7.6')
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
 
@@ -162,8 +180,8 @@ class JlinkPluginSpec extends Specification {
         File buildFile = setUpBuild('local-deps')
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
-                .withGradleVersion('7.5.1')
-                .withProjectDir(testProjectDir.root)
+                .withGradleVersion('7.6')
+                .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
@@ -177,8 +195,8 @@ class JlinkPluginSpec extends Specification {
         File buildFile = setUpBuild('hello-bom')
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
-                .withGradleVersion('7.5.1')
-                .withProjectDir(testProjectDir.root)
+                .withGradleVersion('7.6')
+                .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
@@ -193,8 +211,8 @@ class JlinkPluginSpec extends Specification {
         File buildFile = setUpBuild('multi-launch')
         BuildResult result = GradleRunner.create()
                 .withDebug(true)
-                .withGradleVersion('7.5.1')
-                .withProjectDir(testProjectDir.root)
+                .withGradleVersion('7.6')
+                .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
@@ -206,7 +224,7 @@ class JlinkPluginSpec extends Specification {
     }
 
     private boolean checkOutput(BuildResult result, String imageName, String expectedOutput) {
-        def imageBinDir = new File(testProjectDir.root, 'build/image/bin')
+        def imageBinDir = new File(testProjectDir.toFile(), 'build/image/bin')
         def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
 
         assert result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
@@ -217,7 +235,8 @@ class JlinkPluginSpec extends Specification {
 
         def process = imageLauncher.absolutePath.execute([], imageBinDir)
         def out = new ByteArrayOutputStream(2048)
-        process.waitForProcessOutput(out, out)
+        def err = new ByteArrayOutputStream(2048)
+        process.waitForProcessOutput(out, err)
         def outputText = out.toString()
         assert outputText.trim() == expectedOutput
 

@@ -17,6 +17,7 @@ package org.beryx.jlink.util
 
 import groovy.text.SimpleTemplateEngine
 import groovy.text.Template
+import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.beryx.jlink.data.LauncherData
 import org.gradle.api.GradleException
@@ -25,6 +26,7 @@ import org.gradle.api.Project
 import java.util.function.Function
 import java.util.stream.Collectors
 
+@CompileStatic
 @TupleConstructor
 class LaunchScriptGenerator {
     final Project project

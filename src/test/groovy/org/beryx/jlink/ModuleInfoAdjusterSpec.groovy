@@ -16,14 +16,14 @@
 package org.beryx.jlink
 
 import org.beryx.jlink.util.ModuleInfoAdjuster
-import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
+import spock.lang.TempDir
 
 import java.lang.module.ModuleFinder
+import java.nio.file.Path
 
 class ModuleInfoAdjusterSpec extends Specification {
-    @Rule final TemporaryFolder tmpDir = new TemporaryFolder()
+    @TempDir Path tmpDir
 
     def "should adjust module descriptors"() {
         given:
@@ -38,8 +38,8 @@ class ModuleInfoAdjusterSpec extends Specification {
         descriptor != null
 
         when:
-        tmpDir.newFile('module-info.class').newOutputStream() << descriptor
-        def md = ModuleFinder.of(tmpDir.root.toPath()).findAll().first().descriptor()
+        tmpDir.resolve('module-info.class') << descriptor
+        def md = ModuleFinder.of(tmpDir).findAll().first().descriptor()
         def qExports = md.exports().findAll {it.qualified}.collect{[it.source(), it.targets()]} as Set
         def qOpens = md.opens().findAll {it.qualified}.collect{[it.source(), it.targets()]} as Set
 

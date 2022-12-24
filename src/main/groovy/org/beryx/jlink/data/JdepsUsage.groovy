@@ -15,5 +15,7 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.CompileStatic
 
+@CompileStatic
 enum JdepsUsage {yes, no, exclusively}

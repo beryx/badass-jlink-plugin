@@ -16,6 +16,7 @@
 package org.beryx.jlink
 
 
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.CreateMergedModuleTaskData
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.ModuleInfo
@@ -28,6 +29,7 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
+@CompileStatic
 class CreateMergedModuleTask extends BaseTask {
     @Input
     List<String> getForceMergedJarPrefixes() {

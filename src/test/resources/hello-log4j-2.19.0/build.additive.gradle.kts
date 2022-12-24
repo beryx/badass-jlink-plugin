@@ -11,7 +11,7 @@ java {
     targetCompatibility = JavaVersion.VERSION_11
 }
 
-val log4jVersion = "2.9.0"
+val log4jVersion = "2.19.0"
 
 dependencies {
     implementation("org.apache.logging.log4j:log4j-api:$log4jVersion")
@@ -23,7 +23,7 @@ dependencies {
 }
 
 application {
-    mainClassName = "org.beryx.modular.hello.Hello"
+    mainClass.set("org.beryx.modular.hello.Hello")
 }
 
 val compileJava: JavaCompile by tasks

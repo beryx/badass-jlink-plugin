@@ -15,6 +15,8 @@
  */
 package org.beryx.jlink.impl
 
+import groovy.transform.CompileDynamic
+import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.util.JdepsExecutor
 import org.beryx.jlink.util.SuggestedMergedModuleInfoBuilder
@@ -31,6 +33,7 @@ import java.lang.module.ModuleReference
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
+@CompileStatic
 class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData> {
     private static final Logger LOGGER = Logging.getLogger(CreateMergedModuleTaskImpl.class);
 
@@ -124,6 +127,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         modinfoDir
     }
 
+    @CompileDynamic
     def compileModuleInfo(File moduleInfoJavaDir, File moduleJar, File targetDir) {
         LOGGER.info("Compiling module-info from ${moduleInfoJavaDir} into ${targetDir}...")
         project.delete(targetDir)

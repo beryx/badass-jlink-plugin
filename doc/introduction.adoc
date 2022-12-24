@@ -18,8 +18,9 @@ The plugin provides several tasks. The most frequently used are `jlink`, which c
 and `jlinkZip`, which in addition creates a zip archive of the custom runtime image.
 With the `jpackage` task you can create a platform-specific installer for your application.
 
-WARNING: The plugin requires Java 11 and Gradle 4.8 or newer.
+WARNING: The current version of this plugin requires Java 11 and Gradle 7.0 or newer.
 While it might work with some combinations of older Java and Gradle versions, these are not officially supported.
+If you are forced to work with an older Gradle release, you should use https://badass-jlink-plugin.beryx.org/releases/2.25.0/[the version 2.25.0] of this plugin.
 
 To use the plugin, include the following in your build script:
 

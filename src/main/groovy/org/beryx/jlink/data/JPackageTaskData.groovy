@@ -15,12 +15,14 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import org.beryx.jlink.JlinkTask
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
+@CompileStatic
 @ToString(includeNames = true)
 class JPackageTaskData extends BaseTaskData {
     private static final Logger LOGGER = Logging.getLogger(JPackageTaskData.class)

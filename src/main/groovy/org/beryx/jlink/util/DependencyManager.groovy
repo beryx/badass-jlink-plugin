@@ -16,6 +16,7 @@
 package org.beryx.jlink.util
 
 import groovy.transform.Canonical
+import groovy.transform.CompileStatic
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedDependency
@@ -30,6 +31,7 @@ import java.util.zip.ZipFile
 import static org.beryx.jlink.util.Util.getArtifacts
 import static org.beryx.jlink.util.Util.isEmptyJar
 
+@CompileStatic
 class DependencyManager {
     private static final Logger LOGGER = Logging.getLogger(DependencyManager.class)
 

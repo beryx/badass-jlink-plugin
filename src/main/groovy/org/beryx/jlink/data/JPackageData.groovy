@@ -15,6 +15,7 @@
  */
 package org.beryx.jlink.data
 
+import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import org.beryx.jlink.util.Util
 import org.gradle.api.Project
@@ -25,6 +26,7 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
+@CompileStatic
 @ToString(includeNames = true)
 class JPackageData {
     private final Project project
