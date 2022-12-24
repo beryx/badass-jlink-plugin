@@ -15,9 +15,7 @@
  */
 package org.beryx.jlink.data
 
-import groovy.transform.CompileStatic
 
-@CompileStatic
 class BaseTaskData {
     String jlinkBasePath
 }

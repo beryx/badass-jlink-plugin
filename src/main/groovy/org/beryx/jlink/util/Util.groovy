@@ -16,8 +16,6 @@
 package org.beryx.jlink.util
 
 import groovy.io.FileType
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
 import groovy.transform.stc.ClosureParams
 import groovy.transform.stc.SimpleType
 import org.codehaus.groovy.runtime.IOGroovyMethods
@@ -47,7 +45,6 @@ import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
-@CompileStatic
 class Util {
     private static final Logger LOGGER = Logging.getLogger(Util.class)
 
@@ -72,7 +69,6 @@ class Util {
     private static final Pattern PATTERN = Pattern.compile(MODULE_DECLARATION)
 
 
-    @CompileDynamic
     static String getModuleNameFrom(String moduleInfoText, String fileName = 'module-info.java') {
         def matcher = PATTERN.matcher(moduleInfoText)
         if(!matcher.matches()) throw new GradleException("Cannot retrieve module name from $fileName with content: $moduleInfoText")
@@ -85,7 +81,6 @@ class Util {
         "${toModuleName(name)}.merged.module"
     }
 
-    @CompileDynamic
     static String getDefaultModuleName(Project project) {
         Set<File> srcDirs = project.sourceSets.main?.java?.srcDirs
         File moduleInfoDir = srcDirs?.find { it.list()?.contains('module-info.java')}
@@ -100,7 +95,6 @@ class Util {
         }
     }
 
-    @CompileDynamic
     static String getPackage(String entryName) {
         if(!entryName.endsWith('.class')) return null
         int pos = entryName.lastIndexOf('/')
@@ -112,7 +106,6 @@ class Util {
         return valid ? pkgName : null
     }
 
-    @CompileDynamic
     static String getModuleName(File f) {
         try {
             return ModuleFinder.of(f.toPath()).findAll().first().descriptor().name()
@@ -145,7 +138,6 @@ class Util {
             "synchronized", "this", "throw", "throws", "transient", "true", "try",
             "void", "volatile", "while"] as HashSet
 
-    @CompileDynamic
     static String toModuleName(String s) {
         def name = s.replaceAll('[^0-9A-Za-z_.]', '.')
         int start = 0
@@ -162,7 +154,6 @@ class Util {
 
     }
 
-    @CompileDynamic
     static void createManifest(Object targetDir, boolean multiRelease) {
         def mfdir = new File(targetDir, 'META-INF')
         mfdir.mkdirs()
@@ -236,7 +227,6 @@ class Util {
         }
     }
 
-    @CompileDynamic
     static File getVersionedDir(File baseDir, int javaVersion) {
         def versionsDir = new File("$baseDir.absolutePath/META-INF/versions")
         if(!versionsDir.directory) return null
@@ -246,7 +236,6 @@ class Util {
         new File(versionsDir, "$version")
     }
 
-    @CompileDynamic
     static Set<File> getArtifacts(Set<ResolvedDependency> deps) {
         (Set<File>)deps.collect{ it.moduleArtifacts*.file }.flatten() as Set
     }
@@ -261,7 +250,6 @@ class Util {
         zipFile.entries().every { ZipEntry entry -> entry.name in ['META-INF/', 'META-INF/MANIFEST.MF']}
      }
 
-    @CompileDynamic
     static File getArchiveFile(Project project) {
         Jar jarTask = (Jar) project.tasks.getByName(JavaPlugin.JAR_TASK_NAME)
         if(GradleVersion.current() < GradleVersion.version('5.1')) {
@@ -271,7 +259,6 @@ class Util {
         }
     }
 
-    @CompileDynamic
     static DirectoryProperty createDirectoryProperty(Project project) {
         if(GradleVersion.current() < GradleVersion.version('5.0-milestone-1')) {
             return project.layout.directoryProperty()
@@ -280,7 +267,6 @@ class Util {
         }
     }
 
-    @CompileDynamic
     static RegularFileProperty createRegularFileProperty(Project project) {
         if(GradleVersion.current() < GradleVersion.version('5.0-milestone-1')) {
             return project.layout.fileProperty()
@@ -289,7 +275,6 @@ class Util {
         }
     }
 
-    @CompileDynamic
     static <T> void addToListProperty(ListProperty<T> listProp, T... values) {
         if(GradleVersion.current() < GradleVersion.version('5.0-milestone-1')) {
             def list = new ArrayList(listProp.get())
@@ -300,7 +285,6 @@ class Util {
         }
     }
 
-    @CompileDynamic
     static <K,V> Provider<Map<K,V>> createMapProperty(Project project,
                                                       Class<K> keyType, Class<V> valueType) {
         Provider<Map<K,V>> provider
@@ -313,14 +297,12 @@ class Util {
         provider
     }
 
-    @CompileDynamic
     static <K,V> void putToMapProvider(Provider<Map<K,V>> mapProvider, K key, V value) {
         def map = new TreeMap(mapProvider.get())
         map[key] = value
         mapProvider.set(map)
     }
 
-    @CompileDynamic
     static String getArchiveBaseName(Project project) {
         String name = ""
         try {
@@ -344,7 +326,6 @@ class Util {
         if(!f.canExecute()) throw new GradleException("$f.absolutePath is not executable.")
     }
 
-    @CompileDynamic
     static List<File> getJarsAndMods(Object... modulePath) {
         List<File> allFiles = []
         modulePath.each {entry ->
@@ -372,7 +353,6 @@ class Util {
         return dependentProjects.unique()
     }
 
-    @CompileDynamic
     static List<String> getDefaultJvmArgs(Project project) {
         try {
             return project.application?.applicationDefaultJvmArgs
@@ -381,7 +361,6 @@ class Util {
         }
     }
 
-    @CompileDynamic
     static List<String> getDefaultArgs(Project project) {
         try {
             return project.tasks.run?.args

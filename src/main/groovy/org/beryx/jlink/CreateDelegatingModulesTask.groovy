@@ -15,7 +15,6 @@
  */
 package org.beryx.jlink
 
-import groovy.transform.CompileStatic
 import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.beryx.jlink.impl.CreateDelegatingModulesTaskImpl
 import org.beryx.jlink.util.PathUtil
@@ -25,7 +24,6 @@ import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
-@CompileStatic
 class CreateDelegatingModulesTask extends BaseTask {
     CreateDelegatingModulesTask() {
         dependsOn(JlinkPlugin.TASK_NAME_CREATE_MERGED_MODULE)

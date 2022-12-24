@@ -15,7 +15,6 @@
  */
 package org.beryx.jlink
 
-import groovy.transform.CompileStatic
 import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.impl.PrepareMergedJarsDirTaskImpl
 import org.beryx.jlink.util.JavaVersion
@@ -25,7 +24,6 @@ import org.gradle.api.Task
 import org.gradle.api.file.Directory
 import org.gradle.api.tasks.*
 
-@CompileStatic
 class PrepareMergedJarsDirTask extends BaseTask {
     @Input
     List<String> getForceMergedJarPrefixes() {

@@ -15,8 +15,6 @@
  */
 package org.beryx.jlink
 
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.util.Util
 import org.gradle.api.DefaultTask
@@ -28,7 +26,6 @@ import org.gradle.api.tasks.Internal
 
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
-@CompileStatic
 class BaseTask extends DefaultTask {
     private static final Logger LOGGER = Logging.getLogger(BaseTask.class);
 
@@ -75,7 +72,6 @@ class BaseTask extends DefaultTask {
         mainClass
     }
 
-    @CompileDynamic
     @Internal
     String getDefaultMainClassModern() {
         try {
@@ -85,7 +81,6 @@ class BaseTask extends DefaultTask {
         }
     }
 
-    @CompileDynamic
     @Internal
     String getDefaultModuleModern() {
         try {

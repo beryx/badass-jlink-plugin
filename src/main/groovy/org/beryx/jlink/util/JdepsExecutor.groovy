@@ -15,14 +15,11 @@
  */
 package org.beryx.jlink.util
 
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
 import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
-@CompileStatic
 class JdepsExecutor {
     private static final Logger LOGGER = Logging.getLogger(JdepsExecutor.class);
 
@@ -39,7 +36,6 @@ class JdepsExecutor {
         this.project = project
     }
 
-    @CompileDynamic
     Result genModuleInfo(File jarFile, File targetDir, String jlinkJarsDirPath, String javaHome) {
         LOGGER.info("Generating module-info in ${targetDir}...")
         project.delete(targetDir)

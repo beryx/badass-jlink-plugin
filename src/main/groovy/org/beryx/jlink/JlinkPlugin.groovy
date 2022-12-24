@@ -15,14 +15,12 @@
  */
 package org.beryx.jlink
 
-import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.util.GradleVersion
 
-@CompileStatic
 class JlinkPlugin implements Plugin<Project> {
     final static String EXTENSION_NAME = 'jlink'
     final static String TASK_NAME_PREPARE_MERGED_JARS_DIR = 'prepareMergedJarsDir'
@@ -37,8 +35,8 @@ class JlinkPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        if(GradleVersion.current() < GradleVersion.version('4.0')) {
-            throw new GradleException("This plugin requires Gradle 4.8 or newer.")
+        if(GradleVersion.current() < GradleVersion.version('7.3')) {
+            throw new GradleException("This plugin requires Gradle 7.3 or newer.")
         }
         project.getPluginManager().apply('application');
         project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)

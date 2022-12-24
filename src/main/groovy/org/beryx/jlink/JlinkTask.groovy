@@ -15,7 +15,6 @@
  */
 package org.beryx.jlink
 
-import groovy.transform.CompileStatic
 import org.beryx.jlink.data.*
 import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.util.PathUtil
@@ -24,7 +23,6 @@ import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.*
 
-@CompileStatic
 class JlinkTask extends BaseTask {
     private static final Logger LOGGER = Logging.getLogger(JlinkTask.class);
 

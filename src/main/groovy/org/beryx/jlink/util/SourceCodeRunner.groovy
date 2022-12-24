@@ -15,7 +15,6 @@
  */
 package org.beryx.jlink.util
 
-import groovy.transform.CompileStatic
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -23,7 +22,6 @@ import org.gradle.api.logging.Logging
 import java.nio.file.Files
 import java.util.concurrent.TimeUnit
 
-@CompileStatic
 class SourceCodeRunner {
     private static final Logger LOGGER = Logging.getLogger(SourceCodeRunner.class);
 

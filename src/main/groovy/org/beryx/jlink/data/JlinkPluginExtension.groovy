@@ -15,7 +15,6 @@
  */
 package org.beryx.jlink.data
 
-import groovy.transform.CompileStatic
 import org.beryx.jlink.util.Util
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -25,7 +24,6 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 
-@CompileStatic
 class JlinkPluginExtension {
     private final Project project
     final Property<String> jlinkBasePath

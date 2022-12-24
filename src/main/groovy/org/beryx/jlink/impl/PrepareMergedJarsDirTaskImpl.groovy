@@ -15,8 +15,6 @@
  */
 package org.beryx.jlink.impl
 
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
 import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.Util
@@ -26,7 +24,6 @@ import org.gradle.api.file.FileTreeElement
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
-@CompileStatic
 class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTaskData> {
     private static final Logger LOGGER = Logging.getLogger(PrepareMergedJarsDirTaskImpl.class);
 
@@ -35,7 +32,6 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         LOGGER.info("taskData: $taskData")
     }
 
-    @CompileDynamic
     void execute() {
         project.delete(td.jlinkBasePath)
         td.mergedJarsDir.mkdirs()
@@ -44,7 +40,6 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         mergeUnpackedContents(new File(td.nonModularJarsDirPath).listFiles() as List)
     }
 
-    @CompileDynamic
     def copyRuntimeJars(DependencyManager depMgr) {
         project.delete(td.jlinkJarsDirPath, td.nonModularJarsDirPath)
         new File(td.jlinkJarsDirPath).mkdirs()
@@ -66,7 +61,6 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         }
     }
 
-    @CompileDynamic
     def mergeUnpackedContents(Collection<File> jars) {
         if(jars.empty) return
         LOGGER.info("Merging content into ${td.mergedJarsDir}...")
@@ -120,7 +114,6 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         excludes
     }
 
-    @CompileDynamic
     private static boolean hasInvalidName(FileTreeElement fte) {
         String path = fte.path
         if(fte.directory) return false
@@ -137,7 +130,6 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         return invalid
     }
 
-    @CompileDynamic
     void appendServices(Map<String, String> services, File jar) {
         def svcFiles = project.zipTree(jar).matching {
             include 'META-INF/services/*'
