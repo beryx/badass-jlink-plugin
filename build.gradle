@@ -23,7 +23,7 @@ plugins {
     id 'com.github.jk1.dependency-license-report' version '2.1'
     id "com.github.hierynomus.license" version "0.16.1"
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
-    id "org.ajoberstar.git-publish" version "3.0.0"
+    id "org.ajoberstar.git-publish" version "4.1.1"
 }
 
 if(JavaVersion.current() != JavaVersion.VERSION_11) {
@@ -178,40 +178,37 @@ gitPublish {
     repoUri = 'https://github.com/beryx/badass-jlink-plugin.git'
     branch = 'gh-pages'
 
-    contents {
-        def pgType = project.hasProperty('ghPageType') ? ghPageType : 'latest'
-        if(pgType == 'init') {
-            from file("ghpages")
-        } else if(pgType == 'list') {
-            from file("build/release-list")
-        } else {
-            from file("${asciidoctor.outputDir.path}/html5")
-            from file("build/docs")
+    def pgType = project.hasProperty('ghPageType') ? ghPageType : 'latest'
+    if(pgType == 'init') {
+        contents .from file("ghpages")
+    } else if(pgType == 'list') {
+        contents.from file("build/release-list")
+    } else {
+        contents.from file("${asciidoctor.outputDir.path}/html5")
+        contents.from file("build/docs")
+    }
+
+    def docDir = Boolean.valueOf(badassJlinkPluginReleaseBuild) ? 'releases' : 'snapshots'
+    if(pgType == 'init') {
+        contents.into "."
+    } else if(pgType == 'list') {
+        contents.into "."
+        preserve {
+            include '**'
+            exclude "releases.md"
         }
-        def docDir = Boolean.valueOf(badassJlinkPluginReleaseBuild) ? 'releases' : 'snapshots'
-        if(pgType == 'init') {
-            into "."
-        } else if(pgType == 'list') {
-            into "."
-            preserve {
-                include '**'
-                exclude "releases.md"
-            }
-        } else if(pgType == 'version') {
-            gitPublishPush.enabled = (docDir != 'snapshots')
-            into "$docDir/$badassJlinkPluginVersion"
-
-            preserve {
-                include '**'
-                exclude "$docDir/$badassJlinkPluginVersion"
-            }
-        } else {
-            into "$docDir/latest"
-
-            preserve {
-                include '**'
-                exclude "$docDir/latest"
-            }
+    } else if(pgType == 'version') {
+        gitPublishPush.enabled = (docDir != 'snapshots')
+        contents.into "$docDir/$badassJlinkPluginVersion"
+        preserve {
+            include '**'
+            exclude "$docDir/$badassJlinkPluginVersion"
+        }
+    } else {
+        contents.into "$docDir/latest"
+        preserve {
+            include '**'
+            exclude "$docDir/latest"
         }
     }
 }

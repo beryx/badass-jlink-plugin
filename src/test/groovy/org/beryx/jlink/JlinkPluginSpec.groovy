@@ -18,7 +18,7 @@ package org.beryx.jlink
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import spock.lang.IgnoreIf
+import spock.lang.Ignore
 import spock.lang.Specification
 import spock.lang.TempDir
 import spock.lang.Unroll
@@ -82,7 +82,7 @@ class JlinkPluginSpec extends Specification {
         checkOutput(result, 'modular-hello', 'LOG: Hello, modular Java!')
     }
 
-    @IgnoreIf({ os.windows })
+    @Ignore("Gradle bug: https://github.com/gradle/native-platform/issues/274")
     def "should use configured toolchain"() {
         when:
         setUpBuild('hello-toolchain')
