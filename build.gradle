@@ -184,7 +184,7 @@ gitPublish {
     } else if(pgType == 'list') {
         contents.from file("build/release-list")
     } else {
-        contents.from file("${asciidoctor.outputDir.path}/html5")
+        contents.from file(asciidoctor.outputDir.path)
         contents.from file("build/docs")
     }
 
