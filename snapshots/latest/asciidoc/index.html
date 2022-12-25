@@ -2,22 +2,97 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 1.5.8">
+<meta name="generator" content="Asciidoctor 2.0.10">
 <meta name="author" content="Serban Iordache">
 <title>The Badass JLink Plugin</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <link rel="stylesheet" href="./asciidoctor.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<link rel="stylesheet" href="./coderay-asciidoctor.css">
+<style>
+.hidden {
+    display: none;
+}
+
+.switch {
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
+    border-color: #7a2518;
+    display: inline-block;
+}
+
+.switch--item {
+    padding: 10px;
+    background-color: #ffffff;
+    color: #7a2518;
+    display: inline-block;
+    cursor: pointer;
+}
+
+.switch--item.selected {
+    background-color: #7a2519;
+    color: #ffffff;
+}
+
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/zepto/1.2.0/zepto.min.js"></script>
+<script type="text/javascript">
+function addBlockSwitches() {
+    $('.primary').each(function() {
+        primary = $(this);
+        createSwitchItem(primary, createBlockSwitch(primary)).item.addClass("selected");
+        primary.children('.title').remove();
+    });
+    $('.secondary').each(function(idx, node) {
+        secondary = $(node);
+        primary = findPrimary(secondary);
+        switchItem = createSwitchItem(secondary, primary.children('.switch'));
+        switchItem.content.addClass('hidden');
+        findPrimary(secondary).append(switchItem.content);
+        secondary.remove();
+    });
+}
+
+function createBlockSwitch(primary) {
+    blockSwitch = $('<div class="switch"></div>');
+    primary.prepend(blockSwitch);
+    return blockSwitch;
+}
+
+function findPrimary(secondary) {
+    candidate = secondary.prev();
+    while (!candidate.is('.primary')) {
+        candidate = candidate.prev();
+    }
+    return candidate;
+}
+
+function createSwitchItem(block, blockSwitch) {
+    blockName = block.children('.title').text();
+    content = block.children('.content').first().append(block.next('.colist'));
+    item = $('<div class="switch--item">' + blockName + '</div>');
+    item.on('click', '', content, function(e) {
+        $(this).addClass('selected');
+        $(this).siblings().removeClass('selected');
+        e.data.siblings('.content').addClass('hidden');
+        e.data.removeClass('hidden');
+    });
+    blockSwitch.append(item);
+    return {'item': item, 'content': content};
+}
+
+$(addBlockSwitches);
+
+</script>
+
 </head>
 <body class="article toc2 toc-left">
 <div id="header">
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 2.24.5-SNAPSHOT</span>
+<span id="revnumber">version 2.26.0-SNAPSHOT</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -99,8 +174,9 @@ With the <code>jpackage</code> task you can create a platform-specific installer
 <i class="fa icon-warning" title="Warning"></i>
 </td>
 <td class="content">
-The plugin requires Java 11 and Gradle 4.8 or newer.
+The current version of this plugin requires Java 11 and Gradle 7.0 or newer.
 While it might work with some combinations of older Java and Gradle versions, these are not officially supported.
+If you are forced to work with an older Gradle release, you should use <a href="https://badass-jlink-plugin.beryx.org/releases/2.25.0/">the version 2.25.0</a> of this plugin.
 </td>
 </tr>
 </table>
@@ -111,7 +187,7 @@ While it might work with some combinations of older Java and Gradle versions, th
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '2.24.5-SNAPSHOT'
+    id 'org.beryx.jlink' version '2.26.0-SNAPSHOT'
 }</code></pre>
 </div>
 </div>
@@ -252,7 +328,7 @@ You can use the suggested block as a starting point for your custom <code>merged
 <dt class="hdlist1">mainClass</dt>
 <dd>
 <p>The main class to be provided as part of the <code>--launcher</code> option of <em>jlink</em>.<br>
-<em>defaultValue</em>: <code>project.mainClassName</code> (from the <a href="https://docs.gradle.org/current/userguide/application_plugin.html">Application plugin</a>)<br>
+<em>defaultValue</em>: <code>application.mainClass</code> (from the <a href="https://docs.gradle.org/current/userguide/application_plugin.html">Application plugin</a>)<br>
 <em>usage example</em>: <code>mainClass = 'org.example.MyApp'</code></p>
 </dd>
 <dt class="hdlist1">moduleName</dt>
@@ -983,6 +1059,12 @@ It&#8217;s recommended to use the same value as for the <strong>imageName</stron
 <em>This is a convenience property equivalent to configuring <code>--icon</code> in the <code>imageOptions</code> list.</em><br>
 <em>defaultValue</em>: null (the default icon is used)</p>
 </dd>
+<dt class="hdlist1">vendor</dt>
+<dd>
+<p>the vendor name.<br>
+<em>This is a convenience property equivalent to configuring <code>--vendor</code> in the <code>imageOptions</code> list.</em><br>
+<em>defaultValue</em>: <code>Unknown</code></p>
+</dd>
 <dt class="hdlist1">jvmArgs</dt>
 <dd>
 <p>list of JVM arguments to be passed to the virtual machine.<br>
@@ -1360,8 +1442,9 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 2.24.5-SNAPSHOT<br>
+Version 2.26.0-SNAPSHOT<br>
 </div>
 </div>
+<link rel="stylesheet" href="./coderay-asciidoctor.css">
 </body>
 </html>
