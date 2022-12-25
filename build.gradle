@@ -130,13 +130,13 @@ jar.dependsOn shadowJar
 gradlePlugin {
     website = 'https://github.com/beryx/badass-jlink-plugin/'
     vcsUrl = 'https://github.com/beryx/badass-jlink-plugin'
-    description = 'A Gradle plugin that assembles your modules into a custom runtime image'
 
     plugins {
         jlink {
             id = 'org.beryx.jlink'
             implementationClass = 'org.beryx.jlink.JlinkPlugin'
             displayName = 'Badass JLink Plugin'
+            description = 'A Gradle plugin that assembles your modules into a custom runtime image'
             tags.set(['jlink', 'jpms', 'image'])
         }
     }
