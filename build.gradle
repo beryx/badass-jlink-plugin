@@ -1,108 +1,62 @@
+import com.hierynomus.gradle.license.tasks.LicenseCheck
 import groovy.text.SimpleTemplateEngine
-import org.kohsuke.github.*
+import org.kohsuke.github.GitHub
 
 buildscript {
-    repositories {
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-    }
     dependencies {
-        classpath 'org.kohsuke:github-api:1.313'
+        classpath 'org.kohsuke:github-api:1.316'
     }
 }
 
 plugins {
-    id 'java-gradle-plugin'
     id 'groovy'
-    id 'maven-publish'
-    id 'com.github.johnrengelman.shadow' version '7.1.2'
-    id "com.gradle.plugin-publish" version "1.1.0"
-    id "com.github.ethankhall.semantic-versioning" version "1.1.0"
-    id "com.github.ben-manes.versions" version "0.44.0"
-    id 'com.github.jk1.dependency-license-report' version '2.1'
-    id "com.github.hierynomus.license" version "0.16.1"
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'com.gradle.plugin-publish' version '1.2.1'
+    id 'com.github.ethankhall.semantic-versioning' version '1.1.0'
+    id 'com.github.ben-manes.versions' version '0.48.0'
+    id 'com.github.hierynomus.license' version '0.16.1'
     id 'org.asciidoctor.jvm.convert' version '3.3.2'
-    id "org.ajoberstar.git-publish" version "4.1.1"
+    id 'org.ajoberstar.git-publish' version '4.2.0'
 }
 
-if(JavaVersion.current() != JavaVersion.VERSION_11) {
-    throw new GradleException("Please use Java 11 to execute this Gradle build")
-}
+java.toolchain.languageVersion = JavaLanguageVersion.of(11)
 
 project.version.with {
-    major = badassJlinkPluginVersionMajor as int
-    minor= badassJlinkPluginVersionMinor as int
-    patch = badassJlinkPluginVersionPatch as int
-    if (project.hasProperty('badassJlinkPluginVersionLabel')) {
-        preRelease = badassJlinkPluginVersionLabel
+    major = pluginVersionMajor as int
+    minor = pluginVersionMinor as int
+    patch = pluginVersionPatch as int
+    if (hasProperty('pluginVersionLabel')) {
+        preRelease = pluginVersionLabel
     }
-    releaseBuild = Boolean.valueOf(badassJlinkPluginReleaseBuild)
+    releaseBuild = pluginReleaseBuild
 }
-ext.badassJlinkPluginVersion = project.version as String
-ext.badassJlinkPluginTag = Boolean.valueOf(badassJlinkPluginReleaseBuild) ? "v$ext.badassJlinkPluginVersion" : 'master'
-
+def badassJlinkPluginTag = pluginReleaseBuild ? "v$project.version" : 'master'
 group = 'org.beryx'
-version = badassJlinkPluginVersion
 
-ext.asmVersion = '9.4'
-
-repositories {
-    mavenCentral()
-}
-
-sourceCompatibility = 1.8
-
-def defaultEncoding = 'UTF-8'
-[compileJava, compileTestJava]*.options*.encoding = defaultEncoding
-
-[compileGroovy, compileTestGroovy]*.options*.encoding = defaultEncoding
-[compileGroovy, compileTestGroovy]*.groovyOptions*.encoding = defaultEncoding
-
-task licenseCheckGroovy(type: com.hierynomus.gradle.license.tasks.LicenseCheck) {
-    source = fileTree(dir: "src").include("**/*.groovy")
+tasks.register('licenseCheckGroovy', LicenseCheck) {
+    source = fileTree(dir: 'src').include('**/*.groovy')
 }
 tasks.license.dependsOn licenseCheckGroovy
 
 license {
-    header rootProject.file("license-header.txt")
+    header file('license-header.txt')
     skipExistingHeaders true
     ignoreFailures false
-    excludes (['**/*.properties', '**/*.txt', '**/hello*/', '**/opens-to-jaxb*/', '**/local-deps*/', '**/multi-launch*/'])
-}
-
-configurations {
-    plugin.description = 'Plugin\'s dependencies'
-    implementation.extendsFrom plugin
-
-    [apiElements, runtimeElements].each {
-        it.outgoing.artifacts.removeIf { it.buildDependencies.getDependencies(null).contains(jar) }
-        it.outgoing.artifact(shadowJar)
-    }
+    excludes(['**/*.properties', '**/*.txt', '**/hello*/', '**/opens-to-jaxb*/', '**/local-deps*/', '**/multi-launch*/'])
 }
 
 configurations {
     asciidoctorExt
 }
 
+repositories {
+    mavenCentral()
+}
+
 dependencies {
-    implementation gradleTestKit()
-    implementation localGroovy()
+    implementation 'org.ow2.asm:asm:9.5'
 
-    implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.32'
-
-    plugin "org.ow2.asm:asm:$asmVersion"
-    plugin "org.ow2.asm:asm-commons:$asmVersion"
-    plugin "org.ow2.asm:asm-tree:$asmVersion"
-    plugin "org.ow2.asm:asm-util:$asmVersion"
-    plugin "org.ow2.asm:asm-analysis:$asmVersion"
-
-    testImplementation('org.spockframework:spock-core:2.3-groovy-3.0') {
-        exclude module: 'groovy-all'
-    }
-    testImplementation 'cglib:cglib-nodep:3.3.0'
-    testImplementation 'org.objenesis:objenesis:3.2'
-    testImplementation ('com.athaydes:spock-reports:2.3.1-groovy-3.0') { transitive = false}
+    testImplementation 'org.spockframework:spock-core:2.4-M1-groovy-3.0'
 
     asciidoctorExt 'com.bmuschko:asciidoctorj-tabbed-code-extension:0.3'
 }
@@ -111,25 +65,20 @@ test {
     useJUnitPlatform()
 }
 
+jar {
+    manifest.attributes('Implementation-Title': project.name,
+            'Implementation-Version': project.version)
+    enabled = false
+    dependsOn shadowJar
+}
+
 shadowJar {
-    configurations = [project.configurations.plugin]
     archiveClassifier = null
-    dependencies {
-        include(dependency("org.ow2.asm:asm:$asmVersion"))
-        include(dependency("org.ow2.asm:asm-commons:$asmVersion"))
-        include(dependency("org.ow2.asm:asm-tree:$asmVersion"))
-        include(dependency("org.ow2.asm:asm-util:$asmVersion"))
-        include(dependency("org.ow2.asm:asm-anaysis:$asmVersion"))
-    }
     relocate 'org.objectweb.asm', 'org.beryx.jlink.shadow.asm'
 }
 
-jar.enabled = false
-jar.dependsOn shadowJar
-
 gradlePlugin {
-    website = 'https://github.com/beryx/badass-jlink-plugin/'
-    vcsUrl = 'https://github.com/beryx/badass-jlink-plugin'
+    website = vcsUrl = 'https://github.com/beryx/badass-jlink-plugin'
 
     plugins {
         jlink {
@@ -142,29 +91,15 @@ gradlePlugin {
     }
 }
 
-
-jar {
-    manifest {
-        attributes 'Implementation-Title': "${project.archivesBaseName}",
-                'Implementation-Version': badassJlinkPluginVersion
-    }
-}
-
-test {
-    testLogging {
-        exceptionFormat = 'full'
-    }
-}
-
 asciidoctor {
     configurations 'asciidoctorExt'
-    setSourceDir file("doc")
+    setSourceDir file('doc')
     baseDirFollowsSourceDir()
-    sources {include 'index.adoc'}
+    sources { include 'index.adoc' }
     logDocuments = true
     attributes 'source-highlighter': 'coderay',
             'coderay-linenums-mode': 'table',
-            'project-version': version,
+            'project-version': project.version,
             icons: 'font',
             imagesdir: 'img',
             'data-uri': '',
@@ -178,31 +113,31 @@ gitPublish {
     repoUri = 'https://github.com/beryx/badass-jlink-plugin.git'
     branch = 'gh-pages'
 
-    def pgType = project.hasProperty('ghPageType') ? ghPageType : 'latest'
-    if(pgType == 'init') {
-        contents .from file("ghpages")
-    } else if(pgType == 'list') {
-        contents.from file("build/release-list")
+    def pgType = hasProperty('ghPageType') ? ghPageType : 'latest'
+    if (pgType == 'init') {
+        contents.from file('ghpages')
+    } else if (pgType == 'list') {
+        contents.from file('build/release-list')
     } else {
         contents.from file(asciidoctor.outputDir.path)
-        contents.from file("build/docs")
+        contents.from file('build/docs')
     }
 
-    def docDir = Boolean.valueOf(badassJlinkPluginReleaseBuild) ? 'releases' : 'snapshots'
-    if(pgType == 'init') {
-        contents.into "."
-    } else if(pgType == 'list') {
-        contents.into "."
+    def docDir = pluginReleaseBuild ? 'releases' : 'snapshots'
+    if (pgType == 'init') {
+        contents.into '.'
+    } else if (pgType == 'list') {
+        contents.into '.'
         preserve {
             include '**'
-            exclude "releases.md"
+            exclude 'releases.md'
         }
-    } else if(pgType == 'version') {
+    } else if (pgType == 'version') {
         gitPublishPush.enabled = (docDir != 'snapshots')
-        contents.into "$docDir/$badassJlinkPluginVersion"
+        contents.into "$docDir/$project.version"
         preserve {
             include '**'
-            exclude "$docDir/$badassJlinkPluginVersion"
+            exclude "$docDir/$project.version"
         }
     } else {
         contents.into "$docDir/latest"
@@ -213,52 +148,42 @@ gitPublish {
     }
 }
 
-task "update-release-list" {
+tasks.register('update-release-list') {
     doLast {
         def docBaseUrl = 'http://badass-jlink-plugin.beryx.org'
-        updateReleaseList(docBaseUrl)
+        def markdown = getReleasesMarkdown(getReleases(), docBaseUrl)
+        new File(mkdir('build/release-list'), 'releases.md').write(markdown)
     }
 }
 
-def updateReleaseList(String docBaseUrl) {
-    List<String> releases = getReleases()
-    def markdown = getReleasesMarkdown(releases, docBaseUrl)
-    def releaseListDir = new File('build/release-list')
-    releaseListDir.mkdirs()
-    new File(releaseListDir, 'releases.md').write(markdown)
-}
-
-def getReleases() {
-    GitHub gitHubApi = GitHub.connectUsingPassword(System.getenv('GRGIT_USER') ?: '', '')
-    def releases = gitHubApi.getOrganization("beryx")
-            .getRepository("badass-jlink-plugin")
-            .getDirectoryContent("releases", "gh-pages")*.name
+static def getReleases() {
+    def releases = GitHub.connectAnonymously()
+            .getRepository('beryx/badass-jlink-plugin')
+            .getDirectoryContent('releases', 'gh-pages')*.name
     releases.removeAll { !it || it == 'latest' }
 
     releases.sort { o1, o2 ->
-        if(!o1) return o2 ? 1 : 0
-        if(!o2) return -1
-        String[] tokens1 = o1.split("\\.")
-        String[] tokens2 = o2.split("\\.")
+        if (!o1) return o2 ? 1 : 0
+        if (!o2) return -1
+        String[] tokens1 = o1.split('\\.')
+        String[] tokens2 = o2.split('\\.')
         int len = Math.min(tokens1.length, tokens2.length)
-        for(int i=0; i<len; i++) {
+        for (int i = 0; i < len; i++) {
             int result
-            try {
-                int n1 = Integer.parseInt(tokens1[i])
-                int n2 = Integer.parseInt(tokens2[i])
-                result = Integer.compare(n2, n1)
-            } catch (NumberFormatException e) {
+            if (tokens2[i].isInteger() && tokens1[i].isInteger()) {
+                result = Integer.compare(tokens2[i] as int, tokens1[i] as int)
+            } else {
                 result = tokens2[i] <=> tokens1[i]
             }
-            if(result != 0) return result
+            if (result != 0) return result
         }
         tokens2.length <=> tokens1.length
     }
-    releases
+    return releases
 }
 
-def getReleasesMarkdown(List<String> releases, String docBaseUrl) {
-    def releasesTemplate = '''
+static def getReleasesMarkdown(List<String> releases, String docBaseUrl) {
+    return new SimpleTemplateEngine().createTemplate('''
             ## List of all releases ##
             
             **Latest snapshot**
@@ -270,14 +195,14 @@ def getReleasesMarkdown(List<String> releases, String docBaseUrl) {
               - [groovydoc]($docBaseUrl/releases/$it/groovydoc)
               
             <% } %>
-        '''.stripIndent()
+        '''.stripIndent())
+            .make(docBaseUrl: docBaseUrl, releases: releases)
+            .toString()
+}
 
-    def engine = new SimpleTemplateEngine()
-    def template = engine.createTemplate(releasesTemplate)
-    def binding = [
-            docBaseUrl: docBaseUrl,
-            releases  : releases
-    ]
-
-    template.make(binding).toString()
+if (hasProperty('buildScan')) {
+    buildScan {
+        termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+        termsOfServiceAgree = 'yes'
+    }
 }
