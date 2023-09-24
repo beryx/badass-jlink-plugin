@@ -49,9 +49,14 @@ class JPackageTask extends BaseTask {
         extension.imageName
     }
 
-    @OutputDirectory
+    @Internal
     Directory getImageDir() {
         extension.imageDir.get()
+    }
+
+    @InputDirectory
+    File getImageOutputDir() {
+        extension.jpackageData.get().imageOutputDir
     }
 
     @Nested
