@@ -35,8 +35,8 @@ class SecondaryLauncherData extends LauncherData {
 
     @CompileDynamic
     void check() {
-        ["name", "moduleName", "mainClass"].each {
-            if(!this."$it") throw new GradleException("Property '$it' not set in 'secondaryLauncher' block")
+        if (!this.name) {
+            throw new GradleException("Property 'name' not set in 'secondaryLauncher' block")
         }
     }
 }
