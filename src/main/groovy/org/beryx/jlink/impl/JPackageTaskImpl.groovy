@@ -88,6 +88,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
 
                 final def resourceDir = jpd.resourceDir
                 final def resourceOpts = (resourceDir == null) ? [] : [ '--resource-dir', resourceDir ]
+                final def iconOpts = jpd.icon ? [ '--icon', jpd.icon ] : []
 
                 commandLine = [jpackageExec,
                                '--type', packageType,
@@ -97,6 +98,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                                *vendorOpts,
                                '--app-image', "$appImagePath",
                                *resourceOpts,
+                               *iconOpts,
                                *jpd.installerOptions]
             }
             if(result.exitValue != 0) {
