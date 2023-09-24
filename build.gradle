@@ -51,7 +51,7 @@ repositories {
 dependencies {
     implementation 'org.ow2.asm:asm:9.5'
 
-    testImplementation 'org.spockframework:spock-core:2.4-M1-groovy-3.0'
+    testImplementation 'org.spockframework:spock-core:2.4-M1-groovy-4.0'
 
     asciidoctorExt 'com.bmuschko:asciidoctorj-tabbed-code-extension:0.3'
 }
