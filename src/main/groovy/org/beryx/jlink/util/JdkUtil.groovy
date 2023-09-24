@@ -36,7 +36,7 @@ class JdkUtil {
 
         JdkDownloadOptions(Project project, String targetPlatform, String downloadUrl) {
             this.project = project
-            this.downloadDir = "$project.buildDir/jdks/$targetPlatform"
+            this.downloadDir = "${project.layout.buildDirectory.get()}/jdks/$targetPlatform"
             this.archiveName = "jdk"
             def urlPath = new URL(downloadUrl).path
             if(urlPath.endsWith(".tar.gz")) archiveExtension = "tar.gz"

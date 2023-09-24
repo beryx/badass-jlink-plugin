@@ -138,6 +138,6 @@ class JlinkTask extends BaseTask {
 
     @Internal
     File getImageDirFromName() {
-        project.file("$project.buildDir/$imageName")
+        project.file("${project.layout.buildDirectory.get()}/$imageName")
     }
 }

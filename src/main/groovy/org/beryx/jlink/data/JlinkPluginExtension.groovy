@@ -62,7 +62,7 @@ class JlinkPluginExtension {
     JlinkPluginExtension(Project project) {
         this.project = project
         jlinkBasePath = project.objects.property(String)
-        jlinkBasePath.set(project.provider{"$project.buildDir/jlinkbase" as String})
+        jlinkBasePath.set(project.layout.buildDirectory.dir('jlinkbase').map { it -> it as String})
 
         imageName = project.objects.property(String)
         imageName.set('')

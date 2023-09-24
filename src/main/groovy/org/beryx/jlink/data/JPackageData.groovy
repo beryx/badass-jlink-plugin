@@ -124,12 +124,12 @@ class JPackageData {
 
     @OutputDirectory
     File getImageOutputDir() {
-        this.@imageOutputDir ?: project.file("$project.buildDir/$outputDir")
+        this.@imageOutputDir ?: project.layout.buildDirectory.dir(outputDir).get().asFile
     }
 
     @OutputDirectory
     File getInstallerOutputDir() {
-        this.@installerOutputDir ?: project.file("$project.buildDir/$outputDir")
+        this.@installerOutputDir ?: project.layout.buildDirectory.dir(outputDir).get().asFile
     }
 
     @Internal

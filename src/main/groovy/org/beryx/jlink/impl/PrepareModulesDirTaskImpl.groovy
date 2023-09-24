@@ -50,21 +50,18 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
         }
 
         project.copy {
+            from project.jar.archiveFile
             into td.jlinkJarsDir
-            from (project.jar.archivePath)
         }
 
         adjustModuleDescriptors(depMgr)
-
-        def mainModuleJar = new File(td.jlinkJarsDir, project.jar.archivePath.name)
-        def targetPath = "$td.jlinkJarsDir/${td.moduleName}.jar"
     }
 
     @CompileDynamic
     private void adjustModuleDescriptors(DependencyManager depMgr) {
         def nonModularModules = depMgr.nonModularJars.collect { Util.getModuleName(it) }
         def adjuster = new ModuleInfoAdjuster(td.mergedModuleName, nonModularModules)
-        def jarMap = (depMgr.modularJars + project.jar.archivePath).collectEntries { [it.name, it] }
+        def jarMap = (depMgr.modularJars + Util.getArchiveFile(project)).collectEntries { [it.name, it] }
         td.jlinkJarsDir.listFiles().each { File jar ->
             if(jarMap.keySet().contains(jar.name)) {
                 def adjustedDescriptors = adjuster.getAdjustedDescriptors(jarMap[jar.name])
