@@ -27,6 +27,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.CopySpec
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.process.internal.ExecException
 
 import java.lang.module.ModuleFinder
 import java.lang.module.ModuleReference
@@ -136,16 +137,20 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
             into(targetDir)
         }
 
-        project.exec {
-            commandLine = [
-                "$td.javaHome/bin/javac",
-                *versionOpts,
-                '-p',
-                "$td.mergedJarsDir$SEP$td.jlinkJarsDirPath",
-                '-d',
-                targetDir.path,
-                "$moduleInfoJavaDir/module-info.java"
-            ]
+        try {
+            project.exec {
+                commandLine = [
+                    "$td.javaHome/bin/javac",
+                    *versionOpts,
+                    '-p',
+                    "$td.mergedJarsDir$SEP$td.jlinkJarsDirPath",
+                    '-d',
+                    targetDir.path,
+                    "$moduleInfoJavaDir/module-info.java"
+                ]
+            }
+        } catch (ExecException e) {
+            throw new GradleException('Unable to compile merged module-info. Tip: If there is a module not found error, try using `addExtraDependencies` in the `jlink {...}` block for the missing module.', e)
         }
     }
 

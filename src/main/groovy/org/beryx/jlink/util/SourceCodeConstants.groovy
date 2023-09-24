@@ -19,21 +19,18 @@ class SourceCodeConstants {
     static final String GET_MODULE_DESCRIPTOR = '''
     private static ModuleDescriptor getModuleDescriptor(File f) {
         try {
-            if(!f.isFile()) throw new IllegalArgumentException(f + " is not a file");
-            if(f.getName().equals("module-info.class")) {
+            if (!f.isFile()) throw new IllegalArgumentException(f + " is not a file");
+            if (f.getName().equals("module-info.class")) {
                 return ModuleDescriptor.read(new FileInputStream(f));
             }
             if(!f.getName().endsWith(".jar") && !f.getName().endsWith(".jmod")) throw new IllegalArgumentException("Unsupported file type: " + f);
-            String prefix = f.getName().endsWith(".jmod") ? "classes/" : "";
             ZipFile zipFile = new ZipFile(f);
-            for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements();) {
-                ZipEntry entry = entries.nextElement();
-                if(entry.getName().equals(prefix + "module-info.class")) {
-                    InputStream entryStream = zipFile.getInputStream(entry);
-                    return ModuleDescriptor.read(entryStream);
-                }
+            var x = zipFile.stream().filter(entry -> entry.getName().endsWith("module-info.class")).findFirst();
+            if (x.isPresent()) {
+                return ModuleDescriptor.read(zipFile.getInputStream(x.get()));
+            } else {
+                return null;
             }
-            return null;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
