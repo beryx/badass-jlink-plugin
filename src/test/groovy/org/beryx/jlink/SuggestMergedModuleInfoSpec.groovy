@@ -134,13 +134,13 @@ class SuggestMergedModuleInfoSpec extends Specification {
 
         where:
         language | expectedDirectives           | gradleFile                  | gradleVersion | debug
-        'groovy' | GROOVY_DIRECTIVES            | 'build.gradle'              | '7.0'         | true
+        'groovy' | GROOVY_DIRECTIVES            | 'build.gradle'              | '7.4'         | true
         'kotlin' | KOTLIN_DIRECTIVES            | 'build.gradle'              | '7.6'         | true
-        'java'   | JAVA_DIRECTIVES              | 'build.gradle'              | '7.2'         | true
+        'java'   | JAVA_DIRECTIVES              | 'build.gradle'              | '7.4'         | true
         'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '7.6'         | true
-        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '7.0'         | true
+        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '7.4'         | true
         'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle'     | '7.6'         | true
-        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '7.2'         | false
+        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '7.4'         | false
         'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '7.6'         | false
         'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle.kts' | '7.6'         | false
     }

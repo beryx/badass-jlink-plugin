@@ -6,8 +6,8 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 11
-targetCompatibility = 11
+sourceCompatibility = 17
+targetCompatibility = 17
 
 ext.log4jVersion = '2.19.0'
 

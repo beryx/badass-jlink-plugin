@@ -6,7 +6,7 @@ plugins {
 group 'org.example'
 version '1.0'
 
-sourceCompatibility = 11
+sourceCompatibility = 17
 
 application {
     mainClass = "org.example.Hello"

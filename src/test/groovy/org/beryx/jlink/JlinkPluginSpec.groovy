@@ -116,10 +116,10 @@ class JlinkPluginSpec extends Specification {
         where:
         moduleName              | gradleVersion | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
         null                    | '7.6'         | null         | null                        | null                                | 'modular-hello'
-        'modular.example.hello' | '7.0'         | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
-        null                    | '7.2'         | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
+        'modular.example.hello' | '7.4'         | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
+        null                    | '7.4'         | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
         'modular.example.hello' | '7.6'         | null         | null                        | null                                | 'modular-hello'
-        'modular.example.hello' | '7.0'         | 'run-hello'  | 'org.example.modular.Hello' | null                                | 'run-hello'
+        'modular.example.hello' | '7.4'         | 'run-hello'  | 'org.example.modular.Hello' | null                                | 'run-hello'
         'modular.example.hello' | '7.6'         | 'run-hello'  | null                        | null                                | 'run-hello'
     }
 
@@ -147,7 +147,7 @@ class JlinkPluginSpec extends Specification {
 
         where:
         projectDir                  | gradleVersion | imageDir  | imageZip      | expectedLauncherName
-        'hello-javafx'              | '7.0'         | 'helloFX' | 'helloFX.zip' | 'helloFX'
+        'hello-javafx'              | '7.4'         | 'helloFX' | 'helloFX.zip' | 'helloFX'
         'hello-javafx-log4j-2.11.1' | '7.6'         | 'image'   | 'image.zip'   | 'helloFX'
     }
 

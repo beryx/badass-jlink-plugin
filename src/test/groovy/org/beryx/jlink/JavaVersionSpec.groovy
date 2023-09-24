@@ -26,6 +26,6 @@ class JavaVersionSpec extends Specification {
         int version = JavaVersion.get(System.getenv('JAVA_HOME'))
 
         then:
-        version == 11
+        version == 17
     }
 }
