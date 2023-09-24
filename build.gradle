@@ -82,7 +82,7 @@ gradlePlugin {
             implementationClass = 'org.beryx.jlink.JlinkPlugin'
             displayName = 'Badass JLink Plugin'
             description = 'A Gradle plugin that assembles your modules into a custom runtime image'
-            tags.set(['jlink', 'jpms', 'image'])
+            tags.set(['jlink', 'jpackage', 'jpms'])
         }
     }
 }
@@ -98,7 +98,6 @@ asciidoctor {
             'project-version': project.version,
             icons: 'font',
             imagesdir: 'img',
-            'data-uri': '',
             linkattrs: true,
             linkcss: true,
             'git-tag': badassJlinkPluginTag,
@@ -109,10 +108,11 @@ gitPublish {
     repoUri = 'https://github.com/beryx/badass-jlink-plugin.git'
     branch = 'gh-pages'
 
-    def pgType = hasProperty('ghPageType') ? ghPageType : 'latest'
+    def pgType = project.hasProperty('ghPageType') ? ghPageType : 'latest'
     if (pgType == 'init') {
         contents.from file('ghpages')
     } else if (pgType == 'list') {
+        gitPublishReset.dependsOn('update-release-list')
         contents.from file('build/release-list')
     } else {
         contents.from file(asciidoctor.outputDir.path)
