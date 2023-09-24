@@ -98,8 +98,8 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                                *vendorOpts,
                                '--app-image', "$appImagePath",
                                *resourceOpts,
-                               *jpd.installerOptions,
-                               *iconOpts]
+                               *iconOpts,
+                               *jpd.installerOptions]
             }
             if(result.exitValue != 0) {
                 LOGGER.error(project.ext.jpackageInstallerOutput())
