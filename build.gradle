@@ -24,7 +24,7 @@ project.version.with {
     major = pluginVersionMajor as int
     minor = pluginVersionMinor as int
     patch = pluginVersionPatch as int
-    if (hasProperty('pluginVersionLabel')) {
+    if (project.hasProperty('pluginVersionLabel')) {
         preRelease = pluginVersionLabel
     }
     releaseBuild = pluginReleaseBuild
@@ -75,7 +75,6 @@ shadowJar {
 
 gradlePlugin {
     website = vcsUrl = 'https://github.com/beryx/badass-jlink-plugin'
-
     plugins {
         jlink {
             id = 'org.beryx.jlink'
