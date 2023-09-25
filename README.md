@@ -8,7 +8,7 @@
 
 Using this Gradle plugin you can create a custom runtime image of your modular application with minimal effort, 
 even if it depends on automatic modules.
-The plugin also lets you create an application installer with the [jpackage](https://jdk.java.net/jpackage/) tool introduced in Java 14
+The plugin also lets you create an application installer with the [jpackage](https://docs.oracle.com/en/java/javase/21/jpackage/packaging-overview.html) tool introduced in Java 14
 (see [fxgl-sliding-puzzle](https://github.com/beryx/fxgl-sliding-puzzle/blob/master/README.adoc) for a usage example).
 
 :bulb: For non-modular applications use the [Badass-Runtime plugin](https://badass-runtime-plugin.beryx.org/releases/latest/).
@@ -25,7 +25,9 @@ jlink {
         jvmArgs = ['-Dlog4j.configurationFile=./log4j2.xml']
     }
 }
-``` 
+```
+
+### This is a complex plugin. Please [read the documentation](https://badass-jlink-plugin.beryx.org/releases/latest/) before using it.
 
 The following projects illustrate how to use this plugin to create custom runtime images:
 - [badass-jlink-example](https://github.com/beryx-gist/badass-jlink-example) - a 'Hello world' application using slf4j and logback.
@@ -40,7 +42,5 @@ The following projects illustrate how to use this plugin to create custom runtim
 - [javafx-jlink-starter-gradle](https://github.com/brunoborges/javafx-jlink-starter-gradle) - A JavaFX starter project with an Azure Pipelines setup that produces binaries for Windows, Mac, and Linux.
 - [javafx-springboot-badass-jlink](https://github.com/mockbirds/javafx-springboot-badass-jlink) - A modular JavaFX application with Spring Boot.
 - [pdf-decorator](https://bitbucket.org/walczak_it/pdf-decorator/src/master/) - A [JavaFX tool](http://pdf-decorator.walczak.it/) to add stamps and backgrounds to PDF documents. There's also a [related article](https://walczak.it/blog/distributing-javafx-desktop-applications-without-requiring-jvm-using-jlink-and-jpackage) explaining how to migrate to this plugin. 
-
-### This is a complex plugin. Please [read the documentation](https://badass-jlink-plugin.beryx.org/releases/latest/) before using it.
 
 See the [list of all releases](https://github.com/beryx/badass-jlink-plugin/blob/gh-pages/releases.md) if you use an older version of this plugin. 
