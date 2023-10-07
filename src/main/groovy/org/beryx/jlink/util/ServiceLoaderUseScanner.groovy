@@ -109,7 +109,7 @@ class ServiceLoaderUseScanner {
                     String invocation = "$lastClassName.$lastMethodName"
                     if(!(invocation in unresolvedInvocations)) {
                         unresolvedInvocations.add(invocation)
-                        LOGGER.warn( "Cannot derive uses clause from service loader invocation in: $invocation().")
+                        LOGGER.warn("Cannot derive uses clause from service loader invocation in: $invocation(). If you get an error at runtime, please add the `uses` clause to the `mergedModule` block for the class that is being referenced by this method.")
                     }
                 } else {
                     usedServices << lastType.className
