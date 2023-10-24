@@ -56,8 +56,8 @@ class JPackageImageTask extends BaseTask {
     }
 
     @InputDirectory
-    Directory getImageDir() {
-        extension.imageDir.get()
+    File getImageInputDir() {
+        ((JlinkTask) project.tasks.getByName(JlinkPlugin.TASK_NAME_JLINK)).getImageDirAsFile()
     }
 
     @Nested
@@ -79,7 +79,7 @@ class JPackageImageTask extends BaseTask {
     void jpackageTaskAction() {
         def taskData = new JPackageTaskData()
         taskData.jlinkBasePath = jlinkBasePath
-        taskData.imageDir = imageName ? imageDirFromName : imageDir.asFile
+        taskData.imageDir = imageInputDir
         taskData.moduleName = moduleName
         taskData.customImageData = customImageData
         taskData.jpackageData = jpackageData
