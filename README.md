@@ -1,6 +1,6 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](http://makeapullrequest.com)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/beryx/badass-jlink-plugin/blob/master/LICENSE)
-[![Build Status](https://img.shields.io/github/workflow/status/beryx/badass-jlink-plugin/Java%2011%20Gradle%20CI)](https://github.com/beryx/badass-jlink-plugin/actions?query=workflow%3A%22Java+11+Gradle+CI%22)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/beryx/badass-jlink-plugin/.github/workflows/build-jlink-plugin.yml?branch=master)](https://github.com/beryx/badass-jlink-plugin/actions?query=workflow%3A%22Java+11+Gradle+CI%22)
 
 ## Badass JLink Plugin ##
 
