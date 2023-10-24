@@ -36,7 +36,12 @@ class SuggestedModulesBuilder {
 
     Set<String> getProjectModules() {
         Set<String> modules = []
-        LOGGER.info("Retrieving project modules for configuration $configuration.name")
+        try {
+            LOGGER.info("Retrieving project modules for configuration $configuration.name")
+        } catch (IncompatibleClassChangeError e) {
+            // no idea why this error shows up in test JlinkPluginSpec."should create runtime image of project #projectDir with Gradle #gradleVersion"
+            LOGGER.info("Retrieving project modules for configuration $configuration")
+        }
         for(ResolvedDependency dep: configuration.resolvedConfiguration.firstLevelModuleDependencies) {
             def f = Util.getArtifact(dep)
             modules.addAll(getModulesRequiredBy(f))
