@@ -23,9 +23,13 @@ jobs:
         arguments: build asciidoc --scan
     - name: Run publish if necessary
       if: runner.os == 'Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
-      env: # Or as an environment variable
+      env:
         GRGIT_USER: ${{ secrets.GRGIT_USER }}
       run: chmod +x publish.sh && ./publish.sh
+    - uses: actions/upload-artifact@v3
+      if: runner.os == 'Linux'
+      with:
+        path: build/libs/*
   release:
     name: Publish to the Gradle Plugin Portal
     runs-on: ubuntu-latest
