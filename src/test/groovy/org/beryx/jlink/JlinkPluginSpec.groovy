@@ -223,6 +223,24 @@ class JlinkPluginSpec extends Specification {
         checkOutput(result, 'howdy', 'Howdy!')
     }
 
+    def "should create image of project with multiple launchers using kotlin DSL"() {
+        when:
+
+        File buildFile = setUpBuild('multi-launch-kotlin-dsl')
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withGradleVersion('7.6')
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+
+        then:
+        checkOutput(result, 'hello', 'Hello, world!')
+        checkOutput(result, 'helloAgain', 'Hello again!')
+        checkOutput(result, 'howdy', 'Howdy!')
+    }
+
     private boolean checkOutput(BuildResult result, String imageName, String expectedOutput) {
         def imageBinDir = new File(testProjectDir.toFile(), 'build/image/bin')
         def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
