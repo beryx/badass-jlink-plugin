@@ -174,7 +174,7 @@ class JlinkPluginExtension {
         action.execute(launcherData.get())
     }
 
-    void secondaryLauncher(Action<LauncherData> action) {
+    void secondaryLauncher(Action<SecondaryLauncherData> action) {
         def ld = new SecondaryLauncherData(null)
         ld.moduleName = moduleName.get()
         Util.addToListProperty(secondaryLaunchers, ld)
