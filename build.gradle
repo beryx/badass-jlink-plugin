@@ -3,7 +3,7 @@ import org.kohsuke.github.GitHub
 
 buildscript {
     dependencies {
-        classpath 'org.kohsuke:github-api:1.317'
+        classpath 'org.kohsuke:github-api:1.318'
     }
 }
 
@@ -12,9 +12,9 @@ plugins {
     id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'com.gradle.plugin-publish' version '1.2.1'
     id 'com.github.ethankhall.semantic-versioning' version '1.1.0'
-    id 'com.github.ben-manes.versions' version '0.49.0'
+    id 'com.github.ben-manes.versions' version '0.51.0'
     id 'com.github.hierynomus.license' version '0.16.1'
-    id 'org.asciidoctor.jvm.convert' version '3.3.2'
+    id 'org.asciidoctor.jvm.convert' version '4.0.2'
     id 'org.ajoberstar.git-publish' version '4.2.1'
 }
 
