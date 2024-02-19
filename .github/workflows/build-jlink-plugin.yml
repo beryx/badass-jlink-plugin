@@ -18,7 +18,7 @@ jobs:
         java-version: '17'
         distribution: 'zulu'
     - name: Gradle build
-      uses: gradle/gradle-build-action@v2
+      uses: gradle/gradle-build-action@v3
       with:
         arguments: build asciidoc --scan
     - name: Run publish if necessary
@@ -43,7 +43,7 @@ jobs:
           java-version: '17'
           distribution: 'zulu'
       - name: Publish Gradle Plugins
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: |
             assemble
