@@ -65,7 +65,7 @@ class PrepareMergedJarsDirTask extends BaseTask {
 
     PrepareMergedJarsDirTask() {
         description = 'Merges all non-modularized jars into a single module'
-        project.afterEvaluate {
+        project.getGradle().projectsEvaluated {
             def projects = Util.getAllDependentProjects(project) + project
             def jarTasks = projects*.getTasksByName('jar', true).flatten() as Task[]
             dependsOn(jarTasks)
