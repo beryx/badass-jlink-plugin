@@ -21,7 +21,7 @@ application {
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(19)
+        languageVersion = JavaLanguageVersion.of(23)
         vendor = JvmVendorSpec.ADOPTIUM
     }
 }
