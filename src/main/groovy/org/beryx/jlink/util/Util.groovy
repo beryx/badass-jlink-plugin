@@ -67,7 +67,11 @@ class Util {
 
     private static final String IMPORT_DECLARATION = 'import' + IGNORE + '(static' + IGNORE + ')?' + QUALIFIED_NAME + '(\\.\\*' + ')?' + IGNORE + ';'
     private static final String IMPORT_DECLARATIONS = '(' + IMPORT_DECLARATION + IGNORE + ')*'
-    private static final String MODULE_DECLARATION = '(?s)' + IGNORE + IMPORT_DECLARATIONS + '(open' + IGNORE + ')?' + 'module' + IGNORE + '(?<MODULE>' + QUALIFIED_NAME + ').*?'
+
+    private static final String ANNOTATION = '(@' + QUALIFIED_NAME + '((' + WS + ')*(\\([^)]*\\)))?)'
+    private static final String MODULE_ANNOTATIONS = '(' + ANNOTATION + IGNORE + ')*'
+
+    private static final String MODULE_DECLARATION = '(?s)' + IGNORE + IMPORT_DECLARATIONS + MODULE_ANNOTATIONS + '(open' + IGNORE + ')?' + 'module' + IGNORE + '(?<MODULE>' + QUALIFIED_NAME + ').*?'
 
     private static final Pattern PATTERN = Pattern.compile(MODULE_DECLARATION)
 
