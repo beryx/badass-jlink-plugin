@@ -51,6 +51,8 @@ class UtilSpec extends Specification {
         '/*my module*/\nmodule /*---*/ a.b.c // declaration\n{\n  exports a.b.c;\n}' | 'a.b.c'
         'import x.y.Z;//comment\nimport x.y.W;\nmodule /*---*/ a.b.c'                | 'a.b.c'
         'import x.y.z.*;\nimport x.y/*WW*/./*ZZ*/w.*;\nmodule //x.y.z\n/*-->*/a.b.c' | 'a.b.c'
+        'import x.y.z.*;\n@Annotation\nmodule //x.y.z\n/*-->*/a.b.c'                 | 'a.b.c'
+        'import x.y.z.*;\n@Annotation("text")\nmodule //x.y.z\n/*-->*/a.b.c'         | 'a.b.c'
     }
 
     @Unroll

@@ -1,0 +1,31 @@
+plugins {
+    id 'org.beryx.jlink'
+    id 'org.javamodularity.moduleplugin' version '1.8.12'
+}
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = 17
+targetCompatibility = 17
+
+dependencies {
+    implementation 'org.jspecify:jspecify:1.0.0'
+}
+
+application {
+    mainClass = 'org.beryx.modular.annotatedmodule.HelloAnnotatedModule'
+}
+jar {
+    manifest {
+        attributes 'Implementation-Title': 'helloAnnotatedModule',
+                'Main-Class': application.mainClass
+    }
+}
+
+jlink {
+    launcher {
+        name = 'helloAnnotatedModule'
+    }
+}
