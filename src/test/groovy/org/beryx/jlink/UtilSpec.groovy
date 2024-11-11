@@ -44,15 +44,17 @@ class UtilSpec extends Specification {
         Util.getModuleNameFrom(text) == moduleName
 
         where:
-        text                                                                         | moduleName
-        'module a.b.c\n{'                                                            | 'a.b.c'
-        'open module a.b.c{}'                                                        | 'a.b.c'
-        '  \t  open\t  \tmodule \ta.b.c\t { '                                        | 'a.b.c'
-        '/*my module*/\nmodule /*---*/ a.b.c // declaration\n{\n  exports a.b.c;\n}' | 'a.b.c'
-        'import x.y.Z;//comment\nimport x.y.W;\nmodule /*---*/ a.b.c'                | 'a.b.c'
-        'import x.y.z.*;\nimport x.y/*WW*/./*ZZ*/w.*;\nmodule //x.y.z\n/*-->*/a.b.c' | 'a.b.c'
-        'import x.y.z.*;\n@Annotation\nmodule //x.y.z\n/*-->*/a.b.c'                 | 'a.b.c'
-        'import x.y.z.*;\n@Annotation("text")\nmodule //x.y.z\n/*-->*/a.b.c'         | 'a.b.c'
+        text                                                                               | moduleName
+        'module a.b.c\n{'                                                                  | 'a.b.c'
+        'open module a.b.c{}'                                                              | 'a.b.c'
+        '  \t  open\t  \tmodule \ta.b.c\t { '                                              | 'a.b.c'
+        '/*my module*/\nmodule /*---*/ a.b.c // declaration\n{\n  exports a.b.c;\n}'       | 'a.b.c'
+        'import x.y.Z;//comment\nimport x.y.W;\nmodule /*---*/ a.b.c'                      | 'a.b.c'
+        'import x.y.z.*;\nimport x.y/*WW*/./*ZZ*/w.*;\nmodule //x.y.z\n/*-->*/a.b.c'       | 'a.b.c'
+        'import x.y.z.*;\n@Annotation\nmodule //x.y.z\n/*-->*/a.b.c'                       | 'a.b.c'
+        'import x.y.z.*;\n@Annotation("text")\nmodule //x.y.z\n/*-->*/a.b.c'               | 'a.b.c'
+        'import x.y.z.*;\n@ Annotation("text")\nmodule //x.y.z\n/*-->*/a.b.c'              | 'a.b.c'
+        'import x.y.z.*;\n@Annotation\n(\n  var = "text"\n)\nmodule //x.y.z\n/*-->*/a.b.c' | 'a.b.c'
     }
 
     @Unroll
