@@ -205,6 +205,21 @@ class JlinkPluginSpec extends Specification {
         checkOutput(result, 'helloBom', '{"from":"Alice","to":"Bob","greeting":"Hello"}')
     }
 
+    def "should create runtime image of project with annotations on module declaration"() {
+        when:
+        File buildFile = setUpBuild('hello-annotated-module')
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withGradleVersion('7.6')
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+
+        then:
+        checkOutput(result, 'helloAnnotatedModule', 'Hello annotated module!')
+    }
+
     def "should create image of project with multiple launchers"() {
         when:
 
