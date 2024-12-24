@@ -15,7 +15,7 @@ plugins {
     id 'com.github.ben-manes.versions' version '0.51.0'
     id 'com.github.hierynomus.license' version '0.16.1'
     id 'org.asciidoctor.jvm.convert' version '4.0.4'
-    id 'org.ajoberstar.git-publish' version '4.2.2'
+    id 'org.ajoberstar.git-publish' version '5.1.0'
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
