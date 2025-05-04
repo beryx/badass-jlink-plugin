@@ -19,7 +19,7 @@ A simple example configuration is shown below:
 
 ```
 jlink {
-    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    options = ['--strip-debug', '--compress', 'zip-6', '--no-header-files', '--no-man-pages']
     launcher{
         name = 'hello'
         jvmArgs = ['-Dlog4j.configurationFile=./log4j2.xml']

@@ -51,7 +51,7 @@ class JlinkPluginSpec extends Specification {
         File buildFile = setUpBuild('hello-logback')
         buildFile << '''
             jlink {
-                options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']                
+                options = ['--strip-debug', '--compress', 'zip-6', '--no-header-files', '--no-man-pages']                
         '''.stripIndent()
         if(moduleName) buildFile << "    moduleName = '$moduleName'\n"
         if(launcherName) buildFile << "    launcher {name = '$launcherName'}\n"
