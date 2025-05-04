@@ -76,7 +76,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
 
     @CompileDynamic
     void runJlink(File imageDir, String jdkHome, List<String> extraModulePaths, List<String> options) {
-        if(!new File("$jdkHome/jmods/java.base.jmod").file) {
+        if(!new File("$jdkHome/jmods/java.base.jmod").file && JavaVersion.get(jdkHome) < 24) {
             throw new GradleException("java.base module not found in $jdkHome${File.separator}jmods")
         }
         project.delete(imageDir)
