@@ -68,8 +68,8 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     @CompileDynamic
     void createCDSArchive(File imageDir) {
         if(td.cdsData.enabled) {
-            project.exec {
-                commandLine = ["$imageDir/bin/java", "-Xshare:dump"]
+            project.services.get(org.gradle.process.ExecOperations).exec { spec ->
+                spec.commandLine = ["$imageDir/bin/java", "-Xshare:dump"]
             }
         }
     }
@@ -80,23 +80,36 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
             throw new GradleException("java.base module not found in $jdkHome${File.separator}jmods")
         }
         project.delete(imageDir)
-        def result = project.exec {
-            ignoreExitValue = true
-            standardOutput = new ByteArrayOutputStream()
-            project.ext.jlinkOutput = {
-                return standardOutput.toString()
-            }
+        def result = {
+            def execOps = project.services.get(org.gradle.process.ExecOperations)
+
+            def outputStream = new ByteArrayOutputStream()
+
             def jlinkJarsDirAsPath = project.files(td.jlinkJarsDir).asPath
             def additionalModulePaths = extraModulePaths.collect {SEP + it}.join('')
             def jlinkExec = "$td.javaHome/bin/jlink$EXEC_EXTENSION"
             Util.checkExecutable(jlinkExec)
-            commandLine = [jlinkExec,
-                           '-v',
-                           *options,
-                           '--module-path', "$jdkHome/jmods/$additionalModulePaths$SEP$jlinkJarsDirAsPath",
-                           '--add-modules', imageModules.join(','),
-                           '--output', imageDir]
-        }
+
+            def execResult = execOps.exec { spec ->
+                spec.ignoreExitValue = true
+                spec.standardOutput = outputStream
+                spec.commandLine = [
+                        jlinkExec,
+                        '-v',
+                        *options,
+                        '--module-path', "$jdkHome/jmods/$additionalModulePaths$SEP$jlinkJarsDirAsPath",
+                        '--add-modules', imageModules.join(','),
+                        '--output', imageDir
+                ]
+            }
+
+            project.ext.jlinkOutput = {
+                return outputStream.toString()
+            }
+
+            // Return the exec result
+            return execResult
+        }()
         if(result.exitValue != 0) {
             LOGGER.error(project.ext.jlinkOutput())
         } else {
