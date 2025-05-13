@@ -127,6 +127,8 @@ class JlinkPluginSpec extends Specification {
         'modular.example.hello' | '8.12.1'      | null         | null                        | null                                | 'modular-hello'
         'modular.example.hello' | '8.12.1'      | 'run-hello'  | 'org.example.modular.Hello' | null                                | 'run-hello'
         'modular.example.hello' | '8.12.1'      | 'run-hello'  | null                        | null                                | 'run-hello'
+        'modular.example.hello' | '9.0-20250513002906+0000'      | 'run-hello'  | null                        | null                                | 'run-hello'
+        'modular.example.hello' | '9.0-20250513002906+0000'      | 'run-hello'  | null                        | null                                | 'run-hello'
     }
    @Unroll
     def "should create runtime image of project #projectDir with Gradle #gradleVersion"() {
