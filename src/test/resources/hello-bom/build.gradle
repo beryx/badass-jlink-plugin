@@ -7,8 +7,10 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 17
-targetCompatibility = 17
+java {
+    sourceCompatibility = 17
+    targetCompatibility = 17
+}
 
 dependencies {
     // import a BOM
