@@ -349,7 +349,7 @@ class Util {
         return dependentProjects.unique()
     }
 
-    private static boolean GRADLE_VER_GTE_811 = GradleVersion.current().compareTo(GradleVersion.version('8.11'))
+    private static final boolean GRADLE_VER_GTE_811 = (GradleVersion.current().compareTo(GradleVersion.version('8.11')) >= 0)
 
     @CompileDynamic
     private static Project getDependencyProject(Project project, ProjectDependency dep) {
