@@ -44,20 +44,31 @@ class JdepsExecutor {
         LOGGER.info("Generating module-info in ${targetDir}...")
         project.delete(targetDir)
         targetDir.mkdirs()
-        def result = project.exec {
-            ignoreExitValue = true
-            standardOutput = new ByteArrayOutputStream()
-            project.ext.jdepsOutput = {
-                return standardOutput.toString()
+        def result = {
+            def execOps = project.services.get(org.gradle.process.ExecOperations)
+
+            def outputStream = new ByteArrayOutputStream()
+
+            def execResult = execOps.exec { spec ->
+                spec.ignoreExitValue = true
+                spec.standardOutput = outputStream
+                spec.commandLine = [
+                        "$javaHome/bin/jdeps",
+                        '-v',
+                        '--generate-module-info',
+                        targetDir.path,
+                        '--module-path',
+                        "$javaHome/jmods/$File.pathSeparatorChar$jlinkJarsDirPath",
+                        jarFile.path
+                ]
             }
-            commandLine "$javaHome/bin/jdeps",
-                    '-v',
-                    '--generate-module-info',
-                    targetDir.path,
-                    '--module-path',
-                    "$javaHome/jmods/$File.pathSeparatorChar$jlinkJarsDirPath",
-                    jarFile.path
-        }
+
+            project.ext.jdepsOutput = {
+                return outputStream.toString()
+            }
+
+            return execResult
+        }()
         def files = targetDir.listFiles()
         def moduleInfoFile =  files?.length ? files[0] : null
         return new Result(result.exitValue, moduleInfoFile, project.ext.jdepsOutput())

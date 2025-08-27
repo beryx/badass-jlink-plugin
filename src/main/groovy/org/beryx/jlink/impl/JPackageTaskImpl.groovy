@@ -68,12 +68,11 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             project.delete(project.files(jpd.installerOutputDir))
         }
         packageTypes.each { packageType ->
-            def result = project.exec {
-                ignoreExitValue = true
-                standardOutput = new ByteArrayOutputStream()
-                project.ext.jpackageInstallerOutput = {
-                    return standardOutput.toString()
-                }
+            def result = {
+                def execOps = project.services.get(org.gradle.process.ExecOperations)
+
+                def outputStream = new ByteArrayOutputStream()
+
                 def jpackageExec = "${jpd.getJPackageHomeOrDefault()}/bin/jpackage$EXEC_EXTENSION"
                 Util.checkExecutable(jpackageExec)
 
@@ -84,23 +83,35 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 }
 
                 def vendor = jpd.getVendor()
-                def vendorOpts = ['--vendor',vendor]
+                def vendorOpts = ['--vendor', vendor]
 
                 final def resourceDir = jpd.resourceDir
                 final def resourceOpts = (resourceDir == null) ? [] : [ '--resource-dir', resourceDir ]
                 final def iconOpts = jpd.icon ? [ '--icon', jpd.icon ] : []
 
-                commandLine = [jpackageExec,
-                               '--type', packageType,
-                               '--dest', jpd.installerOutputDir,
-                               '--name', jpd.installerName,
-                               *versionOpts,
-                               *vendorOpts,
-                               '--app-image', "$appImagePath",
-                               *resourceOpts,
-                               *iconOpts,
-                               *jpd.installerOptions]
-            }
+                def execResult = execOps.exec { spec ->
+                    spec.ignoreExitValue = true
+                    spec.standardOutput = outputStream
+                    spec.commandLine = [
+                            jpackageExec,
+                            '--type', packageType,
+                            '--dest', jpd.installerOutputDir,
+                            '--name', jpd.installerName,
+                            *versionOpts,
+                            *vendorOpts,
+                            '--app-image', "$appImagePath",
+                            *resourceOpts,
+                            *iconOpts,
+                            *jpd.installerOptions
+                    ]
+                }
+
+                project.ext.jpackageInstallerOutput = {
+                    return outputStream.toString()
+                }
+
+                return execResult
+            }()
             if(result.exitValue != 0) {
                 LOGGER.error(project.ext.jpackageInstallerOutput())
             } else {

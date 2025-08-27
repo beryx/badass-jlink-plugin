@@ -40,14 +40,23 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
     @CompileDynamic
     void execute() {
         project.delete(td.jpackageData.imageOutputDir)
-        def result = project.exec {
-            ignoreExitValue = true
-            standardOutput = new ByteArrayOutputStream()
-            project.ext.jpackageImageOutput = {
-                return standardOutput.toString()
+        def result = {
+            def execOps = project.services.get(org.gradle.process.ExecOperations)
+
+            def outputStream = new ByteArrayOutputStream()
+
+            def execResult = execOps.exec { spec ->
+                spec.ignoreExitValue = true
+                spec.standardOutput = outputStream
+                spec.commandLine = createCommandLine()
             }
-            commandLine = createCommandLine()
-        }
+
+            project.ext.jpackageImageOutput = {
+                return outputStream.toString()
+            }
+
+            return execResult
+        }()
         if(result.exitValue != 0) {
             LOGGER.error(project.ext.jpackageImageOutput())
         } else {

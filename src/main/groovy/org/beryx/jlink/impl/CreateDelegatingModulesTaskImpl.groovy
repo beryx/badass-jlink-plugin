@@ -48,19 +48,30 @@ class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModul
         project.delete(td.tmpModuleInfoDirPath)
         Util.createManifest(td.tmpModuleInfoDirPath, false)
         LOGGER.info("Compiling delegating module $moduleDir.name ...")
-        def result = project.exec {
-            ignoreExitValue = true
-            standardOutput = new ByteArrayOutputStream()
-            project.ext.javacOutput = {
-                return standardOutput.toString()
+        def result = {
+            def execOps = project.services.get(org.gradle.process.ExecOperations)
+
+            def outputStream = new ByteArrayOutputStream()
+
+            def execResult = execOps.exec { spec ->
+                spec.ignoreExitValue = true
+                spec.standardOutput = outputStream
+                spec.commandLine = [
+                        "$td.javaHome/bin/javac",
+                        '-p',
+                        td.jlinkJarsDirPath,
+                        '-d',
+                        td.tmpModuleInfoDirPath,
+                        "${moduleDir.path}/module-info.java"
+                ]
             }
-            commandLine "$td.javaHome/bin/javac",
-                    '-p',
-                    td.jlinkJarsDirPath,
-                    '-d',
-                    td.tmpModuleInfoDirPath,
-                    "${moduleDir.path}/module-info.java"
-        }
+
+            project.ext.javacOutput = {
+                return outputStream.toString()
+            }
+
+            return execResult
+        }()
         if(result.exitValue != 0) {
             LOGGER.error(project.ext.javacOutput())
         } else {
