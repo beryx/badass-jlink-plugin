@@ -342,11 +342,22 @@ class Util {
         if(handledProjects.contains(project)) return []
         handledProjects << project
         def projectDependencies = project.configurations*.dependencies*.withType(ProjectDependency).flatten() as Set<ProjectDependency>
-        List<Project> dependentProjects = projectDependencies*.dependencyProject
+        List<Project> dependentProjects = projectDependencies.collect { getDependencyProject(project, it) }
         dependentProjects.each {
             dependentProjects += getAllDependentProjectsExt(it, handledProjects)
         }
         return dependentProjects.unique()
+    }
+
+    private static final boolean GRADLE_VER_GTE_811 = (GradleVersion.current().compareTo(GradleVersion.version('8.11')) >= 0)
+
+    @CompileDynamic
+    private static Project getDependencyProject(Project project, ProjectDependency dep) {
+        if(GRADLE_VER_GTE_811) {
+            return project.project(dep.path)
+        } else {
+            return dep.dependencyProject
+        }
     }
 
     @CompileDynamic

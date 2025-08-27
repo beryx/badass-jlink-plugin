@@ -74,7 +74,7 @@ class DependencyManager {
             }
         }
         Set<File> depFiles = allDependencies*.artifact as Set
-        configuration.resolvedConfiguration.files.each { f ->
+        configuration.incoming.files.each { f ->
             if(!isEmptyJar(f) && !depFiles.contains(f)) {
                 allDependencies << new DependencyExt(artifact: f)
             }

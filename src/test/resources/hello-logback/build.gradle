@@ -6,8 +6,10 @@ repositories {
     mavenCentral()
 }
 
-sourceCompatibility = 10
-targetCompatibility = 10
+java {
+    sourceCompatibility = 10
+    targetCompatibility = 10
+}
 
 dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.25'

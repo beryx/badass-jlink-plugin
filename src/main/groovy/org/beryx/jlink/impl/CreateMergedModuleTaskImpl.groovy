@@ -138,15 +138,17 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         }
 
         try {
-            project.exec {
-                commandLine = [
-                    "$td.javaHome/bin/javac",
-                    *versionOpts,
-                    '-p',
-                    "$td.mergedJarsDir$SEP$td.jlinkJarsDirPath",
-                    '-d',
-                    targetDir.path,
-                    "$moduleInfoJavaDir/module-info.java"
+            def execOps = project.services.get(org.gradle.process.ExecOperations)
+
+            execOps.exec { spec ->
+                spec.commandLine = [
+                        "$td.javaHome/bin/javac",
+                        *versionOpts,
+                        '-p',
+                        "$td.mergedJarsDir$SEP$td.jlinkJarsDirPath",
+                        '-d',
+                        targetDir.path,
+                        "$moduleInfoJavaDir/module-info.java"
                 ]
             }
         } catch (ExecException e) {
