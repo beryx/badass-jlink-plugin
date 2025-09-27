@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macOS-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     steps:
     - uses: actions/checkout@v5
     - name: Set up additional JDK 25 (Temurin)
@@ -22,10 +22,10 @@ jobs:
       with:
         java-version: '17'
         distribution: 'zulu'
-    - name: Gradle build
-      uses: gradle/gradle-build-action@v3
-      with:
-        arguments: build asciidoc --scan
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@v4
+    - name: Run asciidoc
+      run: ./gradlew asciidoc --scan
     - name: Run publish if necessary
       if: runner.os == 'Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
       env:
@@ -47,11 +47,11 @@ jobs:
         with:
           java-version: '17'
           distribution: 'zulu'
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
       - name: Publish Gradle Plugins
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: |
-            assemble
-            publishPlugins
-            -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }}
+        run: ./gradlew \
+            assemble \
+            publishPlugins \
+            -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }} \
             -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }}
