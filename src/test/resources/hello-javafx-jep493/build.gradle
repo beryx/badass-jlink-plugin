@@ -12,7 +12,6 @@ java {
     toolchain {
         // Use Temurin (Adoptium) JDK 25 for the build
         languageVersion = JavaLanguageVersion.of(25)
-        vendor = JvmVendorSpec.ADOPTIUM
     }
 }
 
