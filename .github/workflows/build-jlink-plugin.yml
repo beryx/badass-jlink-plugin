@@ -22,9 +22,6 @@ jobs:
       with:
         java-version: '17'
         distribution: 'zulu'
-    - name: Make Gradle discover both JDKs
-      if: runner.os == 'Linux'
-      run: ln -sfn /usr/lib/jvm ~/.jdks
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
     - name: Build and run asciidoc
