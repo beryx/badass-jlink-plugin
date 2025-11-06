@@ -107,13 +107,6 @@ gitPublish {
     repoUri = 'https://github.com/beryx/badass-jlink-plugin.git'
     branch = 'gh-pages'
 
-    commitAuthor.set(
-            org.ajoberstar.grgit.Commit.Author(
-                    name = "CI Bot ($GITHUB_ACTOR)",
-                    email = "$GITHUB_ACTOR@users.noreply.github.com"
-            )
-    )
-
     def pgType = project.hasProperty('ghPageType') ? ghPageType : 'latest'
     if (pgType == 'init') {
         contents.from file('ghpages')
