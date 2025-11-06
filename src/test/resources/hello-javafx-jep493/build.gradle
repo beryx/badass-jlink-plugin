@@ -1,0 +1,35 @@
+plugins {
+    id 'application'
+    id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'org.beryx.jlink'
+}
+
+repositories {
+    mavenCentral()
+}
+
+java {
+    toolchain {
+        // Use Temurin (Adoptium) JDK 25 for the build
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+javafx {
+    modules = ['javafx.controls']
+}
+
+application {
+    mainClass = "org.example.HelloFXJpe493"
+}
+
+jlink {
+    imageName = 'helloFXJep493'
+    imageDir = file('foo') // ignored
+    imageZip = file('bar.zip') // ignored
+    options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    launcher {
+        name = 'helloFXJep493'
+        noConsole = true
+    }
+}
