@@ -81,7 +81,7 @@ gradlePlugin {
             implementationClass = 'org.beryx.jlink.JlinkPlugin'
             displayName = 'Badass JLink Plugin'
             description = 'A Gradle plugin that assembles your modules into a custom runtime image'
-            tags.set(['jlink', 'jpackage', 'jpms'])
+            tags = ['jlink', 'jpackage', 'jpms']
         }
     }
 }
