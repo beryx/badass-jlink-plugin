@@ -14,5 +14,9 @@ jobs:
           distribution: 'zulu'
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+      - name: Configure Git for git-publish
+        run: |
+          git config --global user.name "CI Bot ($GITHUB_ACTOR)"
+          git config --global user.email "$GITHUB_ACTOR@users.noreply.github.com"
       - name: Publish Gradle Plugins
         run: ./gradlew assemble publishPlugins -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }} -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }}

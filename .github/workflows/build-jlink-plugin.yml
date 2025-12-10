@@ -30,7 +30,10 @@ jobs:
       if: runner.os == 'Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
       env:
         GRGIT_USER: ${{ secrets.GRGIT_USER }}
-      run: chmod +x publish.sh && ./publish.sh
+      run: |
+        git config --global user.name "CI Bot (${{ secrets.GRGIT_USER }})"
+        git config --global user.email "${{ secrets.GRGIT_USER }}@users.noreply.github.com"
+        chmod +x publish.sh && ./publish.sh
     - uses: actions/upload-artifact@v4
       if: runner.os == 'Linux'
       with:
