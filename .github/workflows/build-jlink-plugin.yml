@@ -1,56 +1,79 @@
 name: CI
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
 
 jobs:
   build:
     name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
+
     steps:
-    - uses: actions/checkout@v6
-    - name: Set up additional JDK 25 (Temurin)
-      uses: actions/setup-java@v5
-      with:
-        java-version: '25'
-        distribution: 'temurin'
-    - name: Set up JDK 17 (default)
-      uses: actions/setup-java@v5
-      with:
-        java-version: '17'
-        distribution: 'zulu'
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v5
-    - name: Build and run asciidoc
-      run: ./gradlew build asciidoc --scan
-    - name: Run publish if necessary
-      if: runner.os == 'Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
-      env:
-        GRGIT_USER: ${{ secrets.GRGIT_USER }}
-      run: |
-        git config --global user.name "CI Bot (${{ secrets.GRGIT_USER }})"
-        git config --global user.email "${{ secrets.GRGIT_USER }}@users.noreply.github.com"
-        chmod +x publish.sh && ./publish.sh
-    - uses: actions/upload-artifact@v5
-      if: runner.os == 'Linux'
-      with:
-        path: build/libs/*
+      - uses: actions/checkout@v6
+
+      - name: Set up additional JDK 25 (Temurin)
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Set up JDK 17 (default)
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v5
+
+      - name: Build and run asciidoc
+        shell: bash
+        run: ./gradlew build asciidoc --scan
+
+      - name: Run publish if necessary
+        if: runner.os == 'Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          git config --global user.name "CI Bot"
+          git config --global user.email "ci-bot@users.noreply.github.com"
+          
+          git config --global credential.helper store
+          echo "https://x-access-token:${GITHUB_TOKEN}@github.com" > ~/.git-credentials
+          
+          chmod +x publish.sh
+          ./publish.sh
+          rm -f ~/.git-credentials
+
+      - uses: actions/upload-artifact@v5
+        if: runner.os == 'Linux'
+        with:
+          path: build/libs/*
+
   release:
     name: Publish to the Gradle Plugin Portal
     runs-on: ubuntu-latest
     needs: build
-    if: "startsWith(github.event.head_commit.message, 'Release ')"
+    if: startsWith(github.event.head_commit.message, 'Release ')
     steps:
       - uses: actions/checkout@v6
+
       - name: Set up JDK 17
         uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'zulu'
+
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v5
+
       - name: Publish Gradle Plugins
+        shell: bash
         run: ./gradlew assemble publishPlugins -Pgradle.publish.key=${{ secrets.GRADLE_PUBLISH_KEY }} -Pgradle.publish.secret=${{ secrets.GRADLE_PUBLISH_SECRET }}
