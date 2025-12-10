@@ -34,7 +34,7 @@ jobs:
         git config --global user.name "CI Bot (${{ secrets.GRGIT_USER }})"
         git config --global user.email "${{ secrets.GRGIT_USER }}@users.noreply.github.com"
         chmod +x publish.sh && ./publish.sh
-    - uses: actions/upload-artifact@v4
+    - uses: actions/upload-artifact@v5
       if: runner.os == 'Linux'
       with:
         path: build/libs/*
