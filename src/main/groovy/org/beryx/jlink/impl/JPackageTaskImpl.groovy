@@ -73,7 +73,8 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
 
                 def outputStream = new ByteArrayOutputStream()
 
-                def jpackageExec = "${jpd.getJPackageHomeOrDefault()}/bin/jpackage$EXEC_EXTENSION"
+                def jpackageHome = jpd.jpackageHome ?: td.javaHome ?: Util.getDefaultToolchainJavaHome(project)
+                def jpackageExec = "$jpackageHome/bin/jpackage$EXEC_EXTENSION"
                 Util.checkExecutable(jpackageExec)
 
                 def appVersion = (jpd.appVersion ?: project.version).toString()
