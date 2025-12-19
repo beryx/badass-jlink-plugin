@@ -131,22 +131,4 @@ class JPackageData {
     File getInstallerOutputDir() {
         this.@installerOutputDir ?: project.layout.buildDirectory.dir(outputDir).get().asFile
     }
-
-    @Internal
-    String getJPackageHomeOrDefault() {
-        return jpackageHome ?: defaultJPackageHome
-    }
-
-    @Internal
-    String getDefaultJPackageHome() {
-        def value = System.properties['badass.jlink.jpackage.home']
-        if(value) return value
-        value = System.getenv('BADASS_JLINK_JPACKAGE_HOME')
-        if(value) return value
-        value = Util.getDefaultToolchainJavaHome(project)
-        if(value) return value
-        value = System.properties['java.home']
-        if(new File("$value/bin/jpackage$EXEC_EXTENSION").file) return value
-        return System.getenv('JAVA_HOME')
-    }
 }

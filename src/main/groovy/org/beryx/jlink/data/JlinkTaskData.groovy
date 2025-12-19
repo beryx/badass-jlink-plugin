@@ -30,7 +30,6 @@ class JlinkTaskData extends BaseTaskData {
     String mainClass
     Configuration configuration
     List<String> options
-    String javaHome
     Map<String,TargetPlatform> targetPlatforms
     File jlinkJarsDir
     List<String> extraModulePaths

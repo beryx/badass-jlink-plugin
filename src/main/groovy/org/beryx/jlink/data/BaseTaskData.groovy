@@ -19,5 +19,6 @@ import groovy.transform.CompileStatic
 
 @CompileStatic
 class BaseTaskData {
+    String javaHome
     String jlinkBasePath
 }
