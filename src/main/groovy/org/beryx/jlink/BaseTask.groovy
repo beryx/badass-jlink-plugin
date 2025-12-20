@@ -47,7 +47,7 @@ class BaseTask extends DefaultTask {
 
     @Internal
     String getJavaHomeOrDefault() {
-        return extension.javaHome.present ? extension.javaHome.get() : defaultJavaHome
+        return extension.javaHome.present ? extension.javaHome.get().asFile.absolutePath : defaultJavaHome
     }
 
     @Internal

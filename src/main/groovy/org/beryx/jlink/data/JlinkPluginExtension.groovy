@@ -51,7 +51,7 @@ class JlinkPluginExtension {
     final ListProperty<String> options
     final Property<ModuleInfo> mergedModuleInfo
     final Property<JdepsUsage> useJdeps
-    final Property<String> javaHome
+    final DirectoryProperty javaHome
     final Provider<Map<String, TargetPlatform>> targetPlatforms
     final Property<Integer> jvmVersion
     final Property<CustomImageData> customImageData
@@ -119,20 +119,24 @@ class JlinkPluginExtension {
         useJdeps = project.objects.property(JdepsUsage)
         useJdeps.set(JdepsUsage.no)
 
-        javaHome = project.objects.property(String)
+        javaHome = Util.createDirectoryProperty(project)
 
         targetPlatforms = Util.createMapProperty(project, String, TargetPlatform)
 
         jvmVersion = project.objects.property(Integer)
 
         jpackageData = project.objects.property(JPackageData)
-        def jpd = new JPackageData(project, ld)
+        def jpd = new JPackageData(project, ld, javaHome)
         jpackageData.set(jpd)
 
         cdsData = project.objects.property(CdsData)
         cdsData.set(new CdsData())
 
         jarExcludes = Util.createMapProperty(project, String, List) as Provider<Map<String, List<String>>>
+    }
+
+    void setJavaHome(String path) {
+        javaHome.set(project.file(path))
     }
 
     void jarExclude(String jarPrefix, String... excludePatterns) {
