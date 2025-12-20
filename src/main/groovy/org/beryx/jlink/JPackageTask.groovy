@@ -46,7 +46,7 @@ class JPackageTask extends BaseTask {
 
     @Input
     String getImageName() {
-        extension.imageName
+        extension.imageName.get()
     }
 
     @Internal
@@ -56,7 +56,7 @@ class JPackageTask extends BaseTask {
 
     @InputDirectory
     File getImageOutputDir() {
-        extension.jpackageData.get().imageOutputDir
+        extension.jpackageData.get().getImageOutputDir()
     }
 
     @Nested

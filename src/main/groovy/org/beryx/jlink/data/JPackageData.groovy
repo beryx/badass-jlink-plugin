@@ -19,6 +19,9 @@ import groovy.transform.CompileStatic
 import groovy.transform.ToString
 import org.beryx.jlink.util.Util
 import org.gradle.api.Project
+import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
@@ -31,66 +34,236 @@ import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 class JPackageData {
     private final Project project
     private final LauncherData launcherData
-    private final List<SecondaryLauncherData> secondaryLaunchers = []
+    final ListProperty<SecondaryLauncherData> secondaryLaunchers
 
-    @Input
-    String jpackageHome
-
-    @Input
-    String outputDir = 'jpackage'
-
-    File imageOutputDir
-
-    String imageName
-
-    @Input
-    List<String> imageOptions = []
-
-    @InputDirectory @Optional
-    File resourceDir
-
-    @Input @Optional
-    String targetPlatformName
-
-    @Input
-    boolean skipInstaller = false
-
-    @Input @Optional
-    String installerType
-
-    File installerOutputDir
-
-    String installerName
-
-    @Input @Optional
-    String appVersion
-
-    String vendor
-
-    @Input @Optional
-    String icon
-
-    @Input
-    List<String> installerOptions = []
-
-    List<String> args = []
-
-    List<String> jvmArgs = []
+    final Property<String> jpackageHome
+    final Property<String> outputDir
+    final DirectoryProperty imageOutputDir
+    final Property<String> imageName
+    final ListProperty<String> imageOptions
+    final DirectoryProperty resourceDir
+    final Property<String> targetPlatformName
+    final Property<Boolean> skipInstaller
+    final Property<String> installerType
+    final DirectoryProperty installerOutputDir
+    final Property<String> installerName
+    final Property<String> appVersion
+    final Property<String> vendor
+    final Property<String> icon
+    final ListProperty<String> installerOptions
+    final ListProperty<String> args
+    final ListProperty<String> jvmArgs
 
     JPackageData(Project project, LauncherData launcherData) {
         this.project = project
         this.launcherData = launcherData
-        this.jpackageHome = ''
+
+        jpackageHome = project.objects.property(String)
+        jpackageHome.convention('')
+
+        outputDir = project.objects.property(String)
+        outputDir.convention('jpackage')
+
+        imageOutputDir = project.objects.directoryProperty()
+        imageOutputDir.convention(project.layout.buildDirectory.dir(outputDir.map { it }))
+
+        imageName = project.objects.property(String)
+        imageName.convention(project.provider { launcherData.name ?: project.name })
+
+        imageOptions = project.objects.listProperty(String)
+        imageOptions.convention([])
+
+        resourceDir = project.objects.directoryProperty()
+
+        targetPlatformName = project.objects.property(String)
+
+        skipInstaller = project.objects.property(Boolean)
+        skipInstaller.convention(false)
+
+        installerType = project.objects.property(String)
+
+        installerOutputDir = project.objects.directoryProperty()
+        installerOutputDir.convention(project.layout.buildDirectory.dir(outputDir.map { it }))
+
+        installerName = project.objects.property(String)
+        installerName.convention(project.provider { launcherData.name ?: project.name })
+
+        appVersion = project.objects.property(String)
+
+        vendor = project.objects.property(String)
+        vendor.convention('Unknown')
+
+        icon = project.objects.property(String)
+
+        installerOptions = project.objects.listProperty(String)
+        installerOptions.convention([])
+
+        args = project.objects.listProperty(String)
+        args.convention(project.provider { launcherData.getEffectiveArgs(project) })
+
+        jvmArgs = project.objects.listProperty(String)
+        jvmArgs.convention(project.provider { launcherData.getEffectiveJvmArgs(project) })
+
+        secondaryLaunchers = project.objects.listProperty(SecondaryLauncherData)
+        secondaryLaunchers.convention([])
+    }
+
+    @Input
+    String getJpackageHome() {
+        jpackageHome.get()
+    }
+
+    void setJpackageHome(String jpackageHome) {
+        this.jpackageHome.set(jpackageHome)
+    }
+
+    @Input
+    String getOutputDir() {
+        outputDir.get()
+    }
+
+    void setOutputDir(String outputDir) {
+        this.outputDir.set(outputDir)
+    }
+
+    @OutputDirectory
+    File getImageOutputDir() {
+        imageOutputDir.get().asFile
+    }
+
+    void setImageOutputDir(Object imageOutputDir) {
+        this.imageOutputDir.set(project.file(imageOutputDir))
     }
 
     @Input
     String getImageName() {
-        this.@imageName ?: launcherData.name ?: project.name
+        imageName.get()
+    }
+
+    void setImageName(String imageName) {
+        this.imageName.set(imageName)
+    }
+
+    @Input
+    List<String> getImageOptions() {
+        imageOptions.get()
+    }
+
+    void setImageOptions(List<String> imageOptions) {
+        this.imageOptions.set(imageOptions)
+    }
+
+    @InputDirectory @Optional
+    File getResourceDir() {
+        resourceDir.asFile.getOrNull()
+    }
+
+    void setResourceDir(Object resourceDir) {
+        this.resourceDir.set(project.file(resourceDir))
+    }
+
+    @Input @Optional
+    String getTargetPlatformName() {
+        targetPlatformName.getOrNull()
+    }
+
+    void setTargetPlatformName(String targetPlatformName) {
+        this.targetPlatformName.set(targetPlatformName)
+    }
+
+    @Input
+    boolean getSkipInstaller() {
+        skipInstaller.get()
+    }
+
+    @Internal
+    boolean isSkipInstaller() {
+        skipInstaller.get()
+    }
+
+    void setSkipInstaller(boolean skipInstaller) {
+        this.skipInstaller.set(skipInstaller)
+    }
+
+    @Input @Optional
+    String getInstallerType() {
+        installerType.getOrNull()
+    }
+
+    void setInstallerType(String installerType) {
+        this.installerType.set(installerType)
+    }
+
+    @OutputDirectory
+    File getInstallerOutputDir() {
+        installerOutputDir.get().asFile
+    }
+
+    void setInstallerOutputDir(Object installerOutputDir) {
+        this.installerOutputDir.set(project.file(installerOutputDir))
     }
 
     @Input
     String getInstallerName() {
-        this.@installerName ?: launcherData.name ?: project.name
+        installerName.get()
+    }
+
+    void setInstallerName(String installerName) {
+        this.installerName.set(installerName)
+    }
+
+    @Input @Optional
+    String getAppVersion() {
+        appVersion.getOrNull()
+    }
+
+    void setAppVersion(String appVersion) {
+        this.appVersion.set(appVersion)
+    }
+
+    @Input
+    String getVendor() {
+        vendor.get()
+    }
+
+    void setVendor(String vendor) {
+        this.vendor.set(vendor)
+    }
+
+    @Input @Optional
+    String getIcon() {
+        icon.getOrNull()
+    }
+
+    void setIcon(String icon) {
+        this.icon.set(icon)
+    }
+
+    @Input
+    List<String> getInstallerOptions() {
+        installerOptions.get()
+    }
+
+    void setInstallerOptions(List<String> installerOptions) {
+        this.installerOptions.set(installerOptions)
+    }
+
+    @Input
+    List<String> getArgs() {
+        args.get()
+    }
+
+    void setArgs(List<String> args) {
+        this.args.set(args)
+    }
+
+    @Input
+    List<String> getJvmArgs() {
+        jvmArgs.get()
+    }
+
+    void setJvmArgs(List<String> jvmArgs) {
+        this.jvmArgs.set(jvmArgs)
     }
 
     @Input
@@ -99,42 +272,17 @@ class JPackageData {
     }
 
     @Input
-    String getVendor(){
-        this.@vendor ?: 'Unknown';
-    }
-
-    @Input
     List<SecondaryLauncherData> getSecondaryLaunchers() {
-        this.@secondaryLaunchers
+        secondaryLaunchers.get()
     }
 
     void addSecondaryLauncher(SecondaryLauncherData launcher) {
-        secondaryLaunchers << launcher
-    }
-
-    @Input
-    List<String> getJvmArgs() {
-        this.@jvmArgs ?: launcherData.getEffectiveJvmArgs(project)
-    }
-
-    @Input
-    List<String> getArgs() {
-        this.@args ?: launcherData.getEffectiveArgs(project)
-    }
-
-    @OutputDirectory
-    File getImageOutputDir() {
-        this.@imageOutputDir ?: project.layout.buildDirectory.dir(outputDir).get().asFile
-    }
-
-    @OutputDirectory
-    File getInstallerOutputDir() {
-        this.@installerOutputDir ?: project.layout.buildDirectory.dir(outputDir).get().asFile
+        secondaryLaunchers.add(launcher)
     }
 
     @Internal
     String getJPackageHomeOrDefault() {
-        return jpackageHome ?: defaultJPackageHome
+        return getJpackageHome() ?: defaultJPackageHome
     }
 
     @Internal

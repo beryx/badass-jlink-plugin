@@ -67,7 +67,7 @@ class JPackageImageTask extends BaseTask {
 
     @OutputDirectory
     File getImageOutputDir() {
-        extension.jpackageData.get().imageOutputDir
+        extension.jpackageData.get().getImageOutputDir()
     }
 
     JPackageImageTask() {

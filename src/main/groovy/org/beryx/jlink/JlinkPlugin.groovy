@@ -25,6 +25,7 @@ import org.gradle.util.GradleVersion
 @CompileStatic
 class JlinkPlugin implements Plugin<Project> {
     final static String EXTENSION_NAME = 'jlink'
+    final static String JPACKAGE_EXTENSION_NAME = 'jpackage'
     final static String TASK_NAME_PREPARE_MERGED_JARS_DIR = 'prepareMergedJarsDir'
     final static String TASK_NAME_CREATE_MERGED_MODULE = 'createMergedModule'
     final static String TASK_NAME_CREATE_DELEGATING_MODULES = 'createDelegatingModules'
@@ -41,7 +42,8 @@ class JlinkPlugin implements Plugin<Project> {
             throw new GradleException("This plugin requires Gradle 7.0 or newer. Try org.beryx.jlink 2.25.0 if you must use an older version of Gradle.")
         }
         project.getPluginManager().apply('application');
-        project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)
+        def extension = project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)
+        project.extensions.add(JPACKAGE_EXTENSION_NAME, extension.jpackageData.get())
         project.tasks.create(TASK_NAME_PREPARE_MERGED_JARS_DIR, PrepareMergedJarsDirTask)
         project.tasks.create(TASK_NAME_CREATE_MERGED_MODULE, CreateMergedModuleTask)
         project.tasks.create(TASK_NAME_CREATE_DELEGATING_MODULES, CreateDelegatingModulesTask)
