@@ -126,7 +126,7 @@ class JlinkPluginExtension {
         jvmVersion = project.objects.property(Integer)
 
         jpackageData = project.objects.property(JPackageData)
-        def jpd = new JPackageData(project, ld)
+        def jpd = new JPackageData(project, ld, javaHome)
         jpackageData.set(jpd)
 
         cdsData = project.objects.property(CdsData)

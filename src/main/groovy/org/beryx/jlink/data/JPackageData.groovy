@@ -17,23 +17,20 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
-import org.beryx.jlink.util.Util
 import org.gradle.api.Project
+import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.OutputDirectory
-import static org.beryx.jlink.util.Util.EXEC_EXTENSION
+import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.*
 
 @CompileStatic
 @ToString(includeNames = true)
 class JPackageData {
     private final Project project
     private final LauncherData launcherData
+    private final Provider<Directory> javaHomeProvider
     final ListProperty<SecondaryLauncherData> secondaryLaunchers
 
     final Property<String> jpackageHome
@@ -54,9 +51,10 @@ class JPackageData {
     final ListProperty<String> args
     final ListProperty<String> jvmArgs
 
-    JPackageData(Project project, LauncherData launcherData) {
+    JPackageData(Project project, LauncherData launcherData, Provider<Directory> javaHomeProvider) {
         this.project = project
         this.launcherData = launcherData
+        this.javaHomeProvider = javaHomeProvider
 
         jpackageHome = project.objects.property(String)
         jpackageHome.convention('')
@@ -291,10 +289,7 @@ class JPackageData {
         if(value) return value
         value = System.getenv('BADASS_JLINK_JPACKAGE_HOME')
         if(value) return value
-        value = Util.getDefaultToolchainJavaHome(project)
-        if(value) return value
-        value = System.properties['java.home']
-        if(new File("$value/bin/jpackage$EXEC_EXTENSION").file) return value
-        return System.getenv('JAVA_HOME')
+
+        javaHomeProvider.getOrNull()?.asFile?.absolutePath
     }
 }

@@ -104,4 +104,37 @@ class JPackageExtensionSpec extends Specification {
         then:
         result.output.contains('BUILD SUCCESSFUL')
     }
+
+    def "should use jlink.javaHome as default for jpackageHome"() {
+        given:
+        def buildFile = testProjectDir.resolve('build.gradle').toFile()
+        def dummyJdk = testProjectDir.resolve('dummy-jdk').toFile()
+        dummyJdk.mkdirs()
+        
+        buildFile << """
+            plugins {
+                id 'java'
+                id 'org.beryx.jlink'
+            }
+            jlink {
+                javaHome = file('${dummyJdk.absolutePath.replace('\\', '/')}')
+            }
+            task checkJPackageHome {
+                doLast {
+                    println "[DEBUG_LOG] JPackageHome: \${jpackage.getJPackageHomeOrDefault()}"
+                    assert jpackage.getJPackageHomeOrDefault() == file('${dummyJdk.absolutePath.replace('\\', '/')}').absolutePath
+                }
+            }
+        """.stripIndent()
+
+        when:
+        BuildResult result = GradleRunner.create()
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withArguments('checkJPackageHome')
+                .build()
+
+        then:
+        result.output.contains("[DEBUG_LOG] JPackageHome: ${dummyJdk.absolutePath}")
+    }
 }
