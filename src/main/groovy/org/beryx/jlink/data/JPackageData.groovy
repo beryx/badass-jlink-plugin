@@ -290,6 +290,9 @@ class JPackageData {
         value = System.getenv('BADASS_JLINK_JPACKAGE_HOME')
         if(value) return value
 
-        javaHomeProvider.getOrNull()?.asFile?.absolutePath
+        def jpackageHomeFolder = javaHomeProvider.getOrNull()?.asFile ?:
+                new File(System.getenv('JAVA_HOME'))
+
+        jpackageHomeFolder.absolutePath
     }
 }
