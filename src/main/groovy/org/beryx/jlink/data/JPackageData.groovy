@@ -37,6 +37,7 @@ class JPackageData {
     final Property<String> outputDir
     final DirectoryProperty imageOutputDir
     final Property<String> imageName
+    @Input
     final ListProperty<String> imageOptions
     final DirectoryProperty resourceDir
     final Property<String> targetPlatformName
@@ -47,8 +48,11 @@ class JPackageData {
     final Property<String> appVersion
     final Property<String> vendor
     final Property<String> icon
+    @Input
     final ListProperty<String> installerOptions
+    @Input
     final ListProperty<String> args
+    @Input
     final ListProperty<String> jvmArgs
 
     JPackageData(Project project, LauncherData launcherData, Provider<Directory> javaHomeProvider) {
@@ -139,15 +143,6 @@ class JPackageData {
         this.imageName.set(imageName)
     }
 
-    @Input
-    List<String> getImageOptions() {
-        imageOptions.get()
-    }
-
-    void setImageOptions(List<String> imageOptions) {
-        this.imageOptions.set(imageOptions)
-    }
-
     @InputDirectory @Optional
     File getResourceDir() {
         resourceDir.asFile.getOrNull()
@@ -232,33 +227,6 @@ class JPackageData {
 
     void setIcon(String icon) {
         this.icon.set(icon)
-    }
-
-    @Input
-    List<String> getInstallerOptions() {
-        installerOptions.get()
-    }
-
-    void setInstallerOptions(List<String> installerOptions) {
-        this.installerOptions.set(installerOptions)
-    }
-
-    @Input
-    List<String> getArgs() {
-        args.get()
-    }
-
-    void setArgs(List<String> args) {
-        this.args.set(args)
-    }
-
-    @Input
-    List<String> getJvmArgs() {
-        jvmArgs.get()
-    }
-
-    void setJvmArgs(List<String> jvmArgs) {
-        this.jvmArgs.set(jvmArgs)
     }
 
     @Input
