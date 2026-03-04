@@ -68,8 +68,7 @@ class JPackageData {
         imageName = project.objects.property(String)
         imageName.convention(project.provider { launcherData.name ?: project.name })
 
-        imageOptions = project.objects.listProperty(String)
-        imageOptions.convention([])
+        imageOptions = project.objects.listProperty(String).convention {new ArrayList<String>()}
 
         resourceDir = project.objects.directoryProperty()
 
@@ -93,8 +92,7 @@ class JPackageData {
 
         icon = project.objects.property(String)
 
-        installerOptions = project.objects.listProperty(String)
-        installerOptions.convention([])
+        installerOptions = project.objects.listProperty(String).convention {new ArrayList<String>()}
 
         args = project.objects.listProperty(String)
         args.convention(project.provider { launcherData.getEffectiveArgs(project) })
@@ -102,8 +100,7 @@ class JPackageData {
         jvmArgs = project.objects.listProperty(String)
         jvmArgs.convention(project.provider { launcherData.getEffectiveJvmArgs(project) })
 
-        secondaryLaunchers = project.objects.listProperty(SecondaryLauncherData)
-        secondaryLaunchers.convention([])
+        secondaryLaunchers = project.objects.listProperty(SecondaryLauncherData).convention {new ArrayList<SecondaryLauncherData>()}
     }
 
     @Input
