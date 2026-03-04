@@ -31,8 +31,9 @@ class JPackageData {
     private final Project project
     private final LauncherData launcherData
     private final Provider<Directory> javaHomeProvider
-    final ListProperty<SecondaryLauncherData> secondaryLaunchers
 
+    @Input
+    final ListProperty<SecondaryLauncherData> secondaryLaunchers
     final Property<String> jpackageHome
     final Property<String> outputDir
     final DirectoryProperty imageOutputDir
@@ -232,11 +233,6 @@ class JPackageData {
     @Input
     String getLauncherName() {
         launcherData.name
-    }
-
-    @Input
-    List<SecondaryLauncherData> getSecondaryLaunchers() {
-        secondaryLaunchers.get()
     }
 
     void addSecondaryLauncher(SecondaryLauncherData launcher) {
