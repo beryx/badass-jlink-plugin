@@ -98,6 +98,21 @@ class JlinkPluginSpec extends Specification {
         checkOutput(result, 'hello-toolchain', 'LOG: line from: (30,80) to: (20,50)')
     }
 
+    def "should support Kotlin-DSL"() {
+        when:
+        setUpBuild('kotlin-dsl')
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withGradleVersion('8.14')
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+
+        then:
+        checkOutput(result, 'hello', 'Hello, world!')
+    }
+
     @Unroll
     def "should execute task with Gradle #gradleVersion, moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
         when:
