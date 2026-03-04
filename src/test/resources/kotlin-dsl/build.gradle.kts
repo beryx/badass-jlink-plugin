@@ -16,7 +16,6 @@ application {
 }
 
 jlink {
-    /*
     // Use platform-appropriate icon
     val currentOs = DefaultNativePlatform.getCurrentOperatingSystem()
     val iconFile = when {
@@ -25,9 +24,9 @@ jlink {
         else -> project.file("assets/icon.png") // use PNG for Linux
     }
     if (iconFile.exists()) {
-        imageOptions.addAll(listOf("--icon", iconFile.absolutePath))
+        jpackage.imageOptions.addAll("--icon", iconFile.absolutePath)
     }
-*/
+
     launcher {
         name = "hello"
         noConsole = false
