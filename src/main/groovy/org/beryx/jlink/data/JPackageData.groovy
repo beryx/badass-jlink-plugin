@@ -57,7 +57,6 @@ class JPackageData {
     final ListProperty<String> jvmArgs
 
     JPackageData(Project project, LauncherData launcherData, Provider<Directory> javaHomeProvider) {
-        this.project = project
         this.launcherData = launcherData
         this.javaHomeProvider = javaHomeProvider
 
@@ -71,9 +70,10 @@ class JPackageData {
         imageOutputDir.convention(project.layout.buildDirectory.dir(outputDir.map { it }))
 
         imageName = project.objects.property(String)
-        imageName.convention(project.provider { launcherData.name ?: project.name })
+        def projName = project.name
+        imageName.convention(project.provider { launcherData.name ?: projName })
 
-        imageOptions = project.objects.listProperty(String).convention {new ArrayList<String>()}
+        imageOptions = project.objects.listProperty(String).empty()
 
         resourceDir = project.objects.directoryProperty()
 
@@ -88,7 +88,7 @@ class JPackageData {
         installerOutputDir.convention(project.layout.buildDirectory.dir(outputDir.map { it }))
 
         installerName = project.objects.property(String)
-        installerName.convention(project.provider { launcherData.name ?: project.name })
+        installerName.convention(project.provider { launcherData.name ?: projName })
 
         appVersion = project.objects.property(String)
 
@@ -97,15 +97,15 @@ class JPackageData {
 
         icon = project.objects.property(String)
 
-        installerOptions = project.objects.listProperty(String).convention {new ArrayList<String>()}
+        installerOptions = project.objects.listProperty(String).empty()
 
         args = project.objects.listProperty(String)
-        args.convention(project.provider { launcherData.getEffectiveArgs(project) })
+        args.convention(launcherData.getEffectiveArgs(project))
 
         jvmArgs = project.objects.listProperty(String)
-        jvmArgs.convention(project.provider { launcherData.getEffectiveJvmArgs(project) })
+        jvmArgs.convention(launcherData.getEffectiveJvmArgs(project))
 
-        secondaryLaunchers = project.objects.listProperty(SecondaryLauncherData).convention {new ArrayList<SecondaryLauncherData>()}
+        secondaryLaunchers = project.objects.listProperty(SecondaryLauncherData).empty()
     }
 
     @Input
