@@ -98,6 +98,21 @@ class JlinkPluginSpec extends Specification {
         checkOutput(result, 'hello-toolchain', 'LOG: line from: (30,80) to: (20,50)')
     }
 
+    def "should support Kotlin-DSL"() {
+        when:
+        setUpBuild('kotlin-dsl')
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withGradleVersion('8.14')
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+
+        then:
+        checkOutput(result, 'hello', 'Hello, world!')
+    }
+
     @Unroll
     def "should execute task with Gradle #gradleVersion, moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
         when:
@@ -263,6 +278,30 @@ class JlinkPluginSpec extends Specification {
         checkOutput(result, 'helloAgain', 'Hello again!')
         checkOutput(result, 'howdy', 'Howdy!')
     }
+
+    /*
+    def "should be compatible with the gradle configuration cache"() {
+        when:
+        setUpHelloLogbackBuild(null, null, null, null)
+
+        def runner = GradleRunner.create()
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withGradleVersion('8.14')
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "--configuration-cache", "--configuration-cache-problems=warn", "-is")
+
+        BuildResult result1 = runner.build()
+        println "RESULT1 OUTPUT:\n${result1.output}"
+
+        BuildResult result2 = runner.build()
+        println "RESULT2 OUTPUT:\n${result2.output}"
+
+        then:
+        result1.output.contains('Configuration cache entry stored')
+        result2.output.contains('Reusing configuration cache')
+        checkOutput(result2, 'modular-hello', 'LOG: Hello, modular Java!')
+    }
+    */
 
     private boolean checkOutput(BuildResult result, String imageName, String expectedOutput) {
         def imageBinDir = new File(testProjectDir.toFile(), 'build/image/bin')

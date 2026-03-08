@@ -18,6 +18,7 @@ package org.beryx.jlink.impl
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageTaskData
+import org.beryx.jlink.data.SecondaryLauncherData
 import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -72,7 +73,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         Util.checkExecutable(jpackageExec)
 
         Map<String,File> propFiles = [:]
-        jpd.secondaryLaunchers.each { launcher ->
+        jpd.secondaryLaunchers.each { SecondaryLauncherData launcher ->
             def propFile = new File("$td.jlinkBasePath/${launcher.name}.properties")
             Files.deleteIfExists(propFile.toPath())
             propFile.withOutputStream { stream ->
