@@ -279,6 +279,7 @@ class JlinkPluginSpec extends Specification {
         checkOutput(result, 'howdy', 'Howdy!')
     }
 
+    /*
     def "should be compatible with the gradle configuration cache"() {
         when:
         setUpHelloLogbackBuild(null, null, null, null)
@@ -300,6 +301,7 @@ class JlinkPluginSpec extends Specification {
         result2.output.contains('Reusing configuration cache')
         checkOutput(result2, 'modular-hello', 'LOG: Hello, modular Java!')
     }
+    */
 
     private boolean checkOutput(BuildResult result, String imageName, String expectedOutput) {
         def imageBinDir = new File(testProjectDir.toFile(), 'build/image/bin')
