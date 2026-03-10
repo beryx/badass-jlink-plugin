@@ -77,7 +77,7 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
                         stream << descriptorBytes
                     }
                     project.delete(jar)
-                    Util.createJar(project, jar, project.file(td.tmpModuleInfoDirPath))
+                    Util.createJar(jar, project.file(td.tmpModuleInfoDirPath))
                 }
             }
         }

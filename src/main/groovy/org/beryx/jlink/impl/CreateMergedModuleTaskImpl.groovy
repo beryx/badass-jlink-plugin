@@ -45,7 +45,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
 
     void execute() {
         def jarFilePath = "$td.tmpMergedModuleDirPath/$td.mergedModuleJar.name"
-        Util.createJar(project, jarFilePath, td.mergedJarsDir)
+        Util.createJar(project.file(jarFilePath), td.mergedJarsDir)
         def modInfoDir = genModuleInfo(project.file(jarFilePath), project.file(td.tmpJarsDirPath), td.mergedModuleName)
         compileModuleInfo(project.file(modInfoDir), project.file(jarFilePath), project.file(td.tmpModuleInfoDirPath))
         LOGGER.info("Copy from $td.mergedJarsDir into ${td.tmpModuleInfoDirPath}...")
@@ -54,7 +54,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
             spec.into td.tmpModuleInfoDirPath
             spec.exclude "**/module-info.class"
         }
-        Util.createJar(project, td.mergedModuleJar, project.file(td.tmpModuleInfoDirPath))
+        Util.createJar(td.mergedModuleJar, project.file(td.tmpModuleInfoDirPath))
     }
 
     File genModuleInfo(File jarFile, File targetDir) {

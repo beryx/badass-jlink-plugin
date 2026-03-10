@@ -20,13 +20,23 @@ import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.beryx.jlink.impl.CreateDelegatingModulesTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.gradle.api.file.Directory
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.process.ExecOperations
+
+import javax.inject.Inject
 
 @CompileStatic
-class CreateDelegatingModulesTask extends BaseTask {
+abstract class CreateDelegatingModulesTask extends BaseTask {
+    @Inject
+    abstract FileSystemOperations getFileSystemOperations()
+
+    @Inject
+    abstract ExecOperations getExecOperations()
+
     CreateDelegatingModulesTask() {
         dependsOn(JlinkPlugin.TASK_NAME_CREATE_MERGED_MODULE)
         description = 'Creates delegating modules for the jars that have been merged into a single module'
@@ -62,11 +72,14 @@ class CreateDelegatingModulesTask extends BaseTask {
         taskData.nonModularJarsDir = nonModularJarsDir.asFile
         taskData.delegatingModulesDir = delegatingModulesDir.asFile
 
-        taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
-        taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
-        taskData.tmpModuleInfoDirPath = PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)
+        taskData.jlinkJarsDir = project.file(PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath))
+        taskData.tmpJarsDir = project.file(PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath))
+        taskData.tmpModuleInfoDir = project.file(PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath))
 
-        def taskImpl = new CreateDelegatingModulesTaskImpl(project, taskData)
+        taskData.fileSystemOperations = fileSystemOperations
+        taskData.execOperations = execOperations
+
+        def taskImpl = new CreateDelegatingModulesTaskImpl(taskData)
         taskImpl.execute()
     }
 }

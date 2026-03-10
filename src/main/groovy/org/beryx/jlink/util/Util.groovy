@@ -181,9 +181,8 @@ class Util {
     // see https://github.com/gradle/gradle/blob/e411cc70f9645138232b427ed63159d7cbc00523/subprojects/core/src/main/java/org/gradle/api/internal/file/archive/ZipCopyAction.java#L42-L56
     private static final long CONSTANT_TIME_FOR_ZIP_ENTRIES = new GregorianCalendar(1980, Calendar.FEBRUARY, 1, 0, 0, 0).timeInMillis
 
-    static void createJar(Project project, Object jarFileOrPath, File contentDir) {
-        LOGGER.info "Archive $contentDir into ${jarFileOrPath}..."
-        File jarFile = project.file(jarFileOrPath)
+    static void createJar(File jarFile, File contentDir) {
+        LOGGER.info "Archive $contentDir into ${jarFile}..."
         jarFile.parentFile.mkdirs()
         jarFile.withOutputStream { fout ->
             JarOutputStream out = new JarOutputStream(fout)
@@ -260,9 +259,9 @@ class Util {
     }
 
     static boolean isEmptyJar(File jarFile) {
-            def zipFile = new ZipFile(jarFile)
+        def zipFile = new ZipFile(jarFile)
         zipFile.entries().every { ZipEntry entry -> entry.name in ['META-INF/', 'META-INF/MANIFEST.MF']}
-     }
+    }
 
     @CompileDynamic
     static File getArchiveFile(Project project) {

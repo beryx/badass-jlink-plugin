@@ -19,37 +19,42 @@ import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateDelegatingModulesTaskData
-import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
 @CompileStatic
-class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModulesTaskData> {
+class CreateDelegatingModulesTaskImpl {
     private static final Logger LOGGER = Logging.getLogger(CreateDelegatingModulesTaskImpl.class);
 
-    CreateDelegatingModulesTaskImpl(Project project, CreateDelegatingModulesTaskData taskData) {
-        super(project, taskData)
+    final CreateDelegatingModulesTaskData td
+
+    CreateDelegatingModulesTaskImpl(CreateDelegatingModulesTaskData taskData) {
+        this.td = taskData
         LOGGER.info("taskData: $taskData")
     }
 
     void execute() {
         LOGGER.info("Creating delegating modules...")
-        project.delete(td.tmpJarsDirPath)
+        td.fileSystemOperations.delete { spec ->
+            spec.delete(td.tmpJarsDir)
+        }
 
         td.nonModularJarsDir.eachFile { jarFile ->
-            createDelegatingModule(jarFile, td.tmpJarsDirPath, td.delegatingModulesDir)
+            createDelegatingModule(jarFile, td.tmpJarsDir, td.delegatingModulesDir)
         }
     }
 
     @CompileDynamic
-    def createDelegatingModule(File jarFile, String tmpDirPath, File targetDir) {
-        def moduleDir = genDelegatingModuleInfo(jarFile, tmpDirPath)
+    def createDelegatingModule(File jarFile, File tmpDir, File targetDir) {
+        def moduleDir = genDelegatingModuleInfo(jarFile, tmpDir)
         if(!moduleDir) return
-        project.delete(td.tmpModuleInfoDirPath)
-        Util.createManifest(td.tmpModuleInfoDirPath, false)
+        td.fileSystemOperations.delete { spec ->
+            spec.delete(td.tmpModuleInfoDir)
+        }
+        Util.createManifest(td.tmpModuleInfoDir, false)
         LOGGER.info("Compiling delegating module $moduleDir.name ...")
         def result = {
-            def execOps = project.services.get(org.gradle.process.ExecOperations)
+            def execOps = td.execOperations
 
             def outputStream = new ByteArrayOutputStream()
 
@@ -59,34 +64,32 @@ class CreateDelegatingModulesTaskImpl extends BaseTaskImpl<CreateDelegatingModul
                 spec.commandLine = [
                         "$td.javaHome/bin/javac",
                         '-p',
-                        td.jlinkJarsDirPath,
+                        td.jlinkJarsDir.path,
                         '-d',
-                        td.tmpModuleInfoDirPath,
+                        td.tmpModuleInfoDir.path,
                         "${moduleDir.path}/module-info.java"
                 ]
             }
 
-            project.ext.javacOutput = {
-                return outputStream.toString()
-            }
+            def javacOutput = outputStream.toString()
 
+            if(execResult.exitValue != 0) {
+                LOGGER.error(javacOutput)
+            } else {
+                LOGGER.info(javacOutput)
+            }
+            execResult.assertNormalExitValue()
+            execResult.rethrowFailure()
             return execResult
         }()
-        if(result.exitValue != 0) {
-            LOGGER.error(project.ext.javacOutput())
-        } else {
-            LOGGER.info(project.ext.javacOutput())
-        }
-        result.assertNormalExitValue()
-        result.rethrowFailure()
 
-        def targetJarPath = new File(targetDir, jarFile.name).path
-        Util.createJar(project, targetJarPath, project.file(td.tmpModuleInfoDirPath))
+        def targetJarPath = new File(targetDir, jarFile.name)
+        Util.createJar(targetJarPath, td.tmpModuleInfoDir)
     }
 
-    File genDelegatingModuleInfo(File jarFile, String targetDirPath) {
+    File genDelegatingModuleInfo(File jarFile, File targetDir) {
         def moduleName = Util.getModuleName(jarFile)
-        def modinfoDir = new File(targetDirPath, moduleName)
+        def modinfoDir = new File(targetDir, moduleName)
         modinfoDir.mkdirs()
         def modInfoJava = new File(modinfoDir, 'module-info.java')
         if(modInfoJava.exists()) {
