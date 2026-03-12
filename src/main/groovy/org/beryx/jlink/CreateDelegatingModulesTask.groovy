@@ -20,22 +20,13 @@ import org.beryx.jlink.data.CreateDelegatingModulesTaskData
 import org.beryx.jlink.impl.CreateDelegatingModulesTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.gradle.api.file.Directory
-import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.process.ExecOperations
-
-import javax.inject.Inject
 
 @CompileStatic
 abstract class CreateDelegatingModulesTask extends BaseTask {
-    @Inject
-    abstract FileSystemOperations getFileSystemOperations()
-
-    @Inject
-    abstract ExecOperations getExecOperations()
 
     CreateDelegatingModulesTask() {
         dependsOn(JlinkPlugin.TASK_NAME_CREATE_MERGED_MODULE)

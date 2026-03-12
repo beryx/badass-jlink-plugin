@@ -35,22 +35,26 @@ import javax.inject.Inject
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
-class BaseTask extends DefaultTask {
+abstract class BaseTask extends DefaultTask {
     private static final Logger LOGGER = Logging.getLogger(BaseTask.class);
 
     @Internal
     final JlinkPluginExtension extension
 
     @Inject
-    FileSystemOperations getFileSystemOperations() { throw new UnsupportedOperationException() }
+    abstract FileSystemOperations getFileSystemOperations();
+
     @Inject
-    ExecOperations getExecOperations() { throw new UnsupportedOperationException() }
+    abstract ExecOperations getExecOperations();
+
     @Inject
-    ArchiveOperations getArchiveOperations() { throw new UnsupportedOperationException() }
+    abstract ArchiveOperations getArchiveOperations();
+
     @Inject
-    ProjectLayout getProjectLayout() { throw new UnsupportedOperationException() }
+    abstract ProjectLayout getProjectLayout();
+
     @Inject
-    ObjectFactory getObjectFactory() { throw new UnsupportedOperationException() }
+    abstract ObjectFactory getObjectFactory();
 
     BaseTask() {
         this.extension = (JlinkPluginExtension)project.extensions.getByName(JlinkPlugin.EXTENSION_NAME)

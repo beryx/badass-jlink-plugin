@@ -31,7 +31,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
 
 @CompileStatic
-class SuggestMergedModuleInfoTask extends BaseTask {
+abstract class SuggestMergedModuleInfoTask extends BaseTask {
     @Input
     List<String> getForceMergedJarPrefixes() {
         extension.forceMergedJarPrefixes.get()

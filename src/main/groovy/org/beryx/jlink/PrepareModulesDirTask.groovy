@@ -26,7 +26,7 @@ import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
 
 @CompileStatic
-class PrepareModulesDirTask extends BaseTask {
+abstract class PrepareModulesDirTask extends BaseTask {
     @Input
     String getModuleName() {
         extension.moduleName.get()

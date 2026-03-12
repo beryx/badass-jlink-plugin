@@ -28,7 +28,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.tasks.*
 
 @CompileStatic
-class PrepareMergedJarsDirTask extends BaseTask {
+abstract class PrepareMergedJarsDirTask extends BaseTask {
     @Input
     List<String> getForceMergedJarPrefixes() {
         extension.forceMergedJarPrefixes.get()

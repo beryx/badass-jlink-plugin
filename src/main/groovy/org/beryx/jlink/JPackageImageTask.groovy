@@ -27,7 +27,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.*
 
 @CompileStatic
-class JPackageImageTask extends BaseTask {
+abstract class JPackageImageTask extends BaseTask {
     private static final Logger LOGGER = Logging.getLogger(JPackageImageTask.class)
 
     @Input

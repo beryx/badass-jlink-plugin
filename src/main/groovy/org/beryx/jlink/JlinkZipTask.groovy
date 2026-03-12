@@ -25,7 +25,7 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.tasks.*
 
 @CompileStatic
-class JlinkZipTask extends BaseTask {
+abstract class JlinkZipTask extends BaseTask {
     @Input
     Map<String, TargetPlatform> getTargetPlatforms() {
         extension.getTargetPlatforms().get()

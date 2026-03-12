@@ -20,7 +20,7 @@ import org.beryx.jlink.data.BaseTaskData
 import org.gradle.api.Project
 
 @CompileStatic
-class BaseTaskImpl<DATA extends BaseTaskData> {
+abstract class BaseTaskImpl<DATA extends BaseTaskData> {
     public final static String SEP = File.pathSeparatorChar
 
     final Project project

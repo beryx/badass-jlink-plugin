@@ -31,7 +31,7 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 @CompileStatic
-class CreateMergedModuleTask extends BaseTask {
+abstract class CreateMergedModuleTask extends BaseTask {
     @Input
     List<String> getForceMergedJarPrefixes() {
         extension.forceMergedJarPrefixes.get()
