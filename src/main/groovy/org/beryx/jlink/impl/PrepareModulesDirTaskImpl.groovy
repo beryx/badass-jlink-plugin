@@ -22,6 +22,7 @@ import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.ModuleInfoAdjuster
 import org.beryx.jlink.util.Util
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -43,7 +44,7 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
         }
 
         LOGGER.info("Copying modular jars not required by non-modular jars to ${td.jlinkJarsDir}...")
-        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes, td.configuration)
+        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes, (Configuration) td.configuration)
         project.copy {
             into td.jlinkJarsDir
             from (depMgr.modularJars - depMgr.modularJarsRequiredByNonModularJars)

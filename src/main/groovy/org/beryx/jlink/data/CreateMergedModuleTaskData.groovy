@@ -17,7 +17,7 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
-import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.FileCollection
 
 @CompileStatic
 @ToString(includeNames = true)
@@ -34,13 +34,14 @@ class CreateMergedModuleTaskData extends BaseTaskData {
     JdepsUsage useJdeps
     File mergedJarsDir
     String javaHome
-    Configuration configuration
+    FileCollection configuration
 
     File mergedModuleJar
     String jlinkJarsDirPath
     String tmpMergedModuleDirPath
     String tmpModuleInfoDirPath
     String tmpJarsDirPath
+    File archiveFile
 
     String getMergedModuleVersion() {
         mergedModuleInfo.version ?: mergedModuleJarVersion

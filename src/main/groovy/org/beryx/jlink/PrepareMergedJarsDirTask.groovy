@@ -18,10 +18,12 @@ package org.beryx.jlink
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.impl.PrepareMergedJarsDirTaskImpl
+import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.JavaVersion
 import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
 import org.gradle.api.Task
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.Directory
 import org.gradle.api.tasks.*
 
@@ -76,10 +78,7 @@ class PrepareMergedJarsDirTask extends BaseTask {
     void createMergedModuleAction() {
         def taskData = new PrepareMergedJarsDirTaskData()
         taskData.jlinkBasePath = jlinkBasePath
-        taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
-        taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
         taskData.mergedJarsDir = mergedJarsDir.asFile
-        taskData.configuration = project.configurations.getByName(configuration)
         taskData.javaHome = javaHome
         taskData.jvmVersion = jvmVersion ?: JavaVersion.get(taskData.javaHome)
 
@@ -89,7 +88,11 @@ class PrepareMergedJarsDirTask extends BaseTask {
 
         taskData.jarExcludes = jarExcludes
 
-        def taskImpl = new PrepareMergedJarsDirTaskImpl(project, taskData)
+        def depMgr = new DependencyManager(project, forceMergedJarPrefixes, extraDependenciesPrefixes, project.configurations.getByName(configuration))
+        taskData.modularJarsRequiredByNonModularJars = depMgr.modularJarsRequiredByNonModularJars
+        taskData.nonModularJars = depMgr.nonModularJars
+
+        def taskImpl = new PrepareMergedJarsDirTaskImpl(project, fileSystemOperations, archiveOperations, taskData)
         taskImpl.execute()
     }
 

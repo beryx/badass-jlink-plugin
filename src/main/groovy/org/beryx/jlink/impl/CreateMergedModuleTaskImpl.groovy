@@ -24,9 +24,13 @@ import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateMergedModuleTaskData
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.CopySpec
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.process.ExecOperations
 import org.gradle.process.internal.ExecException
 
 import java.lang.module.ModuleFinder
@@ -38,23 +42,32 @@ import java.util.zip.ZipFile
 class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData> {
     private static final Logger LOGGER = Logging.getLogger(CreateMergedModuleTaskImpl.class);
 
-    CreateMergedModuleTaskImpl(Project project, CreateMergedModuleTaskData taskData) {
+    final FileSystemOperations fileSystemOperations
+    final ArchiveOperations archiveOperations
+    final ExecOperations execOperations
+    final String projectVersion
+
+    CreateMergedModuleTaskImpl(Project project, FileSystemOperations fileSystemOperations, ArchiveOperations archiveOperations, ExecOperations execOperations, String projectVersion, CreateMergedModuleTaskData taskData) {
         super(project, taskData)
+        this.fileSystemOperations = fileSystemOperations
+        this.archiveOperations = archiveOperations
+        this.execOperations = execOperations
+        this.projectVersion = projectVersion
         LOGGER.info("taskData: $taskData")
     }
 
     void execute() {
         def jarFilePath = "$td.tmpMergedModuleDirPath/$td.mergedModuleJar.name"
-        Util.createJar(project.file(jarFilePath), td.mergedJarsDir)
-        def modInfoDir = genModuleInfo(project.file(jarFilePath), project.file(td.tmpJarsDirPath), td.mergedModuleName)
-        compileModuleInfo(project.file(modInfoDir), project.file(jarFilePath), project.file(td.tmpModuleInfoDirPath))
+        Util.createJar(new File(jarFilePath), td.mergedJarsDir)
+        def modInfoDir = genModuleInfo(new File(jarFilePath), new File(td.tmpJarsDirPath), td.mergedModuleName)
+        compileModuleInfo(modInfoDir, new File(jarFilePath), new File(td.tmpModuleInfoDirPath))
         LOGGER.info("Copy from $td.mergedJarsDir into ${td.tmpModuleInfoDirPath}...")
-        project.copy { CopySpec spec ->
+        fileSystemOperations.copy { CopySpec spec ->
             spec.from td.mergedJarsDir
             spec.into td.tmpModuleInfoDirPath
             spec.exclude "**/module-info.class"
         }
-        Util.createJar(td.mergedModuleJar, project.file(td.tmpModuleInfoDirPath))
+        Util.createJar(td.mergedModuleJar, new File(td.tmpModuleInfoDirPath))
     }
 
     File genModuleInfo(File jarFile, File targetDir) {
@@ -63,7 +76,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
 
     File genModuleInfo(File jarFile, File targetDir, String moduleName) {
         LOGGER.info("Generating module-info of module $moduleName in ${targetDir}...")
-        project.delete(targetDir)
+        fileSystemOperations.delete { it.delete(targetDir) }
         targetDir.mkdirs()
         def moduleInfoFile = genModuleInfoJdeps(jarFile, targetDir)
         if(!moduleInfoFile) {
@@ -116,7 +129,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
                     javaHome: td.javaHome,
                     forceMergedJarPrefixes: td.forceMergedJarPrefixes,
                     extraDependenciesPrefixes: td.extraDependenciesPrefixes,
-                    configuration: td.configuration,
+                    configuration: (Configuration) td.configuration,
                     constraints: td.mergedModuleInfo.additiveConstraints
             )
             modInfoJava << builder.moduleInfo.toString(4)
@@ -131,16 +144,14 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
     @CompileDynamic
     def compileModuleInfo(File moduleInfoJavaDir, File moduleJar, File targetDir) {
         LOGGER.info("Compiling module-info from ${moduleInfoJavaDir} into ${targetDir}...")
-        project.delete(targetDir)
-        project.copy {
-            from(project.zipTree(moduleJar))
+        fileSystemOperations.delete { it.delete(targetDir) }
+        fileSystemOperations.copy {
+            from(archiveOperations.zipTree(moduleJar))
             into(targetDir)
         }
 
         try {
-            def execOps = project.services.get(org.gradle.process.ExecOperations)
-
-            execOps.exec { spec ->
+            execOperations.exec { spec ->
                 spec.commandLine = [
                         "$td.javaHome/bin/javac",
                         *versionOpts,
@@ -159,7 +170,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
     private List<String> getVersionOpts() {
         def version = td.mergedModuleVersion
         if(!version) {
-            def archiveFile = Util.getArchiveFile(project)
+            def archiveFile = td.archiveFile
             ModuleReference moduleRef = null
             try {
                 moduleRef = ModuleFinder.of(archiveFile.toPath()).findAll().find()
@@ -171,12 +182,11 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
                 moduleRef.descriptor().version().ifPresent{v -> version = v.toString()}
             }
             if(!version) {
-                def projectVersion = project.version as String
-                if(projectVersion && projectVersion != Project.DEFAULT_VERSION) {
+                if(projectVersion && projectVersion != 'unspecified') {
                     version = projectVersion
                 }
             }
         }
-        (!version || version == Project.DEFAULT_VERSION) ? [] : [ '--module-version', version ]
+        (!version || version == 'unspecified') ? [] : [ '--module-version', version ]
     }
 }

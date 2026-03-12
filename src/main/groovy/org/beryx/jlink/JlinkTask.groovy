@@ -19,6 +19,7 @@ import groovy.transform.CompileStatic
 import org.beryx.jlink.data.*
 import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.util.PathUtil
+import org.beryx.jlink.util.SuggestedModulesBuilder
 import org.gradle.api.file.Directory
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -119,7 +120,6 @@ class JlinkTask extends BaseTask {
         taskData.secondaryLaunchers = secondaryLaunchers
         taskData.customImageData = customImageData
         taskData.mainClass = mainClass ?: defaultMainClass
-        taskData.configuration = project.configurations.getByName(configuration)
         taskData.options = options
         taskData.extraModulePaths = extraModulePaths
         taskData.javaHome = javaHome
@@ -127,7 +127,30 @@ class JlinkTask extends BaseTask {
         taskData.jlinkJarsDir = jlinkJarsDir.asFile
         taskData.cdsData = cdsData
 
-        def taskImpl = new JlinkTaskImpl(project, taskData)
+        def config = project.configurations.getByName(configuration)
+        def jdkModules = [] as Set<String>
+        if(customImageData.jdkAdditive) {
+            jdkModules.addAll(new SuggestedModulesBuilder(javaHome, config).projectModules)
+            if(customImageData.jdkModules) jdkModules.addAll(customImageData.jdkModules)
+        } else {
+            jdkModules.addAll(customImageData.jdkModules ?: new SuggestedModulesBuilder(javaHome, config).projectModules)
+        }
+
+        if(customImageData.enabled) {
+            taskData.imageModules = jdkModules + customImageData.appModules
+        } else {
+            taskData.imageModules = jdkModules + [moduleName]
+        }
+
+        // Resolve effective args/jvmArgs for launchers during configuration phase
+        def resolveLauncher = { LauncherData ld ->
+            if(ld.args == LauncherData.UNDEFINED_ARGS) ld.args = extension.launcherData.get().args
+            if(ld.jvmArgs == LauncherData.UNDEFINED_ARGS) ld.jvmArgs = extension.launcherData.get().jvmArgs
+        }
+        resolveLauncher(taskData.launcherData)
+        taskData.secondaryLaunchers.each { resolveLauncher(it) }
+
+        def taskImpl = new JlinkTaskImpl(project, getFileSystemOperations(), getExecOperations(), taskData)
         taskImpl.execute()
     }
 

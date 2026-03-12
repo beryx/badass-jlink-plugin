@@ -22,6 +22,7 @@ import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.impl.CreateMergedModuleTaskImpl
 import org.beryx.jlink.util.PathUtil
+import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.tasks.Input
@@ -112,13 +113,14 @@ class CreateMergedModuleTask extends BaseTask {
         taskData.mergedJarsDir = mergedJarsDir.asFile
         taskData.javaHome = javaHome
         taskData.configuration = project.configurations.getByName(configuration)
+        taskData.archiveFile = Util.getArchiveFile(project)
 
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpMergedModuleDirPath = PathUtil.getTmpMergedModuleDirPath(taskData.jlinkBasePath)
         taskData.tmpModuleInfoDirPath = PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
 
-        def taskImpl = new CreateMergedModuleTaskImpl(project, taskData)
+        def taskImpl = new CreateMergedModuleTaskImpl(project, fileSystemOperations, archiveOperations, execOperations, project.version.toString(), taskData)
         taskImpl.execute()
     }
 }

@@ -25,6 +25,7 @@ import org.beryx.jlink.util.SuggestedModulesBuilder
 import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -50,13 +51,13 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
                     javaHome: td.javaHome,
                     forceMergedJarPrefixes: td.forceMergedJarPrefixes,
                     extraDependenciesPrefixes: td.extraDependenciesPrefixes,
-                    configuration: td.configuration,
+                    configuration: (Configuration) td.configuration,
                     constraints: td.additiveConstraints
             )
             println "mergedModule {\n${builder.moduleInfo.toString(4, td.language)}\n}"
         }
         if(td.customImageEnabled) {
-            def modules = new SuggestedModulesBuilder(td.javaHome, td.configuration).projectModules
+            def modules = new SuggestedModulesBuilder(td.javaHome, (Configuration) td.configuration).projectModules
             println """
                 customImage {
                     jdkModules = [${modules.join(', ')}]

@@ -253,9 +253,12 @@ class Util {
         (Set<File>)deps.collect{ it.moduleArtifacts*.file }.flatten() as Set
     }
 
+    @CompileDynamic
     static File getArtifact(ResolvedDependency dep) {
-        def artifact = dep.moduleArtifacts.find {it.classifier} ?: dep.moduleArtifacts[0]
-        artifact.file
+        def artifacts = dep.moduleArtifacts
+        if(!artifacts) return null
+        def artifact = artifacts.find {it.classifier} ?: artifacts.iterator().next()
+        artifact?.file
     }
 
     static boolean isEmptyJar(File jarFile) {

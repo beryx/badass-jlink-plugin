@@ -27,13 +27,18 @@ class LaunchScriptGeneratorSpec extends Specification {
         LauncherData ld = new LauncherData('hello')
         ld.args = args
         ld.jvmArgs = jvmArgs
-        def generator = new LaunchScriptGenerator(null, 'org.example.hello', 'org.example.Hello', ld)
+        def generator = new LaunchScriptGenerator('org.example.hello', 'org.example.Hello', ld, jvmArgs, args)
         def scriptLines = generator.getScript(LaunchScriptGenerator.Type.UNIX).readLines()
 
         then:
         scriptLines[0] == '#!/bin/sh'
         scriptLines[4] == 'DIR="${0%/*}"'
-        scriptLines[-1].replace('  ', ' ') == lastLine
+        def actual = scriptLines[-1].replace('  ', ' ')
+        if(actual != lastLine) {
+            println "[DEBUG_LOG] UNIX Actual:   $actual"
+            println "[DEBUG_LOG] UNIX Expected: $lastLine"
+        }
+        actual == lastLine
 
         where:
         jvmArgs                      | args                         | lastLine
@@ -49,14 +54,19 @@ class LaunchScriptGeneratorSpec extends Specification {
         LauncherData ld = new LauncherData('hello')
         ld.args = args
         ld.jvmArgs = jvmArgs
-        def generator = new LaunchScriptGenerator(null, 'org.example.hello', 'org.example.Hello', ld)
+        def generator = new LaunchScriptGenerator('org.example.hello', 'org.example.Hello', ld, jvmArgs, args)
         def scriptLines = generator.getScript(LaunchScriptGenerator.Type.WINDOWS).readLines()
 
         then:
         scriptLines[0] == '@echo off'
         scriptLines[1] == 'set DIR="%~dp0"'
         scriptLines[2] == 'set JAVA_EXEC="%DIR:"=%\\java"'
-        scriptLines[-1].replace('  ', ' ') == lastLine
+        def actual = scriptLines[-1].replace('  ', ' ')
+        if(actual != lastLine) {
+            println "[DEBUG_LOG] WIN Actual:    $actual"
+            println "[DEBUG_LOG] WIN Expected:  $lastLine"
+        }
+        actual == lastLine
 
         where:
         jvmArgs                      | args                         | lastLine

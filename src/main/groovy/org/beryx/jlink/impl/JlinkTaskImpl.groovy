@@ -21,14 +21,16 @@ import org.beryx.jlink.data.JlinkTaskData
 import org.beryx.jlink.util.*
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.process.ExecOperations
 
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
 class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
-    private static final Logger LOGGER = Logging.getLogger(JlinkZipTaskImpl.class);
+    private static final Logger LOGGER = Logging.getLogger(JlinkTaskImpl.class);
 
     static class ModuleData {
         String name
@@ -36,8 +38,16 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         Set<String> requires
     }
 
-    JlinkTaskImpl(Project project, JlinkTaskData taskData) {
+    final FileSystemOperations fileSystemOperations
+    final ExecOperations execOperations
+
+    Collection<String> imageModules
+
+    JlinkTaskImpl(Project project, FileSystemOperations fileSystemOperations, ExecOperations execOperations, JlinkTaskData taskData) {
         super(project, taskData)
+        this.fileSystemOperations = fileSystemOperations
+        this.execOperations = execOperations
+        this.imageModules = taskData.imageModules
         LOGGER.info("taskData: $taskData")
     }
 
@@ -68,7 +78,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     @CompileDynamic
     void createCDSArchive(File imageDir) {
         if(td.cdsData.enabled) {
-            project.services.get(org.gradle.process.ExecOperations).exec { spec ->
+            execOperations.exec { spec ->
                 spec.commandLine = ["$imageDir/bin/java", "-Xshare:dump"]
             }
         }
@@ -83,18 +93,17 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
                 LOGGER.warn("java.base module not found in $jdkHome${File.separator}jmods, assuming the used Java toolchain has enabled JEP 493")
             }
         }
-        project.delete(imageDir)
+        fileSystemOperations.delete { it.delete(imageDir) }
+        def outputStream = new ByteArrayOutputStream()
+        def jlinkOutput = ""
+
         def result = {
-            def execOps = project.services.get(org.gradle.process.ExecOperations)
-
-            def outputStream = new ByteArrayOutputStream()
-
-            def jlinkJarsDirAsPath = project.files(td.jlinkJarsDir).asPath
+            def jlinkJarsDirAsPath = td.jlinkJarsDir.path
             def additionalModulePaths = extraModulePaths.collect {SEP + it}.join('')
             def jlinkExec = "$td.javaHome/bin/jlink$EXEC_EXTENSION"
             Util.checkExecutable(jlinkExec)
 
-            def execResult = execOps.exec { spec ->
+            def execResult = execOperations.exec { spec ->
                 spec.ignoreExitValue = true
                 spec.standardOutput = outputStream
                 spec.commandLine = [
@@ -106,18 +115,14 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
                         '--output', imageDir
                 ]
             }
-
-            project.ext.jlinkOutput = {
-                return outputStream.toString()
-            }
-
-            // Return the exec result
+            jlinkOutput = outputStream.toString()
             return execResult
         }()
+
         if(result.exitValue != 0) {
-            LOGGER.error(project.ext.jlinkOutput())
+            LOGGER.error(jlinkOutput)
         } else {
-            LOGGER.info(project.ext.jlinkOutput())
+            LOGGER.info(jlinkOutput)
             copyNonImageModules(imageDir, extraModulePaths + [td.jlinkJarsDir.path])
         }
         result.assertNormalExitValue()
@@ -170,37 +175,14 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         }
     }
 
-    Collection<String> getJdkModules() {
-        if(td.customImageData.jdkAdditive) {
-            if(td.customImageData.jdkModules ) {
-                new SuggestedModulesBuilder(td.javaHome, td.configuration).projectModules + td.customImageData.jdkModules
-            } else {
-                new SuggestedModulesBuilder(td.javaHome, td.configuration).projectModules
-            }
-        } else {
-            td.customImageData.jdkModules ?: new SuggestedModulesBuilder(td.javaHome, td.configuration).projectModules
-        }
-    }
-
-    Collection<String> getImageModules() {
-        if(td.customImageData.enabled) {
-            return appModules + jdkModules
-        } else {
-            return [td.moduleName, td.mergedModuleName]
-        }
-    }
-
-    Collection<String> getAppModules() {
-        td.customImageData.appModules
-    }
 
     void createLaunchScripts(File imageDir) {
-        def generator = new LaunchScriptGenerator(project, td.moduleName, td.mainClass, td.launcherData)
+        def generator = new LaunchScriptGenerator(td.moduleName, td.mainClass, td.launcherData, td.launcherData.getEffectiveJvmArgs(project), td.launcherData.getEffectiveArgs(project))
         generator.generate("$imageDir/bin")
         td.secondaryLaunchers.each { launcher ->
             def moduleName = launcher.moduleName ? launcher.moduleName : td.moduleName
             def mainClass = launcher.mainClass ? launcher.mainClass : td.mainClass
-            def secondaryGenerator = new LaunchScriptGenerator(project, moduleName, mainClass, launcher)
+            def secondaryGenerator = new LaunchScriptGenerator(moduleName, mainClass, launcher, launcher.getEffectiveJvmArgs(project), launcher.getEffectiveArgs(project))
             secondaryGenerator.generate("$imageDir/bin")
         }
     }
