@@ -54,11 +54,6 @@ abstract class CreateMergedModuleTask extends BaseTask {
         jarName
     }
 
-    @Input
-    String getMergedModuleVersion() {
-        mergedModuleInfo.version ?: extension.mergedModuleJarVersion.get()
-    }
-
     @InputDirectory
     Directory getMergedJarsDir() {
         project.layout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
@@ -87,8 +82,8 @@ abstract class CreateMergedModuleTask extends BaseTask {
     @OutputFile
     File getMergedModuleJar() {
         String jarFileName = mergedModuleJarName
-        if(mergedModuleVersion && mergedModuleVersion != Project.DEFAULT_VERSION) {
-            jarFileName += "-$mergedModuleVersion"
+        if(mergedModuleInfo.version != Project.DEFAULT_VERSION) {
+            jarFileName += "-$mergedModuleInfo.version"
         }
         jarFileName += ".jar"
         new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath), jarFileName)
@@ -106,7 +101,6 @@ abstract class CreateMergedModuleTask extends BaseTask {
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
         taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
         taskData.mergedModuleName = mergedModuleName
-        taskData.mergedModuleJarVersion = extension.mergedModuleJarVersion.get()
         taskData.mergedModuleInfo = mergedModuleInfo
         taskData.useJdeps = useJdeps
         taskData.mergedModuleJar = mergedModuleJar

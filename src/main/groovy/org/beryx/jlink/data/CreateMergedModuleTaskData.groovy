@@ -26,10 +26,6 @@ class CreateMergedModuleTaskData extends BaseTaskData {
     List<String> extraDependenciesPrefixes
     String mergedModuleName
 
-    /** @deprecated - use  {@link ModuleInfo#version} instead */
-    @Deprecated(since = "2.22.1", forRemoval = true)
-    String mergedModuleJarVersion
-
     ModuleInfo mergedModuleInfo
     JdepsUsage useJdeps
     File mergedJarsDir
@@ -42,8 +38,4 @@ class CreateMergedModuleTaskData extends BaseTaskData {
     String tmpModuleInfoDirPath
     String tmpJarsDirPath
     File archiveFile
-
-    String getMergedModuleVersion() {
-        mergedModuleInfo.version ?: mergedModuleJarVersion
-    }
 }
