@@ -174,9 +174,8 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
             ModuleReference moduleRef = null
             try {
                 moduleRef = ModuleFinder.of(archiveFile.toPath()).findAll().find()
-            } catch (e) {
-                LOGGER.error("Error retrieving module ${archiveFile.toPath()}: ", e.cause?:e.message)
-                throw e
+            } catch (Exception e) {
+                LOGGER.warn("Cannot retrieve module version from ${archiveFile.toPath()} using the current JVM. Falling back to project version. Error: $e.message")
             }
             if(moduleRef) {
                 moduleRef.descriptor().version().ifPresent{v -> version = v.toString()}
