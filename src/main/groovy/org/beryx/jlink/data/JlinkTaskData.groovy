@@ -36,4 +36,6 @@ class JlinkTaskData extends BaseTaskData {
     CustomImageData customImageData
     CdsData cdsData
     Collection<String> imageModules
+    List<String> defaultJvmArgs
+    List<String> defaultArgs
 }

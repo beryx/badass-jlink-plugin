@@ -17,17 +17,14 @@ package org.beryx.jlink.impl
 
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.BaseTaskData
-import org.gradle.api.Project
 
 @CompileStatic
 abstract class BaseTaskImpl<DATA extends BaseTaskData> {
     public final static String SEP = File.pathSeparatorChar
 
-    final Project project
     final DATA td
 
-    BaseTaskImpl(Project project, DATA td) {
-        this.project = project
+    BaseTaskImpl(DATA td) {
         this.td = td
     }
 }

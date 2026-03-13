@@ -304,51 +304,34 @@ class JlinkPluginSpec extends Specification {
         System.out.println "[DEBUG_LOG] RESULT2 OUTPUT:\n${result2.output}"
 
         then:
-        noExceptionThrown()
-        if (!result1.output.contains('Configuration cache entry stored')) {
-            println "WARNING: Configuration cache entry was not stored"
-        }
-        if (!result2.output.contains('Reusing configuration cache')) {
-            println "WARNING: Configuration cache was not reused"
-        }
-        checkOutput(result2, 'modular-hello', 'LOG: Hello, modular Java!', false)
+        result1.output.contains('Configuration cache entry stored')
+        result2.output.contains('Reusing configuration cache')
+        checkOutput(result2, 'modular-hello', 'LOG: Hello, modular Java!')
     }
 
-    private boolean checkOutput(BuildResult result, String imageName, String expectedOutput, boolean shouldAssert = true) {
+    private boolean checkOutput(BuildResult result, String imageName, String expectedOutput) {
         def imageBinDir = new File(testProjectDir.toFile(), 'build/image/bin')
         def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
 
-        def task = result.task(":$JlinkPlugin.TASK_NAME_JLINK")
-        if (shouldAssert) {
-            assert task?.outcome == TaskOutcome.SUCCESS
-        } else if (task?.outcome != TaskOutcome.SUCCESS) {
-            println "WARNING: task outcome is ${task?.outcome}, expected SUCCESS"
-        }
+        assert result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome in [TaskOutcome.SUCCESS, TaskOutcome.UP_TO_DATE]
 
         def imageLauncher = new File(imageBinDir, "$imageName$launcherExt")
-        if (shouldAssert) {
-            assert imageLauncher.exists()
-            assert imageLauncher.canExecute()
-        } else {
-            if (!imageLauncher.exists()) {
-                println "WARNING: launcher does not exist: $imageLauncher"
-            } else if (!imageLauncher.canExecute()) {
-                println "WARNING: launcher is not executable: $imageLauncher"
-            }
-        }
+        assert imageLauncher.exists()
+        assert imageLauncher.canExecute()
 
-        if (shouldAssert || imageLauncher.exists()) {
-            def process = imageLauncher.absolutePath.execute([], imageBinDir)
-            def out = new ByteArrayOutputStream(2048)
-            def err = new ByteArrayOutputStream(2048)
-            process.waitForProcessOutput(out, err)
-            def outputText = out.toString().trim()
-            if (shouldAssert) {
-                assert outputText == expectedOutput
-            } else if (outputText != expectedOutput) {
-                println "WARNING: expected output: '$expectedOutput', but got: '$outputText'"
-            }
+        def process = imageLauncher.absolutePath.execute([], imageBinDir)
+        def out = new ByteArrayOutputStream(2048)
+        def err = new ByteArrayOutputStream(2048)
+        process.waitForProcessOutput(out, err)
+        def outputText = out.toString()
+        def errorText = err.toString()
+        if (errorText) {
+            System.out.println "[DEBUG_LOG] Launcher stderr: $errorText"
         }
+        if (!outputText.trim()) {
+            System.out.println "[DEBUG_LOG] Launcher stdout was empty. Exit code: ${process.exitValue()}"
+        }
+        assert outputText.trim() == expectedOutput
 
         true
     }

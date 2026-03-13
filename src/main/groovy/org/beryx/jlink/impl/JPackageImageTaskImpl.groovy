@@ -33,8 +33,8 @@ import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
     private static final Logger LOGGER = Logging.getLogger(JPackageImageTaskImpl.class);
 
-    JPackageImageTaskImpl(Project project, JPackageTaskData taskData) {
-        super(project, taskData)
+    JPackageImageTaskImpl( JPackageTaskData taskData) {
+        super(taskData)
         LOGGER.info("taskData: $taskData")
     }
 
@@ -84,12 +84,12 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                     stream << "main-class=$launcher.mainClass\n"
                 }
 
-                def args = launcher.getEffectiveArgs(project)
+                def args = launcher.getEffectiveArgs(td.defaultArgs)
                 if(args) {
                     stream << "arguments=${args.collect{adjustArg(it)}.join('\\n')}\n"
                 }
 
-                def jvmArgs = launcher.getEffectiveJvmArgs(project)
+                def jvmArgs = launcher.getEffectiveJvmArgs(td.defaultJvmArgs)
                 if(jvmArgs) {
                     stream << "java-options=${jvmArgs.collect{adjustArg(it)}.join('\\n')}\n"
                 }
@@ -106,7 +106,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             propFiles[launcher.name] = propFile
         }
 
-        def appVersion = (jpd.appVersion ?: project.version).toString()
+        def appVersion = (jpd.appVersion ?: td.projectVersion).toString()
         List<String> versionOpts = (appVersion == Project.DEFAULT_VERSION) ? [] : [ '--app-version', appVersion ]
         if (versionOpts && (!appVersion || !Character.isDigit(appVersion[0] as char))) {
             throw new GradleException("The first character of the --app-version argument should be a digit.")
@@ -122,7 +122,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             def appDir = new File(td.runtimeImageDir, 'app')
             appDir.mkdirs()
             moduleOrJarOpts += ['--input', appDir.absolutePath]
-            String mainJarName = Util.getArchiveFile(project).name
+            String mainJarName = td.projectArchiveFile.name
             def mainJar = new File(appDir, mainJarName)
             LOGGER.info("mainJar $mainJar ${mainJar.file ? '' : 'not '}found")
             if(mainJar.file) {

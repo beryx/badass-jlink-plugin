@@ -47,8 +47,8 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
     final ExecOperations execOperations
     final String projectVersion
 
-    CreateMergedModuleTaskImpl(Project project, FileSystemOperations fileSystemOperations, ArchiveOperations archiveOperations, ExecOperations execOperations, String projectVersion, CreateMergedModuleTaskData taskData) {
-        super(project, taskData)
+    CreateMergedModuleTaskImpl( FileSystemOperations fileSystemOperations, ArchiveOperations archiveOperations, ExecOperations execOperations, String projectVersion, CreateMergedModuleTaskData taskData) {
+        super(taskData)
         this.fileSystemOperations = fileSystemOperations
         this.archiveOperations = archiveOperations
         this.execOperations = execOperations
@@ -87,7 +87,7 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
 
     File genModuleInfoJdeps(File jarFile, File targetDir) {
         if(td.useJdeps != JdepsUsage.no) {
-            def result = new JdepsExecutor(project).genModuleInfo(jarFile, targetDir, td.jlinkJarsDirPath, td.javaHome)
+            def result = new JdepsExecutor(fileSystemOperations, execOperations).genModuleInfo(jarFile, targetDir, td.jlinkJarsDirPath, td.javaHome)
             if(result.exitValue) {
                 if(td.useJdeps != JdepsUsage.exclusively) {
                     throw new GradleException("jdeps exited with return code $result.exitValue")
@@ -124,12 +124,11 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
         }
         if(td.mergedModuleInfo.shouldUseSuggestions()) {
             def builder = new SuggestedMergedModuleInfoBuilder(
-                    project: project,
                     mergedJarsDir: td.mergedJarsDir,
                     javaHome: td.javaHome,
                     forceMergedJarPrefixes: td.forceMergedJarPrefixes,
                     extraDependenciesPrefixes: td.extraDependenciesPrefixes,
-                    configuration: (Configuration) td.configuration,
+                    dependencyData: td.dependencyData,
                     constraints: td.mergedModuleInfo.additiveConstraints
             )
             modInfoJava << builder.moduleInfo.toString(4)

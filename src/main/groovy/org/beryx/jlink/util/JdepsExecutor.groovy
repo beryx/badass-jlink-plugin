@@ -18,15 +18,17 @@ package org.beryx.jlink.util
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
-import org.gradle.api.Project
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.process.ExecOperations
 
 @CompileStatic
 class JdepsExecutor {
     private static final Logger LOGGER = Logging.getLogger(JdepsExecutor.class);
 
-    final Project project
+    final FileSystemOperations fileSystemOperations
+    final ExecOperations execOperations
 
     @TupleConstructor
     static class Result {
@@ -35,43 +37,36 @@ class JdepsExecutor {
         final String output
     }
 
-    JdepsExecutor(Project project) {
-        this.project = project
+    JdepsExecutor(FileSystemOperations fileSystemOperations, ExecOperations execOperations) {
+        this.fileSystemOperations = fileSystemOperations
+        this.execOperations = execOperations
     }
 
     @CompileDynamic
     Result genModuleInfo(File jarFile, File targetDir, String jlinkJarsDirPath, String javaHome) {
         LOGGER.info("Generating module-info in ${targetDir}...")
-        project.delete(targetDir)
+        fileSystemOperations.delete { it.delete(targetDir) }
         targetDir.mkdirs()
-        def result = {
-            def execOps = project.services.get(org.gradle.process.ExecOperations)
 
-            def outputStream = new ByteArrayOutputStream()
+        def outputStream = new ByteArrayOutputStream()
 
-            def execResult = execOps.exec { spec ->
-                spec.ignoreExitValue = true
-                spec.standardOutput = outputStream
-                spec.commandLine = [
-                        "$javaHome/bin/jdeps",
-                        '-v',
-                        '--generate-module-info',
-                        targetDir.path,
-                        '--module-path',
-                        "$javaHome/jmods/$File.pathSeparatorChar$jlinkJarsDirPath",
-                        jarFile.path
-                ]
-            }
+        def execResult = execOperations.exec { spec ->
+            spec.ignoreExitValue = true
+            spec.standardOutput = outputStream
+            spec.commandLine = [
+                    "$javaHome/bin/jdeps",
+                    '-v',
+                    '--generate-module-info',
+                    targetDir.path,
+                    '--module-path',
+                    "$javaHome/jmods/$File.pathSeparatorChar$jlinkJarsDirPath",
+                    jarFile.path
+            ]
+        }
 
-            project.ext.jdepsOutput = {
-                return outputStream.toString()
-            }
-
-            return execResult
-        }()
         def files = targetDir.listFiles()
         def moduleInfoFile =  files?.length ? files[0] : null
-        return new Result(result.exitValue, moduleInfoFile, project.ext.jdepsOutput())
+        return new Result(execResult.exitValue, moduleInfoFile, outputStream.toString())
     }
 
 }

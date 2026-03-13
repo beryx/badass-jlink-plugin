@@ -64,7 +64,7 @@ abstract class JlinkZipTask extends BaseTask {
         taskData.launcherData = launcherData
         taskData.imageDir = getImageDirAsFile()
         taskData.imageZip = getImageZipAsFile()
-        def taskImpl = new JlinkZipTaskImpl(project, taskData)
+        def taskImpl = new JlinkZipTaskImpl( taskData)
         taskImpl.execute()
     }
 

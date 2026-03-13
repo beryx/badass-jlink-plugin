@@ -16,6 +16,7 @@
 package org.beryx.jlink.util
 
 import groovy.transform.CompileStatic
+import org.beryx.jlink.data.DependencyData
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedDependency
@@ -28,24 +29,41 @@ class SuggestedModulesBuilder {
 
     final String javaHome
     final Configuration configuration
+    final DependencyData dependencyData
 
     SuggestedModulesBuilder(String javaHome, Configuration configuration) {
         this.javaHome = javaHome
         this.configuration = configuration
+        this.dependencyData = null
+    }
+
+    SuggestedModulesBuilder(String javaHome, DependencyData dependencyData) {
+        this.javaHome = javaHome
+        this.configuration = null
+        this.dependencyData = dependencyData
     }
 
     Set<String> getProjectModules() {
         Set<String> modules = []
-        try {
-            LOGGER.info("Retrieving project modules for configuration $configuration.name")
-        } catch (IncompatibleClassChangeError e) {
-            // no idea why this error shows up in test JlinkPluginSpec."should create runtime image of project #projectDir with Gradle #gradleVersion"
-            LOGGER.info("Retrieving project modules for configuration $configuration")
+
+        if (dependencyData != null) {
+            LOGGER.info("Retrieving project modules from dependency data")
+            for(File f: dependencyData.allArtifacts) {
+                if(f) modules.addAll(getModulesRequiredBy(f))
+            }
+        } else {
+            try {
+                LOGGER.info("Retrieving project modules for configuration $configuration.name")
+            } catch (IncompatibleClassChangeError e) {
+                // no idea why this error shows up in test JlinkPluginSpec."should create runtime image of project #projectDir with Gradle #gradleVersion"
+                LOGGER.info("Retrieving project modules for configuration $configuration")
+            }
+            for(ResolvedDependency dep: configuration.resolvedConfiguration.firstLevelModuleDependencies) {
+                def f = Util.getArtifact(dep)
+                if(f) modules.addAll(getModulesRequiredBy(f))
+            }
         }
-        for(ResolvedDependency dep: configuration.resolvedConfiguration.firstLevelModuleDependencies) {
-            def f = Util.getArtifact(dep)
-            if(f) modules.addAll(getModulesRequiredBy(f))
-        }
+
         if(!modules) {
             modules << 'java.base'
         }

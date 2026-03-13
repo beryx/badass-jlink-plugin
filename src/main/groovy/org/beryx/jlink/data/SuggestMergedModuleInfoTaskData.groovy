@@ -26,7 +26,7 @@ class SuggestMergedModuleInfoTaskData extends BaseTaskData {
     List<String> extraDependenciesPrefixes
     File mergedJarsDir
     String javaHome
-    FileCollection configuration
+    DependencyData dependencyData
     ModuleInfo.Language language
     ModuleInfo.AdditiveConstraints additiveConstraints
     JdepsUsage useJdeps

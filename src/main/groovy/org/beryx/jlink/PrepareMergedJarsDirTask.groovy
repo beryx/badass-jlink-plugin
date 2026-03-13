@@ -16,6 +16,7 @@
 package org.beryx.jlink
 
 import groovy.transform.CompileStatic
+import org.beryx.jlink.data.DependencyData
 import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.impl.PrepareMergedJarsDirTaskImpl
 import org.beryx.jlink.util.DependencyManager
@@ -24,7 +25,9 @@ import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 
 @CompileStatic
@@ -64,6 +67,11 @@ abstract class PrepareMergedJarsDirTask extends BaseTask {
         extension.jarExcludes.get()
     }
 
+    @Internal
+    abstract Property<DependencyData> getDependencyDataProperty()
+
+    @Classpath
+    abstract ConfigurableFileCollection getClasspathFiles()
 
     PrepareMergedJarsDirTask() {
         description = 'Merges all non-modularized jars into a single module'
@@ -71,6 +79,12 @@ abstract class PrepareMergedJarsDirTask extends BaseTask {
             def projects = Util.getAllDependentProjects(project) + project
             def jarTasks = projects*.getTasksByName('jar', true).flatten() as Task[]
             dependsOn(jarTasks)
+
+            // Setup providers that will resolve lazily during execution
+            def configName = extension.configuration.get()
+            def config = project.configurations.getByName(configName)
+            dependencyDataProperty.set(project.provider { DependencyData.from(config) })
+            classpathFiles.from(config)
         }
     }
 
@@ -88,11 +102,13 @@ abstract class PrepareMergedJarsDirTask extends BaseTask {
 
         taskData.jarExcludes = jarExcludes
 
-        def depMgr = new DependencyManager(project, forceMergedJarPrefixes, extraDependenciesPrefixes, project.configurations.getByName(configuration))
+        // Use DependencyData which was captured at configuration time
+        def depData = dependencyDataProperty.get()
+        def depMgr = new DependencyManager( forceMergedJarPrefixes, extraDependenciesPrefixes, depData)
         taskData.modularJarsRequiredByNonModularJars = depMgr.modularJarsRequiredByNonModularJars
         taskData.nonModularJars = depMgr.nonModularJars
 
-        def taskImpl = new PrepareMergedJarsDirTaskImpl(project, fileSystemOperations, archiveOperations, taskData)
+        def taskImpl = new PrepareMergedJarsDirTaskImpl( fileSystemOperations, archiveOperations, taskData)
         taskImpl.execute()
     }
 

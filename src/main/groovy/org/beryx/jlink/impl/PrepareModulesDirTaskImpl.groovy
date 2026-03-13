@@ -21,8 +21,8 @@ import org.beryx.jlink.data.PrepareModulesDirTaskData
 import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.ModuleInfoAdjuster
 import org.beryx.jlink.util.Util
-import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 
@@ -30,28 +30,33 @@ import org.gradle.api.logging.Logging
 class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> {
     private static final Logger LOGGER = Logging.getLogger(PrepareModulesDirTaskImpl.class);
 
-    PrepareModulesDirTaskImpl(Project project, PrepareModulesDirTaskData taskData) {
-        super(project, taskData)
+    final FileSystemOperations fileSystemOperations
+    final ArchiveOperations archiveOperations
+
+    PrepareModulesDirTaskImpl(FileSystemOperations fileSystemOperations, ArchiveOperations archiveOperations, PrepareModulesDirTaskData taskData) {
+        super(taskData)
+        this.fileSystemOperations = fileSystemOperations
+        this.archiveOperations = archiveOperations
         LOGGER.info("taskData: $taskData")
     }
 
     @CompileDynamic
     void execute() {
         LOGGER.info("Copying delegating modules to ${td.jlinkJarsDir}...")
-        project.copy {
+        fileSystemOperations.copy {
             into td.jlinkJarsDir
             from td.delegatingModulesDir
         }
 
         LOGGER.info("Copying modular jars not required by non-modular jars to ${td.jlinkJarsDir}...")
-        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes, (Configuration) td.configuration)
-        project.copy {
+        def depMgr = new DependencyManager( td.forceMergedJarPrefixes, td.extraDependenciesPrefixes, td.dependencyData)
+        fileSystemOperations.copy {
             into td.jlinkJarsDir
             from (depMgr.modularJars - depMgr.modularJarsRequiredByNonModularJars)
         }
 
-        project.copy {
-            from project.jar.archiveFile
+        fileSystemOperations.copy {
+            from td.projectArchiveFile
             into td.jlinkJarsDir
         }
 
@@ -62,23 +67,23 @@ class PrepareModulesDirTaskImpl extends BaseTaskImpl<PrepareModulesDirTaskData> 
     private void adjustModuleDescriptors(DependencyManager depMgr) {
         def nonModularModules = depMgr.nonModularJars.collect { Util.getModuleName(it) }
         def adjuster = new ModuleInfoAdjuster(td.mergedModuleName, nonModularModules)
-        def jarMap = (depMgr.modularJars + Util.getArchiveFile(project)).collectEntries { [it.name, it] }
+        def jarMap = (depMgr.modularJars + td.projectArchiveFile).collectEntries { [it.name, it] }
         td.jlinkJarsDir.listFiles().each { File jar ->
             if(jarMap.keySet().contains(jar.name)) {
                 def adjustedDescriptors = adjuster.getAdjustedDescriptors(jarMap[jar.name])
                 adjustedDescriptors.each { moduleInfoPath, descriptorBytes ->
-                    project.delete(td.tmpModuleInfoDirPath)
+                    fileSystemOperations.delete { it.delete(td.tmpModuleInfoDirPath) }
                     def moduleInfoFile = new File("$td.tmpModuleInfoDirPath/$moduleInfoPath")
-                    project.mkdir(moduleInfoFile.parent)
-                    project.copy {
-                        from project.zipTree(jar.path)
+                    moduleInfoFile.parentFile.mkdirs()
+                    fileSystemOperations.copy {
+                        from archiveOperations.zipTree(jar.path)
                         into td.tmpModuleInfoDirPath
                     }
                     moduleInfoFile.withOutputStream { stream ->
                         stream << descriptorBytes
                     }
-                    project.delete(jar)
-                    Util.createJar(jar, project.file(td.tmpModuleInfoDirPath))
+                    fileSystemOperations.delete { it.delete(jar) }
+                    Util.createJar(jar, new File(td.tmpModuleInfoDirPath))
                 }
             }
         }

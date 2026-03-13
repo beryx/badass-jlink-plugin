@@ -18,16 +18,23 @@ package org.beryx.jlink.impl
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkZipTaskData
-import org.gradle.api.Project
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+
+import java.nio.file.FileVisitResult
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.SimpleFileVisitor
+import java.nio.file.attribute.BasicFileAttributes
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 
 @CompileStatic
 class JlinkZipTaskImpl extends BaseTaskImpl<JlinkZipTaskData> {
     private static final Logger LOGGER = Logging.getLogger(JlinkZipTaskImpl.class);
 
-    JlinkZipTaskImpl(Project project, JlinkZipTaskData taskData) {
-        super(project, taskData)
+    JlinkZipTaskImpl(JlinkZipTaskData taskData) {
+        super(taskData)
         LOGGER.info("taskData: $taskData")
     }
 
@@ -42,16 +49,44 @@ class JlinkZipTaskImpl extends BaseTaskImpl<JlinkZipTaskData> {
             td.targetPlatforms.values().each { platform ->
                 File zipFile = new File(zipDir, "${baseName}-${platform.name}.${ext}")
                 File imageDir = new File(td.imageDir, "$td.launcherData.name-$platform.name")
-                project.ant.zip(destfile: zipFile, duplicate: 'fail') {
-                    zipfileset(dir: imageDir.parentFile, includes: "$imageDir.name/**", excludes: "$imageDir.name/bin/**")
-                    zipfileset(dir: imageDir.parentFile, includes: "$imageDir.name/bin/**", filemode: 755)
-                }
+                createZip(zipFile, imageDir)
             }
         } else {
-            project.ant.zip(destfile: td.imageZip, duplicate: 'fail') {
-                zipfileset(dir: td.imageDir.parentFile, includes: "$td.imageDir.name/**", excludes: "$td.imageDir.name/bin/**")
-                zipfileset(dir: td.imageDir.parentFile, includes: "$td.imageDir.name/bin/**", filemode: 755)
-            }
+            createZip(td.imageZip, td.imageDir)
+        }
+    }
+
+    private void createZip(File zipFile, File imageDir) {
+        zipFile.parentFile.mkdirs()
+        new ZipOutputStream(new FileOutputStream(zipFile)).withCloseable { zos ->
+            Path imagePath = imageDir.toPath()
+            Path basePath = imageDir.parentFile.toPath()
+
+            Files.walkFileTree(imagePath, new SimpleFileVisitor<Path>() {
+                @Override
+                FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Path relativePath = basePath.relativize(file)
+                    String entryName = relativePath.toString().replace('\\', '/')
+                    ZipEntry entry = new ZipEntry(entryName)
+                    entry.setTime(attrs.lastModifiedTime().toMillis())
+
+                    zos.putNextEntry(entry)
+                    Files.copy(file, zos)
+                    zos.closeEntry()
+                    return FileVisitResult.CONTINUE
+                }
+
+                @Override
+                FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    if (!dir.equals(imagePath)) {
+                        Path relativePath = basePath.relativize(dir)
+                        ZipEntry entry = new ZipEntry(relativePath.toString().replace('\\', '/') + '/')
+                        zos.putNextEntry(entry)
+                        zos.closeEntry()
+                    }
+                    return FileVisitResult.CONTINUE
+                }
+            })
         }
     }
 }

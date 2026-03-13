@@ -44,4 +44,12 @@ class LauncherData implements Serializable {
     List<String> getEffectiveJvmArgs(Project project) {
         (jvmArgs != UNDEFINED_ARGS) ? jvmArgs : Util.getDefaultJvmArgs(project)
     }
+
+    List<String> getEffectiveArgs(List<String> defaultArgs) {
+        (args != UNDEFINED_ARGS) ? args : defaultArgs
+    }
+
+    List<String> getEffectiveJvmArgs(List<String> defaultJvmArgs) {
+        (jvmArgs != UNDEFINED_ARGS) ? jvmArgs : defaultJvmArgs
+    }
 }

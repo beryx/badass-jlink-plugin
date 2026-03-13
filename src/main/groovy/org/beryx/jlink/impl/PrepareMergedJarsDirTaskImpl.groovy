@@ -21,7 +21,6 @@ import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.Util
 import org.codehaus.groovy.tools.Utilities
-import org.gradle.api.Project
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.FileTreeElement
@@ -35,8 +34,8 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
     final FileSystemOperations fileSystemOperations
     final ArchiveOperations archiveOperations
 
-    PrepareMergedJarsDirTaskImpl(Project project, FileSystemOperations fileSystemOperations, ArchiveOperations archiveOperations, PrepareMergedJarsDirTaskData taskData) {
-        super(project, taskData)
+    PrepareMergedJarsDirTaskImpl(FileSystemOperations fileSystemOperations, ArchiveOperations archiveOperations, PrepareMergedJarsDirTaskData taskData) {
+        super(taskData)
         this.fileSystemOperations = fileSystemOperations
         this.archiveOperations = archiveOperations
         LOGGER.info("taskData: $taskData")

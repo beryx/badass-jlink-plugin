@@ -43,8 +43,8 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
 
     Collection<String> imageModules
 
-    JlinkTaskImpl(Project project, FileSystemOperations fileSystemOperations, ExecOperations execOperations, JlinkTaskData taskData) {
-        super(project, taskData)
+    JlinkTaskImpl( FileSystemOperations fileSystemOperations, ExecOperations execOperations, JlinkTaskData taskData) {
+        super(taskData)
         this.fileSystemOperations = fileSystemOperations
         this.execOperations = execOperations
         this.imageModules = taskData.imageModules
@@ -148,7 +148,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
             LOGGER.info "transitiveNonImageModules: $transitiveNonImageModules"
             if(transitiveNonImageModules) {
                 new File(imageDir, 'app').mkdirs()
-                project.copy {
+                getFileSystemOperations().copy {
                     into "$imageDir/app"
                     from transitiveNonImageModules.collect { moduleData[it].file }.toArray()
                 }
@@ -177,12 +177,12 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
 
 
     void createLaunchScripts(File imageDir) {
-        def generator = new LaunchScriptGenerator(td.moduleName, td.mainClass, td.launcherData, td.launcherData.getEffectiveJvmArgs(project), td.launcherData.getEffectiveArgs(project))
+        def generator = new LaunchScriptGenerator(td.moduleName, td.mainClass, td.launcherData, td.launcherData.getEffectiveJvmArgs(td.defaultJvmArgs), td.launcherData.getEffectiveArgs(td.defaultArgs))
         generator.generate("$imageDir/bin")
         td.secondaryLaunchers.each { launcher ->
             def moduleName = launcher.moduleName ? launcher.moduleName : td.moduleName
             def mainClass = launcher.mainClass ? launcher.mainClass : td.mainClass
-            def secondaryGenerator = new LaunchScriptGenerator(moduleName, mainClass, launcher, launcher.getEffectiveJvmArgs(project), launcher.getEffectiveArgs(project))
+            def secondaryGenerator = new LaunchScriptGenerator(moduleName, mainClass, launcher, launcher.getEffectiveJvmArgs(td.defaultJvmArgs), launcher.getEffectiveArgs(td.defaultArgs))
             secondaryGenerator.generate("$imageDir/bin")
         }
     }

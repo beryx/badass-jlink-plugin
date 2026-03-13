@@ -33,8 +33,8 @@ import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
     private static final Logger LOGGER = Logging.getLogger(JPackageTaskImpl.class);
 
-    JPackageTaskImpl(Project project, JPackageTaskData taskData) {
-        super(project, taskData)
+    JPackageTaskImpl( JPackageTaskData taskData) {
+        super(taskData)
         LOGGER.info("taskData: $taskData")
     }
 
@@ -76,7 +76,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 def jpackageExec = "${jpd.getJPackageHomeOrDefault()}/bin/jpackage$EXEC_EXTENSION"
                 Util.checkExecutable(jpackageExec)
 
-                def appVersion = (jpd.appVersion ?: project.version).toString()
+                def appVersion = (jpd.appVersion ?: td.projectVersion).toString()
                 def versionOpts = (appVersion == Project.DEFAULT_VERSION) ? [] : [ '--app-version', appVersion ]
                 if (versionOpts && (!appVersion || !Character.isDigit(appVersion[0] as char))) {
                     throw new GradleException("The first character of the --app-version argument should be a digit.")

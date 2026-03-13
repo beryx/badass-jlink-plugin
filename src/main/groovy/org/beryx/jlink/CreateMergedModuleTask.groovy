@@ -18,17 +18,17 @@ package org.beryx.jlink
 
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.CreateMergedModuleTaskData
+import org.beryx.jlink.data.DependencyData
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.impl.CreateMergedModuleTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
 import org.gradle.api.Project
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.*
 
 @CompileStatic
 abstract class CreateMergedModuleTask extends BaseTask {
@@ -89,9 +89,21 @@ abstract class CreateMergedModuleTask extends BaseTask {
         new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath), jarFileName)
     }
 
+    @Internal
+    abstract Property<DependencyData> getDependencyDataProperty()
+
+    @Classpath
+    abstract ConfigurableFileCollection getClasspathFiles()
+
     CreateMergedModuleTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MERGED_JARS_DIR)
         description = 'Unpacks all non-modularized jars into a single directory'
+        project.getGradle().projectsEvaluated {
+            def configName = extension.configuration.get()
+            def config = project.configurations.getByName(configName)
+            dependencyDataProperty.set(project.provider { DependencyData.from(config) })
+            classpathFiles.from(config)
+        }
     }
 
     @TaskAction
@@ -106,7 +118,7 @@ abstract class CreateMergedModuleTask extends BaseTask {
         taskData.mergedModuleJar = mergedModuleJar
         taskData.mergedJarsDir = mergedJarsDir.asFile
         taskData.javaHome = javaHome
-        taskData.configuration = project.configurations.getByName(configuration)
+        taskData.dependencyData = dependencyDataProperty.get()
         taskData.archiveFile = Util.getArchiveFile(project)
 
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
@@ -114,7 +126,7 @@ abstract class CreateMergedModuleTask extends BaseTask {
         taskData.tmpModuleInfoDirPath = PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
 
-        def taskImpl = new CreateMergedModuleTaskImpl(project, fileSystemOperations, archiveOperations, execOperations, project.version.toString(), taskData)
+        def taskImpl = new CreateMergedModuleTaskImpl(fileSystemOperations, archiveOperations, execOperations, project.version.toString(), taskData)
         taskImpl.execute()
     }
 }
