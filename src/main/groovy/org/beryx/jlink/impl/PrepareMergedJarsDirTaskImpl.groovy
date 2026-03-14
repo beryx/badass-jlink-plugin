@@ -21,7 +21,8 @@ import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
 import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.Util
 import org.codehaus.groovy.tools.Utilities
-import org.gradle.api.Project
+import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -30,36 +31,40 @@ import org.gradle.api.logging.Logging
 class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTaskData> {
     private static final Logger LOGGER = Logging.getLogger(PrepareMergedJarsDirTaskImpl.class);
 
-    PrepareMergedJarsDirTaskImpl(Project project, PrepareMergedJarsDirTaskData taskData) {
-        super(project, taskData)
+    final FileSystemOperations fileSystemOperations
+    final ArchiveOperations archiveOperations
+
+    PrepareMergedJarsDirTaskImpl(FileSystemOperations fileSystemOperations, ArchiveOperations archiveOperations, PrepareMergedJarsDirTaskData taskData) {
+        super(taskData)
+        this.fileSystemOperations = fileSystemOperations
+        this.archiveOperations = archiveOperations
         LOGGER.info("taskData: $taskData")
     }
 
     @CompileDynamic
     void execute() {
-        project.delete(td.jlinkBasePath)
+        fileSystemOperations.delete { it.delete(td.jlinkBasePath) }
         td.mergedJarsDir.mkdirs()
-        def depMgr = new DependencyManager(project, td.forceMergedJarPrefixes, td.extraDependenciesPrefixes, td.configuration)
-        copyRuntimeJars(depMgr)
+        copyRuntimeJars()
         mergeUnpackedContents(new File(td.nonModularJarsDirPath).listFiles() as List)
     }
 
     @CompileDynamic
-    def copyRuntimeJars(DependencyManager depMgr) {
-        project.delete(td.jlinkJarsDirPath, td.nonModularJarsDirPath)
+    def copyRuntimeJars() {
+        fileSystemOperations.delete { it.delete(td.jlinkJarsDirPath, td.nonModularJarsDirPath) }
         new File(td.jlinkJarsDirPath).mkdirs()
         new File(td.nonModularJarsDirPath).mkdirs()
         LOGGER.info("Copying modular jars required by non-modular jars to ${td.jlinkJarsDirPath}...")
-        depMgr.modularJarsRequiredByNonModularJars.each { jar ->
+        td.modularJarsRequiredByNonModularJars.each { jar ->
             LOGGER.debug("\t... from $jar ...")
-            project.copy {
+            fileSystemOperations.copy {
                 into td.jlinkJarsDirPath
                 from jar
             }
         }
         LOGGER.info("Copying mon-modular jars to ${td.nonModularJarsDirPath}...")
-        depMgr.nonModularJars.each { jar ->
-            project.copy {
+        td.nonModularJars.each { jar ->
+            fileSystemOperations.copy {
                 into td.nonModularJarsDirPath
                 from jar
             }
@@ -75,10 +80,10 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         jars.each { jar ->
             LOGGER.debug("Merging ${jar}...")
             try {
-                project.delete(td.tmpJarsDirPath)
+                fileSystemOperations.delete { it.delete(td.tmpJarsDirPath) }
                 List<String> excludesOfJar = getExcludesOf(jar)
-                project.copy {
-                    from project.zipTree(jar)
+                fileSystemOperations.copy {
+                    from archiveOperations.zipTree(jar)
                     into td.tmpJarsDirPath
                     exclude 'module-info.class', 'META-INF/services/*', 'META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA', 'META-INF/SIG-*'
                     exclude { hasInvalidName(it) }
@@ -91,15 +96,18 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
 
                 def versionedDir = Util.getVersionedDir(new File(td.tmpJarsDirPath), td.jvmVersion)
                 if(versionedDir?.directory) {
-                    project.copy {
+                    fileSystemOperations.copy {
                         from versionedDir
                         into td.tmpJarsDirPath
                         exclude 'module-info.class'
                     }
                 }
                 if(new File(td.tmpJarsDirPath).directory) {
-                    project.delete("$td.tmpJarsDirPath/META-INF/versions")
-                    project.ant.move file: td.tmpJarsDirPath, tofile: td.mergedJarsDir
+                    fileSystemOperations.delete { it.delete("$td.tmpJarsDirPath/META-INF/versions") }
+                    fileSystemOperations.copy {
+                        from td.tmpJarsDirPath
+                        into td.mergedJarsDir
+                    }
                 }
             } catch (Exception e) {
                 LOGGER.error("Failed to merge unpacked content of $jar")
@@ -139,7 +147,7 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
 
     @CompileDynamic
     void appendServices(Map<String, String> services, File jar) {
-        def svcFiles = project.zipTree(jar).matching {
+        def svcFiles = archiveOperations.zipTree(jar).matching {
             include 'META-INF/services/*'
         }
         svcFiles?.files?.each { f ->

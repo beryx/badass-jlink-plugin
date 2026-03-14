@@ -16,22 +16,21 @@
 package org.beryx.jlink
 
 import groovy.transform.CompileStatic
+import org.beryx.jlink.data.DependencyData
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.data.SuggestMergedModuleInfoTaskData
 import org.beryx.jlink.impl.SuggestMergedModuleInfoTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.gradle.api.GradleException
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.*
 import org.gradle.api.tasks.options.Option
 
 @CompileStatic
-class SuggestMergedModuleInfoTask extends BaseTask {
+abstract class SuggestMergedModuleInfoTask extends BaseTask {
     @Input
     List<String> getForceMergedJarPrefixes() {
         extension.forceMergedJarPrefixes.get()
@@ -70,6 +69,12 @@ class SuggestMergedModuleInfoTask extends BaseTask {
 
     private boolean useConstraints = false
 
+    @Internal
+    abstract Property<DependencyData> getDependencyDataProperty()
+
+    @Classpath
+    abstract ConfigurableFileCollection getClasspathFiles()
+
     SuggestMergedModuleInfoTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MERGED_JARS_DIR)
         description = 'Suggests a module declaration for the merged module'
@@ -78,6 +83,12 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         useJdeps.set(JdepsUsage.no)
         language = project.objects.property(ModuleInfo.Language)
         language.set(ModuleInfo.Language.GROOVY)
+        project.getGradle().projectsEvaluated {
+            def configName = extension.configuration.get()
+            def config = project.configurations.getByName(configName)
+            dependencyDataProperty.set(project.provider { DependencyData.from(config) })
+            classpathFiles.from(config)
+        }
     }
 
     @TaskAction
@@ -87,7 +98,7 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
         taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
         taskData.javaHome = javaHome
-        taskData.configuration = project.configurations.getByName(configuration)
+        taskData.dependencyData = dependencyDataProperty.get()
         taskData.useJdeps = useJdeps.get()
         taskData.language = language.get()
         if(useConstraints) {
@@ -98,7 +109,7 @@ class SuggestMergedModuleInfoTask extends BaseTask {
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
         taskData.customImageEnabled = customImageEnabled
 
-        def taskImpl = new SuggestMergedModuleInfoTaskImpl(project, taskData)
+        def taskImpl = new SuggestMergedModuleInfoTaskImpl(fileSystemOperations, execOperations, taskData)
         taskImpl.execute()
     }
 

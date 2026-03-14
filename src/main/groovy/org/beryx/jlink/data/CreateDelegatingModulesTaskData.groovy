@@ -17,6 +17,8 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
+import org.gradle.api.file.FileSystemOperations
+import org.gradle.process.ExecOperations
 
 @CompileStatic
 @ToString(includeNames = true)
@@ -26,7 +28,10 @@ class CreateDelegatingModulesTaskData extends BaseTaskData {
 
     File nonModularJarsDir
     File delegatingModulesDir
-    String jlinkJarsDirPath
-    String tmpModuleInfoDirPath
-    String tmpJarsDirPath
+    File jlinkJarsDir
+    File tmpModuleInfoDir
+    File tmpJarsDir
+
+    FileSystemOperations fileSystemOperations
+    ExecOperations execOperations
 }

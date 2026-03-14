@@ -27,12 +27,20 @@ import java.util.function.Function
 import java.util.stream.Collectors
 
 @CompileStatic
-@TupleConstructor
 class LaunchScriptGenerator {
-    final Project project
     final String moduleName
     final String mainClassName
     final LauncherData launcherData
+    final List<String> effectiveJvmArgs
+    final List<String> effectiveArgs
+
+    LaunchScriptGenerator(String moduleName, String mainClassName, LauncherData launcherData, List<String> effectiveJvmArgs, List<String> effectiveArgs) {
+        this.moduleName = moduleName
+        this.mainClassName = mainClassName
+        this.launcherData = launcherData
+        this.effectiveJvmArgs = effectiveJvmArgs
+        this.effectiveArgs = effectiveArgs
+    }
 
     enum Type {
         UNIX(
@@ -87,11 +95,11 @@ class LaunchScriptGenerator {
     String getScript(Type type) {
         def engine = new SimpleTemplateEngine()
 
-        def args = launcherData.getEffectiveArgs(project).stream()
+        def args = effectiveArgs.stream()
                 .map{adjustArg(it, type) as CharSequence}
                 .collect(Collectors.joining(' '))
 
-        def jvmArgs = launcherData.getEffectiveJvmArgs(project).stream()
+        def jvmArgs = effectiveJvmArgs.stream()
                 .map{adjustArg(it, type) as CharSequence}
                 .collect(Collectors.joining(' '))
 

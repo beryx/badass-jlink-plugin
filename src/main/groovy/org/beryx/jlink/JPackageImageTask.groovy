@@ -27,7 +27,7 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.tasks.*
 
 @CompileStatic
-class JPackageImageTask extends BaseTask {
+abstract class JPackageImageTask extends BaseTask {
     private static final Logger LOGGER = Logging.getLogger(JPackageImageTask.class)
 
     @Input
@@ -78,6 +78,10 @@ class JPackageImageTask extends BaseTask {
     @TaskAction
     void jpackageTaskAction() {
         def taskData = new JPackageTaskData()
+        taskData.defaultJvmArgs = org.beryx.jlink.util.Util.getDefaultJvmArgs(project) ?: []
+        taskData.defaultArgs = org.beryx.jlink.util.Util.getDefaultArgs(project) ?: []
+        taskData.projectVersion = project.version.toString()
+        taskData.projectArchiveFile = project.tasks.getByName('jar').outputs.files.singleFile
         taskData.jlinkBasePath = jlinkBasePath
         taskData.imageDir = imageInputDir
         taskData.moduleName = moduleName
@@ -88,7 +92,7 @@ class JPackageImageTask extends BaseTask {
         def jlinkTask = (JlinkTask) project.tasks.getByName(JlinkPlugin.TASK_NAME_JLINK)
         taskData.configureRuntimeImageDir(jlinkTask)
 
-        def taskImpl = new JPackageImageTaskImpl(project, taskData)
+        def taskImpl = new JPackageImageTaskImpl( taskData)
         taskImpl.execute()
     }
 

@@ -17,6 +17,7 @@ package org.beryx.jlink.util
 
 import groovy.transform.Canonical
 import groovy.transform.CompileStatic
+import org.beryx.jlink.data.DependencyData
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ResolvedDependency
@@ -35,11 +36,13 @@ import static org.beryx.jlink.util.Util.isEmptyJar
 class DependencyManager {
     private static final Logger LOGGER = Logging.getLogger(DependencyManager.class)
 
-    final Project project
     final List<String> forceMergedJarPrefixes
     final List<String> extraDependenciesPrefixes
 
     final Set<DependencyExt> allDependencies
+
+    // DependencyData for configuration cache support (null for normal builds)
+    private final DependencyData dependencyData
 
     private final Set<DependencyExt> extraDeps
     private final Set<DependencyExt> modularDeps
@@ -59,10 +62,13 @@ class DependencyManager {
         }
     }
 
-    DependencyManager(Project project, List<String> forceMergedJarPrefixes, List<String> extraDependenciesPrefixes, Configuration configuration) {
-        this.project = project
+    /**
+     * Constructor using Configuration (for normal builds)
+     */
+    DependencyManager(List<String> forceMergedJarPrefixes, List<String> extraDependenciesPrefixes, Configuration configuration) {
         this.forceMergedJarPrefixes = forceMergedJarPrefixes
         this.extraDependenciesPrefixes = extraDependenciesPrefixes
+        this.dependencyData = null
         allDependencies = []
         configuration.resolvedConfiguration.firstLevelModuleDependencies.each { dep ->
             getArtifacts([dep] as Set).each { f ->
@@ -79,6 +85,47 @@ class DependencyManager {
                 allDependencies << new DependencyExt(artifact: f)
             }
         }
+
+        this.extraDeps = allDependencies.findAll{ DependencyExt dep ->
+            extraDependenciesPrefixes.any { dep.artifact.name.startsWith(it) }
+        }
+        LOGGER.info("extraDeps: $extraDeps")
+
+        artifactsHandledAsNonModular = []
+        while(true) {
+            def dep = getModularThatShouldBeHandledAsNonModular()
+            if(!dep) break
+            artifactsHandledAsNonModular << dep.artifact
+            LOGGER.info("Handling $dep.artifact.name as non-modular")
+        }
+
+        modularDeps = allDependencies.findAll{ !isHandledAsNonModular(it.artifact) }
+        nonModularDeps = allDependencies.findAll{ isHandledAsNonModular(it.artifact) }
+
+        Set<DependencyExt> handledDeps = []
+        modularDepsRequiredByNonModularJars = extraDeps.findAll{!isHandledAsNonModular(it.artifact)}
+
+        nonModularDeps.each { collectModularJarsRequiredByNonModularJars(it, modularDepsRequiredByNonModularJars, modularDeps, handledDeps) }
+
+        LOGGER.info("modularJars: ${modularJars*.name}")
+        LOGGER.info("nonModularJars: ${nonModularJars*.name}")
+        LOGGER.info("modularJarsRequiredByNonModularJars: ${modularJarsRequiredByNonModularJars*.name}")
+        LOGGER.info("artifactsHandledAsNonModular: ${artifactsHandledAsNonModular*.name}")
+    }
+
+    /**
+     * Constructor using DependencyData (for configuration cache builds)
+     * This uses DependencyData's dependency tree to navigate parent-child relationships
+     */
+    DependencyManager(List<String> forceMergedJarPrefixes, List<String> extraDependenciesPrefixes, DependencyData dependencyData) {
+        this.forceMergedJarPrefixes = forceMergedJarPrefixes
+        this.extraDependenciesPrefixes = extraDependenciesPrefixes
+        this.dependencyData = dependencyData
+
+        // Build allDependencies from DependencyData
+        allDependencies = dependencyData.allArtifacts.collect { f ->
+            new DependencyExt(dependency: null, artifact: f)
+        } as Set
 
         this.extraDeps = allDependencies.findAll{ DependencyExt dep ->
             extraDependenciesPrefixes.any { dep.artifact.name.startsWith(it) }
@@ -141,6 +188,7 @@ class DependencyManager {
 
     private void collectDescendants(DependencyExt dep, Set<DependencyExt> descendants, Predicate<File> filter) {
         if(dep.dependency) {
+            // Normal build: use ResolvedDependency.children
             for(ResolvedDependency child: dep.dependency.children) {
                 getArtifacts([child] as Set).each { f ->
                     def childExt = new DependencyExt(dependency: child, artifact: f)
@@ -148,6 +196,17 @@ class DependencyManager {
                         descendants << childExt
                     }
                     collectDescendants(childExt, descendants, filter)
+                }
+            }
+        } else if(dependencyData != null) {
+            // Configuration cache build: use DependencyData.getChildren
+            dependencyData.getChildren(dep.artifact).each { File childFile ->
+                if(!isEmptyJar(childFile) && filter.test(childFile)) {
+                    def childExt = allDependencies.find { it.artifact == childFile }
+                    if(childExt) {
+                        descendants << childExt
+                        collectDescendants(childExt, descendants, filter)
+                    }
                 }
             }
         }
@@ -184,10 +243,20 @@ class DependencyManager {
                                                         Set<DependencyExt> modDeps, Set<DependencyExt> handledDeps) {
         if(!handledDeps.add(dep)) return
         if(modDeps.contains(dep)) collectedDeps.add(dep)
+
         if(dep.dependency) {
+            // Normal build: use ResolvedDependency.children
             dep.dependency.children.each { childDep ->
                 getArtifacts([childDep] as Set).each { f ->
                     def childExt = new DependencyExt(dependency: childDep, artifact: f)
+                    collectModularJarsRequiredByNonModularJars(childExt, collectedDeps, modDeps, handledDeps)
+                }
+            }
+        } else if(dependencyData != null) {
+            // Configuration cache build: use DependencyData.getChildren
+            dependencyData.getChildren(dep.artifact).each { File childFile ->
+                def childExt = allDependencies.find { it.artifact == childFile }
+                if(childExt) {
                     collectModularJarsRequiredByNonModularJars(childExt, collectedDeps, modDeps, handledDeps)
                 }
             }
