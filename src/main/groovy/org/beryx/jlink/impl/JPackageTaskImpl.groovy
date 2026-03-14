@@ -106,7 +106,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                             '--app-image', "$appImagePath",
                             *resourceOpts,
                             *iconOpts,
-                            *jpd.installerOptions
+                            *jpd.installerOptions.get()
                     ]
                 }
 

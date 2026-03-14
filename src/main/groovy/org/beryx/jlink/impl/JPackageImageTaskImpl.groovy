@@ -77,7 +77,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         Util.checkExecutable(jpackageExec)
 
         Map<String,File> propFiles = [:]
-        jpd.secondaryLaunchers.each { SecondaryLauncherData launcher ->
+        jpd.secondaryLaunchers.get().each { SecondaryLauncherData launcher ->
             def propFile = new File("$td.jlinkBasePath/${launcher.name}.properties")
             Files.deleteIfExists(propFile.toPath())
             propFile.withOutputStream { stream ->
@@ -162,10 +162,10 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             *iconOpts,
             '--runtime-image', td.runtimeImageDir,
             *resourceOpts,
-            *(jpd.jvmArgs ? jpd.jvmArgs.collect { ['--java-options', adjustArg(it)] }.flatten() : []),
-            *(jpd.args ? jpd.args.collect { ['--arguments', adjustArg(it)] }.flatten() : []),
+            *(jpd.jvmArgs.get() ? jpd.jvmArgs.get().collect { ['--java-options', adjustArg(it)] }.flatten() : []),
+            *(jpd.args.get() ? jpd.args.get().collect { ['--arguments', adjustArg(it)] }.flatten() : []),
             *(propFiles ? propFiles.collect { ['--add-launcher', it.key + '=' + it.value.absolutePath] }.flatten() : []),
-            *jpd.imageOptions
+            *jpd.imageOptions.get()
         ]
     }
 

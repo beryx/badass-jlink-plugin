@@ -279,6 +279,26 @@ class JlinkPluginSpec extends Specification {
         checkOutput(result, 'howdy', 'Howdy!')
     }
 
+    def "should support jpackage with secondary launchers"() {
+        given:
+        File buildFile = setUpBuild('multi-launch')
+        buildFile << """
+            jpackage {
+            }
+        """.stripIndent()
+
+        when:
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withArguments('jpackageImage', '-is')
+                .build();
+
+        then:
+        result.task(":jpackageImage").outcome == TaskOutcome.SUCCESS
+    }
+
     def "should be compatible with the gradle configuration cache"() {
         when:
         setUpHelloLogbackBuild(null, null, null, null)
