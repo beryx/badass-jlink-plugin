@@ -33,6 +33,10 @@ class JPackageTaskData extends BaseTaskData {
     File imageDir
     File runtimeImageDir
     JPackageData jpackageData
+    List<String> defaultJvmArgs
+    List<String> defaultArgs
+    String projectVersion
+    File projectArchiveFile
 
     void configureRuntimeImageDir(JlinkTask jlinkTask) {
         def jlinkPlatforms = jlinkTask.targetPlatforms

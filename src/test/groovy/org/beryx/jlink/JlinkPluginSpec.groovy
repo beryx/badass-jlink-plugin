@@ -98,6 +98,21 @@ class JlinkPluginSpec extends Specification {
         checkOutput(result, 'hello-toolchain', 'LOG: line from: (30,80) to: (20,50)')
     }
 
+    def "should support Kotlin-DSL"() {
+        when:
+        setUpBuild('kotlin-dsl')
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withGradleVersion('8.12.1')
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .build();
+
+        then:
+        checkOutput(result, 'hello', 'Hello, world!')
+    }
+
     @Unroll
     def "should execute task with Gradle #gradleVersion, moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
         when:
@@ -264,11 +279,41 @@ class JlinkPluginSpec extends Specification {
         checkOutput(result, 'howdy', 'Howdy!')
     }
 
+    def "should be compatible with the gradle configuration cache"() {
+        when:
+        setUpHelloLogbackBuild(null, null, null, null)
+        new File(testProjectDir.toFile(), "gradle.properties") << "org.gradle.jvmargs=--add-opens java.base/java.lang.invoke=ALL-UNNAMED"
+
+        def runner = GradleRunner.create()
+                .withDebug(true)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withGradleVersion('8.12.1')
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "--configuration-cache", "--configuration-cache-problems=warn", "-is")
+
+        BuildResult result1
+        try {
+            result1 = runner.build()
+        } catch (Exception e) {
+            System.out.println "[DEBUG_LOG] FAILED RESULT1 OUTPUT:\n" + e.buildResult.output
+            throw e
+        }
+        System.out.println "[DEBUG_LOG] RESULT1 OUTPUT:\n${result1.output}"
+
+        BuildResult result2 = runner.build()
+        System.out.println "[DEBUG_LOG] RESULT2 OUTPUT:\n${result2.output}"
+
+        then:
+        result1.output.contains('Configuration cache entry stored')
+        result2.output.contains('Reusing configuration cache')
+        checkOutput(result2, 'modular-hello', 'LOG: Hello, modular Java!')
+    }
+
     private boolean checkOutput(BuildResult result, String imageName, String expectedOutput) {
         def imageBinDir = new File(testProjectDir.toFile(), 'build/image/bin')
         def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
 
-        assert result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome == TaskOutcome.SUCCESS
+        assert result.task(":$JlinkPlugin.TASK_NAME_JLINK").outcome in [TaskOutcome.SUCCESS, TaskOutcome.UP_TO_DATE]
 
         def imageLauncher = new File(imageBinDir, "$imageName$launcherExt")
         assert imageLauncher.exists()
@@ -279,6 +324,13 @@ class JlinkPluginSpec extends Specification {
         def err = new ByteArrayOutputStream(2048)
         process.waitForProcessOutput(out, err)
         def outputText = out.toString()
+        def errorText = err.toString()
+        if (errorText) {
+            System.out.println "[DEBUG_LOG] Launcher stderr: $errorText"
+        }
+        if (!outputText.trim()) {
+            System.out.println "[DEBUG_LOG] Launcher stdout was empty. Exit code: ${process.exitValue()}"
+        }
         assert outputText.trim() == expectedOutput
 
         true

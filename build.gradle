@@ -10,7 +10,7 @@ buildscript {
 plugins {
     id 'groovy'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
-    id 'com.gradle.plugin-publish' version '2.0.0'
+    id 'com.gradle.plugin-publish' version '2.1.0'
     id 'com.github.ethankhall.semantic-versioning' version '1.1.0'
     id 'com.github.ben-manes.versions' version '0.53.0'
     id 'com.github.hierynomus.license' version '0.16.1'
@@ -36,7 +36,7 @@ license {
     header file('license-header.txt')
     skipExistingHeaders true
     ignoreFailures false
-    excludes(['**/*.properties', '**/*.txt', '**/hello*/', '**/opens-to-jaxb*/', '**/local-deps*/', '**/multi-launch*/'])
+    excludes(['**/*.properties', '**/*.txt', '**/hello*/', '**/opens-to-jaxb*/', '**/local-deps*/', '**/multi-launch*/', '**/kotlin-dsl'])
     tasks.license.dependsOn licenseMain, licenseTest
 }
 
@@ -58,6 +58,10 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    jvmArgs '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.util=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+            '--add-opens', 'java.base/java.net=ALL-UNNAMED'
 }
 
 jar {

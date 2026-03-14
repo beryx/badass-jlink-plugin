@@ -24,16 +24,22 @@ import org.beryx.jlink.util.SuggestedMergedModuleInfoBuilder
 import org.beryx.jlink.util.SuggestedModulesBuilder
 import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
-import org.gradle.api.Project
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.process.ExecOperations
 
 @CompileStatic
 class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleInfoTaskData> {
     private static final Logger LOGGER = Logging.getLogger(SuggestMergedModuleInfoTaskImpl.class);
 
-    SuggestMergedModuleInfoTaskImpl(Project project, SuggestMergedModuleInfoTaskData taskData) {
-        super(project, taskData)
+    final FileSystemOperations fileSystemOperations
+    final ExecOperations execOperations
+
+    SuggestMergedModuleInfoTaskImpl(FileSystemOperations fileSystemOperations, ExecOperations execOperations, SuggestMergedModuleInfoTaskData taskData) {
+        super(taskData)
+        this.fileSystemOperations = fileSystemOperations
+        this.execOperations = execOperations
         LOGGER.info("taskData: $taskData")
     }
 
@@ -45,18 +51,17 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
         }
         if(!skipBuilder) {
             def builder = new SuggestedMergedModuleInfoBuilder(
-                    project: project,
                     mergedJarsDir: td.mergedJarsDir,
                     javaHome: td.javaHome,
                     forceMergedJarPrefixes: td.forceMergedJarPrefixes,
                     extraDependenciesPrefixes: td.extraDependenciesPrefixes,
-                    configuration: td.configuration,
+                    dependencyData: td.dependencyData,
                     constraints: td.additiveConstraints
             )
             println "mergedModule {\n${builder.moduleInfo.toString(4, td.language)}\n}"
         }
         if(td.customImageEnabled) {
-            def modules = new SuggestedModulesBuilder(td.javaHome, td.configuration).projectModules
+            def modules = new SuggestedModulesBuilder(td.javaHome, td.dependencyData).projectModules
             println """
                 customImage {
                     jdkModules = [${modules.join(', ')}]
@@ -69,10 +74,11 @@ class SuggestMergedModuleInfoTaskImpl extends BaseTaskImpl<SuggestMergedModuleIn
     private boolean printJdepsModuleInfo() {
         try {
             def jarFilePath = "$td.jlinkBasePath/suggestedMergedModule.jar"
-            new File(jarFilePath).delete()
-            Util.createJar(project, jarFilePath, td.mergedJarsDir)
-            def result = new JdepsExecutor(project).genModuleInfo(project.file(jarFilePath),
-                    project.file(td.tmpJarsDirPath), td.jlinkJarsDirPath, td.javaHome)
+            def jarFile = new File(jarFilePath)
+            jarFile.delete()
+            Util.createJar(jarFile, td.mergedJarsDir)
+            def result = new JdepsExecutor(fileSystemOperations, execOperations).genModuleInfo(jarFile,
+                    new File(td.tmpJarsDirPath), td.jlinkJarsDirPath, td.javaHome)
             def loggerFun = result.exitValue ? (td.useJdeps == JdepsUsage.yes) ? 'warn' : 'error' : 'info'
             LOGGER."$loggerFun"(result.output)
             if (result.exitValue) {

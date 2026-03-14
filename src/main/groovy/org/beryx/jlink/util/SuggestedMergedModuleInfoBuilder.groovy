@@ -19,6 +19,7 @@ import groovy.transform.Canonical
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import groovy.transform.TupleConstructor
+import org.beryx.jlink.data.DependencyData
 import org.beryx.jlink.data.ModuleInfo
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -32,12 +33,12 @@ import static org.beryx.jlink.data.ModuleInfo.*
 class SuggestedMergedModuleInfoBuilder {
     private static final Logger LOGGER = Logging.getLogger(SuggestedMergedModuleInfoBuilder.class);
 
-    Project project;
     File mergedJarsDir;
     String javaHome
     List<String> forceMergedJarPrefixes
     List<String> extraDependenciesPrefixes
-    Configuration configuration
+    Configuration configuration  // For backwards compatibility
+    DependencyData dependencyData  // For configuration cache
     AdditiveConstraints constraints
 
     ModuleInfo getModuleInfo() {
@@ -109,7 +110,10 @@ class SuggestedMergedModuleInfoBuilder {
         }
         LOGGER.debug("External packages used by the merged service:\n\t${scanner.externalPackages.join('\n\t')}")
 
-        def depMgr = new DependencyManager(project, forceMergedJarPrefixes, extraDependenciesPrefixes, configuration)
+        // Use dependencyData if available (configuration cache), otherwise use configuration
+        def depMgr = dependencyData != null ?
+            new DependencyManager( forceMergedJarPrefixes, extraDependenciesPrefixes, dependencyData) :
+            new DependencyManager( forceMergedJarPrefixes, extraDependenciesPrefixes, configuration)
         def exportsMap = new ModuleManager(javaHome)
                 .getExportsMap(*depMgr.modularJars*.absolutePath.toArray(), "$javaHome/jmods")
         def builders = new HashSet<RequiresBuilder>()

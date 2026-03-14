@@ -18,19 +18,20 @@ package org.beryx.jlink
 
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.CreateMergedModuleTaskData
+import org.beryx.jlink.data.DependencyData
 import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.impl.CreateMergedModuleTaskImpl
 import org.beryx.jlink.util.PathUtil
+import org.beryx.jlink.util.Util
 import org.gradle.api.Project
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.*
 
 @CompileStatic
-class CreateMergedModuleTask extends BaseTask {
+abstract class CreateMergedModuleTask extends BaseTask {
     @Input
     List<String> getForceMergedJarPrefixes() {
         extension.forceMergedJarPrefixes.get()
@@ -51,11 +52,6 @@ class CreateMergedModuleTask extends BaseTask {
         String jarName = extension.mergedModuleJarName.get()
         if(jarName.endsWith('.jar')) jarName = jarName[0 .. -5]
         jarName
-    }
-
-    @Input
-    String getMergedModuleVersion() {
-        mergedModuleInfo.version ?: extension.mergedModuleJarVersion.get()
     }
 
     @InputDirectory
@@ -86,16 +82,28 @@ class CreateMergedModuleTask extends BaseTask {
     @OutputFile
     File getMergedModuleJar() {
         String jarFileName = mergedModuleJarName
-        if(mergedModuleVersion && mergedModuleVersion != Project.DEFAULT_VERSION) {
-            jarFileName += "-$mergedModuleVersion"
+        if(mergedModuleInfo.version != Project.DEFAULT_VERSION) {
+            jarFileName += "-$mergedModuleInfo.version"
         }
         jarFileName += ".jar"
         new File(PathUtil.getJlinkJarsDirPath(jlinkBasePath), jarFileName)
     }
 
+    @Internal
+    abstract Property<DependencyData> getDependencyDataProperty()
+
+    @Classpath
+    abstract ConfigurableFileCollection getClasspathFiles()
+
     CreateMergedModuleTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MERGED_JARS_DIR)
         description = 'Unpacks all non-modularized jars into a single directory'
+        project.getGradle().projectsEvaluated {
+            def configName = extension.configuration.get()
+            def config = project.configurations.getByName(configName)
+            dependencyDataProperty.set(project.provider { DependencyData.from(config) })
+            classpathFiles.from(config)
+        }
     }
 
     @TaskAction
@@ -105,20 +113,20 @@ class CreateMergedModuleTask extends BaseTask {
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
         taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
         taskData.mergedModuleName = mergedModuleName
-        taskData.mergedModuleJarVersion = extension.mergedModuleJarVersion.get()
         taskData.mergedModuleInfo = mergedModuleInfo
         taskData.useJdeps = useJdeps
         taskData.mergedModuleJar = mergedModuleJar
         taskData.mergedJarsDir = mergedJarsDir.asFile
         taskData.javaHome = javaHome
-        taskData.configuration = project.configurations.getByName(configuration)
+        taskData.dependencyData = dependencyDataProperty.get()
+        taskData.archiveFile = Util.getArchiveFile(project)
 
         taskData.jlinkJarsDirPath = PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)
         taskData.tmpMergedModuleDirPath = PathUtil.getTmpMergedModuleDirPath(taskData.jlinkBasePath)
         taskData.tmpModuleInfoDirPath = PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)
         taskData.tmpJarsDirPath = PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)
 
-        def taskImpl = new CreateMergedModuleTaskImpl(project, taskData)
+        def taskImpl = new CreateMergedModuleTaskImpl(fileSystemOperations, archiveOperations, execOperations, project.version.toString(), taskData)
         taskImpl.execute()
     }
 }

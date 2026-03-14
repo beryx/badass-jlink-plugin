@@ -16,17 +16,17 @@
 package org.beryx.jlink
 
 import groovy.transform.CompileStatic
+import org.beryx.jlink.data.DependencyData
 import org.beryx.jlink.data.PrepareModulesDirTaskData
 import org.beryx.jlink.impl.PrepareModulesDirTaskImpl
 import org.beryx.jlink.util.PathUtil
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.TaskAction
+import org.gradle.api.provider.Property
+import org.gradle.api.tasks.*
 
 @CompileStatic
-class PrepareModulesDirTask extends BaseTask {
+abstract class PrepareModulesDirTask extends BaseTask {
     @Input
     String getModuleName() {
         extension.moduleName.get()
@@ -62,9 +62,21 @@ class PrepareModulesDirTask extends BaseTask {
         project.layout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
     }
 
+    @Internal
+    abstract Property<DependencyData> getDependencyDataProperty()
+
+    @Classpath
+    abstract ConfigurableFileCollection getClasspathFiles()
+
     PrepareModulesDirTask() {
         dependsOn(JlinkPlugin.TASK_NAME_CREATE_DELEGATING_MODULES)
         description = 'Prepares the directory containing modules required by the application'
+        project.getGradle().projectsEvaluated {
+            def configName = extension.configuration.get()
+            def config = project.configurations.getByName(configName)
+            dependencyDataProperty.set(project.provider { DependencyData.from(config) })
+            classpathFiles.from(config)
+        }
     }
 
     @TaskAction
@@ -73,14 +85,15 @@ class PrepareModulesDirTask extends BaseTask {
         taskData.jlinkBasePath = jlinkBasePath
         taskData.moduleName = moduleName
         taskData.mergedModuleName = mergedModuleName
-        taskData.configuration = project.configurations.getByName(configuration)
+        taskData.dependencyData = dependencyDataProperty.get()
         taskData.forceMergedJarPrefixes = forceMergedJarPrefixes
         taskData.extraDependenciesPrefixes = extraDependenciesPrefixes
         taskData.delegatingModulesDir = delegatingModulesDir.asFile
         taskData.jlinkJarsDir = jlinkJarsDir.asFile
         taskData.tmpModuleInfoDirPath = PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)
+        taskData.projectArchiveFile = project.tasks.getByName('jar').outputs.files.singleFile
 
-        def taskImpl = new PrepareModulesDirTaskImpl(project, taskData)
+        def taskImpl = new PrepareModulesDirTaskImpl(fileSystemOperations, archiveOperations, taskData)
         taskImpl.execute()
     }
 }

@@ -23,7 +23,7 @@ import org.gradle.api.Project
 @CompileStatic
 @ToString(includeNames = true)
 class LauncherData implements Serializable {
-    private static final List<String> UNDEFINED_ARGS = ['<UNDEFINED>']
+    public static final List<String> UNDEFINED_ARGS = ['<UNDEFINED>']
 
     List<String> args = UNDEFINED_ARGS
     List<String> jvmArgs = UNDEFINED_ARGS
@@ -43,5 +43,13 @@ class LauncherData implements Serializable {
 
     List<String> getEffectiveJvmArgs(Project project) {
         (jvmArgs != UNDEFINED_ARGS) ? jvmArgs : Util.getDefaultJvmArgs(project)
+    }
+
+    List<String> getEffectiveArgs(List<String> defaultArgs) {
+        (args != UNDEFINED_ARGS) ? args : defaultArgs
+    }
+
+    List<String> getEffectiveJvmArgs(List<String> defaultJvmArgs) {
+        (jvmArgs != UNDEFINED_ARGS) ? jvmArgs : defaultJvmArgs
     }
 }

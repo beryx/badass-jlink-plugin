@@ -31,12 +31,14 @@ class JPackageData {
     private final Project project
     private final LauncherData launcherData
     private final Provider<Directory> javaHomeProvider
-    final ListProperty<SecondaryLauncherData> secondaryLaunchers
 
+    @Input
+    final ListProperty<SecondaryLauncherData> secondaryLaunchers
     final Property<String> jpackageHome
     final Property<String> outputDir
     final DirectoryProperty imageOutputDir
     final Property<String> imageName
+    @Input
     final ListProperty<String> imageOptions
     final DirectoryProperty resourceDir
     final Property<String> targetPlatformName
@@ -47,12 +49,14 @@ class JPackageData {
     final Property<String> appVersion
     final Property<String> vendor
     final Property<String> icon
+    @Input
     final ListProperty<String> installerOptions
+    @Input
     final ListProperty<String> args
+    @Input
     final ListProperty<String> jvmArgs
 
     JPackageData(Project project, LauncherData launcherData, Provider<Directory> javaHomeProvider) {
-        this.project = project
         this.launcherData = launcherData
         this.javaHomeProvider = javaHomeProvider
 
@@ -66,10 +70,10 @@ class JPackageData {
         imageOutputDir.convention(project.layout.buildDirectory.dir(outputDir.map { it }))
 
         imageName = project.objects.property(String)
-        imageName.convention(project.provider { launcherData.name ?: project.name })
+        def projName = project.name
+        imageName.convention(project.provider { launcherData.name ?: projName })
 
-        imageOptions = project.objects.listProperty(String)
-        imageOptions.convention([])
+        imageOptions = project.objects.listProperty(String).empty()
 
         resourceDir = project.objects.directoryProperty()
 
@@ -84,7 +88,7 @@ class JPackageData {
         installerOutputDir.convention(project.layout.buildDirectory.dir(outputDir.map { it }))
 
         installerName = project.objects.property(String)
-        installerName.convention(project.provider { launcherData.name ?: project.name })
+        installerName.convention(project.provider { launcherData.name ?: projName })
 
         appVersion = project.objects.property(String)
 
@@ -93,17 +97,15 @@ class JPackageData {
 
         icon = project.objects.property(String)
 
-        installerOptions = project.objects.listProperty(String)
-        installerOptions.convention([])
+        installerOptions = project.objects.listProperty(String).empty()
 
         args = project.objects.listProperty(String)
-        args.convention(project.provider { launcherData.getEffectiveArgs(project) })
+        args.convention(launcherData.getEffectiveArgs(project))
 
         jvmArgs = project.objects.listProperty(String)
-        jvmArgs.convention(project.provider { launcherData.getEffectiveJvmArgs(project) })
+        jvmArgs.convention(launcherData.getEffectiveJvmArgs(project))
 
-        secondaryLaunchers = project.objects.listProperty(SecondaryLauncherData)
-        secondaryLaunchers.convention([])
+        secondaryLaunchers = project.objects.listProperty(SecondaryLauncherData).empty()
     }
 
     @Input
@@ -140,15 +142,6 @@ class JPackageData {
 
     void setImageName(String imageName) {
         this.imageName.set(imageName)
-    }
-
-    @Input
-    List<String> getImageOptions() {
-        imageOptions.get()
-    }
-
-    void setImageOptions(List<String> imageOptions) {
-        this.imageOptions.set(imageOptions)
     }
 
     @InputDirectory @Optional
@@ -238,40 +231,8 @@ class JPackageData {
     }
 
     @Input
-    List<String> getInstallerOptions() {
-        installerOptions.get()
-    }
-
-    void setInstallerOptions(List<String> installerOptions) {
-        this.installerOptions.set(installerOptions)
-    }
-
-    @Input
-    List<String> getArgs() {
-        args.get()
-    }
-
-    void setArgs(List<String> args) {
-        this.args.set(args)
-    }
-
-    @Input
-    List<String> getJvmArgs() {
-        jvmArgs.get()
-    }
-
-    void setJvmArgs(List<String> jvmArgs) {
-        this.jvmArgs.set(jvmArgs)
-    }
-
-    @Input
     String getLauncherName() {
         launcherData.name
-    }
-
-    @Input
-    List<SecondaryLauncherData> getSecondaryLaunchers() {
-        secondaryLaunchers.get()
     }
 
     void addSecondaryLauncher(SecondaryLauncherData launcher) {
@@ -290,6 +251,9 @@ class JPackageData {
         value = System.getenv('BADASS_JLINK_JPACKAGE_HOME')
         if(value) return value
 
-        javaHomeProvider.getOrNull()?.asFile?.absolutePath
+        def jpackageHomeFolder = javaHomeProvider.getOrNull()?.asFile ?:
+                new File(System.getenv('JAVA_HOME'))
+
+        jpackageHomeFolder.absolutePath
     }
 }

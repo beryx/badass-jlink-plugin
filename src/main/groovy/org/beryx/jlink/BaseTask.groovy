@@ -20,20 +20,41 @@ import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.util.Util
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
+import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.FileSystemOperations
+import org.gradle.api.file.ProjectLayout
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.process.ExecOperations
+
+import javax.inject.Inject
 
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
-class BaseTask extends DefaultTask {
+abstract class BaseTask extends DefaultTask {
     private static final Logger LOGGER = Logging.getLogger(BaseTask.class);
 
     @Internal
     final JlinkPluginExtension extension
+
+    @Inject
+    abstract FileSystemOperations getFileSystemOperations();
+
+    @Inject
+    abstract ExecOperations getExecOperations();
+
+    @Inject
+    abstract ArchiveOperations getArchiveOperations();
+
+    @Inject
+    abstract ProjectLayout getProjectLayout();
+
+    @Inject
+    abstract ObjectFactory getObjectFactory();
 
     BaseTask() {
         this.extension = (JlinkPluginExtension)project.extensions.getByName(JlinkPlugin.EXTENSION_NAME)

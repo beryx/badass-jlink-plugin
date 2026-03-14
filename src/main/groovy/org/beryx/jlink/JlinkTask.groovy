@@ -19,13 +19,16 @@ import groovy.transform.CompileStatic
 import org.beryx.jlink.data.*
 import org.beryx.jlink.impl.JlinkTaskImpl
 import org.beryx.jlink.util.PathUtil
+import org.beryx.jlink.util.SuggestedModulesBuilder
+import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 
 @CompileStatic
-class JlinkTask extends BaseTask {
+abstract class JlinkTask extends BaseTask {
     private static final Logger LOGGER = Logging.getLogger(JlinkTask.class);
 
     @Input
@@ -103,9 +106,36 @@ class JlinkTask extends BaseTask {
         extension.cdsData.get()
     }
 
+    @Internal
+    abstract Property<DependencyData> getDependencyDataProperty()
+
+    @Classpath
+    abstract ConfigurableFileCollection getClasspathFiles()
+
+    @Internal
+    abstract Property<String> getEffectiveMainClassProperty()
+
+    @groovy.transform.CompileDynamic
     JlinkTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MODULES_DIR)
         description = 'Creates a modular runtime image with jlink'
+        project.getGradle().projectsEvaluated {
+            def configName = extension.configuration.get()
+            def config = project.configurations.getByName(configName)
+            dependencyDataProperty.set(project.provider { DependencyData.from(config) })
+            classpathFiles.from(config)
+
+            // Capture effective main class at configuration time
+            def mc = extension.mainClass.getOrNull()
+            if (!mc) {
+                try {
+                    mc = project.application?.mainClass?.getOrNull() as String
+                } catch (Exception e) {
+                    // application plugin not applied
+                }
+            }
+            effectiveMainClassProperty.set(mc)
+        }
     }
 
     @TaskAction
@@ -118,16 +148,40 @@ class JlinkTask extends BaseTask {
         taskData.launcherData = launcherData
         taskData.secondaryLaunchers = secondaryLaunchers
         taskData.customImageData = customImageData
-        taskData.mainClass = mainClass ?: defaultMainClass
-        taskData.configuration = project.configurations.getByName(configuration)
+        taskData.mainClass = effectiveMainClassProperty.get()
         taskData.options = options
         taskData.extraModulePaths = extraModulePaths
         taskData.javaHome = javaHome
         taskData.targetPlatforms = targetPlatforms
         taskData.jlinkJarsDir = jlinkJarsDir.asFile
         taskData.cdsData = cdsData
+        taskData.defaultJvmArgs = org.beryx.jlink.util.Util.getDefaultJvmArgs(project) ?: []
+        taskData.defaultArgs = org.beryx.jlink.util.Util.getDefaultArgs(project) ?: []
 
-        def taskImpl = new JlinkTaskImpl(project, taskData)
+        def depData = dependencyDataProperty.get()
+        def jdkModules = [] as Set<String>
+        if(customImageData.jdkAdditive) {
+            jdkModules.addAll(new SuggestedModulesBuilder(javaHome, depData).projectModules)
+            if(customImageData.jdkModules) jdkModules.addAll(customImageData.jdkModules)
+        } else {
+            jdkModules.addAll(customImageData.jdkModules ?: new SuggestedModulesBuilder(javaHome, depData).projectModules)
+        }
+
+        if(customImageData.enabled) {
+            taskData.imageModules = jdkModules + customImageData.appModules
+        } else {
+            taskData.imageModules = jdkModules + [moduleName]
+        }
+
+        // Resolve effective args/jvmArgs for launchers during configuration phase
+        def resolveLauncher = { LauncherData ld ->
+            if(ld.args == LauncherData.UNDEFINED_ARGS) ld.args = extension.launcherData.get().args
+            if(ld.jvmArgs == LauncherData.UNDEFINED_ARGS) ld.jvmArgs = extension.launcherData.get().jvmArgs
+        }
+        resolveLauncher(taskData.launcherData)
+        taskData.secondaryLaunchers.each { resolveLauncher(it) }
+
+        def taskImpl = new JlinkTaskImpl( getFileSystemOperations(), getExecOperations(), taskData)
         taskImpl.execute()
     }
 
