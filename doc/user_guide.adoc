@@ -57,7 +57,7 @@ mergedModuleName:: The name of the merged module. +
     _defaultValue_: `_moduleName_.merged.module` +
     _usage example_: `mergedModuleName = 'org.example.myapp.merged.module'`
 mergedModuleJarName:: The base name of the jar containing the merged module. +
-    _defaultValue_: `_archiveBaseName_.merged.module` +
+    _defaultValue_: `_archiveBaseName_.merged.module.jar` +
     _usage example_: `mergedModuleJarName = 'my-merged-module'`
 options:: A list of options to be passed to _jlink_. +
     _defaultValue_: empty list +
@@ -74,6 +74,11 @@ javaHome:: The path to the JDK providing the tools needed by the plugin (_javac_
 configuration:: The name of the Gradle dependency configuration used to execute your application. +
     _defaultValue_: `'runtimeClasspath'` +
     _usage example_: `configuration = 'myAppRuntime'`
+
+jvmVersion:: The Java version to be used when creating the custom runtime image.
+It is passed as argument to the `--release` option of _jlink_. +
+    _defaultValue_: null (no `--release` option is used) +
+    _usage example_: `jvmVersion = 17`
 
 
 == Methods
@@ -122,8 +127,8 @@ a| a| .Usage example
 ----
 jlink {
     ...
-    targetPlatform('linux-x64', '/usr/lib/jvm/jdk_x64_linux_hotspot_11_28')
-    targetPlatform('linux-s390x', '/usr/lib/jvm/jdk_s390x_linux_hotspot_11_28',
+    targetPlatform('linux-x64', '/usr/lib/jvm/jdk_x64_linux_hotspot_17_0_1')
+    targetPlatform('linux-s390x', '/usr/lib/jvm/jdk_s390x_linux_hotspot_17_0_1',
                                                                ['--endian', 'big'])
     ...
 }
@@ -169,7 +174,7 @@ a| a| .Usage example
 jlink {
     ...
     targetPlatform("linux-s390x") {
-        jdkHome = "/usr/lib/jvm/linux-s390x/jdk-14.0.1_7"
+        jdkHome = "/usr/lib/jvm/linux-s390x/jdk-17.0.1"
         addOptions("--endian", "big")
         addExtraModulePath("/usr/lib/openjfx/linux-s390x/jmods")
     }
@@ -180,11 +185,11 @@ jlink {
     }
 
     targetPlatform("mac") {
-        jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7/OpenJDK14U-jdk_x64_mac_hotspot_14.0.1_7.tar.gz") {
+        jdkHome = jdkDownload("https://github.com/AdoptOpenJDK/openjdk17-binaries/releases/download/jdk-17.0.1%2B12/OpenJDK17U-jdk_x64_mac_hotspot_17.0.1_12.tar.gz") {
             downloadDir = "$buildDir/myMac"
             archiveName = "my-mac-jdk"
             archiveExtension = "tar.gz"
-            pathToHome = "jdk-14.0.1+7/Contents/Home"
+            pathToHome = "jdk-17.0.1+12/Contents/Home"
             overwrite = true
         }
         addExtraModulePath("/usr/lib/openjfx/mac/jmods")
@@ -434,6 +439,9 @@ icon:: the path to the icon used for this additional launcher. +
 winConsole:: boolean value specifying whether Windows should start the application in a console window. +
     _defaultValue_: null (the win-console settings of the main launcher are used)
 
+appVersion:: the version of the additional application. +
+    _defaultValue_: null (the version of the main application is used)
+
 _Usage example_
 [source,groovy,indent=0,subs="verbatim,attributes",role="primary"]
 .Groovy
@@ -524,7 +532,7 @@ jpackageHome:: The path to the JDK providing the jpackage tool. +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the https://docs.gradle.org/current/userguide/toolchains.html[Java toolchain] configured in the Gradle script  +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `java.home` system property (only if it points to a JRE containing the `jpackage` tool) +
         pass:[&nbsp;&nbsp;&nbsp;&nbsp;] - the `JAVA_HOME` environment variable +
-    _usage example_: `jpackageHome = "/usr/lib/jvm/jdk16"`
+    _usage example_: `jpackageHome = "/usr/lib/jvm/jdk17"`
 
 outputDir:: Convenience property for setting both `imageOutputDir` and
 `installerOutputDir` with the value _buildDir_/_outputDir_. +
@@ -617,7 +625,7 @@ _Usage example_
 jlink {
     ...
     jpackage {
-        jpackageHome = '/usr/lib/jvm/jdk16'
+        jpackageHome = '/usr/lib/jvm/jdk17'
         outputDir = 'my-packaging'
         // imageOutputDir = file("$buildDir/my-packaging-image")
         // installerOutputDir = file("$buildDir/my-packaging-installer")
@@ -705,6 +713,7 @@ The table below shows the variable names of the subdirectories created here and 
 <col style="width: 70%;">
 </colgroup>
 <tr><td><b>Variable name</b></td><td><b>Path relative to <i>jlinkBasePath<i></b></td></tr>
+<tr><td class="red">nonModularJarsDir</td><td><code>nonmodjars</code></td></tr>
 <tr><td class="maroon">mergedJarsDir</td><td><code>mergedjars</code></td></tr>
 <tr><td class="aqua">tmpMergedModuleDir</td><td><code>tmpmerged</code></td></tr>
 <tr><td class="teal">jlinkJarsDir</td><td><code>jlinkjars</code></td></tr>
