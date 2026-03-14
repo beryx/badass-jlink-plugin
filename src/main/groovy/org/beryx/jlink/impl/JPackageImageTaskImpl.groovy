@@ -21,9 +21,10 @@ import org.beryx.jlink.data.JPackageTaskData
 import org.beryx.jlink.data.SecondaryLauncherData
 import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
-import org.gradle.api.Project
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.process.ExecOperations
 
 import java.nio.file.Files
 
@@ -33,38 +34,41 @@ import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
     private static final Logger LOGGER = Logging.getLogger(JPackageImageTaskImpl.class);
 
-    JPackageImageTaskImpl( JPackageTaskData taskData) {
+    private final FileSystemOperations fileSystemOperations
+    private final ExecOperations execOperations
+
+    JPackageImageTaskImpl(FileSystemOperations fileSystemOperations, ExecOperations execOperations, JPackageTaskData taskData) {
         super(taskData)
+        this.fileSystemOperations = fileSystemOperations
+        this.execOperations = execOperations
         LOGGER.info("taskData: $taskData")
     }
 
     @CompileDynamic
     void execute() {
-        project.delete(td.jpackageData.imageOutputDir)
+        fileSystemOperations.delete { it.delete(td.jpackageData.imageOutputDir) }
         def result = {
-            def execOps = project.services.get(org.gradle.process.ExecOperations)
-
             def outputStream = new ByteArrayOutputStream()
 
-            def execResult = execOps.exec { spec ->
+            def execResult = execOperations.exec { spec ->
                 spec.ignoreExitValue = true
                 spec.standardOutput = outputStream
                 spec.commandLine = createCommandLine()
             }
 
-            project.ext.jpackageImageOutput = {
-                return outputStream.toString()
-            }
+            def jpackageImageOutput = outputStream.toString()
 
-            return execResult
+            return [execResult: execResult, output: jpackageImageOutput]
         }()
-        if(result.exitValue != 0) {
-            LOGGER.error(project.ext.jpackageImageOutput())
+        def execResult = result.execResult as org.gradle.process.ExecResult
+        def output = result.output as String
+        if(execResult.exitValue != 0) {
+            LOGGER.error(output)
         } else {
-            LOGGER.info(project.ext.jpackageImageOutput())
+            LOGGER.info(output)
         }
-        result.assertNormalExitValue()
-        result.rethrowFailure()
+        execResult.assertNormalExitValue()
+        execResult.rethrowFailure()
     }
 
     private List<String> createCommandLine() {
@@ -107,7 +111,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         }
 
         def appVersion = (jpd.appVersion ?: td.projectVersion).toString()
-        List<String> versionOpts = (appVersion == Project.DEFAULT_VERSION) ? [] : [ '--app-version', appVersion ]
+        List<String> versionOpts = (appVersion == 'unspecified') ? [] : [ '--app-version', appVersion ]
         if (versionOpts && (!appVersion || !Character.isDigit(appVersion[0] as char))) {
             throw new GradleException("The first character of the --app-version argument should be a digit.")
         }

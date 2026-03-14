@@ -85,7 +85,7 @@ abstract class JPackageTask extends BaseTask {
         def jlinkTask = (JlinkTask) project.tasks.getByName(JlinkPlugin.TASK_NAME_JLINK)
         taskData.configureRuntimeImageDir(jlinkTask)
 
-        def taskImpl = new JPackageTaskImpl( taskData)
+        def taskImpl = new JPackageTaskImpl(fileSystemOperations, execOperations, taskData)
         taskImpl.execute()
     }
 

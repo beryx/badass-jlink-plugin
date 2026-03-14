@@ -22,10 +22,11 @@ import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageTaskData
 import org.beryx.jlink.util.Util
 import org.gradle.api.GradleException
-import org.gradle.api.Project
+import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.internal.os.OperatingSystem
+import org.gradle.process.ExecOperations
 
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
@@ -33,8 +34,13 @@ import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
     private static final Logger LOGGER = Logging.getLogger(JPackageTaskImpl.class);
 
-    JPackageTaskImpl( JPackageTaskData taskData) {
+    private final FileSystemOperations fileSystemOperations
+    private final ExecOperations execOperations
+
+    JPackageTaskImpl(FileSystemOperations fileSystemOperations, ExecOperations execOperations, JPackageTaskData taskData) {
         super(taskData)
+        this.fileSystemOperations = fileSystemOperations
+        this.execOperations = execOperations
         LOGGER.info("taskData: $taskData")
     }
 
@@ -65,19 +71,17 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         }
 
         if (jpd.imageOutputDir != jpd.installerOutputDir) {
-            project.delete(project.files(jpd.installerOutputDir))
+            fileSystemOperations.delete { it.delete(jpd.installerOutputDir) }
         }
         packageTypes.each { packageType ->
             def result = {
-                def execOps = project.services.get(org.gradle.process.ExecOperations)
-
                 def outputStream = new ByteArrayOutputStream()
 
                 def jpackageExec = "${jpd.getJPackageHomeOrDefault()}/bin/jpackage$EXEC_EXTENSION"
                 Util.checkExecutable(jpackageExec)
 
                 def appVersion = (jpd.appVersion ?: td.projectVersion).toString()
-                def versionOpts = (appVersion == Project.DEFAULT_VERSION) ? [] : [ '--app-version', appVersion ]
+                def versionOpts = (appVersion == 'unspecified') ? [] : [ '--app-version', appVersion ]
                 if (versionOpts && (!appVersion || !Character.isDigit(appVersion[0] as char))) {
                     throw new GradleException("The first character of the --app-version argument should be a digit.")
                 }
@@ -89,7 +93,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 final def resourceOpts = (resourceDir == null) ? [] : [ '--resource-dir', resourceDir ]
                 final def iconOpts = jpd.icon ? [ '--icon', jpd.icon ] : []
 
-                def execResult = execOps.exec { spec ->
+                def execResult = execOperations.exec { spec ->
                     spec.ignoreExitValue = true
                     spec.standardOutput = outputStream
                     spec.commandLine = [
@@ -106,22 +110,22 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                     ]
                 }
 
-                project.ext.jpackageInstallerOutput = {
-                    return outputStream.toString()
-                }
+                def jpackageInstallerOutput = outputStream.toString()
 
-                return execResult
+                return [execResult: execResult, output: jpackageInstallerOutput]
             }()
-            if(result.exitValue != 0) {
-                LOGGER.error(project.ext.jpackageInstallerOutput())
+            def execResult = result.execResult as org.gradle.process.ExecResult
+            def output = result.output as String
+            if(execResult.exitValue != 0) {
+                LOGGER.error(output)
             } else {
-                LOGGER.info(project.ext.jpackageInstallerOutput())
+                LOGGER.info(output)
                 if(os.windows && jpd.imageName != jpd.installerName) { // Workaround for https://github.com/beryx/badass-jlink-plugin/issues/169
                     new File("$appImagePath/${jpd.installerName}.exe").delete()
                 }
             }
-            result.assertNormalExitValue()
-            result.rethrowFailure()
+            execResult.assertNormalExitValue()
+            execResult.rethrowFailure()
         }
     }
 
