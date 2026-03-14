@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 3.3.0-beta</span>
+<span id="revnumber">version 3.3.0-beta2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -188,7 +188,7 @@ If you are forced to work with an older Gradle release, you should use <a href="
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '3.3.0-beta'
+    id 'org.beryx.jlink' version '3.3.0-beta2'
 }</code></pre>
 </div>
 </div>
@@ -220,7 +220,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v3.3.0-beta/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v3.3.0-beta2/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -347,16 +347,8 @@ You can use the suggested block as a starting point for your custom <code>merged
 <dt class="hdlist1">mergedModuleJarName</dt>
 <dd>
 <p>The base name of the jar containing the merged module.<br>
-<em>defaultValue</em>: <code><em>archiveBaseName</em>.merged.module</code><br>
+<em>defaultValue</em>: <code><em>archiveBaseName</em>.merged.module.jar</code><br>
 <em>usage example</em>: <code>mergedModuleJarName = 'my-merged-module'</code></p>
-</dd>
-<dt class="hdlist1">mergedModuleJarVersion</dt>
-<dd>
-<p>The version of the merged module.<br>
-<span class="red">This property is deprecated and it will be removed in a future release. Use the <em>version</em> property of the <em>mergedModule</em> block instead.
-If both this property and the <em>version</em> property of the <em>mergedModule</em> block are used, <em>version</em> takes precedence. </span><br>
-    <em>defaultValue</em>: <code>project.version</code><br>
-    <em>usage example</em>: <code>mergedModuleJarVersion = '2.1.7'</code></p>
 </dd>
 <dt class="hdlist1">options</dt>
 <dd>
@@ -384,6 +376,13 @@ If both this property and the <em>version</em> property of the <em>mergedModule<
 <p>The name of the Gradle dependency configuration used to execute your application.<br>
 <em>defaultValue</em>: <code>'runtimeClasspath'</code><br>
 <em>usage example</em>: <code>configuration = 'myAppRuntime'</code></p>
+</dd>
+<dt class="hdlist1">jvmVersion</dt>
+<dd>
+<p>The Java version to be used when creating the custom runtime image.
+It is passed as argument to the <code>--release</code> option of <em>jlink</em>.<br>
+    <em>defaultValue</em>: null (no <code>--release</code> option is used)<br>
+    <em>usage example</em>: <code>jvmVersion = 17</code></p>
 </dd>
 </dl>
 </div>
@@ -458,8 +457,8 @@ These options will pe passed to <em>jlink</em> in addition to those provided by 
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
-    targetPlatform(<span class="string"><span class="delimiter">'</span><span class="content">linux-x64</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">/usr/lib/jvm/jdk_x64_linux_hotspot_11_28</span><span class="delimiter">'</span></span>)
-    targetPlatform(<span class="string"><span class="delimiter">'</span><span class="content">linux-s390x</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">/usr/lib/jvm/jdk_s390x_linux_hotspot_11_28</span><span class="delimiter">'</span></span>,
+    targetPlatform(<span class="string"><span class="delimiter">'</span><span class="content">linux-x64</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">/usr/lib/jvm/jdk_x64_linux_hotspot_17_0_1</span><span class="delimiter">'</span></span>)
+    targetPlatform(<span class="string"><span class="delimiter">'</span><span class="content">linux-s390x</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">/usr/lib/jvm/jdk_s390x_linux_hotspot_17_0_1</span><span class="delimiter">'</span></span>,
                                                                [<span class="string"><span class="delimiter">'</span><span class="content">--endian</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">big</span><span class="delimiter">'</span></span>])
     ...
 }</code></pre>
@@ -520,7 +519,7 @@ determine the location of the image directory and of the image archive.<br>
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
     targetPlatform(<span class="string"><span class="delimiter">&quot;</span><span class="content">linux-s390x</span><span class="delimiter">&quot;</span></span>) {
-        jdkHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/jvm/linux-s390x/jdk-14.0.1_7</span><span class="delimiter">&quot;</span></span>
+        jdkHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/jvm/linux-s390x/jdk-17.0.1</span><span class="delimiter">&quot;</span></span>
         addOptions(<span class="string"><span class="delimiter">&quot;</span><span class="content">--endian</span><span class="delimiter">&quot;</span></span>, <span class="string"><span class="delimiter">&quot;</span><span class="content">big</span><span class="delimiter">&quot;</span></span>)
         addExtraModulePath(<span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/openjfx/linux-s390x/jmods</span><span class="delimiter">&quot;</span></span>)
     }
@@ -531,11 +530,11 @@ determine the location of the image directory and of the image archive.<br>
     }
 
     targetPlatform(<span class="string"><span class="delimiter">&quot;</span><span class="content">mac</span><span class="delimiter">&quot;</span></span>) {
-        jdkHome = jdkDownload(<span class="string"><span class="delimiter">&quot;</span><span class="content">https://github.com/AdoptOpenJDK/openjdk14-binaries/releases/download/jdk-14.0.1%2B7/OpenJDK14U-jdk_x64_mac_hotspot_14.0.1_7.tar.gz</span><span class="delimiter">&quot;</span></span>) {
+        jdkHome = jdkDownload(<span class="string"><span class="delimiter">&quot;</span><span class="content">https://github.com/AdoptOpenJDK/openjdk17-binaries/releases/download/jdk-17.0.1%2B12/OpenJDK17U-jdk_x64_mac_hotspot_17.0.1_12.tar.gz</span><span class="delimiter">&quot;</span></span>) {
             downloadDir = <span class="string"><span class="delimiter">&quot;</span><span class="inline"><span class="inline-delimiter">$</span>buildDir</span><span class="content">/myMac</span><span class="delimiter">&quot;</span></span>
             archiveName = <span class="string"><span class="delimiter">&quot;</span><span class="content">my-mac-jdk</span><span class="delimiter">&quot;</span></span>
             archiveExtension = <span class="string"><span class="delimiter">&quot;</span><span class="content">tar.gz</span><span class="delimiter">&quot;</span></span>
-            pathToHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">jdk-14.0.1+7/Contents/Home</span><span class="delimiter">&quot;</span></span>
+            pathToHome = <span class="string"><span class="delimiter">&quot;</span><span class="content">jdk-17.0.1+12/Contents/Home</span><span class="delimiter">&quot;</span></span>
             overwrite = <span class="predefined-constant">true</span>
         }
         addExtraModulePath(<span class="string"><span class="delimiter">&quot;</span><span class="content">/usr/lib/openjfx/mac/jmods</span><span class="delimiter">&quot;</span></span>)
@@ -877,6 +876,11 @@ This block supports all properties of the <code>launcher</code> block and also t
 <p>boolean value specifying whether Windows should start the application in a console window.<br>
 <em>defaultValue</em>: null (the win-console settings of the main launcher are used)</p>
 </dd>
+<dt class="hdlist1">appVersion</dt>
+<dd>
+<p>the version of the additional application.<br>
+<em>defaultValue</em>: null (the version of the main application is used)</p>
+</dd>
 </dl>
 </div>
 <div class="paragraph">
@@ -989,7 +993,7 @@ Modules required by those in this list will be automatically included.<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <a href="https://docs.gradle.org/current/userguide/toolchains.html">Java toolchain</a> configured in the Gradle script <br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>java.home</code> system property (only if it points to a JRE containing the <code>jpackage</code> tool)<br>
     &nbsp;&nbsp;&nbsp;&nbsp; - the <code>JAVA_HOME</code> environment variable<br>
-<em>usage example</em>: <code>jpackageHome = "/usr/lib/jvm/jdk16"</code></p>
+<em>usage example</em>: <code>jpackageHome = "/usr/lib/jvm/jdk17"</code></p>
 </dd>
 <dt class="hdlist1">outputDir</dt>
 <dd>
@@ -1140,7 +1144,7 @@ If your project is on GitHub, you can automate this by using GitHub Actions, as 
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
     jpackage {
-        jpackageHome = <span class="string"><span class="delimiter">'</span><span class="content">/usr/lib/jvm/jdk16</span><span class="delimiter">'</span></span>
+        jpackageHome = <span class="string"><span class="delimiter">'</span><span class="content">/usr/lib/jvm/jdk17</span><span class="delimiter">'</span></span>
         outputDir = <span class="string"><span class="delimiter">'</span><span class="content">my-packaging</span><span class="delimiter">'</span></span>
         <span class="comment">// imageOutputDir = file(&quot;$buildDir/my-packaging-image&quot;)</span>
         <span class="comment">// installerOutputDir = file(&quot;$buildDir/my-packaging-installer&quot;)</span>
@@ -1255,6 +1259,7 @@ The table below shows the variable names of the subdirectories created here and 
 <col style="width: 70%;">
 </colgroup>
 <tr><td><b>Variable name</b></td><td><b>Path relative to <i>jlinkBasePath<i></b></td></tr>
+<tr><td class="red">nonModularJarsDir</td><td><code>nonmodjars</code></td></tr>
 <tr><td class="maroon">mergedJarsDir</td><td><code>mergedjars</code></td></tr>
 <tr><td class="aqua">tmpMergedModuleDir</td><td><code>tmpmerged</code></td></tr>
 <tr><td class="teal">jlinkJarsDir</td><td><code>jlinkjars</code></td></tr>
@@ -1443,7 +1448,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 3.3.0-beta<br>
+Version 3.3.0-beta2<br>
 </div>
 </div>
 </body>
