@@ -52,7 +52,7 @@ jobs:
           ./publish.sh
           rm -f ~/.git-credentials
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: runner.os == 'Linux'
         with:
           path: build/libs/*
