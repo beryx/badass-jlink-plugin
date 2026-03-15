@@ -394,13 +394,21 @@ class Util {
     }
 
     static void cleanupTempFiles(File dir) {
-        if (dir && dir.exists()) {
-            dir.eachFileRecurse(FileType.FILES) { File file ->
-                if (file.name.endsWith(".cstemp")) {
-                    LOGGER.info("Deleting temporary file: $file")
-                    file.delete()
+        try {
+            if (dir && dir.exists()) {
+                dir.eachFileRecurse(FileType.FILES) { File file ->
+                    try {
+                        if (file.name.endsWith(".cstemp")) {
+                            LOGGER.info("Deleting temporary file: $file")
+                            file.delete()
+                        }
+                    } catch (Exception e) {
+                        LOGGER.info("Could not delete temporary file $file: ${e.message}")
+                    }
                 }
             }
+        } catch (Exception e) {
+            LOGGER.warn("Temporary file cleanup failed for $dir: ${e.message}")
         }
     }
 }
