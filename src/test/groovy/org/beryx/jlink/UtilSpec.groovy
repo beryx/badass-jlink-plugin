@@ -107,4 +107,23 @@ class UtilSpec extends Specification {
         'native-byte-code-77.jar' | 'native_.byte_.code'
     }
 
+    def "should cleanup temporary files"() {
+        given:
+        File subdir = new File(tmpDir.toFile(), 'subdir')
+        subdir.mkdirs()
+        File f1 = new File(tmpDir.toFile(), 'test.cstemp')
+        f1.text = 'dummy'
+        File f2 = new File(subdir, 'hello.cstemp')
+        f2.text = 'dummy'
+        File f3 = new File(tmpDir.toFile(), 'keep.me')
+        f3.text = 'dummy'
+
+        when:
+        Util.cleanupTempFiles(tmpDir.toFile())
+
+        then:
+        !f1.exists()
+        !f2.exists()
+        f3.exists()
+    }
 }

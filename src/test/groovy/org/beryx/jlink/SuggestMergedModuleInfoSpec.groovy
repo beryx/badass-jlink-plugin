@@ -111,7 +111,7 @@ class SuggestMergedModuleInfoSpec extends Specification {
 
         when:
         BuildResult result = GradleRunner.create()
-                .withDebug(debug)
+                .withDebug(false)
                 .withGradleVersion(gradleVersion)
                 .forwardStdOutput(outputWriter)
                 .withProjectDir(buildFile.parentFile)

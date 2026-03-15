@@ -392,4 +392,15 @@ class Util {
             return null
         }
     }
+
+    static void cleanupTempFiles(File dir) {
+        if (dir && dir.exists()) {
+            dir.eachFileRecurse(FileType.FILES) { File file ->
+                if (file.name.endsWith(".cstemp")) {
+                    LOGGER.info("Deleting temporary file: $file")
+                    file.delete()
+                }
+            }
+        }
+    }
 }

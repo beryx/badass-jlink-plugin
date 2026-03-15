@@ -167,10 +167,16 @@ abstract class JlinkTask extends BaseTask {
             jdkModules.addAll(customImageData.jdkModules ?: new SuggestedModulesBuilder(javaHome, depData).projectModules)
         }
 
+        def allAppModules = new LinkedHashSet<String>()
+        if (moduleName) allAppModules.add(moduleName)
+        secondaryLaunchers.each { launcher ->
+            if (launcher.moduleName) allAppModules.add(launcher.moduleName)
+        }
+
         if(customImageData.enabled) {
             taskData.imageModules = jdkModules + customImageData.appModules
         } else {
-            taskData.imageModules = jdkModules + [moduleName]
+            taskData.imageModules = jdkModules + allAppModules
         }
 
         // Resolve effective args/jvmArgs for launchers during configuration phase

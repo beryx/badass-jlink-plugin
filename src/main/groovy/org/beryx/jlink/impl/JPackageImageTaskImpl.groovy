@@ -46,7 +46,8 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
 
     @CompileDynamic
     void execute() {
-        fileSystemOperations.delete { it.delete(td.jpackageData.imageOutputDir) }
+        def jpd = td.jpackageData
+        fileSystemOperations.delete { it.delete(jpd.imageOutputDir) }
         def result = {
             def outputStream = new ByteArrayOutputStream()
 
@@ -66,9 +67,33 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             LOGGER.error(output)
         } else {
             LOGGER.info(output)
+            deleteDefaultLauncher()
         }
+        Util.cleanupTempFiles(jpd.imageOutputDir)
         execResult.assertNormalExitValue()
         execResult.rethrowFailure()
+    }
+
+    private void deleteDefaultLauncher() {
+        def jpd = td.jpackageData
+        if (jpd.launcherName && jpd.launcherName != jpd.imageName) {
+            def imageOutputDir = jpd.imageOutputDir
+            def imageName = jpd.imageName
+            def os = org.gradle.internal.os.OperatingSystem.current()
+            def launcherExt = os.windows ? '.exe' : ''
+            File defaultLauncher
+            if (os.macOsX) {
+                defaultLauncher = new File(imageOutputDir, "${imageName}.app/Contents/MacOS/${imageName}${launcherExt}")
+            } else if (os.windows) {
+                defaultLauncher = new File(imageOutputDir, "${imageName}/${imageName}${launcherExt}")
+            } else {
+                defaultLauncher = new File(imageOutputDir, "${imageName}/bin/${imageName}${launcherExt}")
+            }
+            if (defaultLauncher.exists()) {
+                LOGGER.info("Deleting default launcher: $defaultLauncher")
+                defaultLauncher.delete()
+            }
+        }
     }
 
     private List<String> createCommandLine() {
@@ -77,37 +102,17 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         Util.checkExecutable(jpackageExec)
 
         Map<String,File> propFiles = [:]
-        jpd.secondaryLaunchers.each { SecondaryLauncherData launcher ->
-            def propFile = new File("$td.jlinkBasePath/${launcher.name}.properties")
-            Files.deleteIfExists(propFile.toPath())
-            propFile.withOutputStream { stream ->
-                if(launcher.moduleName) {
-                    stream << "module=$launcher.moduleName\n"
-                }
-                if(launcher.mainClass) {
-                    stream << "main-class=$launcher.mainClass\n"
-                }
-
-                def args = launcher.getEffectiveArgs(td.defaultArgs)
-                if(args) {
-                    stream << "arguments=${args.collect{adjustArg(it)}.join('\\n')}\n"
-                }
-
-                def jvmArgs = launcher.getEffectiveJvmArgs(td.defaultJvmArgs)
-                if(jvmArgs) {
-                    stream << "java-options=${jvmArgs.collect{adjustArg(it)}.join('\\n')}\n"
-                }
-                if(launcher.appVersion) {
-                    stream << "app-version=$launcher.appVersion\n"
-                }
-                if(launcher.icon) {
-                    stream << "icon=$launcher.icon\n"
-                }
-                if(launcher.winConsole != null) {
-                    stream << "win-console=$launcher.winConsole\n"
-                }
-            }
+        jpd.secondaryLaunchers.get().each { SecondaryLauncherData launcher ->
+            def propFile = createPropFile(launcher.name, launcher.moduleName, launcher.mainClass,
+                    launcher.getEffectiveArgs(td.defaultArgs), launcher.getEffectiveJvmArgs(td.defaultJvmArgs),
+                    launcher.appVersion, launcher.icon, launcher.winConsole, propFiles)
             propFiles[launcher.name] = propFile
+        }
+        if (jpd.launcherName && jpd.launcherName != jpd.imageName) {
+            def propFile = createPropFile(jpd.launcherName, td.moduleName, td.mainClass,
+                    jpd.args.get(), jpd.jvmArgs.get(),
+                    jpd.getAppVersion(), jpd.getIcon(), null, propFiles)
+            propFiles[jpd.launcherName] = propFile
         }
 
         def appVersion = (jpd.appVersion ?: td.projectVersion).toString()
@@ -162,11 +167,40 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             *iconOpts,
             '--runtime-image', td.runtimeImageDir,
             *resourceOpts,
-            *(jpd.jvmArgs ? jpd.jvmArgs.collect { ['--java-options', adjustArg(it)] }.flatten() : []),
-            *(jpd.args ? jpd.args.collect { ['--arguments', adjustArg(it)] }.flatten() : []),
+            *(jpd.jvmArgs.get() ? jpd.jvmArgs.get().collect { ['--java-options', adjustArg(it)] }.flatten() : []),
+            *(jpd.args.get() ? jpd.args.get().collect { ['--arguments', adjustArg(it)] }.flatten() : []),
             *(propFiles ? propFiles.collect { ['--add-launcher', it.key + '=' + it.value.absolutePath] }.flatten() : []),
-            *jpd.imageOptions
+            *jpd.imageOptions.get()
         ]
+    }
+
+    private File createPropFile(String name, String moduleName, String mainClass, List<String> args, List<String> jvmArgs, String appVersion, String icon, Boolean winConsole, Map<String, File> propFiles) {
+        def propFile = new File("$td.jlinkBasePath/${name}.properties")
+        Files.deleteIfExists(propFile.toPath())
+        propFile.withOutputStream { stream ->
+            if (moduleName) {
+                stream << "module=$moduleName\n"
+            }
+            if (mainClass) {
+                stream << "main-class=$mainClass\n"
+            }
+            if (args) {
+                stream << "arguments=${args.collect { adjustArg(it) }.join('\\n')}\n"
+            }
+            if (jvmArgs) {
+                stream << "java-options=${jvmArgs.collect { adjustArg(it) }.join('\\n')}\n"
+            }
+            if (appVersion) {
+                stream << "app-version=$appVersion\n"
+            }
+            if (icon) {
+                stream << "icon=$icon\n"
+            }
+            if (winConsole != null) {
+                stream << "win-console=$winConsole\n"
+            }
+        }
+        return propFile
     }
 
     static String adjustArg(String arg) {
