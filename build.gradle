@@ -58,6 +58,9 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    // Enable parallel execution of test classes
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+
     jvmArgs '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
             '--add-opens', 'java.base/java.util=ALL-UNNAMED',
             '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
