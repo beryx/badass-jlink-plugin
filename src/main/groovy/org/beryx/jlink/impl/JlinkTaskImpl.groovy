@@ -125,6 +125,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
             LOGGER.info(jlinkOutput)
             copyNonImageModules(imageDir, extraModulePaths + [td.jlinkJarsDir.path])
         }
+        Util.cleanupTempFiles(imageDir)
         result.assertNormalExitValue()
         result.rethrowFailure()
     }

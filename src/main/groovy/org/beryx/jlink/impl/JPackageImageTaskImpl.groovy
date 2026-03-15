@@ -69,6 +69,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             LOGGER.info(output)
             deleteDefaultLauncher()
         }
+        Util.cleanupTempFiles(jpd.imageOutputDir)
         execResult.assertNormalExitValue()
         execResult.rethrowFailure()
     }
