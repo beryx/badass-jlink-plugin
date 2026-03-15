@@ -355,4 +355,28 @@ class JlinkPluginSpec extends Specification {
 
         true
     }
+
+    def "should use launcher name instead of imageName for the main executable"() {
+        given:
+        setUpBuild('name-ignored')
+
+        when:
+        BuildResult result = GradleRunner.create()
+                .withDebug(true)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withArguments(JlinkPlugin.TASK_NAME_JPACKAGE_IMAGE, "-is")
+                .build();
+
+        then:
+        result.task(":" + JlinkPlugin.TASK_NAME_JPACKAGE_IMAGE).outcome == TaskOutcome.SUCCESS
+
+        def launcherExt = OperatingSystem.current.windows ? '.exe' : ''
+        def wrongExecutablePath = OperatingSystem.current.macOs ? "build/jpackage/image.app/Contents/MacOS/image$launcherExt" : (OperatingSystem.current.windows ? "build/jpackage/image/image$launcherExt" : "build/jpackage/image/bin/image$launcherExt")
+        def rightExecutablePath = OperatingSystem.current.macOs ? "build/jpackage/image.app/Contents/MacOS/hello$launcherExt" : (OperatingSystem.current.windows ? "build/jpackage/image/hello$launcherExt" : "build/jpackage/image/bin/hello$launcherExt")
+
+        // This is the current BUGGY behavior: the executable is named "image" instead of "hello"
+        assert !new File(testProjectDir.toFile(), wrongExecutablePath).exists()
+        assert new File(testProjectDir.toFile(), rightExecutablePath).exists()
+    }
 }
