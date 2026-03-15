@@ -71,7 +71,7 @@ class JlinkPluginSpec extends Specification {
         when:
         setUpBuild('hello-logback', 'build.modular.gradle')
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('7.6')
@@ -87,7 +87,7 @@ class JlinkPluginSpec extends Specification {
         when:
         setUpBuild('hello-toolchain')
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('7.6')
@@ -102,7 +102,7 @@ class JlinkPluginSpec extends Specification {
         when:
         setUpBuild('kotlin-dsl')
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('8.12.1')
@@ -118,7 +118,7 @@ class JlinkPluginSpec extends Specification {
         when:
         setUpHelloLogbackBuild(moduleName, launcherName, mainClass, mergedModuleName)
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion(gradleVersion)
@@ -150,7 +150,7 @@ class JlinkPluginSpec extends Specification {
         when:
         setUpBuild(projectDir)
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withGradleVersion(gradleVersion)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
@@ -178,7 +178,7 @@ class JlinkPluginSpec extends Specification {
         when:
         File buildFile = setUpBuild('opens-to-jaxb')
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('7.6')
@@ -202,7 +202,7 @@ class JlinkPluginSpec extends Specification {
 
         File buildFile = setUpBuild('local-deps')
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withGradleVersion('7.6')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
@@ -217,7 +217,7 @@ class JlinkPluginSpec extends Specification {
         when:
         File buildFile = setUpBuild('hello-bom')
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withGradleVersion('7.6')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
@@ -232,7 +232,7 @@ class JlinkPluginSpec extends Specification {
         when:
         File buildFile = setUpBuild('hello-annotated-module')
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withGradleVersion('7.6')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
@@ -248,7 +248,7 @@ class JlinkPluginSpec extends Specification {
 
         File buildFile = setUpBuild('multi-launch')
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withGradleVersion('7.6')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
@@ -266,7 +266,7 @@ class JlinkPluginSpec extends Specification {
 
         File buildFile = setUpBuild('multi-launch-kotlin-dsl')
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withGradleVersion('7.6')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
@@ -289,7 +289,7 @@ class JlinkPluginSpec extends Specification {
 
         when:
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments('jpackageImage', '-is')
@@ -305,7 +305,7 @@ class JlinkPluginSpec extends Specification {
         new File(testProjectDir.toFile(), "gradle.properties") << "org.gradle.jvmargs=--add-opens java.base/java.lang.invoke=ALL-UNNAMED"
 
         def runner = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('8.12.1')
@@ -362,7 +362,7 @@ class JlinkPluginSpec extends Specification {
 
         when:
         BuildResult result = GradleRunner.create()
-                .withDebug(true)
+                .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JPACKAGE_IMAGE, "-is")

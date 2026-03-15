@@ -61,6 +61,12 @@ test {
     // Enable parallel execution of test classes
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
 
+    // Enable parallel execution of feature methods within a single class
+    systemProperty 'spock.parallel.enabled', 'true'
+    systemProperty 'spock.parallel.mode.default', 'concurrent'
+    systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
+    systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
+
     jvmArgs '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
             '--add-opens', 'java.base/java.util=ALL-UNNAMED',
             '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
