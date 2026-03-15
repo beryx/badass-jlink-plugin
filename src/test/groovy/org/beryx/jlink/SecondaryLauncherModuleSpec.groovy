@@ -34,29 +34,29 @@ class SecondaryLauncherModuleSpec extends AbstractJlinkPluginTest {
 
         then:
         result.task(":jlink").outcome == TaskOutcome.SUCCESS
-        
+
         // Find the jlink command in the output to check --add-modules
         def addModulesMatch = result.output =~ /--add-modules\s+([^\s]+)/
         assert addModulesMatch.find()
         def addModules = addModulesMatch.group(1).split(',')
-        
-        // BUG: 'secondary' module should be here, but it isn't
-        !addModules.contains('secondary')
 
-        // If we try to run the secondary launcher, it should fail because the module is missing
+        // Verify 'secondary' module is now included
+        assert addModules.contains('secondary')
+
+        // If we try to run the secondary launcher, it should now succeed
         def imageBinDir = new File(testProjectDir.toFile(), 'build/image/bin')
         def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
         def secondaryLauncher = new File(imageBinDir, "secondary$launcherExt")
-        
+
         assert secondaryLauncher.exists()
-        
+
         def process = secondaryLauncher.absolutePath.execute([], imageBinDir)
         def out = new ByteArrayOutputStream()
         def err = new ByteArrayOutputStream()
         process.waitForProcessOutput(out, err)
-        
-        // It should fail with "Module secondary not found" or similar
-        process.exitValue() != 0
-        (out.toString() + err.toString()).contains('java.lang.module.FindException: Module secondary not found')
+
+        // It should succeed and print "Secondary"
+        assert process.exitValue() == 0
+        assert out.toString().contains('Secondary')
     }
 }
