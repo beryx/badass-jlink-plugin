@@ -52,7 +52,6 @@ class GradleCompatibilitySpec extends AbstractJlinkPluginTest {
         'modular.example.hello' | '8.12.1'      | 'run-hello'  | 'org.example.modular.Hello' | null                                | 'run-hello'
         'modular.example.hello' | '8.12.1'      | 'run-hello'  | null                        | null                                | 'run-hello'
         'modular.example.hello' | '9.0.0'       | 'run-hello'  | null                        | null                                | 'run-hello'
-        'modular.example.hello' | '9.0.0'       | 'run-hello'  | null                        | null                                | 'run-hello'
     }
 
     @Unroll
