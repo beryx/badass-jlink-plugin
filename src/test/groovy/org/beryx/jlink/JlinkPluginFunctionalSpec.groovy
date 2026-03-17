@@ -148,8 +148,8 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withGradleVersion('8.12.1')
-                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "--configuration-cache", "--configuration-cache-problems=warn", "-is")
+                .withGradleVersion('8.14.4')
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "--configuration-cache", "--configuration-cache-problems=fail", "-is")
 
         BuildResult result1
         try {
