@@ -27,7 +27,9 @@ import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.*
 
 @CompileStatic
@@ -59,7 +61,7 @@ abstract class PrepareMergedJarsDirTask extends BaseTask {
 
     @OutputDirectory
     Directory getMergedJarsDir() {
-        project.layout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
+        projectLayout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
     }
 
     @Input
@@ -73,6 +75,9 @@ abstract class PrepareMergedJarsDirTask extends BaseTask {
     @Classpath
     abstract ConfigurableFileCollection getClasspathFiles()
 
+    @InputFile
+    abstract RegularFileProperty getArchiveFileProperty()
+
     PrepareMergedJarsDirTask() {
         description = 'Merges all non-modularized jars into a single module'
         project.getGradle().projectsEvaluated {
@@ -85,6 +90,7 @@ abstract class PrepareMergedJarsDirTask extends BaseTask {
             def config = project.configurations.getByName(configName)
             dependencyDataProperty.set(project.provider { DependencyData.from(config) })
             classpathFiles.from(config)
+            archiveFileProperty.set(project.tasks.named('jar', Jar).flatMap { it.archiveFile })
         }
     }
 
@@ -114,6 +120,6 @@ abstract class PrepareMergedJarsDirTask extends BaseTask {
 
     @InputFile
     File getArchivePath() {
-        Util.getArchiveFile(project)
+        archiveFileProperty.get().asFile
     }
 }

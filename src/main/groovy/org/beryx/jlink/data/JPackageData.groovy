@@ -28,7 +28,7 @@ import org.gradle.api.tasks.*
 @CompileStatic
 @ToString(includeNames = true)
 class JPackageData {
-    private final Project project
+    transient private final Project project
     private final LauncherData launcherData
     private final Provider<Directory> javaHomeProvider
 
@@ -57,6 +57,7 @@ class JPackageData {
     final ListProperty<String> jvmArgs
 
     JPackageData(Project project, LauncherData launcherData, Provider<Directory> javaHomeProvider) {
+        this.project = project
         this.launcherData = launcherData
         this.javaHomeProvider = javaHomeProvider
 
@@ -251,8 +252,24 @@ class JPackageData {
         value = System.getenv('BADASS_JLINK_JPACKAGE_HOME')
         if(value) return value
 
-        def jpackageHomeFolder = javaHomeProvider.getOrNull()?.asFile ?:
-                new File(System.getenv('JAVA_HOME'))
+        def jpackageHomeFolder = javaHomeProvider.getOrNull()?.asFile
+        if (!jpackageHomeFolder) {
+            value = System.properties['badass.jlink.java.home']
+            if(value) jpackageHomeFolder = new File(value.toString())
+        }
+        if (!jpackageHomeFolder) {
+            value = System.getenv('BADASS_JLINK_JAVA_HOME')
+            if(value) jpackageHomeFolder = new File(value.toString())
+        }
+        if (!jpackageHomeFolder) {
+            value = System.properties['java.home']
+            if(value) jpackageHomeFolder = new File(value.toString())
+        }
+        if (!jpackageHomeFolder) {
+            value = System.getenv('JAVA_HOME')
+            if(value) jpackageHomeFolder = new File(value.toString())
+        }
+        if (!jpackageHomeFolder) return null
 
         jpackageHomeFolder.absolutePath
     }

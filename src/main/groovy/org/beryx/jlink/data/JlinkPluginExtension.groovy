@@ -27,7 +27,7 @@ import org.gradle.api.provider.Provider
 
 @CompileStatic
 class JlinkPluginExtension {
-    private final Project project
+    transient private final Project project
     final Property<String> jlinkBasePath
     final Property<String> imageName
     final DirectoryProperty imageDir

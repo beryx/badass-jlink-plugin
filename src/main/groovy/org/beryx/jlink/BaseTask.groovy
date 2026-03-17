@@ -26,6 +26,7 @@ import org.gradle.api.file.ProjectLayout
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.process.ExecOperations
@@ -56,9 +57,15 @@ abstract class BaseTask extends DefaultTask {
     @Inject
     abstract ObjectFactory getObjectFactory();
 
+    @Internal
+    abstract Property<String> getDefaultJavaHomeProperty()
+
     BaseTask() {
         this.extension = (JlinkPluginExtension)project.extensions.getByName(JlinkPlugin.EXTENSION_NAME)
         group = 'build'
+        project.getGradle().projectsEvaluated {
+            defaultJavaHomeProperty.set(computeDefaultJavaHome())
+        }
     }
 
     @Input
@@ -73,6 +80,10 @@ abstract class BaseTask extends DefaultTask {
 
     @Internal
     String getDefaultJavaHome() {
+        defaultJavaHomeProperty.getOrNull()
+    }
+
+    private String computeDefaultJavaHome() {
         def value = System.properties['badass.jlink.java.home']
         if(value) return value
         value = System.getenv('BADASS_JLINK_JAVA_HOME')

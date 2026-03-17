@@ -45,12 +45,12 @@ abstract class CreateDelegatingModulesTask extends BaseTask {
 
     @InputDirectory
     Directory getNonModularJarsDir() {
-        project.layout.projectDirectory.dir(PathUtil.getNonModularJarsDirPath(jlinkBasePath))
+        projectLayout.projectDirectory.dir(PathUtil.getNonModularJarsDirPath(jlinkBasePath))
     }
 
     @OutputDirectory
     Directory getDelegatingModulesDir() {
-        project.layout.projectDirectory.dir(PathUtil.getDelegatingModulesDirPath(jlinkBasePath))
+        projectLayout.projectDirectory.dir(PathUtil.getDelegatingModulesDirPath(jlinkBasePath))
     }
 
 
@@ -63,9 +63,9 @@ abstract class CreateDelegatingModulesTask extends BaseTask {
         taskData.nonModularJarsDir = nonModularJarsDir.asFile
         taskData.delegatingModulesDir = delegatingModulesDir.asFile
 
-        taskData.jlinkJarsDir = project.file(PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath))
-        taskData.tmpJarsDir = project.file(PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath))
-        taskData.tmpModuleInfoDir = project.file(PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath))
+        taskData.jlinkJarsDir = projectLayout.projectDirectory.file(PathUtil.getJlinkJarsDirPath(taskData.jlinkBasePath)).asFile
+        taskData.tmpJarsDir = projectLayout.projectDirectory.file(PathUtil.getTmpJarsDirPath(taskData.jlinkBasePath)).asFile
+        taskData.tmpModuleInfoDir = projectLayout.projectDirectory.file(PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)).asFile
 
         taskData.fileSystemOperations = fileSystemOperations
         taskData.execOperations = execOperations

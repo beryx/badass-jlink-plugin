@@ -24,6 +24,7 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
+import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 
@@ -88,7 +89,7 @@ abstract class JlinkTask extends BaseTask {
 
     @InputDirectory
     Directory getJlinkJarsDir() {
-        project.layout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
+        projectLayout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
     }
 
     @Internal
@@ -115,6 +116,12 @@ abstract class JlinkTask extends BaseTask {
     @Internal
     abstract Property<String> getEffectiveMainClassProperty()
 
+    @Internal
+    abstract ListProperty<String> getDefaultJvmArgsProperty()
+
+    @Internal
+    abstract ListProperty<String> getDefaultArgsProperty()
+
     @groovy.transform.CompileDynamic
     JlinkTask() {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MODULES_DIR)
@@ -135,6 +142,8 @@ abstract class JlinkTask extends BaseTask {
                 }
             }
             effectiveMainClassProperty.set(mc)
+            defaultJvmArgsProperty.set(org.beryx.jlink.util.Util.getDefaultJvmArgs(project) ?: [])
+            defaultArgsProperty.set(org.beryx.jlink.util.Util.getDefaultArgs(project) ?: [])
         }
     }
 
@@ -155,8 +164,8 @@ abstract class JlinkTask extends BaseTask {
         taskData.targetPlatforms = targetPlatforms
         taskData.jlinkJarsDir = jlinkJarsDir.asFile
         taskData.cdsData = cdsData
-        taskData.defaultJvmArgs = org.beryx.jlink.util.Util.getDefaultJvmArgs(project) ?: []
-        taskData.defaultArgs = org.beryx.jlink.util.Util.getDefaultArgs(project) ?: []
+        taskData.defaultJvmArgs = defaultJvmArgsProperty.get()
+        taskData.defaultArgs = defaultArgsProperty.get()
 
         def depData = dependencyDataProperty.get()
         def jdkModules = [] as Set<String>
@@ -198,6 +207,6 @@ abstract class JlinkTask extends BaseTask {
 
     @Internal
     File getImageDirFromName() {
-        project.file("${project.layout.buildDirectory.get()}/$imageName")
+        projectLayout.buildDirectory.file(imageName).get().asFile
     }
 }
