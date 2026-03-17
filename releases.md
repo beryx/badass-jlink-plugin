@@ -5,6 +5,10 @@
     - [documentation](http://badass-jlink-plugin.beryx.org/snapshots/latest)
     - [groovydoc](http://badass-jlink-plugin.beryx.org/snapshots/latest/groovydoc)
 
+    **Release 3.3.0-beta5**
+      - [documentation](http://badass-jlink-plugin.beryx.org/releases/3.3.0-beta5)
+      - [groovydoc](http://badass-jlink-plugin.beryx.org/releases/3.3.0-beta5/groovydoc)
+
     **Release 3.3.0-beta4**
       - [documentation](http://badass-jlink-plugin.beryx.org/releases/3.3.0-beta4)
       - [groovydoc](http://badass-jlink-plugin.beryx.org/releases/3.3.0-beta4/groovydoc)
