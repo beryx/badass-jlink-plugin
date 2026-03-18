@@ -39,12 +39,17 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
     def "should use configured toolchain"() {
         when:
         setUpBuild('hello-toolchain')
+        def fromEnvCandidates = (['JAVA_HOME'] + System.getenv().keySet().findAll { it ==~ /JAVA_HOME_25_.+/ }).unique()
+        def gradleArgs = [JlinkPlugin.TASK_NAME_JLINK, "-is"]
+        if(fromEnvCandidates.size() > 1) {
+            gradleArgs << "-Dorg.gradle.java.installations.fromEnv=${fromEnvCandidates.join(',')}"
+        }
         BuildResult result = GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('8.14.4')
-                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
+                .withArguments(gradleArgs)
                 .build();
 
         then:
