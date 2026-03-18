@@ -38,8 +38,10 @@ class JlinkPlugin implements Plugin<Project> {
 
     @Override
     void apply(Project project) {
-        if(GradleVersion.current() < GradleVersion.version('7.0')) {
-            throw new GradleException("This plugin requires Gradle 7.0 or newer. Try org.beryx.jlink 2.25.0 if you must use an older version of Gradle.")
+        if(GradleVersion.current() < GradleVersion.version('8.14.4')) {
+            throw new GradleException("This plugin requires Gradle 8.14.4 or newer." +
+                    " If you must use an older version of Gradle, try org.beryx.jlink 3.2.1 for Gradle version < 8.14.4" +
+                    " or org.beryx.jlink 2.25.0 for Gradle < 7.0.")
         }
         project.getPluginManager().apply('application');
         def extension = project.extensions.create(EXTENSION_NAME, JlinkPluginExtension, project)

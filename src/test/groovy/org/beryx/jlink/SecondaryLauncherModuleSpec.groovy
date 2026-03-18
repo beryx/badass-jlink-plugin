@@ -28,7 +28,7 @@ class SecondaryLauncherModuleSpec extends AbstractJlinkPluginTest {
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withGradleVersion('8.5')
+                .withGradleVersion('8.14.4')
                 .withArguments('jlink', "-is")
                 .build()
 

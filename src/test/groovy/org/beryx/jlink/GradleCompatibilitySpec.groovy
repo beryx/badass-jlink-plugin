@@ -39,19 +39,19 @@ class GradleCompatibilitySpec extends AbstractJlinkPluginTest {
 
         where:
         moduleName              | gradleVersion | launcherName | mainClass                   | mergedModuleName                    | expectedLauncherName
-        null                    | '7.6'         | null         | null                        | null                                | 'modular-hello'
-        'modular.example.hello' | '7.4'         | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
-        null                    | '7.4'         | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
-        'modular.example.hello' | '7.6'         | null         | null                        | null                                | 'modular-hello'
-        'modular.example.hello' | '7.4'         | 'run-hello'  | 'org.example.modular.Hello' | null                                | 'run-hello'
-        'modular.example.hello' | '7.6'         | 'run-hello'  | null                        | null                                | 'run-hello'
-        null                    | '8.12.1'      | null         | null                        | null                                | 'modular-hello'
-        'modular.example.hello' | '8.12.1'      | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
-        null                    | '8.12.1'      | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
-        'modular.example.hello' | '8.12.1'      | null         | null                        | null                                | 'modular-hello'
-        'modular.example.hello' | '8.12.1'      | 'run-hello'  | 'org.example.modular.Hello' | null                                | 'run-hello'
-        'modular.example.hello' | '8.12.1'      | 'run-hello'  | null                        | null                                | 'run-hello'
-        'modular.example.hello' | '9.0.0'       | 'run-hello'  | null                        | null                                | 'run-hello'
+        null                    | '8.14.4'      | null         | null                        | null                                | 'modular-hello'
+        'modular.example.hello' | '8.14.4'      | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
+        null                    | '8.14.4'      | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
+        'modular.example.hello' | '8.14.4'      | null         | null                        | null                                | 'modular-hello'
+        'modular.example.hello' | '8.14.4'      | 'run-hello'  | 'org.example.modular.Hello' | null                                | 'run-hello'
+        'modular.example.hello' | '8.14.4'      | 'run-hello'  | null                        | null                                | 'run-hello'
+        null                    | '9.0.0'       | null         | null                        | null                                | 'modular-hello'
+        'modular.example.hello' | '9.0.0'       | 'run-hello'  | ''                          | 'org.example.my.test.merged.module' | 'run-hello'
+        null                    | '9.0.0'       | null         | 'org.example.modular.Hello' | null                                | 'modular-hello'
+        'modular.example.hello' | '9.0.0'       | null         | null                        | null                                | 'modular-hello'
+        'modular.example.hello' | '9.4.0'       | 'run-hello'  | 'org.example.modular.Hello' | null                                | 'run-hello'
+        'modular.example.hello' | '9.4.0'       | 'run-hello'  | null                        | null                                | 'run-hello'
+        'modular.example.hello' | '9.4.0'       | 'run-hello'  | null                        | null                                | 'run-hello'
     }
 
     @Unroll
@@ -78,8 +78,8 @@ class GradleCompatibilitySpec extends AbstractJlinkPluginTest {
 
         where:
         projectDir                  | gradleVersion | imageDir        | imageZip            | expectedLauncherName
-        'hello-javafx'              | '7.4'         | 'helloFX'       | 'helloFX.zip'       | 'helloFX'
-        'hello-javafx-log4j-2.11.1' | '7.6'         | 'image'         | 'image.zip'         | 'helloFX'
-        'hello-javafx-jep493'       | '9.1.0'       | 'helloFXJep493' | 'helloFXJep493.zip' | 'helloFXJep493'
+        'hello-javafx'              | '8.14.4'      | 'helloFX'       | 'helloFX.zip'       | 'helloFX'
+        'hello-javafx-log4j-2.11.1' | '9.0.0'       | 'image'         | 'image.zip'         | 'helloFX'
+        'hello-javafx-jep493'       | '9.4.0'       | 'helloFXJep493' | 'helloFXJep493.zip' | 'helloFXJep493'
     }
 }

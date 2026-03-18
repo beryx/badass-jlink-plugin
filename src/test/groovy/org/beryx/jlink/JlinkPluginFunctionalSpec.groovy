@@ -28,7 +28,7 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withGradleVersion('7.6')
+                .withGradleVersion('8.14.4')
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
 
@@ -36,7 +36,6 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
         checkOutput(result, 'modular-hello', 'LOG: Hello, modular Java!')
     }
 
-    @Ignore("Gradle bug: https://github.com/gradle/native-platform/issues/274")
     def "should use configured toolchain"() {
         when:
         setUpBuild('hello-toolchain')
@@ -44,7 +43,7 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withGradleVersion('7.6')
+                .withGradleVersion('8.14.4')
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
 
@@ -59,7 +58,7 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withGradleVersion('7.6')
+                .withGradleVersion('8.14.4')
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
 
@@ -81,7 +80,7 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
         File buildFile = setUpBuild('local-deps')
         BuildResult result = GradleRunner.create()
                 .withDebug(false)
-                .withGradleVersion('7.6')
+                .withGradleVersion('8.14.4')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
@@ -96,7 +95,7 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
         File buildFile = setUpBuild('hello-bom')
         BuildResult result = GradleRunner.create()
                 .withDebug(false)
-                .withGradleVersion('7.6')
+                .withGradleVersion('8.14.4')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
@@ -111,7 +110,7 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
         File buildFile = setUpBuild('hello-annotated-module')
         BuildResult result = GradleRunner.create()
                 .withDebug(false)
-                .withGradleVersion('7.6')
+                .withGradleVersion('8.14.4')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
@@ -127,7 +126,7 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
         File buildFile = setUpBuild('multi-launch')
         BuildResult result = GradleRunner.create()
                 .withDebug(false)
-                .withGradleVersion('7.6')
+                .withGradleVersion('8.14.4')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")

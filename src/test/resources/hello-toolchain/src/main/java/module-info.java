@@ -1,5 +1,5 @@
 module modular.example.hello {
-    requires slf4j.api;
-    requires logback.classic;
+    requires org.slf4j;
+    requires ch.qos.logback.classic;
     exports org.example.modular;
 }

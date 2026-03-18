@@ -103,10 +103,16 @@ class SuggestMergedModuleInfoSpec extends Specification {
     @Unroll
     def "should display the correct module-info for the merged module in #gradleFile with #language flavor using Gradle #gradleVersion"() {
         given:
-        new AntBuilder().copy( todir: testProjectDir ) {
-            fileset( dir: 'src/test/resources/hello-log4j-2.19.0' )
+        def fixtureDir = new File('src/test/resources/hello-log4j-2.19.0')
+        new AntBuilder().copy(todir: testProjectDir) {
+            fileset(dir: fixtureDir, excludes: 'build*.gradle*')
         }
-        File buildFile = new File(testProjectDir.toFile(), gradleFile)
+        def canonicalBuildFile = gradleFile.endsWith('.kts') ? 'build.gradle.kts' : 'build.gradle'
+        new AntBuilder().copy(
+                file: new File(fixtureDir, gradleFile),
+                tofile: new File(testProjectDir.toFile(), canonicalBuildFile)
+        )
+        File buildFile = new File(testProjectDir.toFile(), canonicalBuildFile)
         def outputWriter = new StringWriter(8192)
 
         when:
@@ -116,7 +122,7 @@ class SuggestMergedModuleInfoSpec extends Specification {
                 .forwardStdOutput(outputWriter)
                 .withProjectDir(buildFile.parentFile)
                 .withPluginClasspath()
-                .withArguments("-is", JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO, '-b', gradleFile, "--useConstraints", "--language=$language")
+                .withArguments("-is", JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO, "--useConstraints", "--language=$language")
                 .build();
         def task = result.task(":$JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO")
         println outputWriter
@@ -134,15 +140,15 @@ class SuggestMergedModuleInfoSpec extends Specification {
 
         where:
         language | expectedDirectives           | gradleFile                  | gradleVersion | debug
-        'groovy' | GROOVY_DIRECTIVES            | 'build.gradle'              | '7.4'         | true
-        'kotlin' | KOTLIN_DIRECTIVES            | 'build.gradle'              | '7.6'         | true
-        'java'   | JAVA_DIRECTIVES              | 'build.gradle'              | '7.4'         | true
-        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '7.6'         | true
-        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '7.4'         | true
-        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle'     | '7.6'         | true
-        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '7.4'         | false
-        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '7.6'         | false
-        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle.kts' | '7.6'         | false
+        'groovy' | GROOVY_DIRECTIVES            | 'build.gradle'              | '8.14.4'      | true
+        'kotlin' | KOTLIN_DIRECTIVES            | 'build.gradle'              | '9.0.0'       | true
+        'java'   | JAVA_DIRECTIVES              | 'build.gradle'              | '8.14.4'      | true
+        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '9.0.0'       | true
+        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle'     | '8.14.4'      | true
+        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle'     | '9.0.0'       | true
+        'groovy' | GROOVY_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '8.14.4'      | false
+        'kotlin' | KOTLIN_DIRECTIVES_CONSTRAINT | 'build.additive.gradle.kts' | '9.0.0'       | false
+        'java'   | JAVA_DIRECTIVES_CONSTRAINT   | 'build.additive.gradle.kts' | '9.0.0'       | false
     }
 
     List<String> getDirectives(String taskOutput, String language) {

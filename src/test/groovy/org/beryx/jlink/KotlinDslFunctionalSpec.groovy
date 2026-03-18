@@ -26,7 +26,7 @@ class KotlinDslFunctionalSpec extends AbstractJlinkPluginTest {
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withGradleVersion('8.12.1')
+                .withGradleVersion('8.14.4')
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
                 .build();
 
@@ -39,7 +39,7 @@ class KotlinDslFunctionalSpec extends AbstractJlinkPluginTest {
         setUpBuild('multi-launch-kotlin-dsl')
         BuildResult result = GradleRunner.create()
                 .withDebug(false)
-                .withGradleVersion('7.6')
+                .withGradleVersion('8.14.4')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
