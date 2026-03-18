@@ -138,7 +138,7 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
         checkOutput(result, 'howdy', 'Howdy!')
     }
 
-    def "should be compatible with the gradle configuration cache"() {
+    def "jlink task should be compatible with the gradle configuration cache"() {
         when:
         setUpHelloLogbackBuild(null, null, null, null)
         new File(testProjectDir.toFile(), "gradle.properties") << "org.gradle.jvmargs=--add-opens java.base/java.lang.invoke=ALL-UNNAMED"
@@ -149,6 +149,36 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
                 .withPluginClasspath()
                 .withGradleVersion('8.14.4')
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "--configuration-cache", "--configuration-cache-problems=fail", "-is")
+
+        BuildResult result1
+        try {
+            result1 = runner.build()
+        } catch (Exception e) {
+            System.out.println "[DEBUG_LOG] FAILED RESULT1 OUTPUT:\n" + e.buildResult.output
+            throw e
+        }
+        System.out.println "[DEBUG_LOG] RESULT1 OUTPUT:\n${result1.output}"
+
+        BuildResult result2 = runner.build()
+        System.out.println "[DEBUG_LOG] RESULT2 OUTPUT:\n${result2.output}"
+
+        then:
+        result1.output.contains('Configuration cache entry stored')
+        result2.output.contains('Reusing configuration cache')
+        checkOutput(result2, 'modular-hello', 'LOG: Hello, modular Java!')
+    }
+
+    def "jpackage task should be compatible with the gradle configuration cache"() {
+        when:
+        setUpHelloLogbackBuild(null, null, null, null)
+        new File(testProjectDir.toFile(), "gradle.properties") << "org.gradle.jvmargs=--add-opens java.base/java.lang.invoke=ALL-UNNAMED"
+
+        def runner = GradleRunner.create()
+                .withDebug(false)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withGradleVersion('8.14.4')
+                .withArguments(JlinkPlugin.TASK_NAME_JPACKAGE, "--configuration-cache", "--configuration-cache-problems=fail", "-is")
 
         BuildResult result1
         try {

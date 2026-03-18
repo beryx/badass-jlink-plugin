@@ -18,15 +18,69 @@ package org.beryx.jlink
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.JPackageData
 import org.beryx.jlink.data.JPackageTaskData
+import org.beryx.jlink.data.TargetPlatform
 import org.beryx.jlink.util.PathUtil
 import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.logging.Logger
+import org.gradle.api.logging.Logging
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.MapProperty
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
+import org.gradle.jvm.tasks.Jar
 
 @CompileStatic
 abstract class AbstractJPackageTask extends BaseTask {
+    private static final Logger LOGGER = Logging.getLogger(AbstractJPackageTask.class)
+
+    @Internal
+    abstract ListProperty<String> getDefaultJvmArgsProperty()
+
+    @Internal
+    abstract ListProperty<String> getDefaultArgsProperty()
+
+    @Internal
+    abstract Property<String> getProjectVersionProperty()
+
+    @Internal
+    abstract RegularFileProperty getProjectArchiveFileProperty()
+
+    @Internal
+    abstract MapProperty<String, TargetPlatform> getTargetPlatformsProperty()
+
+    @Internal
+    abstract Property<String> getEffectiveMainClassProperty()
+
+    @groovy.transform.CompileDynamic
+    AbstractJPackageTask() {
+        project.getGradle().projectsEvaluated {
+            defaultJvmArgsProperty.set(org.beryx.jlink.util.Util.getDefaultJvmArgs(project) ?: [])
+            defaultArgsProperty.set(org.beryx.jlink.util.Util.getDefaultArgs(project) ?: [])
+            projectVersionProperty.set(project.version.toString())
+            projectArchiveFileProperty.set(project.tasks.named('jar', Jar).flatMap { it.archiveFile })
+            targetPlatformsProperty.set(extension.targetPlatforms)
+
+            def mc = extension.mainClass.getOrNull()
+            if (!mc) {
+                try {
+                    mc = project.application?.mainClass?.getOrNull() as String
+                    def mainModule = project.application?.mainModule?.getOrNull() as String
+                    def moduleName = extension.moduleName.get()
+                    if (mainModule && (mainModule != moduleName)) {
+                        LOGGER.warn("The module name specified in 'application.mainModule' ($mainModule) has not the expected value ($moduleName).")
+                    }
+                } catch (Exception ignored) {
+                    // application plugin not applied
+                }
+            }
+            effectiveMainClassProperty.set(mc)
+        }
+    }
+
     @Input
     String getModuleName() {
         extension.moduleName.get()
@@ -39,7 +93,7 @@ abstract class AbstractJPackageTask extends BaseTask {
 
     @InputDirectory
     Directory getJlinkJarsDir() {
-        project.layout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
+        projectLayout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
     }
 
     @Input
@@ -49,7 +103,7 @@ abstract class AbstractJPackageTask extends BaseTask {
 
     @InputDirectory
     File getImageInputDir() {
-        jlinkTask.imageDirAsFile
+        extension.imageName.get() ? projectLayout.buildDirectory.file(extension.imageName.get()).get().asFile : extension.imageDir.get().asFile
     }
 
     @Nested
@@ -57,23 +111,18 @@ abstract class AbstractJPackageTask extends BaseTask {
         extension.jpackageData.get()
     }
 
-    @Internal
-    protected JlinkTask getJlinkTask() {
-        (JlinkTask) project.tasks.getByName(JlinkPlugin.TASK_NAME_JLINK)
-    }
-
     protected JPackageTaskData createTaskData() {
         def taskData = new JPackageTaskData()
-        taskData.defaultJvmArgs = org.beryx.jlink.util.Util.getDefaultJvmArgs(project) ?: []
-        taskData.defaultArgs = org.beryx.jlink.util.Util.getDefaultArgs(project) ?: []
-        taskData.projectVersion = project.version.toString()
-        taskData.projectArchiveFile = project.tasks.getByName('jar').outputs.files.singleFile
+        taskData.defaultJvmArgs = defaultJvmArgsProperty.get()
+        taskData.defaultArgs = defaultArgsProperty.get()
+        taskData.projectVersion = projectVersionProperty.get()
+        taskData.projectArchiveFile = projectArchiveFileProperty.get().asFile
         taskData.jlinkBasePath = jlinkBasePath
         taskData.imageDir = imageInputDir
         taskData.moduleName = moduleName
         taskData.jpackageData = jpackageData
-        taskData.mainClass = mainClass ?: defaultMainClass
-        taskData.configureRuntimeImageDir(jlinkTask)
+        taskData.mainClass = effectiveMainClassProperty.getOrNull()
+        taskData.configureRuntimeImageDir(targetPlatformsProperty.getOrElse([:]), imageInputDir)
         taskData
     }
 }
