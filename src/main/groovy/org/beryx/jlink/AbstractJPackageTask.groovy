@@ -62,7 +62,6 @@ abstract class AbstractJPackageTask extends BaseTask {
         (JlinkTask) project.tasks.getByName(JlinkPlugin.TASK_NAME_JLINK)
     }
 
-    @Internal
     protected JPackageTaskData createTaskData() {
         def taskData = new JPackageTaskData()
         taskData.defaultJvmArgs = org.beryx.jlink.util.Util.getDefaultJvmArgs(project) ?: []
