@@ -49,7 +49,7 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('8.14.4')
-                .withArguments(gradleArgs)
+                .withArguments(*gradleArgs)
                 .build();
 
         then:
