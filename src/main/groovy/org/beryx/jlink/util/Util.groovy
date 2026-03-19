@@ -343,23 +343,13 @@ class Util {
         if(handledProjects.contains(project)) return []
         handledProjects << project
         def projectDependencies = project.configurations*.dependencies*.withType(ProjectDependency).flatten() as Set<ProjectDependency>
-        List<Project> dependentProjects = projectDependencies.collect { getDependencyProject(project, it) }
+        List<Project> dependentProjects = projectDependencies.collect { project.project(it.path) }
         dependentProjects.each {
             dependentProjects += getAllDependentProjectsExt(it, handledProjects)
         }
         return dependentProjects.unique()
     }
 
-    private static final boolean GRADLE_VER_GTE_811 = (GradleVersion.current().compareTo(GradleVersion.version('8.11')) >= 0)
-
-    @CompileDynamic
-    private static Project getDependencyProject(Project project, ProjectDependency dep) {
-        if(GRADLE_VER_GTE_811) {
-            return project.project(dep.path)
-        } else {
-            return dep.dependencyProject
-        }
-    }
 
     @CompileDynamic
     static List<String> getDefaultJvmArgs(Project project) {
@@ -390,6 +380,25 @@ class Util {
         } catch(e) {
             project.logger.warn("Cannot retrieve Java toolchain: $e")
             return null
+        }
+    }
+
+    static void cleanupTempFiles(File dir) {
+        try {
+            if (dir && dir.exists()) {
+                dir.eachFileRecurse(FileType.FILES) { File file ->
+                    try {
+                        if (file.name.endsWith(".cstemp")) {
+                            LOGGER.info("Deleting temporary file: $file")
+                            file.delete()
+                        }
+                    } catch (Exception e) {
+                        LOGGER.info("Could not delete temporary file $file: ${e.message}")
+                    }
+                }
+            }
+        } catch (Exception e) {
+            LOGGER.warn("Temporary file cleanup failed for $dir: ${e.message}")
         }
     }
 }

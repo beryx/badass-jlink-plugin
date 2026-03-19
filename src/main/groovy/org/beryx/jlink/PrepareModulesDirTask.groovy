@@ -22,8 +22,10 @@ import org.beryx.jlink.impl.PrepareModulesDirTaskImpl
 import org.beryx.jlink.util.PathUtil
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.gradle.api.tasks.bundling.Jar
 
 @CompileStatic
 abstract class PrepareModulesDirTask extends BaseTask {
@@ -54,12 +56,12 @@ abstract class PrepareModulesDirTask extends BaseTask {
 
     @InputDirectory
     Directory getDelegatingModulesDir() {
-        project.layout.projectDirectory.dir(PathUtil.getDelegatingModulesDirPath(jlinkBasePath))
+        projectLayout.projectDirectory.dir(PathUtil.getDelegatingModulesDirPath(jlinkBasePath))
     }
 
     @OutputDirectory
     Directory getJlinkJarsDir() {
-        project.layout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
+        projectLayout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
     }
 
     @Internal
@@ -67,6 +69,9 @@ abstract class PrepareModulesDirTask extends BaseTask {
 
     @Classpath
     abstract ConfigurableFileCollection getClasspathFiles()
+
+    @InputFile
+    abstract RegularFileProperty getArchiveFileProperty()
 
     PrepareModulesDirTask() {
         dependsOn(JlinkPlugin.TASK_NAME_CREATE_DELEGATING_MODULES)
@@ -76,6 +81,7 @@ abstract class PrepareModulesDirTask extends BaseTask {
             def config = project.configurations.getByName(configName)
             dependencyDataProperty.set(project.provider { DependencyData.from(config) })
             classpathFiles.from(config)
+            archiveFileProperty.set(project.tasks.named('jar', Jar).flatMap { it.archiveFile })
         }
     }
 
@@ -91,7 +97,7 @@ abstract class PrepareModulesDirTask extends BaseTask {
         taskData.delegatingModulesDir = delegatingModulesDir.asFile
         taskData.jlinkJarsDir = jlinkJarsDir.asFile
         taskData.tmpModuleInfoDirPath = PathUtil.getTmpModuleInfoDirPath(taskData.jlinkBasePath)
-        taskData.projectArchiveFile = project.tasks.getByName('jar').outputs.files.singleFile
+        taskData.projectArchiveFile = archiveFileProperty.get().asFile
 
         def taskImpl = new PrepareModulesDirTaskImpl(fileSystemOperations, archiveOperations, taskData)
         taskImpl.execute()

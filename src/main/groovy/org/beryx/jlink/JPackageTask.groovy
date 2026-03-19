@@ -16,52 +16,15 @@
 package org.beryx.jlink
 
 import groovy.transform.CompileStatic
-import org.beryx.jlink.data.JPackageData
-import org.beryx.jlink.data.JPackageTaskData
 import org.beryx.jlink.impl.JPackageTaskImpl
-import org.beryx.jlink.util.PathUtil
-import org.gradle.api.file.Directory
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
-import org.gradle.api.tasks.*
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.TaskAction
 
 @CompileStatic
-abstract class JPackageTask extends BaseTask {
-    private static final Logger LOGGER = Logging.getLogger(JPackageTask.class)
-
-    @Input
-    String getModuleName() {
-        extension.moduleName.get()
-    }
-
-    @Input
-    String getMainClass() {
-        extension.mainClass.get()
-    }
-
-    @InputDirectory
-    Directory getJlinkJarsDir() {
-        project.layout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
-    }
-
-    @Input
-    String getImageName() {
-        extension.imageName.get()
-    }
-
-    @Internal
-    File getImageInputDir() {
-        ((JlinkTask) project.tasks.getByName(JlinkPlugin.TASK_NAME_JLINK)).getImageDirAsFile()
-    }
-
+abstract class JPackageTask extends AbstractJPackageTask {
     @InputDirectory
     File getImageOutputDir() {
         extension.jpackageData.get().getImageOutputDir()
-    }
-
-    @Nested
-    JPackageData getJpackageData() {
-        extension.jpackageData.get()
     }
 
     JPackageTask() {
@@ -71,26 +34,9 @@ abstract class JPackageTask extends BaseTask {
 
     @TaskAction
     void jpackageTaskAction() {
-        def taskData = new JPackageTaskData()
-        taskData.defaultJvmArgs = org.beryx.jlink.util.Util.getDefaultJvmArgs(project) ?: []
-        taskData.defaultArgs = org.beryx.jlink.util.Util.getDefaultArgs(project) ?: []
-        taskData.projectVersion = project.version.toString()
-        taskData.projectArchiveFile = project.tasks.getByName('jar').outputs.files.singleFile
-        taskData.jlinkBasePath = jlinkBasePath
-        taskData.imageDir = imageInputDir
-        taskData.moduleName = moduleName
-        taskData.jpackageData = jpackageData
-        taskData.mainClass = mainClass ?: defaultMainClass
-
-        def jlinkTask = (JlinkTask) project.tasks.getByName(JlinkPlugin.TASK_NAME_JLINK)
-        taskData.configureRuntimeImageDir(jlinkTask)
+        def taskData = createTaskData()
 
         def taskImpl = new JPackageTaskImpl(fileSystemOperations, execOperations, taskData)
         taskImpl.execute()
-    }
-
-    @Internal
-    File getImageDirFromName() {
-        project.file("${project.layout.buildDirectory.get()}/${imageName}")
     }
 }

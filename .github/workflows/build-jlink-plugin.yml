@@ -52,6 +52,16 @@ jobs:
           ./publish.sh
           rm -f ~/.git-credentials
 
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-reports-${{ matrix.os }}
+          path: |
+            build/reports/tests/**
+            build/test-results/**
+          if-no-files-found: warn
+
       - uses: actions/upload-artifact@v7
         if: runner.os == 'Linux'
         with:

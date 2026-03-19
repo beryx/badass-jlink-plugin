@@ -106,7 +106,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                             '--app-image', "$appImagePath",
                             *resourceOpts,
                             *iconOpts,
-                            *jpd.installerOptions
+                            *jpd.installerOptions.get()
                     ]
                 }
 
@@ -124,6 +124,8 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                     new File("$appImagePath/${jpd.installerName}.exe").delete()
                 }
             }
+            Util.cleanupTempFiles(jpd.installerOutputDir)
+            Util.cleanupTempFiles(jpd.imageOutputDir)
             execResult.assertNormalExitValue()
             execResult.rethrowFailure()
         }

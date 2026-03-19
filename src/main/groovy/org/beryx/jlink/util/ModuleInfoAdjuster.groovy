@@ -30,13 +30,10 @@ import java.util.regex.Pattern
 class ModuleInfoAdjuster {
     private static final Logger LOGGER = Logging.getLogger(ModuleInfoAdjuster.class);
 
-    final File dirOrJar
-
     final String mergedModule
     final List<String> nonModularModules = []
 
     ModuleInfoAdjuster(String mergedModule, List<String> nonModularModules) {
-        this.dirOrJar = dirOrJar
         this.mergedModule = mergedModule
         this.nonModularModules = nonModularModules
     }

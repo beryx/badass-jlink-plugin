@@ -1,0 +1,27 @@
+plugins {
+    id 'org.beryx.jlink'
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+    }
+}
+
+dependencies {
+    implementation project(':primary')
+    implementation project(':secondary')
+}
+
+jlink {
+    moduleName = 'primary'
+    mainClass = 'primary.Main'
+    launcher {
+        name = 'primary'
+    }
+    secondaryLauncher {
+        name = 'secondary'
+        moduleName = 'secondary'
+        mainClass = 'secondary.Main'
+    }
+}

@@ -17,7 +17,6 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
-import org.beryx.jlink.JlinkTask
 import org.gradle.api.GradleException
 import org.gradle.api.logging.Logger
 import org.gradle.api.logging.Logging
@@ -38,8 +37,7 @@ class JPackageTaskData extends BaseTaskData {
     String projectVersion
     File projectArchiveFile
 
-    void configureRuntimeImageDir(JlinkTask jlinkTask) {
-        def jlinkPlatforms = jlinkTask.targetPlatforms
+    void configureRuntimeImageDir(Map<String, TargetPlatform> jlinkPlatforms, File imageDir) {
         if(jpackageData.targetPlatformName) {
             if(!jlinkPlatforms.isEmpty()) {
                 if(!jlinkPlatforms.keySet().contains(jpackageData.targetPlatformName)) {
@@ -57,9 +55,9 @@ class JPackageTaskData extends BaseTaskData {
             }
         }
         if(jpackageData.targetPlatformName) {
-            runtimeImageDir = new File(jlinkTask.imageDirAsFile, "$jpackageData.launcherName-$jpackageData.targetPlatformName")
+            runtimeImageDir = new File(imageDir, "$jpackageData.launcherName-$jpackageData.targetPlatformName")
         } else {
-            runtimeImageDir = jlinkTask.imageDirAsFile
+            runtimeImageDir = imageDir
         }
         LOGGER.info("runtimeImageDir: $runtimeImageDir")
     }
