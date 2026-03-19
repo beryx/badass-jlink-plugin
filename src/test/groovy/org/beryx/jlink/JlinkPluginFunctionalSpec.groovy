@@ -53,7 +53,7 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
                 .build();
 
         then:
-        checkOutput(result, 'hello-toolchain', 'LOG: line from: (30,80) to: (20,50)')
+        checkOutput(result, 'hello-toolchain', 'line from: (30,80) to: (20,50)')
     }
 
     def "should adjust qualified opens in module-info"() {
