@@ -22,13 +22,13 @@ class KotlinDslFunctionalSpec extends AbstractJlinkPluginTest {
     def "should support Kotlin-DSL"() {
         when:
         setUpBuild('kotlin-dsl')
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('8.14.4')
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
-                .build();
+        );
 
         then:
         checkOutput(result, 'hello', 'Hello, world!')
@@ -37,13 +37,13 @@ class KotlinDslFunctionalSpec extends AbstractJlinkPluginTest {
     def "should create image of project with multiple launchers using kotlin DSL"() {
         when:
         setUpBuild('multi-launch-kotlin-dsl')
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withGradleVersion('8.14.4')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
-                .build();
+        );
 
         then:
         checkOutput(result, 'hello', 'Hello, world!')

@@ -16,6 +16,7 @@
 package org.beryx.jlink
 
 import org.gradle.testkit.runner.BuildResult
+import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import spock.lang.Specification
 import spock.lang.TempDir
@@ -89,5 +90,21 @@ abstract class AbstractJlinkPluginTest extends Specification {
         assert outputText.trim() == expectedOutput
 
         true
+    }
+
+    protected BuildResult runGradleWithLockRetry(GradleRunner runner, int maxAttempts = 3) {
+        int attempt = 0
+        while (attempt++ < maxAttempts) {
+            try {
+                return runner.build()
+            } catch (Exception e) {
+                def buildOutput = e.hasProperty('buildResult') ? e.buildResult?.output : ''
+                def lockFailure = (e.message ?: '').contains('Timeout waiting to lock Generated Gradle JARs cache') ||
+                        (buildOutput ?: '').contains('Timeout waiting to lock Generated Gradle JARs cache')
+                if (!lockFailure || attempt >= maxAttempts) throw e
+                Thread.sleep(1000L * attempt)
+            }
+        }
+        throw new IllegalStateException('Unexpected retry flow.')
     }
 }
