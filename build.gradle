@@ -2,14 +2,18 @@ import groovy.text.SimpleTemplateEngine
 import org.kohsuke.github.GitHub
 
 buildscript {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
     dependencies {
         classpath 'org.kohsuke:github-api:1.330'
+        classpath 'org.ysb33r.gradle:grolifant-herd:4.0.0'
     }
 }
-
 plugins {
     id 'groovy'
-    id 'com.gradleup.shadow' version '8.3.10'
+    id 'com.gradleup.shadow' version '9.4.0'
     id 'com.gradle.plugin-publish' version '2.1.0'
     id 'com.github.ethankhall.semantic-versioning' version '1.1.0'
     id 'com.github.ben-manes.versions' version '0.53.0'
@@ -33,9 +37,9 @@ def badassJlinkPluginTag = pluginReleaseBuild ? "v$project.version" : 'master'
 group = 'org.beryx'
 
 license {
-    header file('license-header.txt')
-    skipExistingHeaders true
-    ignoreFailures false
+    header = file('license-header.txt')
+    skipExistingHeaders = true
+    ignoreFailures = false
     excludes(['**/*.properties', '**/*.txt', '**/hello*/', '**/opens-to-jaxb*/', '**/local-deps*/', '**/multi-launch*/', '**/kotlin-dsl/', '**/name-ignored/', '**/secondary-launcher-module/', '**/case-insensitive-launchers/'])
     tasks.license.dependsOn licenseMain, licenseTest
 }
@@ -52,6 +56,7 @@ dependencies {
     implementation 'org.ow2.asm:asm:9.9.1'
 
     testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     asciidoctorExt 'com.bmuschko:asciidoctorj-tabbed-code-extension:0.3'
 }
