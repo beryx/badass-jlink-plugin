@@ -36,7 +36,7 @@ license {
     header file('license-header.txt')
     skipExistingHeaders true
     ignoreFailures false
-    excludes(['**/*.properties', '**/*.txt', '**/hello*/', '**/opens-to-jaxb*/', '**/local-deps*/', '**/multi-launch*/', '**/kotlin-dsl/', '**/name-ignored/', '**/secondary-launcher-module/'])
+    excludes(['**/*.properties', '**/*.txt', '**/hello*/', '**/opens-to-jaxb*/', '**/local-deps*/', '**/multi-launch*/', '**/kotlin-dsl/', '**/name-ignored/', '**/secondary-launcher-module/', '**/case-insensitive-launchers/'])
     tasks.license.dependsOn licenseMain, licenseTest
 }
 
