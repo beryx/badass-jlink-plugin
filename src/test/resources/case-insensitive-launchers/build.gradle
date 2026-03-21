@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'org.beryx.jlink'
+}
+
+group 'org.example'
+version '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainModule = 'test'
+    mainClass = 'test.Main'
+}
+
+jlink {
+    launcher {
+        name = 'viewer'
+    }
+    jpackage {
+        imageName = 'Viewer'
+    }
+}

@@ -76,7 +76,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
 
     private void deleteDefaultLauncher() {
         def jpd = td.jpackageData
-        if (jpd.launcherName && jpd.launcherName != jpd.imageName) {
+        if (jpd.launcherName && !jpd.launcherName.equalsIgnoreCase(jpd.imageName)) {
             def imageOutputDir = jpd.imageOutputDir
             def imageName = jpd.imageName
             def os = org.gradle.internal.os.OperatingSystem.current()
@@ -108,7 +108,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                     launcher.appVersion, launcher.icon, launcher.winConsole, propFiles)
             propFiles[launcher.name] = propFile
         }
-        if (jpd.launcherName && jpd.launcherName != jpd.imageName) {
+        if (jpd.launcherName && !jpd.launcherName.equalsIgnoreCase(jpd.imageName)) {
             def propFile = createPropFile(jpd.launcherName, td.moduleName, td.mainClass,
                     jpd.args.get(), jpd.jvmArgs.get(),
                     jpd.getAppVersion(), jpd.getIcon(), null, propFiles)

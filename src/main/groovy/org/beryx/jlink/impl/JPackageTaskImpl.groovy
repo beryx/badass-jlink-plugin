@@ -53,7 +53,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         }
         def appImagePath = "$jpd.imageOutputDir/$jpd.imageName"
         def os = OperatingSystem.current()
-        if(os.windows && jpd.imageName != jpd.installerName) { // Workaround for https://github.com/beryx/badass-jlink-plugin/issues/169
+        if(os.windows && !jpd.imageName.equalsIgnoreCase(jpd.installerName)) { // Workaround for https://github.com/beryx/badass-jlink-plugin/issues/169
             def appImageExe = Paths.get(appImagePath, "${jpd.imageName}.exe")
             def newAppImageExe = Paths.get(appImagePath, "${jpd.installerName}.exe")
             LOGGER.info "Copying $appImageExe into $newAppImageExe"
@@ -120,7 +120,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                 LOGGER.error(output)
             } else {
                 LOGGER.info(output)
-                if(os.windows && jpd.imageName != jpd.installerName) { // Workaround for https://github.com/beryx/badass-jlink-plugin/issues/169
+                if(os.windows && !jpd.imageName.equalsIgnoreCase(jpd.installerName)) { // Workaround for https://github.com/beryx/badass-jlink-plugin/issues/169
                     new File("$appImagePath/${jpd.installerName}.exe").delete()
                 }
             }
