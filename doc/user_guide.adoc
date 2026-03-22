@@ -553,6 +553,25 @@ imageOptions:: list of additional options to be passed to the `jpackage` executa
     _defaultValue_: empty list +
     _usage example_: `imageOptions = ["--win-console"]`
 
+includeLocales:: list of locale tags (BCP 47) to pass to `--include-locales`. +
+    The plugin normalizes tags (for example, `EN-us` becomes `en-US`), removes duplicates, and uses the same locales for `jlink`, `jpackageImage`, and `jpackage`. +
+    When this option is set, the plugin also ensures that `jdk.localedata` is added to the modules passed to `jlink`. +
+    _defaultValue_: empty list +
+    _usage example_: `includeLocales = ['en', 'de-DE']`
+
+includeLocalesFile:: file containing additional locale tags. +
+    The file is read as UTF-8. Tags can be separated by commas, new lines, or both. +
+    Values from this file are merged with `includeLocales`, normalized, and deduplicated. +
+    _defaultValue_: null +
+    _usage example_: `includeLocalesFile = file('src/packaging/locales.txt')`
+
+[purple]##_NOTE_##: Locale tags must be valid BCP 47 tags.
+The plugin rejects malformed values such as tags containing `_`, leading/trailing `-`, or `--`.
+If invalid tags are found, the build fails and reports all invalid values and their source (`includeLocales` or `includeLocalesFile`).
+
+[purple]##_NOTE_##: If `imageOptions`, `installerOptions`, or `jlink.options` already contain `--include-locales`,
+those explicit command-line options take precedence over `includeLocales` and `includeLocalesFile`.
+
 resourceDir:: the directory passed as argument to the `--resource-dir` option when running `jpackage` to create an application installer.
 It is also applicable when creating an application image when you want your own application image instead of the default java image. +
     _usage example_: `resourceDir = file("$buildDir/my-packaging-resources")`
@@ -631,6 +650,8 @@ jlink {
         // installerOutputDir = file("$buildDir/my-packaging-installer")
         imageName = 'MyApp'
         imageOptions = ['--win-console']
+        includeLocales = ['en', 'de-DE']
+        includeLocalesFile = file('src/packaging/locales.txt')
         skipInstaller = false
         installerName = 'MyApp'
         installerType = 'msi'
@@ -652,6 +673,8 @@ jlink {
         // installerOutputDir = file("$buildDir/my-packaging-installer")
         imageName = "MyApp"
         imageOptions = listOf("--win-console")
+        includeLocales = listOf("en", "de-DE")
+        includeLocalesFile = file("src/packaging/locales.txt")
         skipInstaller = false
         installerName = "MyApp"
         installerType = "msi"
