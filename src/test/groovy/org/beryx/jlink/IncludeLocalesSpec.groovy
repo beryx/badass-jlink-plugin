@@ -70,6 +70,7 @@ class IncludeLocalesSpec extends Specification {
             execResult
         }
         commandLine.containsAll(['--include-locales', 'en,de'])
+        modulesArg(commandLine).contains('jdk.localedata')
     }
 
     def "jlink should not add include-locales option when not configured"() {
@@ -106,6 +107,44 @@ class IncludeLocalesSpec extends Specification {
             execResult
         }
         !commandLine.contains('--include-locales')
+        !modulesArg(commandLine).contains('jdk.localedata')
+    }
+
+    def "jlink should not duplicate jdk.localedata when already present"() {
+        given:
+        def jdkHome = prepareFakeJdk(tmpDir.resolve('jdk-jlink-localedata').toFile(), 'jlink')
+        def jlinkJarsDir = tmpDir.resolve('jlink-jars-localedata').toFile()
+        jlinkJarsDir.mkdirs()
+        def imageDir = tmpDir.resolve('image-localedata').toFile()
+
+        def taskData = new JlinkTaskData(
+                javaHome: jdkHome.absolutePath,
+                jlinkJarsDir: jlinkJarsDir,
+                customImageData: new CustomImageData(),
+                imageModules: ['java.base', 'jdk.localedata'],
+                includeLocales: ['en', 'de'],
+                options: []
+        )
+
+        List<String> commandLine = []
+        def execOperations = Mock(ExecOperations)
+        def fileSystemOperations = Mock(FileSystemOperations)
+        def execResult = dummyExecResult()
+
+        when:
+        new JlinkTaskImpl(fileSystemOperations, execOperations, taskData)
+                .runJlink(imageDir, jdkHome.absolutePath, [], [])
+
+        then:
+        1 * fileSystemOperations.delete(_ as Action)
+        1 * execOperations.exec(_ as Action) >> { Action action ->
+            def spec = new Expando()
+            action.execute(spec)
+            commandLine = spec.commandLine as List<String>
+            execResult
+        }
+        def modules = modulesArg(commandLine).split(',').findAll()
+        modules.count { it == 'jdk.localedata' } == 1
     }
 
     def "jpackage image should add include-locales option when configured"() {
@@ -242,6 +281,12 @@ class IncludeLocalesSpec extends Specification {
                 assertNormalExitValue: { -> null },
                 rethrowFailure: { -> null }
         ] as ExecResult
+    }
+
+    private static String modulesArg(List<String> commandLine) {
+        def idx = commandLine.indexOf('--add-modules')
+        if(idx < 0 || idx + 1 >= commandLine.size()) return ''
+        commandLine[idx + 1]
     }
 
     private static File prepareFakeJdk(File jdkHome, String executable) {
