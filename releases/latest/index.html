@@ -1022,6 +1022,35 @@ It&#8217;s recommended to use the same value as for the <strong>installerName</s
 <em>defaultValue</em>: empty list<br>
 <em>usage example</em>: <code>imageOptions = ["--win-console"]</code></p>
 </dd>
+<dt class="hdlist1">includeLocales</dt>
+<dd>
+<p>list of locale tags (BCP 47) to pass to <code>--include-locales</code>.<br>
+The plugin normalizes tags (for example, <code>EN-us</code> becomes <code>en-US</code>), removes duplicates, and uses the same locales for <code>jlink</code>, <code>jpackageImage</code>, and <code>jpackage</code>.<br>
+When this option is set, the plugin also ensures that <code>jdk.localedata</code> is added to the modules passed to <code>jlink</code>.<br>
+<em>defaultValue</em>: empty list<br>
+<em>usage example</em>: <code>includeLocales = ['en', 'de-DE']</code></p>
+</dd>
+<dt class="hdlist1">includeLocalesFile</dt>
+<dd>
+<p>file containing additional locale tags.<br>
+The file is read as UTF-8. Tags can be separated by commas, new lines, or both.<br>
+Values from this file are merged with <code>includeLocales</code>, normalized, and deduplicated.<br>
+<em>defaultValue</em>: null<br>
+<em>usage example</em>: <code>includeLocalesFile = file('src/packaging/locales.txt')</code></p>
+</dd>
+</dl>
+</div>
+<div class="paragraph">
+<p><span class="purple"><em>NOTE</em></span>: Locale tags must be valid BCP 47 tags.
+The plugin rejects malformed values such as tags containing <code>_</code>, leading/trailing <code>-</code>, or <code>--</code>.
+If invalid tags are found, the build fails and reports all invalid values and their source (<code>includeLocales</code> or <code>includeLocalesFile</code>).</p>
+</div>
+<div class="paragraph">
+<p><span class="purple"><em>NOTE</em></span>: If <code>imageOptions</code>, <code>installerOptions</code>, or <code>jlink.options</code> already contain <code>--include-locales</code>,
+those explicit command-line options take precedence over <code>includeLocales</code> and <code>includeLocalesFile</code>.</p>
+</div>
+<div class="dlist">
+<dl>
 <dt class="hdlist1">resourceDir</dt>
 <dd>
 <p>the directory passed as argument to the <code>--resource-dir</code> option when running <code>jpackage</code> to create an application installer.
@@ -1151,6 +1180,8 @@ If your project is on GitHub, you can automate this by using GitHub Actions, as 
         <span class="comment">// installerOutputDir = file(&quot;$buildDir/my-packaging-installer&quot;)</span>
         imageName = <span class="string"><span class="delimiter">'</span><span class="content">MyApp</span><span class="delimiter">'</span></span>
         imageOptions = [<span class="string"><span class="delimiter">'</span><span class="content">--win-console</span><span class="delimiter">'</span></span>]
+        includeLocales = [<span class="string"><span class="delimiter">'</span><span class="content">en</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">de-DE</span><span class="delimiter">'</span></span>]
+        includeLocalesFile = file(<span class="string"><span class="delimiter">'</span><span class="content">src/packaging/locales.txt</span><span class="delimiter">'</span></span>)
         skipInstaller = <span class="predefined-constant">false</span>
         installerName = <span class="string"><span class="delimiter">'</span><span class="content">MyApp</span><span class="delimiter">'</span></span>
         installerType = <span class="string"><span class="delimiter">'</span><span class="content">msi</span><span class="delimiter">'</span></span>
@@ -1172,6 +1203,8 @@ If your project is on GitHub, you can automate this by using GitHub Actions, as 
         // installerOutputDir = file(&quot;$buildDir/my-packaging-installer&quot;)
         imageName = &quot;MyApp&quot;
         imageOptions = listOf(&quot;--win-console&quot;)
+        includeLocales = listOf(&quot;en&quot;, &quot;de-DE&quot;)
+        includeLocalesFile = file(&quot;src/packaging/locales.txt&quot;)
         skipInstaller = false
         installerName = &quot;MyApp&quot;
         installerType = &quot;msi&quot;
