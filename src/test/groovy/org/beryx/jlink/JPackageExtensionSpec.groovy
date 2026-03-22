@@ -167,4 +167,36 @@ class JPackageExtensionSpec extends Specification {
         then:
         result.output.contains('BUILD SUCCESSFUL')
     }
+
+    def "should allow configuring includeLocalesFile on jpackage extension"() {
+        given:
+        def localesFile = testProjectDir.resolve('locales.txt').toFile()
+        localesFile.text = 'en, de'
+        def buildFile = testProjectDir.resolve('build.gradle').toFile()
+        buildFile << """
+            plugins {
+                id 'java'
+                id 'org.beryx.jlink'
+            }
+            jpackage {
+                includeLocalesFile = file('locales.txt')
+            }
+            task checkIncludeLocalesFile {
+                doLast {
+                    assert jpackage.includeLocalesFile.name == 'locales.txt'
+                    assert jpackage.effectiveIncludeLocales == ['en', 'de']
+                }
+            }
+        """.stripIndent()
+
+        when:
+        BuildResult result = GradleRunner.create()
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withArguments('checkIncludeLocalesFile')
+                .build()
+
+        then:
+        result.output.contains('BUILD SUCCESSFUL')
+    }
 }

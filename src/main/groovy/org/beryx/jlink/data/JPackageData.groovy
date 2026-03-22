@@ -17,13 +17,17 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
+
+import java.nio.charset.StandardCharsets
 
 @CompileStatic
 @ToString(includeNames = true)
@@ -53,6 +57,7 @@ class JPackageData {
     final ListProperty<String> installerOptions
     @Input
     final ListProperty<String> includeLocales
+    final RegularFileProperty includeLocalesFile
     @Input
     final ListProperty<String> args
     @Input
@@ -102,6 +107,7 @@ class JPackageData {
 
         installerOptions = project.objects.listProperty(String).empty()
         includeLocales = project.objects.listProperty(String).empty()
+        includeLocalesFile = project.objects.fileProperty()
 
         args = project.objects.listProperty(String)
         args.convention(launcherData.getEffectiveArgs(project))
@@ -148,7 +154,8 @@ class JPackageData {
         this.imageName.set(imageName)
     }
 
-    @InputDirectory @Optional
+    @InputDirectory
+    @Optional
     File getResourceDir() {
         resourceDir.asFile.getOrNull()
     }
@@ -157,7 +164,8 @@ class JPackageData {
         this.resourceDir.set(project.file(resourceDir))
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     String getTargetPlatformName() {
         targetPlatformName.getOrNull()
     }
@@ -180,7 +188,8 @@ class JPackageData {
         this.skipInstaller.set(skipInstaller)
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     String getInstallerType() {
         installerType.getOrNull()
     }
@@ -207,7 +216,8 @@ class JPackageData {
         this.installerName.set(installerName)
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     String getAppVersion() {
         appVersion.getOrNull()
     }
@@ -225,7 +235,8 @@ class JPackageData {
         this.vendor.set(vendor)
     }
 
-    @Input @Optional
+    @Input
+    @Optional
     String getIcon() {
         icon.getOrNull()
     }
@@ -236,6 +247,64 @@ class JPackageData {
 
     void setIncludeLocales(List<String> includeLocales) {
         this.includeLocales.set(includeLocales)
+    }
+
+    @InputFile
+    @Optional
+    File getIncludeLocalesFile() {
+        includeLocalesFile.asFile.getOrNull()
+    }
+
+    void setIncludeLocalesFile(Object includeLocalesFile) {
+        this.includeLocalesFile.set(project.file(includeLocalesFile))
+    }
+
+    @Internal
+    List<String> getEffectiveIncludeLocales() {
+        final List<String> normalized = []
+        final List<String> invalid = []
+        includeLocales.getOrElse([]).each { tag ->
+            addLocaleTag(tag, 'includeLocales', normalized, invalid)
+        }
+        String fileSource = "includeLocalesFile (${includeLocalesFile.getOrNull()?.asFile})"
+        readLocalesFromFile().each { tag ->
+            addLocaleTag(tag, fileSource, normalized, invalid)
+        }
+        if (!invalid.empty) {
+            throw new GradleException("Invalid locale tag(s): ${invalid.join(', ')}. Locale tags must be valid BCP 47 tags.")
+        }
+        return new ArrayList<String>(new LinkedHashSet<String>(normalized))
+    }
+
+    private List<String> readLocalesFromFile() {
+        File file = getIncludeLocalesFile()
+        if (!file) return []
+        if (!file.file) {
+            throw new GradleException("Configured includeLocalesFile does not exist: $file")
+        }
+        file.getText(StandardCharsets.UTF_8.name())
+                .split(/[,\r\n]/)
+                .collect { it.trim() }
+                .findAll { it }
+    }
+
+    private static void addLocaleTag(String tag, String source, List<String> normalized, List<String> invalid) {
+        def normalizedTag = normalizeLocaleTag(tag)
+        if (normalizedTag) {
+            normalized << normalizedTag
+        } else {
+            invalid << (tag + " (" + source + ")")
+        }
+    }
+
+    private static String normalizeLocaleTag(String tag) {
+        if (!tag) return null
+        if (tag.contains('_')) return null
+        if (tag.startsWith('-') || tag.endsWith('-') || tag.contains('--')) return null
+        Locale locale = Locale.forLanguageTag(tag)
+        String normalizedTag = locale.toLanguageTag()
+        if ('und' == normalizedTag && !'und'.equalsIgnoreCase(tag)) return null
+        normalizedTag
     }
 
     @Input
@@ -255,26 +324,26 @@ class JPackageData {
     @Internal
     String getDefaultJPackageHome() {
         def value = System.properties['badass.jlink.jpackage.home']
-        if(value) return value
+        if (value) return value
         value = System.getenv('BADASS_JLINK_JPACKAGE_HOME')
-        if(value) return value
+        if (value) return value
 
         def jpackageHomeFolder = javaHomeProvider.getOrNull()?.asFile
         if (!jpackageHomeFolder) {
             value = System.properties['badass.jlink.java.home']
-            if(value) jpackageHomeFolder = new File(value.toString())
+            if (value) jpackageHomeFolder = new File(value.toString())
         }
         if (!jpackageHomeFolder) {
             value = System.getenv('BADASS_JLINK_JAVA_HOME')
-            if(value) jpackageHomeFolder = new File(value.toString())
+            if (value) jpackageHomeFolder = new File(value.toString())
         }
         if (!jpackageHomeFolder) {
             value = System.properties['java.home']
-            if(value) jpackageHomeFolder = new File(value.toString())
+            if (value) jpackageHomeFolder = new File(value.toString())
         }
         if (!jpackageHomeFolder) {
             value = System.getenv('JAVA_HOME')
-            if(value) jpackageHomeFolder = new File(value.toString())
+            if (value) jpackageHomeFolder = new File(value.toString())
         }
         if (!jpackageHomeFolder) return null
 

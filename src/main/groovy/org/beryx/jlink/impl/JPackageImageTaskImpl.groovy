@@ -167,7 +167,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             *iconOpts,
             '--runtime-image', td.runtimeImageDir,
             *resourceOpts,
-            *includeLocalesOption(jpd.includeLocales.get(), jpd.imageOptions.get()),
+            *includeLocalesOption(jpd.effectiveIncludeLocales, jpd.imageOptions.get()),
             *(jpd.jvmArgs.get() ? jpd.jvmArgs.get().collect { ['--java-options', adjustArg(it)] }.flatten() : []),
             *(jpd.args.get() ? jpd.args.get().collect { ['--arguments', adjustArg(it)] }.flatten() : []),
             *(propFiles ? propFiles.collect { ['--add-launcher', it.key + '=' + it.value.absolutePath] }.flatten() : []),

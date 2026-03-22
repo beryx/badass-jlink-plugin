@@ -24,6 +24,7 @@ import org.beryx.jlink.impl.JPackageImageTaskImpl
 import org.beryx.jlink.impl.JPackageTaskImpl
 import org.beryx.jlink.impl.JlinkTaskImpl
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.process.ExecOperations
 import org.gradle.process.ExecResult
@@ -49,6 +50,86 @@ class IncludeLocalesSpec extends Specification {
                 customImageData: new CustomImageData(),
                 imageModules: ['java.base'],
                 includeLocales: ['en', 'de'],
+                options: []
+        )
+
+        List<String> commandLine = []
+        def execOperations = Mock(ExecOperations)
+        def fileSystemOperations = Mock(FileSystemOperations)
+        def execResult = dummyExecResult()
+
+        when:
+        new JlinkTaskImpl(fileSystemOperations, execOperations, taskData)
+                .runJlink(imageDir, jdkHome.absolutePath, [], [])
+
+        then:
+        1 * fileSystemOperations.delete(_ as Action)
+        1 * execOperations.exec(_ as Action) >> { Action action ->
+            def spec = new Expando()
+            action.execute(spec)
+            commandLine = spec.commandLine as List<String>
+            execResult
+        }
+        commandLine.containsAll(['--include-locales', 'en,de'])
+        modulesArg(commandLine).contains('jdk.localedata')
+    }
+
+    def "should merge includeLocales with locales read from file"() {
+        given:
+        def projectDir = tmpDir.resolve('project-merge').toFile()
+        projectDir.mkdirs()
+        def project = ProjectBuilder.builder().withProjectDir(projectDir).build()
+        def localesFile = new File(projectDir, 'locales.txt')
+        localesFile.text = 'en, de\nfr'
+        def jpackageData = new JPackageData(project, new LauncherData('app'), project.layout.buildDirectory)
+        jpackageData.includeLocales = ['es', 'de']
+        jpackageData.includeLocalesFile = localesFile
+
+        expect:
+        jpackageData.effectiveIncludeLocales == ['es', 'de', 'en', 'fr']
+    }
+
+    def "should fail for invalid locale tags from includeLocales and file"() {
+        given:
+        def projectDir = tmpDir.resolve('project-invalid').toFile()
+        projectDir.mkdirs()
+        def project = ProjectBuilder.builder().withProjectDir(projectDir).build()
+        def localesFile = new File(projectDir, 'locales.txt')
+        localesFile.text = 'de_DE, en--US'
+        def jpackageData = new JPackageData(project, new LauncherData('app'), project.layout.buildDirectory)
+        jpackageData.includeLocales = ['fr--CA']
+        jpackageData.includeLocalesFile = localesFile
+
+        when:
+        jpackageData.effectiveIncludeLocales
+
+        then:
+        def ex = thrown(GradleException)
+        ex.message.contains('Invalid locale tag(s)')
+        ex.message.contains('fr--CA')
+        ex.message.contains('de_DE')
+    }
+
+    def "jlink should use locales from file when configured"() {
+        given:
+        def projectDir = tmpDir.resolve('project-jlink-file').toFile()
+        projectDir.mkdirs()
+        def project = ProjectBuilder.builder().withProjectDir(projectDir).build()
+        def localesFile = new File(projectDir, 'locales.txt')
+        localesFile.text = 'en, de'
+        def jpackageData = new JPackageData(project, new LauncherData('app'), project.layout.buildDirectory)
+        jpackageData.includeLocalesFile = localesFile
+
+        def jdkHome = prepareFakeJdk(tmpDir.resolve('jdk-jlink-file').toFile(), 'jlink')
+        def jlinkJarsDir = tmpDir.resolve('jlink-jars-file').toFile()
+        jlinkJarsDir.mkdirs()
+        def imageDir = tmpDir.resolve('image-file').toFile()
+        def taskData = new JlinkTaskData(
+                javaHome: jdkHome.absolutePath,
+                jlinkJarsDir: jlinkJarsDir,
+                customImageData: new CustomImageData(),
+                imageModules: ['java.base'],
+                includeLocales: jpackageData.effectiveIncludeLocales,
                 options: []
         )
 

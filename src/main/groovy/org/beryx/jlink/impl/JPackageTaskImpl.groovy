@@ -106,7 +106,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                             '--app-image', "$appImagePath",
                             *resourceOpts,
                             *iconOpts,
-                            *includeLocalesOption(jpd.includeLocales.get(), jpd.installerOptions.get()),
+                            *includeLocalesOption(jpd.effectiveIncludeLocales, jpd.installerOptions.get()),
                             *jpd.installerOptions.get()
                     ]
                 }
