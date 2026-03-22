@@ -106,6 +106,7 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                             '--app-image', "$appImagePath",
                             *resourceOpts,
                             *iconOpts,
+                            *includeLocalesOption(jpd.includeLocales.get(), jpd.installerOptions.get()),
                             *jpd.installerOptions.get()
                     ]
                 }
@@ -141,5 +142,15 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         } else {
             return ['rpm', 'deb']
         }
+    }
+
+    private static List<String> includeLocalesOption(List<String> includeLocales, List<String> existingOptions) {
+        if(hasIncludeLocalesOption(existingOptions)) return []
+        if(!includeLocales) return []
+        ['--include-locales', includeLocales.join(',')]
+    }
+
+    private static boolean hasIncludeLocalesOption(List<String> options) {
+        options.any { it?.startsWith('--include-locales') }
     }
 }

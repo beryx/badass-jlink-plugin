@@ -109,7 +109,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
                 spec.commandLine = [
                         jlinkExec,
                         '-v',
-                        *options,
+                        *effectiveOptions(options),
                         '--module-path', "$jdkHome/jmods/$additionalModulePaths$SEP$jlinkJarsDirAsPath",
                         '--add-modules', imageModules.join(','),
                         '--output', imageDir
@@ -128,6 +128,17 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         Util.cleanupTempFiles(imageDir)
         result.assertNormalExitValue()
         result.rethrowFailure()
+    }
+
+    private List<String> effectiveOptions(List<String> options) {
+        if(hasIncludeLocalesOption(options)) return options
+        def includeLocales = td.includeLocales ?: []
+        if(includeLocales.empty) return options
+        options + ['--include-locales', includeLocales.join(',')]
+    }
+
+    private static boolean hasIncludeLocalesOption(List<String> options) {
+        options.any { it?.startsWith('--include-locales') }
     }
 
     @CompileDynamic

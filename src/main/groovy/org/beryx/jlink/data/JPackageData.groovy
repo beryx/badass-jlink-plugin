@@ -52,6 +52,8 @@ class JPackageData {
     @Input
     final ListProperty<String> installerOptions
     @Input
+    final ListProperty<String> includeLocales
+    @Input
     final ListProperty<String> args
     @Input
     final ListProperty<String> jvmArgs
@@ -99,6 +101,7 @@ class JPackageData {
         icon = project.objects.property(String)
 
         installerOptions = project.objects.listProperty(String).empty()
+        includeLocales = project.objects.listProperty(String).empty()
 
         args = project.objects.listProperty(String)
         args.convention(launcherData.getEffectiveArgs(project))
@@ -229,6 +232,10 @@ class JPackageData {
 
     void setIcon(String icon) {
         this.icon.set(icon)
+    }
+
+    void setIncludeLocales(List<String> includeLocales) {
+        this.includeLocales.set(includeLocales)
     }
 
     @Input
