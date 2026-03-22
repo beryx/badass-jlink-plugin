@@ -73,6 +73,17 @@ abstract class JlinkTask extends BaseTask {
     }
 
     @Input
+    List<String> getIncludeLocales() {
+        extension.jpackageData.get().effectiveIncludeLocales
+    }
+
+    @InputFile
+    @Optional
+    File getIncludeLocalesFile() {
+        extension.jpackageData.get().includeLocalesFile
+    }
+
+    @Input
     List<String> getExtraModulePaths() {
         extension.extraModulePaths.get()
     }
@@ -159,6 +170,7 @@ abstract class JlinkTask extends BaseTask {
         taskData.customImageData = customImageData
         taskData.mainClass = effectiveMainClassProperty.get()
         taskData.options = options
+        taskData.includeLocales = includeLocales
         taskData.extraModulePaths = extraModulePaths
         taskData.javaHome = javaHome
         taskData.targetPlatforms = targetPlatforms

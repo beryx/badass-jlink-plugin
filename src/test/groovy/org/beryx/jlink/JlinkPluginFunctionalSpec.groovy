@@ -98,13 +98,13 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
     def "should create runtime image of project with BOM"() {
         when:
         File buildFile = setUpBuild('hello-bom')
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withGradleVersion('8.14.4')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
-                .build();
+        );
 
         then:
         checkOutput(result, 'helloBom', '{"from":"Alice","to":"Bob","greeting":"Hello"}')

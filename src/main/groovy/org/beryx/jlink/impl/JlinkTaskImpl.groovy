@@ -31,6 +31,7 @@ import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 @CompileStatic
 class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     private static final Logger LOGGER = Logging.getLogger(JlinkTaskImpl.class);
+    private static final String LOCALE_DATA_MODULE = 'jdk.localedata'
 
     static class ModuleData {
         String name
@@ -42,6 +43,7 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
     final ExecOperations execOperations
 
     Collection<String> imageModules
+    private boolean localeDataModuleMessageShown = false
 
     JlinkTaskImpl( FileSystemOperations fileSystemOperations, ExecOperations execOperations, JlinkTaskData taskData) {
         super(taskData)
@@ -109,9 +111,9 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
                 spec.commandLine = [
                         jlinkExec,
                         '-v',
-                        *options,
+                        *effectiveOptions(options),
                         '--module-path', "$jdkHome/jmods/$additionalModulePaths$SEP$jlinkJarsDirAsPath",
-                        '--add-modules', imageModules.join(','),
+                        '--add-modules', effectiveImageModules().join(','),
                         '--output', imageDir
                 ]
             }
@@ -128,6 +130,30 @@ class JlinkTaskImpl extends BaseTaskImpl<JlinkTaskData> {
         Util.cleanupTempFiles(imageDir)
         result.assertNormalExitValue()
         result.rethrowFailure()
+    }
+
+    private List<String> effectiveOptions(List<String> options) {
+        if(hasIncludeLocalesOption(options)) return options
+        def includeLocales = td.includeLocales ?: []
+        if(includeLocales.empty) return options
+        options + ['--include-locales', includeLocales.join(',')]
+    }
+
+    private Collection<String> effectiveImageModules() {
+        def includeLocales = td.includeLocales ?: []
+        if(includeLocales.empty) return imageModules
+        if(imageModules.contains(LOCALE_DATA_MODULE)) return imageModules
+        if(!localeDataModuleMessageShown) {
+            LOGGER.lifecycle("Added module '$LOCALE_DATA_MODULE' because includeLocales is configured.")
+            localeDataModuleMessageShown = true
+        }
+        def modules = new LinkedHashSet<String>(imageModules)
+        modules.add(LOCALE_DATA_MODULE)
+        modules
+    }
+
+    private static boolean hasIncludeLocalesOption(List<String> options) {
+        options.any { it?.startsWith('--include-locales') }
     }
 
     @CompileDynamic

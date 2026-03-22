@@ -29,6 +29,7 @@ class JlinkTaskData extends BaseTaskData {
     List<SecondaryLauncherData> secondaryLaunchers
     String mainClass
     List<String> options
+    List<String> includeLocales
     String javaHome
     Map<String,TargetPlatform> targetPlatforms
     File jlinkJarsDir
