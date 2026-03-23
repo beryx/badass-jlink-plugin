@@ -167,22 +167,11 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             *iconOpts,
             '--runtime-image', td.runtimeImageDir,
             *resourceOpts,
-            *includeLocalesOption(jpd.effectiveIncludeLocales, jpd.imageOptions.get()),
             *(jpd.jvmArgs.get() ? jpd.jvmArgs.get().collect { ['--java-options', adjustArg(it)] }.flatten() : []),
             *(jpd.args.get() ? jpd.args.get().collect { ['--arguments', adjustArg(it)] }.flatten() : []),
             *(propFiles ? propFiles.collect { ['--add-launcher', it.key + '=' + it.value.absolutePath] }.flatten() : []),
             *jpd.imageOptions.get()
         ]
-    }
-
-    private static List<String> includeLocalesOption(List<String> includeLocales, List<String> existingOptions) {
-        if(hasIncludeLocalesOption(existingOptions)) return []
-        if(!includeLocales) return []
-        ['--include-locales', includeLocales.join(',')]
-    }
-
-    private static boolean hasIncludeLocalesOption(List<String> options) {
-        options.any { it?.startsWith('--include-locales') }
     }
 
     private File createPropFile(String name, String moduleName, String mainClass, List<String> args, List<String> jvmArgs, String appVersion, String icon, Boolean winConsole, Map<String, File> propFiles) {

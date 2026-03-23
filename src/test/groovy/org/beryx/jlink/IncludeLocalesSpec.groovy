@@ -228,7 +228,7 @@ class IncludeLocalesSpec extends Specification {
         modules.count { it == 'jdk.localedata' } == 1
     }
 
-    def "jpackage image should add include-locales option when configured"() {
+    def "jpackage image should not add include-locales option when configured"() {
         given:
         def projectDir = tmpDir.resolve('project-image').toFile()
         projectDir.mkdirs()
@@ -270,7 +270,7 @@ class IncludeLocalesSpec extends Specification {
             commandLine = spec.commandLine as List<String>
             execResult
         }
-        commandLine.containsAll(['--include-locales', 'en,de'])
+        !commandLine.contains('--include-locales')
     }
 
     def "jpackage image should not add include-locales option when not configured"() {
@@ -317,7 +317,7 @@ class IncludeLocalesSpec extends Specification {
         !commandLine.contains('--include-locales')
     }
 
-    def "jpackage installer should add include-locales option when configured"() {
+    def "jpackage installer should not add include-locales option when configured"() {
         given:
         def projectDir = tmpDir.resolve('project-installer').toFile()
         projectDir.mkdirs()
@@ -353,7 +353,7 @@ class IncludeLocalesSpec extends Specification {
             commandLine = spec.commandLine as List<String>
             execResult
         }
-        commandLine.containsAll(['--include-locales', 'en,de'])
+        !commandLine.contains('--include-locales')
     }
 
     private static ExecResult dummyExecResult() {

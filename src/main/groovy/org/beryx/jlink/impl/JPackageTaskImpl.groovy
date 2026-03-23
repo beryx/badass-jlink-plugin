@@ -106,7 +106,6 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
                             '--app-image', "$appImagePath",
                             *resourceOpts,
                             *iconOpts,
-                            *includeLocalesOption(jpd.effectiveIncludeLocales, jpd.installerOptions.get()),
                             *jpd.installerOptions.get()
                     ]
                 }
@@ -144,13 +143,4 @@ class JPackageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         }
     }
 
-    private static List<String> includeLocalesOption(List<String> includeLocales, List<String> existingOptions) {
-        if(hasIncludeLocalesOption(existingOptions)) return []
-        if(!includeLocales) return []
-        ['--include-locales', includeLocales.join(',')]
-    }
-
-    private static boolean hasIncludeLocalesOption(List<String> options) {
-        options.any { it?.startsWith('--include-locales') }
-    }
 }
