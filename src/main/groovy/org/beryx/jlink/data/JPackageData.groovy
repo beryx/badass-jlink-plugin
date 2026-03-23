@@ -17,17 +17,13 @@ package org.beryx.jlink.data
 
 import groovy.transform.CompileStatic
 import groovy.transform.ToString
-import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.Directory
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.*
-
-import java.nio.charset.StandardCharsets
 
 @CompileStatic
 @ToString(includeNames = true)
@@ -55,9 +51,6 @@ class JPackageData {
     final Property<String> icon
     @Input
     final ListProperty<String> installerOptions
-    @Input
-    final ListProperty<String> includeLocales
-    final RegularFileProperty includeLocalesFile
     @Input
     final ListProperty<String> args
     @Input
@@ -106,8 +99,6 @@ class JPackageData {
         icon = project.objects.property(String)
 
         installerOptions = project.objects.listProperty(String).empty()
-        includeLocales = project.objects.listProperty(String).empty()
-        includeLocalesFile = project.objects.fileProperty()
 
         args = project.objects.listProperty(String)
         args.convention(launcherData.getEffectiveArgs(project))
@@ -243,68 +234,6 @@ class JPackageData {
 
     void setIcon(String icon) {
         this.icon.set(icon)
-    }
-
-    void setIncludeLocales(List<String> includeLocales) {
-        this.includeLocales.set(includeLocales)
-    }
-
-    @InputFile
-    @Optional
-    File getIncludeLocalesFile() {
-        includeLocalesFile.asFile.getOrNull()
-    }
-
-    void setIncludeLocalesFile(Object includeLocalesFile) {
-        this.includeLocalesFile.set(project.file(includeLocalesFile))
-    }
-
-    @Internal
-    List<String> getEffectiveIncludeLocales() {
-        final List<String> normalized = []
-        final List<String> invalid = []
-        includeLocales.getOrElse([]).each { tag ->
-            addLocaleTag(tag, 'includeLocales', normalized, invalid)
-        }
-        String fileSource = "includeLocalesFile (${includeLocalesFile.getOrNull()?.asFile})"
-        readLocalesFromFile().each { tag ->
-            addLocaleTag(tag, fileSource, normalized, invalid)
-        }
-        if (!invalid.empty) {
-            throw new GradleException("Invalid locale tag(s): ${invalid.join(', ')}. Locale tags must be valid BCP 47 tags.")
-        }
-        return new ArrayList<String>(new LinkedHashSet<String>(normalized))
-    }
-
-    private List<String> readLocalesFromFile() {
-        File file = getIncludeLocalesFile()
-        if (!file) return []
-        if (!file.file) {
-            throw new GradleException("Configured includeLocalesFile does not exist: $file")
-        }
-        file.getText(StandardCharsets.UTF_8.name())
-                .split(/[,\r\n]/)
-                .collect { it.trim() }
-                .findAll { it }
-    }
-
-    private static void addLocaleTag(String tag, String source, List<String> normalized, List<String> invalid) {
-        def normalizedTag = normalizeLocaleTag(tag)
-        if (normalizedTag) {
-            normalized << normalizedTag
-        } else {
-            invalid << (tag + " (" + source + ")")
-        }
-    }
-
-    private static String normalizeLocaleTag(String tag) {
-        if (!tag) return null
-        if (tag.contains('_')) return null
-        if (tag.startsWith('-') || tag.endsWith('-') || tag.contains('--')) return null
-        Locale locale = Locale.forLanguageTag(tag)
-        String normalizedTag = locale.toLanguageTag()
-        if ('und' == normalizedTag && !'und'.equalsIgnoreCase(tag)) return null
-        normalizedTag
     }
 
     @Input

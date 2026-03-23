@@ -20,18 +20,16 @@ A simple example configuration is shown below:
 ```
 jlink {
     options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']
+    includeLocales = ['en', 'de-DE']
+    includeLocalesFile = file('src/packaging/locales.txt')
     launcher{
         name = 'hello'
         jvmArgs = ['-Dlog4j.configurationFile=./log4j2.xml']
     }
-    jpackage {
-        includeLocales = ['en', 'de-DE']
-        includeLocalesFile = file('src/packaging/locales.txt')
-    }
 }
 ```
 
-`includeLocales` and `includeLocalesFile` configure locale filtering for `jlink`/`jpackage`.
+`includeLocales` and `includeLocalesFile` configure locale filtering for `jlink`.
 Tags must be valid BCP 47 locale tags and are normalized/deduplicated by the plugin.
 
 ### This is a complex plugin. Please [read the documentation](https://badass-jlink-plugin.beryx.org/releases/latest/) before using it.

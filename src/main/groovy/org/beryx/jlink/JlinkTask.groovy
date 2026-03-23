@@ -74,13 +74,13 @@ abstract class JlinkTask extends BaseTask {
 
     @Input
     List<String> getIncludeLocales() {
-        extension.jpackageData.get().effectiveIncludeLocales
+        extension.effectiveIncludeLocales
     }
 
     @InputFile
     @Optional
     File getIncludeLocalesFile() {
-        extension.jpackageData.get().includeLocalesFile
+        extension.includeLocalesFile.getOrNull()?.asFile
     }
 
     @Input

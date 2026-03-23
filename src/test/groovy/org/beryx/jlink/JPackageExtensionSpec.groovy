@@ -138,7 +138,7 @@ class JPackageExtensionSpec extends Specification {
         result.output.contains("[DEBUG_LOG] JPackageHome: ${dummyJdk.absolutePath}")
     }
 
-    def "should allow configuring includeLocales on jpackage extension"() {
+    def "should allow configuring includeLocales on jlink extension"() {
         given:
         def buildFile = testProjectDir.resolve('build.gradle').toFile()
         buildFile << """
@@ -146,13 +146,13 @@ class JPackageExtensionSpec extends Specification {
                 id 'java'
                 id 'org.beryx.jlink'
             }
-            jpackage {
+            jlink {
                 includeLocales = ['en', 'de']
             }
             task checkIncludeLocales {
                 doLast {
-                    assert jpackage.includeLocales.get() == ['en', 'de']
-                    assert jlink.jpackageData.get().includeLocales.get() == ['en', 'de']
+                    assert jlink.includeLocales.get() == ['en', 'de']
+                    assert jlink.effectiveIncludeLocales == ['en', 'de']
                 }
             }
         """.stripIndent()
@@ -168,7 +168,7 @@ class JPackageExtensionSpec extends Specification {
         result.output.contains('BUILD SUCCESSFUL')
     }
 
-    def "should allow configuring includeLocalesFile on jpackage extension"() {
+    def "should allow configuring includeLocalesFile on jlink extension"() {
         given:
         def localesFile = testProjectDir.resolve('locales.txt').toFile()
         localesFile.text = 'en, de'
@@ -178,13 +178,13 @@ class JPackageExtensionSpec extends Specification {
                 id 'java'
                 id 'org.beryx.jlink'
             }
-            jpackage {
+            jlink {
                 includeLocalesFile = file('locales.txt')
             }
             task checkIncludeLocalesFile {
                 doLast {
-                    assert jpackage.includeLocalesFile.name == 'locales.txt'
-                    assert jpackage.effectiveIncludeLocales == ['en', 'de']
+                    assert jlink.includeLocalesFile.get().asFile.name == 'locales.txt'
+                    assert jlink.effectiveIncludeLocales == ['en', 'de']
                 }
             }
         """.stripIndent()

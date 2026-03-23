@@ -18,6 +18,7 @@ package org.beryx.jlink
 import org.beryx.jlink.data.CustomImageData
 import org.beryx.jlink.data.JPackageData
 import org.beryx.jlink.data.JPackageTaskData
+import org.beryx.jlink.data.JlinkPluginExtension
 import org.beryx.jlink.data.JlinkTaskData
 import org.beryx.jlink.data.LauncherData
 import org.beryx.jlink.impl.JPackageImageTaskImpl
@@ -81,12 +82,12 @@ class IncludeLocalesSpec extends Specification {
         def project = ProjectBuilder.builder().withProjectDir(projectDir).build()
         def localesFile = new File(projectDir, 'locales.txt')
         localesFile.text = 'en, de\nfr'
-        def jpackageData = new JPackageData(project, new LauncherData('app'), project.layout.buildDirectory)
-        jpackageData.includeLocales = ['es', 'de']
-        jpackageData.includeLocalesFile = localesFile
+        def extension = new JlinkPluginExtension(project)
+        extension.includeLocales = ['es', 'de']
+        extension.includeLocalesFile = localesFile
 
         expect:
-        jpackageData.effectiveIncludeLocales == ['es', 'de', 'en', 'fr']
+        extension.effectiveIncludeLocales == ['es', 'de', 'en', 'fr']
     }
 
     def "should fail for invalid locale tags from includeLocales and file"() {
@@ -96,12 +97,12 @@ class IncludeLocalesSpec extends Specification {
         def project = ProjectBuilder.builder().withProjectDir(projectDir).build()
         def localesFile = new File(projectDir, 'locales.txt')
         localesFile.text = 'de_DE, en--US'
-        def jpackageData = new JPackageData(project, new LauncherData('app'), project.layout.buildDirectory)
-        jpackageData.includeLocales = ['fr--CA']
-        jpackageData.includeLocalesFile = localesFile
+        def extension = new JlinkPluginExtension(project)
+        extension.includeLocales = ['fr--CA']
+        extension.includeLocalesFile = localesFile
 
         when:
-        jpackageData.effectiveIncludeLocales
+        extension.effectiveIncludeLocales
 
         then:
         def ex = thrown(GradleException)
@@ -117,8 +118,8 @@ class IncludeLocalesSpec extends Specification {
         def project = ProjectBuilder.builder().withProjectDir(projectDir).build()
         def localesFile = new File(projectDir, 'locales.txt')
         localesFile.text = 'en, de'
-        def jpackageData = new JPackageData(project, new LauncherData('app'), project.layout.buildDirectory)
-        jpackageData.includeLocalesFile = localesFile
+        def extension = new JlinkPluginExtension(project)
+        extension.includeLocalesFile = localesFile
 
         def jdkHome = prepareFakeJdk(tmpDir.resolve('jdk-jlink-file').toFile(), 'jlink')
         def jlinkJarsDir = tmpDir.resolve('jlink-jars-file').toFile()
@@ -129,7 +130,7 @@ class IncludeLocalesSpec extends Specification {
                 jlinkJarsDir: jlinkJarsDir,
                 customImageData: new CustomImageData(),
                 imageModules: ['java.base'],
-                includeLocales: jpackageData.effectiveIncludeLocales,
+                includeLocales: extension.effectiveIncludeLocales,
                 options: []
         )
 
@@ -228,7 +229,7 @@ class IncludeLocalesSpec extends Specification {
         modules.count { it == 'jdk.localedata' } == 1
     }
 
-    def "jpackage image should not add include-locales option when configured"() {
+    def "jpackage image should not add include-locales option"() {
         given:
         def projectDir = tmpDir.resolve('project-image').toFile()
         projectDir.mkdirs()
@@ -239,7 +240,6 @@ class IncludeLocalesSpec extends Specification {
 
         def jpackageData = new JPackageData(project, new LauncherData('app'), project.layout.buildDirectory)
         jpackageData.jpackageHome = jdkHome.absolutePath
-        jpackageData.includeLocales = ['en', 'de']
 
         def taskData = new JPackageTaskData(
                 jlinkBasePath: tmpDir.resolve('jlinkbase').toFile().absolutePath,
@@ -317,7 +317,7 @@ class IncludeLocalesSpec extends Specification {
         !commandLine.contains('--include-locales')
     }
 
-    def "jpackage installer should not add include-locales option when configured"() {
+    def "jpackage installer should not add include-locales option"() {
         given:
         def projectDir = tmpDir.resolve('project-installer').toFile()
         projectDir.mkdirs()
@@ -329,7 +329,6 @@ class IncludeLocalesSpec extends Specification {
         def jpackageData = new JPackageData(project, new LauncherData('app'), project.layout.buildDirectory)
         jpackageData.jpackageHome = jdkHome.absolutePath
         jpackageData.installerType = 'deb'
-        jpackageData.includeLocales = ['en', 'de']
 
         def taskData = new JPackageTaskData(
                 jpackageData: jpackageData,
