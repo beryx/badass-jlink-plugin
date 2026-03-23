@@ -93,7 +93,7 @@ $(addBlockSwitches);
 <h1>The Badass JLink Plugin</h1>
 <div class="details">
 <span id="author" class="author">Serban Iordache</span><br>
-<span id="revnumber">version 4.0.0-rc</span>
+<span id="revnumber">version 4.0.0-rc2</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -189,7 +189,7 @@ For Gradle versions older than 7.0, use <a href="https://badass-jlink-plugin.ber
 <div class="listingblock">
 <div class="content">
 <pre class="CodeRay highlight nowrap"><code data-lang="groovy">plugins {
-    id 'org.beryx.jlink' version '4.0.0-rc'
+    id 'org.beryx.jlink' version '4.0.0-rc2'
 }</code></pre>
 </div>
 </div>
@@ -221,7 +221,7 @@ The sample below shows a few configuration options.</p>
 <i class="fa icon-note" title="Note"></i>
 </td>
 <td class="content">
-The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v4.0.0-rc/LICENSE">Apache-2.0 license</a>.
+The source code is available on <a href="https://github.com/beryx/badass-jlink-plugin">GitHub</a> and is licensed under the <a href="https://github.com/beryx/badass-jlink-plugin/blob/v4.0.0-rc2/LICENSE">Apache-2.0 license</a>.
 </td>
 </tr>
 </table>
@@ -357,7 +357,32 @@ You can use the suggested block as a starting point for your custom <code>merged
 <em>defaultValue</em>: empty list<br>
 <em>usage example</em>: <code>options = ['--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages']</code></p>
 </dd>
+<dt class="hdlist1">includeLocales</dt>
+<dd>
+<p>list of locale tags (BCP 47) to pass to <code>--include-locales</code>.<br>
+The plugin normalizes tags (for example, <code>EN-us</code> becomes <code>en-US</code>) and removes duplicates.<br>
+When this option is set, the plugin also ensures that <code>jdk.localedata</code> is added to the modules passed to <code>jlink</code>.<br>
+<em>defaultValue</em>: empty list<br>
+<em>usage example</em>: <code>includeLocales = ['en', 'de-DE']</code></p>
+</dd>
+<dt class="hdlist1">includeLocalesFile</dt>
+<dd>
+<p>file containing additional locale tags.<br>
+The file is read as UTF-8. Tags can be separated by commas, new lines, or both.<br>
+Values from this file are merged with <code>includeLocales</code>, normalized, and deduplicated.<br>
+<em>defaultValue</em>: null<br>
+<em>usage example</em>: <code>includeLocalesFile = file('src/packaging/locales.txt')</code></p>
+</dd>
 </dl>
+</div>
+<div class="paragraph">
+<p><span class="purple"><em>NOTE</em></span>: Locale tags must be valid BCP 47 tags.
+The plugin rejects malformed values such as tags containing <code>_</code>, leading/trailing <code>-</code>, or <code>--</code>.
+If invalid tags are found, the build fails and reports all invalid values and their source (<code>includeLocales</code> or <code>includeLocalesFile</code>).</p>
+</div>
+<div class="paragraph">
+<p><span class="purple"><em>NOTE</em></span>: If <code>jlink.options</code> already contains <code>--include-locales</code>,
+that explicit command-line option takes precedence over <code>includeLocales</code> and <code>includeLocalesFile</code>.</p>
 </div>
 <div id="javaHome" class="dlist">
 <dl>
@@ -1022,35 +1047,6 @@ It&#8217;s recommended to use the same value as for the <strong>installerName</s
 <em>defaultValue</em>: empty list<br>
 <em>usage example</em>: <code>imageOptions = ["--win-console"]</code></p>
 </dd>
-<dt class="hdlist1">includeLocales</dt>
-<dd>
-<p>list of locale tags (BCP 47) to pass to <code>--include-locales</code>.<br>
-The plugin normalizes tags (for example, <code>EN-us</code> becomes <code>en-US</code>), removes duplicates, and uses the same locales for <code>jlink</code>, <code>jpackageImage</code>, and <code>jpackage</code>.<br>
-When this option is set, the plugin also ensures that <code>jdk.localedata</code> is added to the modules passed to <code>jlink</code>.<br>
-<em>defaultValue</em>: empty list<br>
-<em>usage example</em>: <code>includeLocales = ['en', 'de-DE']</code></p>
-</dd>
-<dt class="hdlist1">includeLocalesFile</dt>
-<dd>
-<p>file containing additional locale tags.<br>
-The file is read as UTF-8. Tags can be separated by commas, new lines, or both.<br>
-Values from this file are merged with <code>includeLocales</code>, normalized, and deduplicated.<br>
-<em>defaultValue</em>: null<br>
-<em>usage example</em>: <code>includeLocalesFile = file('src/packaging/locales.txt')</code></p>
-</dd>
-</dl>
-</div>
-<div class="paragraph">
-<p><span class="purple"><em>NOTE</em></span>: Locale tags must be valid BCP 47 tags.
-The plugin rejects malformed values such as tags containing <code>_</code>, leading/trailing <code>-</code>, or <code>--</code>.
-If invalid tags are found, the build fails and reports all invalid values and their source (<code>includeLocales</code> or <code>includeLocalesFile</code>).</p>
-</div>
-<div class="paragraph">
-<p><span class="purple"><em>NOTE</em></span>: If <code>imageOptions</code>, <code>installerOptions</code>, or <code>jlink.options</code> already contain <code>--include-locales</code>,
-those explicit command-line options take precedence over <code>includeLocales</code> and <code>includeLocalesFile</code>.</p>
-</div>
-<div class="dlist">
-<dl>
 <dt class="hdlist1">resourceDir</dt>
 <dd>
 <p>the directory passed as argument to the <code>--resource-dir</code> option when running <code>jpackage</code> to create an application installer.
@@ -1173,6 +1169,8 @@ If your project is on GitHub, you can automate this by using GitHub Actions, as 
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="groovy">jlink {
     ...
+    includeLocales = [<span class="string"><span class="delimiter">'</span><span class="content">en</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">de-DE</span><span class="delimiter">'</span></span>]
+    includeLocalesFile = file(<span class="string"><span class="delimiter">'</span><span class="content">src/packaging/locales.txt</span><span class="delimiter">'</span></span>)
     jpackage {
         jpackageHome = <span class="string"><span class="delimiter">'</span><span class="content">/usr/lib/jvm/jdk17</span><span class="delimiter">'</span></span>
         outputDir = <span class="string"><span class="delimiter">'</span><span class="content">my-packaging</span><span class="delimiter">'</span></span>
@@ -1180,8 +1178,6 @@ If your project is on GitHub, you can automate this by using GitHub Actions, as 
         <span class="comment">// installerOutputDir = file(&quot;$buildDir/my-packaging-installer&quot;)</span>
         imageName = <span class="string"><span class="delimiter">'</span><span class="content">MyApp</span><span class="delimiter">'</span></span>
         imageOptions = [<span class="string"><span class="delimiter">'</span><span class="content">--win-console</span><span class="delimiter">'</span></span>]
-        includeLocales = [<span class="string"><span class="delimiter">'</span><span class="content">en</span><span class="delimiter">'</span></span>, <span class="string"><span class="delimiter">'</span><span class="content">de-DE</span><span class="delimiter">'</span></span>]
-        includeLocalesFile = file(<span class="string"><span class="delimiter">'</span><span class="content">src/packaging/locales.txt</span><span class="delimiter">'</span></span>)
         skipInstaller = <span class="predefined-constant">false</span>
         installerName = <span class="string"><span class="delimiter">'</span><span class="content">MyApp</span><span class="delimiter">'</span></span>
         installerType = <span class="string"><span class="delimiter">'</span><span class="content">msi</span><span class="delimiter">'</span></span>
@@ -1196,6 +1192,8 @@ If your project is on GitHub, you can automate this by using GitHub Actions, as 
 <div class="content">
 <pre class="CodeRay highlight"><code data-lang="kotlin">jlink {
     ...
+    includeLocales = listOf(&quot;en&quot;, &quot;de-DE&quot;)
+    includeLocalesFile = file(&quot;src/packaging/locales.txt&quot;)
     jpackage {
         jpackageHome = &quot;/usr/lib/jvm/jdk16&quot;
         outputDir = &quot;my-packaging&quot;
@@ -1203,8 +1201,6 @@ If your project is on GitHub, you can automate this by using GitHub Actions, as 
         // installerOutputDir = file(&quot;$buildDir/my-packaging-installer&quot;)
         imageName = &quot;MyApp&quot;
         imageOptions = listOf(&quot;--win-console&quot;)
-        includeLocales = listOf(&quot;en&quot;, &quot;de-DE&quot;)
-        includeLocalesFile = file(&quot;src/packaging/locales.txt&quot;)
         skipInstaller = false
         installerName = &quot;MyApp&quot;
         installerType = &quot;msi&quot;
@@ -1482,7 +1478,7 @@ can be configured in the <code>jpackage</code> script block.</p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version 4.0.0-rc<br>
+Version 4.0.0-rc2<br>
 </div>
 </div>
 </body>
