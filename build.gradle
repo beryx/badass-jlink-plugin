@@ -88,7 +88,6 @@ jar {
 shadowJar {
     archiveClassifier = null
     minimize()
-//    relocate 'org.objectweb.asm', 'org.beryx.jlink.shadow.asm'
 }
 
 gradlePlugin {
