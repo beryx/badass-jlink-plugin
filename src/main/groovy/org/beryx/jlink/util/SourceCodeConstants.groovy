@@ -21,15 +21,18 @@ class SourceCodeConstants {
         try {
             if (!f.isFile()) throw new IllegalArgumentException(f + " is not a file");
             if (f.getName().equals("module-info.class")) {
-                return ModuleDescriptor.read(new FileInputStream(f));
+                try (var is = new FileInputStream(f)) {
+                    return ModuleDescriptor.read(is);
+                }
             }
             if(!f.getName().endsWith(".jar") && !f.getName().endsWith(".jmod")) throw new IllegalArgumentException("Unsupported file type: " + f);
-            ZipFile zipFile = new ZipFile(f);
-            var x = zipFile.stream().filter(entry -> entry.getName().endsWith("module-info.class")).findFirst();
-            if (x.isPresent()) {
-                return ModuleDescriptor.read(zipFile.getInputStream(x.get()));
-            } else {
-                return null;
+            try (ZipFile zipFile = new ZipFile(f)) {
+                var x = zipFile.stream().filter(entry -> entry.getName().endsWith("module-info.class")).findFirst();
+                if (x.isPresent()) {
+                    return ModuleDescriptor.read(zipFile.getInputStream(x.get()));
+                } else {
+                    return null;
+                }
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

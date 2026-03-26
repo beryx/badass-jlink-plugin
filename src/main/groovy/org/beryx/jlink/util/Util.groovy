@@ -231,10 +231,14 @@ class Util {
     private static void scanJar(File jarFile,
                         @ClosureParams(value= SimpleType, options="java.lang.String,java.lang.String,java.io.InputStream") Closure<?> action) {
         def zipFile = new ZipFile(jarFile)
-        zipFile.entries().each { ZipEntry entry ->
-            IOGroovyMethods.withCloseable(zipFile.getInputStream(entry)) {
-                action.call('', entry.name, it)
+        try {
+            zipFile.entries().each { ZipEntry entry ->
+                IOGroovyMethods.withCloseable(zipFile.getInputStream(entry)) {
+                    action.call('', entry.name, it)
+                }
             }
+        } finally {
+            zipFile.close()
         }
     }
 
@@ -262,8 +266,10 @@ class Util {
     }
 
     static boolean isEmptyJar(File jarFile) {
-        def zipFile = new ZipFile(jarFile)
-        zipFile.entries().every { ZipEntry entry -> entry.name in ['META-INF/', 'META-INF/MANIFEST.MF']}
+        if (!jarFile.exists()) return false
+        new ZipFile(jarFile).withCloseable { zipFile ->
+            zipFile.entries().every { ZipEntry entry -> entry.name in ['META-INF/', 'META-INF/MANIFEST.MF'] }
+        }
     }
 
     @CompileDynamic

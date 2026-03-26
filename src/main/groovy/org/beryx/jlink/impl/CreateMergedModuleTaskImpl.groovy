@@ -23,8 +23,6 @@ import org.beryx.jlink.util.SuggestedMergedModuleInfoBuilder
 import org.beryx.jlink.util.Util
 import org.beryx.jlink.data.CreateMergedModuleTaskData
 import org.gradle.api.GradleException
-import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.ArchiveOperations
 import org.gradle.api.file.CopySpec
 import org.gradle.api.file.FileSystemOperations
@@ -107,9 +105,11 @@ class CreateMergedModuleTaskImpl extends BaseTaskImpl<CreateMergedModuleTaskData
 
     File genModuleInfoBadass(File jarFile, File targetDir, String moduleName) {
         def packages = new TreeSet<String>()
-        new ZipFile(jarFile).entries().each { ZipEntry entry ->
-            def pkgName = Util.getPackage(entry.name)
-            if(pkgName) packages << pkgName
+        new ZipFile(jarFile).withCloseable { zipFile ->
+            zipFile.entries().each { ZipEntry entry ->
+                def pkgName = Util.getPackage(entry.name)
+                if (pkgName) packages << pkgName
+            }
         }
         if(!moduleName) {
             moduleName = Util.getFallbackModuleNameFromJarFile(jarFile)

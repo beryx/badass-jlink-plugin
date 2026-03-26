@@ -230,12 +230,14 @@ class DependencyManager {
 
     private static final Pattern MULTI_RELEASE_MODULE_INFO = ~'META-INF/versions/[0-9]+/module-info.class'
     private boolean isHandledAsNonModular(File artifact) {
-        if(!artifact) return true
-        if(isEmptyJar(artifact)) return true
-        if(artifactsHandledAsNonModular.contains(artifact)) return true
-        if(forceMergedJarPrefixes.any {artifact.name.startsWith(it)}) return true
-        new ZipFile(artifact).entries().every { ZipEntry entry ->
-            (entry.name != 'module-info.class') && (!entry.name.matches(MULTI_RELEASE_MODULE_INFO))
+        if (!artifact || !artifact.exists()) return true
+        if (isEmptyJar(artifact)) return true
+        if (artifactsHandledAsNonModular.contains(artifact)) return true
+        if (forceMergedJarPrefixes.any { artifact.name.startsWith(it) }) return true
+        new ZipFile(artifact).withCloseable { zipFile ->
+            zipFile.entries().every { ZipEntry entry ->
+                (entry.name != 'module-info.class') && (!entry.name.matches(MULTI_RELEASE_MODULE_INFO))
+            }
         }
     }
 
