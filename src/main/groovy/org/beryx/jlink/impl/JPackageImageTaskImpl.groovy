@@ -63,7 +63,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         }()
         def execResult = result.execResult as org.gradle.process.ExecResult
         def output = result.output as String
-        if(execResult.exitValue != 0) {
+        if (execResult.exitValue != 0) {
             LOGGER.error(output)
         } else {
             LOGGER.info(output)

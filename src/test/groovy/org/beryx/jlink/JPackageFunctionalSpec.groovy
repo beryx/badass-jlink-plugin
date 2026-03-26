@@ -64,4 +64,20 @@ class JPackageFunctionalSpec extends AbstractJlinkPluginTest {
         assert !new File(testProjectDir.toFile(), wrongExecutablePath).exists()
         assert new File(testProjectDir.toFile(), rightExecutablePath).exists()
     }
+
+    def "should support different imageName and installerName"() {
+        given:
+        setUpBuild('hello-javafx-jlink')
+
+        when:
+        BuildResult result = GradleRunner.create()
+                .withDebug(false)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withArguments(JlinkPlugin.TASK_NAME_JPACKAGE, "-is")
+                .build();
+
+        then:
+        result.task(":" + JlinkPlugin.TASK_NAME_JPACKAGE).outcome == TaskOutcome.SUCCESS
+    }
 }

@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'org.beryx.jlink'
+}
+
+repositories {
+    mavenCentral()
+}
+
+application {
+    mainModule = 'hello'
+    mainClass = 'com.example.Hello'
+}
+
+dependencies {
+}
+
+jlink {
+    options = ['--strip-debug', '--no-header-files', '--no-man-pages']
+    jpackage {
+        imageName = 'Hello'
+        installerName = 'HelloInstaller'
+    }
+}
