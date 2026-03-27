@@ -202,4 +202,25 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
         result2.output.contains('Reusing configuration cache')
         checkOutput(result2, 'modular-hello', 'LOG: Hello, modular Java!')
     }
+
+    def "jlinkZip task should be compatible with the gradle configuration cache"() {
+        when:
+        setUpHelloLogbackBuild(null, null, null, null)
+        new File(testProjectDir.toFile(), "gradle.properties") << "org.gradle.jvmargs=--add-opens java.base/java.lang.invoke=ALL-UNNAMED"
+
+        def runner = GradleRunner.create()
+                .withDebug(false)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withGradleVersion('8.14.4')
+                .withArguments("clean", "build", JlinkPlugin.TASK_NAME_JLINK_ZIP, "--configuration-cache", "--configuration-cache-problems=fail", "-is")
+
+        BuildResult result1 = runner.build()
+        BuildResult result2 = runner.build()
+
+        then:
+        result1.output.contains('Configuration cache entry stored')
+        result2.output.contains('Reusing configuration cache')
+        checkOutput(result2, 'modular-hello', 'LOG: Hello, modular Java!')
+    }
 }

@@ -80,15 +80,15 @@ abstract class JlinkZipTask extends BaseTask {
 
     @Internal
     File getImageDirFromName() {
-        project.file("$buildDir/$imageName")
+        new File(buildDirFile, imageName)
     }
 
     @Internal
     File getImageZipFromName() {
-        project.file("$buildDir/${imageName}.zip")
+        new File(buildDirFile, "${imageName}.zip")
     }
 
-    private File getBuildDir() {
-        return project.layout.buildDirectory.asFile.get()
+    private File getBuildDirFile() {
+        projectLayout.buildDirectory.asFile.get()
     }
 }
