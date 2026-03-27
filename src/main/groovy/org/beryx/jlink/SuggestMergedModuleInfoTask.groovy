@@ -43,7 +43,7 @@ abstract class SuggestMergedModuleInfoTask extends BaseTask {
 
     @InputDirectory
     Directory getMergedJarsDir() {
-        project.layout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
+        projectLayout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
     }
 
     @Input
@@ -79,9 +79,9 @@ abstract class SuggestMergedModuleInfoTask extends BaseTask {
         dependsOn(JlinkPlugin.TASK_NAME_PREPARE_MERGED_JARS_DIR)
         description = 'Suggests a module declaration for the merged module'
         outputs.upToDateWhen { false }
-        useJdeps = project.objects.property(JdepsUsage)
+        useJdeps = objectFactory.property(JdepsUsage)
         useJdeps.set(JdepsUsage.no)
-        language = project.objects.property(ModuleInfo.Language)
+        language = objectFactory.property(ModuleInfo.Language)
         language.set(ModuleInfo.Language.GROOVY)
         project.getGradle().projectsEvaluated {
             def configName = extension.configuration.get()
