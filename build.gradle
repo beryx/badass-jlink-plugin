@@ -54,7 +54,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.ow2.asm:asm:9.9.1'
+    implementation 'org.ow2.asm:asm:9.10'
 
     testImplementation 'org.spockframework:spock-core:2.4-groovy-3.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
