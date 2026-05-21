@@ -18,15 +18,11 @@ package org.beryx.jlink
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
-import spock.lang.Specification
-import spock.lang.TempDir
 import spock.lang.Unroll
 
-import java.nio.file.Path
 import java.util.stream.Collectors
 
-class SuggestMergedModuleInfoSpec extends Specification {
-    @TempDir Path testProjectDir
+class SuggestMergedModuleInfoSpec extends AbstractJlinkPluginTest {
 
     static Set<String> GROOVY_DIRECTIVES_CONSTRAINT = [
             "requires 'java.management';",
@@ -96,9 +92,6 @@ class SuggestMergedModuleInfoSpec extends Specification {
     ]
 
 
-    def cleanup() {
-        println "CLEANUP"
-    }
 
     @Unroll
     def "should display the correct module-info for the merged module in #gradleFile with #language flavor using Gradle #gradleVersion"() {
@@ -116,14 +109,13 @@ class SuggestMergedModuleInfoSpec extends Specification {
         def outputWriter = new StringWriter(8192)
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withGradleVersion(gradleVersion)
                 .forwardStdOutput(outputWriter)
                 .withProjectDir(buildFile.parentFile)
                 .withPluginClasspath()
-                .withArguments("-is", JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO, "--useConstraints", "--language=$language")
-                .build();
+                .withArguments("-is", JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO, "--useConstraints", "--language=$language"))
         def task = result.task(":$JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO")
         println outputWriter
 

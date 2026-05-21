@@ -26,13 +26,12 @@ class GradleCompatibilitySpec extends AbstractJlinkPluginTest {
     def "should execute task with Gradle #gradleVersion, moduleName=#moduleName, launcherName=#launcherName, mainClass=#mainClass and mergedModuleName=#mergedModuleName"() {
         when:
         setUpHelloLogbackBuild(moduleName, launcherName, mainClass, mergedModuleName)
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion(gradleVersion)
-                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
-                .build();
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is"))
 
         then:
         checkOutput(result, expectedLauncherName, 'LOG: Hello, modular Java!')
@@ -51,20 +50,18 @@ class GradleCompatibilitySpec extends AbstractJlinkPluginTest {
         'modular.example.hello' | '9.0.0'       | null         | null                        | null                                | 'modular-hello'
         'modular.example.hello' | '9.4.0'       | 'run-hello'  | 'org.example.modular.Hello' | null                                | 'run-hello'
         'modular.example.hello' | '9.4.0'       | 'run-hello'  | null                        | null                                | 'run-hello'
-        'modular.example.hello' | '9.4.0'       | 'run-hello'  | null                        | null                                | 'run-hello'
     }
 
     @Unroll
     def "should create runtime image of project #projectDir with Gradle #gradleVersion"() {
         when:
         setUpBuild(projectDir)
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withGradleVersion(gradleVersion)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments(JlinkPlugin.TASK_NAME_JLINK_ZIP, "-is")
-                .build();
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK_ZIP, "-is"))
         def imageBinDir = new File(testProjectDir.toFile(), "build/$imageDir/bin")
         def launcherExt = OperatingSystem.current.windows ? '.bat' : ''
         def imageLauncher = new File(imageBinDir, "$expectedLauncherName$launcherExt")

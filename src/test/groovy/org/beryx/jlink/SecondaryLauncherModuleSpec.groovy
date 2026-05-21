@@ -24,13 +24,12 @@ class SecondaryLauncherModuleSpec extends AbstractJlinkPluginTest {
     def "should include secondary launcher module in jlink add-modules"() {
         when:
         setUpBuild('secondary-launcher-module')
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('8.14.4')
-                .withArguments('jlink', "-is")
-                .build()
+                .withArguments('jlink', "-is"))
 
         then:
         result.task(":jlink").outcome == TaskOutcome.SUCCESS

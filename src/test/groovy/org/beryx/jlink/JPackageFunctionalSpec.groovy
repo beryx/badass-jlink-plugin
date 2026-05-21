@@ -30,12 +30,11 @@ class JPackageFunctionalSpec extends AbstractJlinkPluginTest {
         """.stripIndent()
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments('jpackageImage', '-is')
-                .build();
+                .withArguments('jpackageImage', '-is'))
 
         then:
         result.task(":jpackageImage").outcome == TaskOutcome.SUCCESS
@@ -46,12 +45,11 @@ class JPackageFunctionalSpec extends AbstractJlinkPluginTest {
         setUpBuild('name-ignored')
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments(JlinkPlugin.TASK_NAME_JPACKAGE_IMAGE, "-is")
-                .build();
+                .withArguments(JlinkPlugin.TASK_NAME_JPACKAGE_IMAGE, "-is"))
 
         then:
         result.task(":" + JlinkPlugin.TASK_NAME_JPACKAGE_IMAGE).outcome == TaskOutcome.SUCCESS
@@ -70,12 +68,11 @@ class JPackageFunctionalSpec extends AbstractJlinkPluginTest {
         setUpBuild('hello-javafx-jlink')
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments(JlinkPlugin.TASK_NAME_JPACKAGE, "-is")
-                .build();
+                .withArguments(JlinkPlugin.TASK_NAME_JPACKAGE, "-is"))
 
         then:
         result.task(":" + JlinkPlugin.TASK_NAME_JPACKAGE).outcome == TaskOutcome.SUCCESS

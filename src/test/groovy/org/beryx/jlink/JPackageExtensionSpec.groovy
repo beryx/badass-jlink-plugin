@@ -17,12 +17,8 @@ package org.beryx.jlink
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
-import spock.lang.Specification
-import spock.lang.TempDir
-import java.nio.file.Path
 
-class JPackageExtensionSpec extends Specification {
-    @TempDir Path testProjectDir
+class JPackageExtensionSpec extends AbstractJlinkPluginTest {
 
     def "should allow configuring jpackage as a top-level extension"() {
         given:
@@ -62,11 +58,10 @@ class JPackageExtensionSpec extends Specification {
         """.stripIndent()
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments('help') // just to trigger configuration
-                .build()
+                .withArguments('help'))
 
         then:
         result.output.contains('BUILD SUCCESSFUL')
@@ -95,11 +90,10 @@ class JPackageExtensionSpec extends Specification {
         """.stripIndent()
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments('checkJPackage')
-                .build()
+                .withArguments('checkJPackage'))
 
         then:
         result.output.contains('BUILD SUCCESSFUL')
@@ -128,11 +122,10 @@ class JPackageExtensionSpec extends Specification {
         """.stripIndent()
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments('checkJPackageHome')
-                .build()
+                .withArguments('checkJPackageHome'))
 
         then:
         result.output.contains("[DEBUG_LOG] JPackageHome: ${dummyJdk.absolutePath}")
@@ -158,11 +151,10 @@ class JPackageExtensionSpec extends Specification {
         """.stripIndent()
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments('checkIncludeLocales')
-                .build()
+                .withArguments('checkIncludeLocales'))
 
         then:
         result.output.contains('BUILD SUCCESSFUL')
@@ -190,11 +182,10 @@ class JPackageExtensionSpec extends Specification {
         """.stripIndent()
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments('checkIncludeLocalesFile')
-                .build()
+                .withArguments('checkIncludeLocalesFile'))
 
         then:
         result.output.contains('BUILD SUCCESSFUL')

@@ -26,12 +26,11 @@ class CaseInsensitiveLauncherSpec extends AbstractJlinkPluginTest {
         setUpBuild('case-insensitive-launchers')
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments('jpackageImage', '-is')
-                .build();
+                .withArguments('jpackageImage', '-is'))
         System.out.println("[DEBUG_LOG] Build output:\n" + result.getOutput())
 
         then:

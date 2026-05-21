@@ -24,13 +24,12 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
     def "should be compatible with the new JPMS features introduced in Gradle 6.4"() {
         when:
         setUpBuild('hello-logback', 'build.modular.gradle')
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('8.14.4')
-                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
-                .build();
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is"))
 
         then:
         checkOutput(result, 'modular-hello', 'LOG: Hello, modular Java!')
@@ -44,13 +43,12 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
         if(fromEnvCandidates.size() > 1) {
             gradleArgs << "-Dorg.gradle.java.installations.fromEnv=${fromEnvCandidates.join(',')}"
         }
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('8.14.4')
-                .withArguments(*gradleArgs)
-                .build();
+                .withArguments(*gradleArgs))
 
         then:
         checkOutput(result, 'hello-toolchain', 'line from: (30,80) to: (20,50)')
@@ -59,13 +57,12 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
     def "should adjust qualified opens in module-info"() {
         when:
         File buildFile = setUpBuild('opens-to-jaxb')
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
                 .withGradleVersion('8.14.4')
-                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
-                .build();
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is"))
 
         then:
         checkOutput(result, 'xmlprint',
@@ -83,13 +80,12 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
         when:
 
         File buildFile = setUpBuild('local-deps')
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withGradleVersion('8.14.4')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
-                .build();
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is"))
 
         then:
         checkOutput(result, 'reverseHello', '!dlrow ,olleH')
@@ -113,13 +109,12 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
     def "should create runtime image of project with annotations on module declaration"() {
         when:
         File buildFile = setUpBuild('hello-annotated-module')
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withGradleVersion('8.14.4')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
-                .build();
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is"))
 
         then:
         checkOutput(result, 'helloAnnotatedModule', 'Hello annotated module!')
@@ -129,13 +124,12 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
         when:
 
         File buildFile = setUpBuild('multi-launch')
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withGradleVersion('8.14.4')
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is")
-                .build();
+                .withArguments(JlinkPlugin.TASK_NAME_JLINK, "-is"))
 
         then:
         checkOutput(result, 'hello', 'Hello, world!')
@@ -157,14 +151,14 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
 
         BuildResult result1
         try {
-            result1 = runner.build()
+            result1 = runGradleWithLockRetry(runner)
         } catch (Exception e) {
             System.out.println "[DEBUG_LOG] FAILED RESULT1 OUTPUT:\n" + e.buildResult.output
             throw e
         }
         System.out.println "[DEBUG_LOG] RESULT1 OUTPUT:\n${result1.output}"
 
-        BuildResult result2 = runner.build()
+        BuildResult result2 = runGradleWithLockRetry(runner)
         System.out.println "[DEBUG_LOG] RESULT2 OUTPUT:\n${result2.output}"
 
         then:
@@ -187,14 +181,14 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
 
         BuildResult result1
         try {
-            result1 = runner.build()
+            result1 = runGradleWithLockRetry(runner)
         } catch (Exception e) {
             System.out.println "[DEBUG_LOG] FAILED RESULT1 OUTPUT:\n" + e.buildResult.output
             throw e
         }
         System.out.println "[DEBUG_LOG] RESULT1 OUTPUT:\n${result1.output}"
 
-        BuildResult result2 = runner.build()
+        BuildResult result2 = runGradleWithLockRetry(runner)
         System.out.println "[DEBUG_LOG] RESULT2 OUTPUT:\n${result2.output}"
 
         then:
@@ -215,8 +209,8 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
                 .withGradleVersion('8.14.4')
                 .withArguments("clean", "build", JlinkPlugin.TASK_NAME_JLINK_ZIP, "--configuration-cache", "--configuration-cache-problems=fail", "-is")
 
-        BuildResult result1 = runner.build()
-        BuildResult result2 = runner.build()
+        BuildResult result1 = runGradleWithLockRetry(runner)
+        BuildResult result2 = runGradleWithLockRetry(runner)
 
         then:
         result1.output.contains('Configuration cache entry stored')
@@ -236,8 +230,8 @@ class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
                 .withGradleVersion('8.14.4')
                 .withArguments(JlinkPlugin.TASK_NAME_SUGGEST_MERGED_MODULE_INFO, "--configuration-cache", "--configuration-cache-problems=fail", "-is")
 
-        BuildResult result1 = runner.build()
-        BuildResult result2 = runner.build()
+        BuildResult result1 = runGradleWithLockRetry(runner)
+        BuildResult result2 = runGradleWithLockRetry(runner)
 
         then:
         result1.output.contains('Configuration cache entry stored')

@@ -101,8 +101,12 @@ abstract class AbstractJlinkPluginTest extends Specification {
                 def buildOutput = e.hasProperty('buildResult') ? e.buildResult?.output : ''
                 def lockFailure = (e.message ?: '').contains('Timeout waiting to lock Generated Gradle JARs cache') ||
                         (buildOutput ?: '').contains('Timeout waiting to lock Generated Gradle JARs cache')
-                if (!lockFailure || attempt >= maxAttempts) throw e
-                Thread.sleep(1000L * attempt)
+                def connectionFailure = (e.message ?: '').contains('Could not execute build using connection to Gradle distribution') ||
+                        (e.cause?.message ?: '').contains('Could not execute build using connection to Gradle distribution')
+
+                if (!(lockFailure || connectionFailure) || attempt >= maxAttempts) throw e
+                System.out.println "[DEBUG_LOG] Retry attempt $attempt due to ${lockFailure ? 'lock failure' : 'connection failure'}"
+                Thread.sleep(2000L * attempt)
             }
         }
         throw new IllegalStateException('Unexpected retry flow.')

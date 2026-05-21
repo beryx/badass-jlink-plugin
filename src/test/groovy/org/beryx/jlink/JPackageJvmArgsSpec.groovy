@@ -18,12 +18,11 @@ class JPackageJvmArgsSpec extends AbstractJlinkPluginTest {
         """.stripIndent()
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments('jpackageImage', '-is')
-                .build();
+                .withArguments('jpackageImage', '-is'))
 
         then:
         result.task(":jpackageImage").outcome == TaskOutcome.SUCCESS
@@ -56,12 +55,11 @@ class JPackageJvmArgsSpec extends AbstractJlinkPluginTest {
         """.stripIndent()
 
         when:
-        BuildResult result = GradleRunner.create()
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
                 .withProjectDir(testProjectDir.toFile())
                 .withPluginClasspath()
-                .withArguments('jpackageImage', '-is')
-                .build();
+                .withArguments('jpackageImage', '-is'))
 
         then:
         result.task(":jpackageImage").outcome == TaskOutcome.SUCCESS
