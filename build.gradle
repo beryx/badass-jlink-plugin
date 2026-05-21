@@ -68,8 +68,12 @@ dependencies {
 
 test {
     useJUnitPlatform()
+
     // Enable parallel execution of test classes
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+
+    // isolate the TestKit directory for each worker fork to avoid cache locks
+    systemProperty 'org.gradle.testkit.dir', "${project.layout.buildDirectory.dir("testkit").get().asFile}/${name}-worker"
 
     // Enable parallel execution of feature methods within a single class
     systemProperty 'spock.parallel.enabled', 'true'
