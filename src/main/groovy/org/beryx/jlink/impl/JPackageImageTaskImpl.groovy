@@ -110,7 +110,7 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
         }
         if (jpd.launcherName && !jpd.launcherName.equalsIgnoreCase(jpd.imageName)) {
             def propFile = createPropFile(jpd.launcherName, td.moduleName, td.mainClass,
-                    jpd.args.get() ?: td.defaultArgs, jpd.jvmArgs.get() ?: td.defaultJvmArgs,
+                    jpd.args.get(), jpd.jvmArgs.get(),
                     jpd.getAppVersion(), jpd.getIcon(), null, propFiles)
             propFiles[jpd.launcherName] = propFile
         }
@@ -167,8 +167,8 @@ class JPackageImageTaskImpl extends BaseTaskImpl<JPackageTaskData> {
             *iconOpts,
             '--runtime-image', td.runtimeImageDir,
             *resourceOpts,
-            *((jpd.jvmArgs.get() ?: td.defaultJvmArgs).collect { ['--java-options', adjustArg(it)] }.flatten()),
-            *((jpd.args.get() ?: td.defaultArgs).collect { ['--arguments', adjustArg(it)] }.flatten()),
+            *(jpd.jvmArgs.get().collect { ['--java-options', adjustArg(it)] }.flatten()),
+            *(jpd.args.get().collect { ['--arguments', adjustArg(it)] }.flatten()),
             *(propFiles ? propFiles.collect { ['--add-launcher', it.key + '=' + it.value.absolutePath] }.flatten() : []),
             *jpd.imageOptions.get()
         ]

@@ -101,10 +101,10 @@ class JPackageData {
         installerOptions = project.objects.listProperty(String).empty()
 
         args = project.objects.listProperty(String)
-        args.convention(launcherData.getEffectiveArgs(project))
+        args.convention(project.provider { launcherData.getEffectiveArgs(project) })
 
         jvmArgs = project.objects.listProperty(String)
-        jvmArgs.convention(launcherData.getEffectiveJvmArgs(project))
+        jvmArgs.convention(project.provider { launcherData.getEffectiveJvmArgs(project) })
 
         secondaryLaunchers = project.objects.listProperty(SecondaryLauncherData).empty()
     }
