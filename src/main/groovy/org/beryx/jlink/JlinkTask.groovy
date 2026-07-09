@@ -27,8 +27,10 @@ import org.gradle.api.logging.Logging
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.gradle.work.DisableCachingByDefault
 
 @CompileStatic
+@DisableCachingByDefault(because = 'Runs jlink and creates platform-specific runtime images.')
 abstract class JlinkTask extends BaseTask {
     private static final Logger LOGGER = Logging.getLogger(JlinkTask.class);
 
@@ -79,6 +81,7 @@ abstract class JlinkTask extends BaseTask {
 
     @InputFile
     @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
     File getIncludeLocalesFile() {
         extension.includeLocalesFile.getOrNull()?.asFile
     }
@@ -99,6 +102,7 @@ abstract class JlinkTask extends BaseTask {
     }
 
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     Directory getJlinkJarsDir() {
         projectLayout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
     }

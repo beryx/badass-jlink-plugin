@@ -28,8 +28,10 @@ import org.gradle.api.file.Directory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.options.Option
+import org.gradle.work.DisableCachingByDefault
 
 @CompileStatic
+@DisableCachingByDefault(because = 'Computes suggestions from merged jars and writes informational output.')
 abstract class SuggestMergedModuleInfoTask extends BaseTask {
     @Input
     List<String> getForceMergedJarPrefixes() {
@@ -42,6 +44,7 @@ abstract class SuggestMergedModuleInfoTask extends BaseTask {
     }
 
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     Directory getMergedJarsDir() {
         projectLayout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
     }

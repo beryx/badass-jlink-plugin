@@ -15,6 +15,7 @@
  */
 package org.beryx.jlink
 
+import groovy.ant.AntBuilder
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome

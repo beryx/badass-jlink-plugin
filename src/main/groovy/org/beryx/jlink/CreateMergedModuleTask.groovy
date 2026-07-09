@@ -23,7 +23,6 @@ import org.beryx.jlink.data.JdepsUsage
 import org.beryx.jlink.data.ModuleInfo
 import org.beryx.jlink.impl.CreateMergedModuleTaskImpl
 import org.beryx.jlink.util.PathUtil
-import org.beryx.jlink.util.Util
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
@@ -31,8 +30,10 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.work.DisableCachingByDefault
 
 @CompileStatic
+@DisableCachingByDefault(because = 'Creates merged module artifacts by rewriting jars and descriptors.')
 abstract class CreateMergedModuleTask extends BaseTask {
     @Input
     List<String> getForceMergedJarPrefixes() {
@@ -57,6 +58,7 @@ abstract class CreateMergedModuleTask extends BaseTask {
     }
 
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     Directory getMergedJarsDir() {
         projectLayout.projectDirectory.dir(PathUtil.getMergedJarsDirPath(jlinkBasePath))
     }
@@ -98,6 +100,7 @@ abstract class CreateMergedModuleTask extends BaseTask {
     abstract ConfigurableFileCollection getClasspathFiles()
 
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     abstract RegularFileProperty getArchiveFileProperty()
 
     @Internal

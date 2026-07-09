@@ -147,6 +147,7 @@ class JPackageData {
 
     @InputDirectory
     @Optional
+    @PathSensitive(PathSensitivity.RELATIVE)
     File getResourceDir() {
         resourceDir.asFile.getOrNull()
     }

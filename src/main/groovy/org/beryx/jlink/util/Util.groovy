@@ -222,8 +222,8 @@ class Util {
         dir.eachFileRecurse(FileType.FILES) { file ->
             def basePath = dir.absolutePath.replace('\\', '/')
             def relPath = dir.toPath().relativize(file.toPath()).toString().replace('\\', '/')
-            IOGroovyMethods.withCloseable(file.newInputStream()) {
-                action.call(basePath, relPath, it)
+            IOGroovyMethods.withCloseable(file.newInputStream()) { InputStream inputStream ->
+                ((Closure)action).call(basePath, relPath, inputStream)
             }
         }
     }
@@ -233,8 +233,8 @@ class Util {
         def zipFile = new ZipFile(jarFile)
         try {
             zipFile.entries().each { ZipEntry entry ->
-                IOGroovyMethods.withCloseable(zipFile.getInputStream(entry)) {
-                    action.call('', entry.name, it)
+                IOGroovyMethods.withCloseable(zipFile.getInputStream(entry)) { InputStream inputStream ->
+                    ((Closure)action).call('', entry.name, inputStream)
                 }
             }
         } finally {

@@ -15,6 +15,7 @@
  */
 package org.beryx.jlink
 
+import groovy.ant.AntBuilder
 
 import org.beryx.jlink.util.Util
 import spock.lang.Specification

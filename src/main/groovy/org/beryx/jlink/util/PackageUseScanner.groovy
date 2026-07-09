@@ -16,13 +16,13 @@
 package org.beryx.jlink.util
 
 import groovy.transform.CompileStatic
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
 import org.objectweb.asm.*
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @CompileStatic
 class PackageUseScanner extends ClassVisitor {
-    private static final Logger LOGGER = Logging.getLogger(PackageUseScanner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PackageUseScanner.class)
     
     final PackageCollection usedPackages = new PackageCollection()
     final PackageCollection ownPackages = new PackageCollection()

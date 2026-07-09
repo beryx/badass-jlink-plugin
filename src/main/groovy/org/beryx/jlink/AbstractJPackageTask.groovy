@@ -31,9 +31,13 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.jvm.tasks.Jar
+import org.gradle.work.DisableCachingByDefault
 
 @CompileStatic
+@DisableCachingByDefault(because = 'Invokes jpackage/jlink tooling and prepares platform-specific artifacts.')
 abstract class AbstractJPackageTask extends BaseTask {
     private static final Logger LOGGER = Logging.getLogger(AbstractJPackageTask.class)
 
@@ -57,6 +61,8 @@ abstract class AbstractJPackageTask extends BaseTask {
 
     @groovy.transform.CompileDynamic
     AbstractJPackageTask() {
+        doNotTrackState('jpackage generates platform executables that may be unreadable for task input/output snapshotting.')
+
         project.getGradle().projectsEvaluated {
             defaultJvmArgsProperty.set(org.beryx.jlink.util.Util.getDefaultJvmArgs(project) ?: [])
             defaultArgsProperty.set(org.beryx.jlink.util.Util.getDefaultArgs(project) ?: [])
@@ -92,6 +98,7 @@ abstract class AbstractJPackageTask extends BaseTask {
     }
 
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     Directory getJlinkJarsDir() {
         projectLayout.projectDirectory.dir(PathUtil.getJlinkJarsDirPath(jlinkBasePath))
     }
@@ -102,6 +109,7 @@ abstract class AbstractJPackageTask extends BaseTask {
     }
 
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     File getImageInputDir() {
         extension.imageName.get() ? projectLayout.buildDirectory.file(extension.imageName.get()).get().asFile : extension.imageDir.get().asFile
     }

@@ -23,8 +23,10 @@ import org.beryx.jlink.impl.JlinkZipTaskImpl
 import org.gradle.api.file.Directory
 import org.gradle.api.file.RegularFile
 import org.gradle.api.tasks.*
+import org.gradle.work.DisableCachingByDefault
 
 @CompileStatic
+@DisableCachingByDefault(because = 'Builds runtime zip archives from task outputs and target-platform settings.')
 abstract class JlinkZipTask extends BaseTask {
     @Input
     Map<String, TargetPlatform> getTargetPlatforms() {

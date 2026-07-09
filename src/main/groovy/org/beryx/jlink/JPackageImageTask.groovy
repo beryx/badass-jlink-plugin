@@ -21,8 +21,10 @@ import org.beryx.jlink.impl.JPackageImageTaskImpl
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
 @CompileStatic
+@DisableCachingByDefault(because = 'Runs jpackage to produce platform-specific app images.')
 abstract class JPackageImageTask extends AbstractJPackageTask {
     @Input
     CustomImageData getCustomImageData() {
