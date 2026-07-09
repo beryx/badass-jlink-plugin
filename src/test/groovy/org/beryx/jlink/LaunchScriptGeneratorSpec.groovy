@@ -42,10 +42,10 @@ class LaunchScriptGeneratorSpec extends Specification {
 
         where:
         jvmArgs                      | args                         | lastLine
-        []                           | []                           | '"$DIR/java" $CDS_JVM_OPTS -p "$DIR/../app" -m org.example.hello/org.example.Hello "$@"'
-        ['-Xmx200m']                 | ['Alice']                    | '"$DIR/java" $CDS_JVM_OPTS -Xmx200m -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice "$@"'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | '"$DIR/java" $CDS_JVM_OPTS -Xmx200m -Ddebug=true -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice Bob "$@"'
-        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | '"$DIR/java" $CDS_JVM_OPTS -cp "$DIR/data" -p "$DIR/../app" -m org.example.hello/org.example.Hello "$DIR/../names.txt" "$@"'
+        []                           | []                           | 'exec "$DIR/java" $CDS_JVM_OPTS -p "$DIR/../app" -m org.example.hello/org.example.Hello "$@"'
+        ['-Xmx200m']                 | ['Alice']                    | 'exec "$DIR/java" $CDS_JVM_OPTS -Xmx200m -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice "$@"'
+        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | 'exec "$DIR/java" $CDS_JVM_OPTS -Xmx200m -Ddebug=true -p "$DIR/../app" -m org.example.hello/org.example.Hello Alice Bob "$@"'
+        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | 'exec "$DIR/java" $CDS_JVM_OPTS -cp "$DIR/data" -p "$DIR/../app" -m org.example.hello/org.example.Hello "$DIR/../names.txt" "$@"'
     }
 
     @Unroll
@@ -59,20 +59,29 @@ class LaunchScriptGeneratorSpec extends Specification {
 
         then:
         scriptLines[0] == '@echo off'
-        scriptLines[1] == 'set DIR="%~dp0"'
-        scriptLines[2] == 'set JAVA_EXEC="%DIR:"=%\\java"'
-        def actual = scriptLines[-1].replace('  ', ' ')
-        if(actual != lastLine) {
-            println "[DEBUG_LOG] WIN Actual:    $actual"
-            println "[DEBUG_LOG] WIN Expected:  $lastLine"
+        scriptLines[1] == 'set "DIR=%~dp0"'
+        scriptLines[2] == 'set "JAVA_EXEC=%DIR%java"'
+        def pushdIndex = scriptLines.lastIndexOf('pushd %DIR%')
+        assert pushdIndex >= 0
+        def actualBlock = scriptLines[pushdIndex..<(pushdIndex + 5)]*.replace('  ', ' ')
+        def expectedBlock = [
+                'pushd %DIR%',
+                commandLine,
+                'set EXITCODE=%ERRORLEVEL%',
+                'popd',
+                'exit /b %EXITCODE%'
+        ]
+        if(actualBlock != expectedBlock) {
+            println "[DEBUG_LOG] WIN Actual block:   $actualBlock"
+            println "[DEBUG_LOG] WIN Expected block: $expectedBlock"
         }
-        actual == lastLine
+        actualBlock == expectedBlock
 
         where:
-        jvmArgs                      | args                         | lastLine
-        []                           | []                           | 'pushd %DIR% & %JAVA_EXEC% %CDS_JVM_OPTS% -p "%~dp0/../app" -m org.example.hello/org.example.Hello %* & popd'
-        ['-Xmx200m']                 | ['Alice']                    | 'pushd %DIR% & %JAVA_EXEC% %CDS_JVM_OPTS% -Xmx200m -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice %* & popd'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | 'pushd %DIR% & %JAVA_EXEC% %CDS_JVM_OPTS% -Xmx200m -Ddebug=true -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice Bob %* & popd'
-        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | 'pushd %DIR% & %JAVA_EXEC% %CDS_JVM_OPTS% -cp "%~dp0/data" -p "%~dp0/../app" -m org.example.hello/org.example.Hello "%~dp0/../names.txt" %* & popd'
+        jvmArgs                      | args                         | commandLine
+        []                           | []                           | '%JAVA_EXEC% %CDS_JVM_OPTS% -p "%~dp0/../app" -m org.example.hello/org.example.Hello %*'
+        ['-Xmx200m']                 | ['Alice']                    | '%JAVA_EXEC% %CDS_JVM_OPTS% -Xmx200m -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice %*'
+        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | '%JAVA_EXEC% %CDS_JVM_OPTS% -Xmx200m -Ddebug=true -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice Bob %*'
+        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | '%JAVA_EXEC% %CDS_JVM_OPTS% -cp "%~dp0/data" -p "%~dp0/../app" -m org.example.hello/org.example.Hello "%~dp0/../names.txt" %*'
     }
 }
