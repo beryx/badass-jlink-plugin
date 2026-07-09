@@ -9,7 +9,7 @@ if exist %CDS_ARCHIVE_FILE% set CDS_JVM_OPTS=-XX:SharedArchiveFile=%CDS_ARCHIVE_
 <% } %>
 
 pushd %DIR%
-start "${moduleName}" %JAVA_EXEC% %CDS_JVM_OPTS% ${jvmArgs} -p "%~dp0/../app" -m ${moduleName}/${mainClassName} ${args} %*
+start "${moduleName}" "%JAVA_EXEC%" %CDS_JVM_OPTS% ${jvmArgs} -p "%~dp0/../app" -m ${moduleName}/${mainClassName} ${args} %*
 set EXITCODE=%ERRORLEVEL%
 popd
 exit /b %EXITCODE%

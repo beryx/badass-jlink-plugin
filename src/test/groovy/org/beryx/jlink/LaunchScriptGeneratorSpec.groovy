@@ -79,9 +79,9 @@ class LaunchScriptGeneratorSpec extends Specification {
 
         where:
         jvmArgs                      | args                         | commandLine
-        []                           | []                           | '%JAVA_EXEC% %CDS_JVM_OPTS% -p "%~dp0/../app" -m org.example.hello/org.example.Hello %*'
-        ['-Xmx200m']                 | ['Alice']                    | '%JAVA_EXEC% %CDS_JVM_OPTS% -Xmx200m -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice %*'
-        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | '%JAVA_EXEC% %CDS_JVM_OPTS% -Xmx200m -Ddebug=true -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice Bob %*'
-        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | '%JAVA_EXEC% %CDS_JVM_OPTS% -cp "%~dp0/data" -p "%~dp0/../app" -m org.example.hello/org.example.Hello "%~dp0/../names.txt" %*'
+        []                           | []                           | '"%JAVA_EXEC%" %CDS_JVM_OPTS% -p "%~dp0/../app" -m org.example.hello/org.example.Hello %*'
+        ['-Xmx200m']                 | ['Alice']                    | '"%JAVA_EXEC%" %CDS_JVM_OPTS% -Xmx200m -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice %*'
+        ['-Xmx200m', '-Ddebug=true'] | ['Alice', 'Bob']             | '"%JAVA_EXEC%" %CDS_JVM_OPTS% -Xmx200m -Ddebug=true -p "%~dp0/../app" -m org.example.hello/org.example.Hello Alice Bob %*'
+        ['-cp', '{{BIN_DIR}}/data']  | ['{{BIN_DIR}}/../names.txt'] | '"%JAVA_EXEC%" %CDS_JVM_OPTS% -cp "%~dp0/data" -p "%~dp0/../app" -m org.example.hello/org.example.Hello "%~dp0/../names.txt" %*'
     }
 }
