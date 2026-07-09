@@ -60,7 +60,7 @@ class LaunchScriptGeneratorSpec extends Specification {
         then:
         scriptLines[0] == '@echo off'
         scriptLines[1] == 'set "DIR=%~dp0"'
-        scriptLines[2] == 'set "JAVA_EXEC=%DIR%java"'
+        scriptLines[2] == 'set "JAVA_EXEC=%DIR%java.exe"'
         def pushdIndex = scriptLines.lastIndexOf('pushd %DIR%')
         assert pushdIndex >= 0
         def actualBlock = scriptLines[pushdIndex..<(pushdIndex + 5)]*.replace('  ', ' ')

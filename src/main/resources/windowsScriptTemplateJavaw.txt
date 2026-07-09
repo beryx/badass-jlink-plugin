@@ -1,6 +1,6 @@
 @echo off
 set "DIR=%~dp0"
-set "JAVA_EXEC=%DIR%javaw"
+set "JAVA_EXEC=%DIR%javaw.exe"
 
 <% if ( System.properties['BADASS_CDS_ARCHIVE_FILE_WINDOWS'] ) { %>
 set CDS_ARCHIVE_FILE="<%= System.properties['BADASS_CDS_ARCHIVE_FILE_WINDOWS'] %>"
