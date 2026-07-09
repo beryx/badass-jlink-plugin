@@ -17,7 +17,9 @@ package org.beryx.jlink
 
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
+import spock.lang.Isolated
 
+@Isolated('Kotlin-DSL tests are memory intensive and should not run in parallel')
 class KotlinDslFunctionalSpec extends AbstractJlinkPluginTest {
     def "should support Kotlin-DSL"() {
         when:
