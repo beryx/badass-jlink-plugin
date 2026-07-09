@@ -138,7 +138,7 @@ class Util {
         toModuleName(modName)
     }
 
-    static final Set<String> KEYWORDS = [
+    static final Set<String> KEYWORDS = new HashSet<String>([
             "abstract", "assert", "boolean", "break", "byte", "case", "catch",
             "char", "class", "const", "continue", "default", "do", "double",
             "else", "enum", "extends", "false", "final", "finally", "float", "for", "goto",
@@ -146,7 +146,7 @@ class Util {
             "native", "new", "null", "package", "private", "protected", "public",
             "return", "short", "static", "strictfp", "super", "switch",
             "synchronized", "this", "throw", "throws", "transient", "true", "try",
-            "void", "volatile", "while"] as HashSet
+            "void", "volatile", "while"])
 
     @CompileDynamic
     static String toModuleName(String s) {
