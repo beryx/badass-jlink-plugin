@@ -18,8 +18,10 @@ package org.beryx.jlink
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.Isolated
 import spock.util.environment.OperatingSystem
 
+@Isolated('jpackage functional tests are memory intensive and should not run in parallel')
 class JPackageFunctionalSpec extends AbstractJlinkPluginTest {
     def "should support jpackage with secondary launchers"() {
         given:

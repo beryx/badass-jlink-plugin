@@ -138,7 +138,7 @@ class Util {
         toModuleName(modName)
     }
 
-    static final Set<String> KEYWORDS = [
+    static final Set<String> KEYWORDS = new HashSet<String>([
             "abstract", "assert", "boolean", "break", "byte", "case", "catch",
             "char", "class", "const", "continue", "default", "do", "double",
             "else", "enum", "extends", "false", "final", "finally", "float", "for", "goto",
@@ -146,7 +146,7 @@ class Util {
             "native", "new", "null", "package", "private", "protected", "public",
             "return", "short", "static", "strictfp", "super", "switch",
             "synchronized", "this", "throw", "throws", "transient", "true", "try",
-            "void", "volatile", "while"] as HashSet
+            "void", "volatile", "while"])
 
     @CompileDynamic
     static String toModuleName(String s) {
@@ -222,8 +222,8 @@ class Util {
         dir.eachFileRecurse(FileType.FILES) { file ->
             def basePath = dir.absolutePath.replace('\\', '/')
             def relPath = dir.toPath().relativize(file.toPath()).toString().replace('\\', '/')
-            IOGroovyMethods.withCloseable(file.newInputStream()) {
-                action.call(basePath, relPath, it)
+            IOGroovyMethods.withCloseable(file.newInputStream()) { InputStream inputStream ->
+                ((Closure)action).call(basePath, relPath, inputStream)
             }
         }
     }
@@ -233,8 +233,8 @@ class Util {
         def zipFile = new ZipFile(jarFile)
         try {
             zipFile.entries().each { ZipEntry entry ->
-                IOGroovyMethods.withCloseable(zipFile.getInputStream(entry)) {
-                    action.call('', entry.name, it)
+                IOGroovyMethods.withCloseable(zipFile.getInputStream(entry)) { InputStream inputStream ->
+                    ((Closure)action).call('', entry.name, inputStream)
                 }
             }
         } finally {

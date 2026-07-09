@@ -18,11 +18,16 @@ package org.beryx.jlink
 import groovy.transform.CompileStatic
 import org.beryx.jlink.impl.JPackageTaskImpl
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
 @CompileStatic
+@DisableCachingByDefault(because = 'Invokes jpackage and installer tooling with platform-specific side effects.')
 abstract class JPackageTask extends AbstractJPackageTask {
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     File getImageOutputDir() {
         extension.jpackageData.get().getImageOutputDir()
     }

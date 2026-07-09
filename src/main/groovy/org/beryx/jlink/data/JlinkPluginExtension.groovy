@@ -166,8 +166,8 @@ class JlinkPluginExtension {
         this.includeLocales.set(includeLocales)
     }
 
-    void setIncludeLocalesFile(Object includeLocalesFile) {
-        this.includeLocalesFile.set(project.file(includeLocalesFile))
+    void setIncludeLocalesFile(File includeLocalesFile) {
+        this.includeLocalesFile.set(includeLocalesFile)
     }
 
     List<String> getEffectiveIncludeLocales() {

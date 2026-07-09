@@ -23,9 +23,13 @@ import org.gradle.api.file.Directory
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.api.tasks.PathSensitive
+import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
 @CompileStatic
+@DisableCachingByDefault(because = 'Invokes external tools and mutates generated module artifacts.')
 abstract class CreateDelegatingModulesTask extends BaseTask {
 
     CreateDelegatingModulesTask() {
@@ -44,6 +48,7 @@ abstract class CreateDelegatingModulesTask extends BaseTask {
     }
 
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     Directory getNonModularJarsDir() {
         projectLayout.projectDirectory.dir(PathUtil.getNonModularJarsDirPath(jlinkBasePath))
     }

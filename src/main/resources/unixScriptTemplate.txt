@@ -12,4 +12,4 @@ if [ -f "\$CDS_ARCHIVE_FILE" ]; then
 fi
 <% } %>
 
-"\$DIR/java" \$CDS_JVM_OPTS ${jvmArgs} -p "\$DIR/../app" -m ${moduleName}/${mainClassName} ${args} "\$@"
+exec "\$DIR/java" \$CDS_JVM_OPTS ${jvmArgs} -p "\$DIR/../app" -m ${moduleName}/${mainClassName} ${args} "\$@"

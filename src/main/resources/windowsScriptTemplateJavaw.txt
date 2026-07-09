@@ -1,6 +1,6 @@
 @echo off
-set DIR="%~dp0"
-set JAVA_EXEC="%DIR:"=%\\javaw"
+set "DIR=%~dp0"
+set "JAVA_EXEC=%DIR%javaw.exe"
 
 <% if ( System.properties['BADASS_CDS_ARCHIVE_FILE_WINDOWS'] ) { %>
 set CDS_ARCHIVE_FILE="<%= System.properties['BADASS_CDS_ARCHIVE_FILE_WINDOWS'] %>"
@@ -8,4 +8,8 @@ set CDS_JVM_OPTS=-XX:ArchiveClassesAtExit=%CDS_ARCHIVE_FILE%
 if exist %CDS_ARCHIVE_FILE% set CDS_JVM_OPTS=-XX:SharedArchiveFile=%CDS_ARCHIVE_FILE%
 <% } %>
 
-pushd %DIR% & start "${moduleName}" %JAVA_EXEC% %CDS_JVM_OPTS% ${jvmArgs} -p "%~dp0/../app" -m ${moduleName}/${mainClassName} ${args} %* & popd
+pushd %DIR%
+start "${moduleName}" "%JAVA_EXEC%" %CDS_JVM_OPTS% ${jvmArgs} -p "%~dp0/../app" -m ${moduleName}/${mainClassName} ${args} %*
+set EXITCODE=%ERRORLEVEL%
+popd
+exit /b %EXITCODE%

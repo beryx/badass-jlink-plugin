@@ -18,7 +18,9 @@ package org.beryx.jlink
 import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 import spock.lang.Ignore
+import spock.lang.Isolated
 
+@Isolated('jlink functional tests are memory intensive and should not run in parallel')
 class JlinkPluginFunctionalSpec extends AbstractJlinkPluginTest {
 
     def "should be compatible with the new JPMS features introduced in Gradle 6.4"() {

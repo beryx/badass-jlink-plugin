@@ -15,19 +15,21 @@
  */
 package org.beryx.jlink.util
 
+
 import groovy.text.SimpleTemplateEngine
 import groovy.text.Template
 import groovy.transform.CompileStatic
-import groovy.transform.TupleConstructor
 import org.beryx.jlink.data.LauncherData
+import org.codehaus.groovy.control.CompilerConfiguration
 import org.gradle.api.GradleException
-import org.gradle.api.Project
 
 import java.util.function.Function
 import java.util.stream.Collectors
 
 @CompileStatic
 class LaunchScriptGenerator {
+    private static final Set<String> DISABLED_TEMPLATE_AST_TRANSFORMS = ['org.spockframework.compiler.SpockTransform'] as Set<String>
+
     final String moduleName
     final String mainClassName
     final LauncherData launcherData
@@ -93,7 +95,9 @@ class LaunchScriptGenerator {
     }
 
     String getScript(Type type) {
-        def engine = new SimpleTemplateEngine()
+        def compilerConfiguration = new CompilerConfiguration()
+        compilerConfiguration.setDisabledGlobalASTTransformations(DISABLED_TEMPLATE_AST_TRANSFORMS)
+        def engine = new SimpleTemplateEngine(new GroovyShell(LaunchScriptGenerator.classLoader, new Binding(), compilerConfiguration))
 
         def args = effectiveArgs.stream()
                 .map{adjustArg(it, type) as CharSequence}

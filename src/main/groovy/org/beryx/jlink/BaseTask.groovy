@@ -29,6 +29,7 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.work.DisableCachingByDefault
 import org.gradle.process.ExecOperations
 
 import javax.inject.Inject
@@ -36,6 +37,7 @@ import javax.inject.Inject
 import static org.beryx.jlink.util.Util.EXEC_EXTENSION
 
 @CompileStatic
+@DisableCachingByDefault(because = 'Task behavior depends on external tools and mutable runtime inputs.')
 abstract class BaseTask extends DefaultTask {
     private static final Logger LOGGER = Logging.getLogger(BaseTask.class);
 

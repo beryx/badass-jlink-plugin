@@ -26,8 +26,10 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 import org.gradle.api.tasks.bundling.Jar
+import org.gradle.work.DisableCachingByDefault
 
 @CompileStatic
+@DisableCachingByDefault(because = 'Builds a task-specific modules directory based on resolved dependencies and generated jars.')
 abstract class PrepareModulesDirTask extends BaseTask {
     @Input
     String getModuleName() {
@@ -55,6 +57,7 @@ abstract class PrepareModulesDirTask extends BaseTask {
     }
 
     @InputDirectory
+    @PathSensitive(PathSensitivity.RELATIVE)
     Directory getDelegatingModulesDir() {
         projectLayout.projectDirectory.dir(PathUtil.getDelegatingModulesDirPath(jlinkBasePath))
     }
@@ -71,6 +74,7 @@ abstract class PrepareModulesDirTask extends BaseTask {
     abstract ConfigurableFileCollection getClasspathFiles()
 
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     abstract RegularFileProperty getArchiveFileProperty()
 
     PrepareModulesDirTask() {

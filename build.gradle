@@ -13,7 +13,7 @@ buildscript {
 }
 plugins {
     id 'groovy'
-    id 'com.gradleup.shadow' version '9.4.2'
+    id 'com.gradleup.shadow' version '9.5.1'
     id 'com.gradle.plugin-publish' version '2.1.1'
     id 'org.gradle.plugin-compatibility' version '1.0.0'
     id 'com.github.ethankhall.semantic-versioning' version '1.1.0'
@@ -36,6 +36,8 @@ project.version.with {
 }
 def badassJlinkPluginTag = pluginReleaseBuild ? "v$project.version" : 'master'
 group = 'org.beryx'
+def pluginGroovyVersion = '3.0.25'
+def runningOnMac = System.getProperty('os.name', '').toLowerCase().contains('mac')
 
 license {
     header = file('license-header.txt')
@@ -51,6 +53,7 @@ tasks.named('licenseTest') {
 
 configurations {
     asciidoctorExt
+    groovyCompiler
 }
 
 repositories {
@@ -59,27 +62,35 @@ repositories {
 
 dependencies {
     implementation 'org.ow2.asm:asm:9.10.1'
+    compileOnly "org.codehaus.groovy:groovy:$pluginGroovyVersion"
 
     testImplementation 'org.spockframework:spock-core:2.4-groovy-3.0'
+    testImplementation "org.codehaus.groovy:groovy-ant:$pluginGroovyVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    groovyCompiler "org.codehaus.groovy:groovy:$pluginGroovyVersion"
 
     asciidoctorExt 'com.bmuschko:asciidoctorj-tabbed-code-extension:0.3'
+}
+
+tasks.withType(org.gradle.api.tasks.compile.GroovyCompile).configureEach {
+    groovyClasspath = configurations.groovyCompiler
 }
 
 test {
     useJUnitPlatform()
 
-    // Enable parallel execution of test classes
-    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+    // jpackage/codesign can fail intermittently when executed in parallel on macOS.
+    maxParallelForks = runningOnMac ? 1 : (Runtime.runtime.availableProcessors().intdiv(2) ?: 1)
 
     // isolate the TestKit directory for each worker fork to avoid cache locks
     systemProperty 'org.gradle.testkit.dir', "${project.layout.buildDirectory.dir("testkit").get().asFile}/${name}-worker"
 
-    // Enable parallel execution of feature methods within a single class
-    systemProperty 'spock.parallel.enabled', 'true'
-    systemProperty 'spock.parallel.mode.default', 'concurrent'
-    systemProperty 'junit.jupiter.execution.parallel.enabled', 'true'
-    systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
+    systemProperty 'spock.parallel.enabled', (!runningOnMac).toString()
+    systemProperty 'junit.jupiter.execution.parallel.enabled', (!runningOnMac).toString()
+    if(!runningOnMac) {
+        systemProperty 'spock.parallel.mode.default', 'concurrent'
+        systemProperty 'junit.jupiter.execution.parallel.mode.default', 'concurrent'
+    }
 
     jvmArgs '--add-opens', 'java.base/java.lang.invoke=ALL-UNNAMED',
             '--add-opens', 'java.base/java.util=ALL-UNNAMED',

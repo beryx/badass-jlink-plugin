@@ -24,15 +24,16 @@ import org.beryx.jlink.util.JavaVersion
 import org.beryx.jlink.util.PathUtil
 import org.beryx.jlink.util.Util
 import org.gradle.api.Task
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.Directory
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.*
+import org.gradle.work.DisableCachingByDefault
 
 @CompileStatic
+@DisableCachingByDefault(because = 'Merges dependency jars and prepares intermediate module artifacts.')
 abstract class PrepareMergedJarsDirTask extends BaseTask {
     @Input
     List<String> getForceMergedJarPrefixes() {
@@ -76,6 +77,7 @@ abstract class PrepareMergedJarsDirTask extends BaseTask {
     abstract ConfigurableFileCollection getClasspathFiles()
 
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     abstract RegularFileProperty getArchiveFileProperty()
 
     PrepareMergedJarsDirTask() {
@@ -119,6 +121,7 @@ abstract class PrepareMergedJarsDirTask extends BaseTask {
     }
 
     @InputFile
+    @PathSensitive(PathSensitivity.RELATIVE)
     File getArchivePath() {
         archiveFileProperty.get().asFile
     }
