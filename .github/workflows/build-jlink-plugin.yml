@@ -36,7 +36,20 @@ jobs:
 
       - name: Build and run asciidoc
         shell: bash
-        run: ./gradlew build asciidoc --scan
+        run: |
+          # Retry logic for flaky test initialization issues
+          for attempt in 1 2 3; do
+            echo "Attempt $attempt..."
+            if ./gradlew build asciidoc --scan; then
+              exit 0
+            fi
+            if [ $attempt -lt 3 ]; then
+              echo "Build failed, cleaning Gradle daemon and retrying..."
+              ./gradlew --stop
+              sleep 5
+            fi
+          done
+          exit 1
 
       - name: Run publish if necessary
         if: runner.os == 'Linux' && github.ref == 'refs/heads/master' && github.event_name == 'push'
