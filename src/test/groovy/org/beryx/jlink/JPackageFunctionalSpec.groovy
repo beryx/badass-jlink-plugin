@@ -79,4 +79,26 @@ class JPackageFunctionalSpec extends AbstractJlinkPluginTest {
         then:
         result.task(":" + JlinkPlugin.TASK_NAME_JPACKAGE).outcome == TaskOutcome.SUCCESS
     }
+
+    def "should be able to run twice (now UP-TO-DATE on second run)"() {
+        given:
+        setUpBuild('multi-launch')
+
+        when: "run for the first time"
+        runGradleWithLockRetry(GradleRunner.create()
+                .withDebug(false)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withArguments('jpackageImage', '-is'))
+
+        and: "run for the second time"
+        BuildResult result = runGradleWithLockRetry(GradleRunner.create()
+                .withDebug(false)
+                .withProjectDir(testProjectDir.toFile())
+                .withPluginClasspath()
+                .withArguments('jpackageImage', '-is'))
+
+        then: "it should be UP-TO-DATE (thanks to removing doNotTrackState)"
+        result.task(":jpackageImage").outcome == TaskOutcome.UP_TO_DATE
+    }
 }
