@@ -61,8 +61,6 @@ abstract class AbstractJPackageTask extends BaseTask {
 
     @groovy.transform.CompileDynamic
     AbstractJPackageTask() {
-        doNotTrackState('jpackage generates platform executables that may be unreadable for task input/output snapshotting.')
-
         project.getGradle().projectsEvaluated {
             defaultJvmArgsProperty.set(org.beryx.jlink.util.Util.getDefaultJvmArgs(project) ?: [])
             defaultArgsProperty.set(org.beryx.jlink.util.Util.getDefaultArgs(project) ?: [])

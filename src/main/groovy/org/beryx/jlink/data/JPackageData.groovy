@@ -128,6 +128,7 @@ class JPackageData {
     }
 
     @OutputDirectory
+    @Optional
     File getImageOutputDir() {
         imageOutputDir.get().asFile
     }
@@ -191,6 +192,7 @@ class JPackageData {
     }
 
     @OutputDirectory
+    @Optional
     File getInstallerOutputDir() {
         installerOutputDir.get().asFile
     }
