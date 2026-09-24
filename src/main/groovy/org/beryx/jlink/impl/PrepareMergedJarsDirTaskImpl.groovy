@@ -22,6 +22,7 @@ import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.Util
 import org.codehaus.groovy.tools.Utilities
 import org.gradle.api.file.ArchiveOperations
+import org.gradle.api.file.FileCopyDetails
 import org.gradle.api.file.FileSystemOperations
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.logging.Logger
@@ -30,6 +31,7 @@ import org.gradle.api.logging.Logging
 @CompileStatic
 class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTaskData> {
     private static final Logger LOGGER = Logging.getLogger(PrepareMergedJarsDirTaskImpl.class);
+    private static final int MAX_LISTED_CONFLICTING_KEYS = 5
 
     final FileSystemOperations fileSystemOperations
     final ArchiveOperations archiveOperations
@@ -46,7 +48,8 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         fileSystemOperations.delete { it.delete(td.jlinkBasePath) }
         td.mergedJarsDir.mkdirs()
         copyRuntimeJars()
-        mergeUnpackedContents(new File(td.nonModularJarsDirPath).listFiles() as List)
+        // sorted, so that the merge order does not depend on the file system
+        mergeUnpackedContents((new File(td.nonModularJarsDirPath).listFiles() as List).sort { it.name })
     }
 
     @CompileDynamic
@@ -107,6 +110,15 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
                     fileSystemOperations.copy {
                         from td.tmpJarsDirPath
                         into td.mergedJarsDir
+                        eachFile { FileCopyDetails details ->
+                            if(details.path.endsWith('.properties')) {
+                                def target = new File(td.mergedJarsDir, details.path)
+                                if(target.file) {
+                                    mergePropertiesFile(details.path, target, details.file, jar)
+                                    details.exclude()
+                                }
+                            }
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -116,6 +128,42 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         }
         writeServiceFiles(services)
         Util.createManifest(td.mergedJarsDir, false)
+    }
+
+    /**
+     * Appends the content of a properties file to a properties file with the same path, previously
+     * copied from another jar, so that the merged module contains the entries of both.
+     * On duplicate keys, {@link Properties} uses the last value, that is, the one from {@code jar}.
+     */
+    private static void mergePropertiesFile(String path, File target, File source, File jar) {
+        // ISO-8859-1 maps bytes one-to-one to chars, so files in other encodings are preserved as is
+        String targetText = target.getText('ISO-8859-1')
+        String sourceText = source.getText('ISO-8859-1')
+        if(targetText == sourceText) return
+        Properties targetProperties = loadProperties(targetText)
+        Properties sourceProperties = loadProperties(sourceText)
+        List<String> conflictingKeys = sourceProperties.stringPropertyNames().findAll { String key ->
+            targetProperties.containsKey(key) && targetProperties.getProperty(key) != sourceProperties.getProperty(key)
+        }.sort()
+        if(conflictingKeys) {
+            String listedKeys = conflictingKeys.take(MAX_LISTED_CONFLICTING_KEYS).join(', ')
+            if(conflictingKeys.size() > MAX_LISTED_CONFLICTING_KEYS) {
+                listedKeys += " and ${conflictingKeys.size() - MAX_LISTED_CONFLICTING_KEYS} more"
+            }
+            LOGGER.warn("Merging $path from ${jar.name} into the merged module: conflicting values for [$listedKeys], using the values from ${jar.name}.")
+        } else {
+            LOGGER.info("Merging $path from ${jar.name} into the merged module.")
+        }
+        if(targetText && !targetText.endsWith('\n') && !targetText.endsWith('\r')) {
+            target.append('\n', 'ISO-8859-1')
+        }
+        target.append(sourceText, 'ISO-8859-1')
+    }
+
+    private static Properties loadProperties(String text) {
+        def properties = new Properties()
+        properties.load(new StringReader(text))
+        properties
     }
 
     private List<String> getExcludesOf(File jar) {
