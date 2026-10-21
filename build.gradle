@@ -64,7 +64,7 @@ dependencies {
     implementation 'org.ow2.asm:asm:9.11.1'
     compileOnly "org.codehaus.groovy:groovy:$pluginGroovyVersion"
 
-    testImplementation 'org.spockframework:spock-core:2.4-groovy-3.0'
+    testImplementation 'org.spockframework:spock-core:2.5-groovy-3.0'
     testImplementation "org.codehaus.groovy:groovy-ant:$pluginGroovyVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     groovyCompiler "org.codehaus.groovy:groovy:$pluginGroovyVersion"
