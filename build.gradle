@@ -63,7 +63,7 @@ dependencies {
     implementation 'org.ow2.asm:asm:9.11.1'
     implementation "org.apache.groovy:groovy:$pluginGroovyVersion"
 
-    testImplementation 'org.spockframework:spock-core:2.4-groovy-4.0'
+    testImplementation 'org.spockframework:spock-core:2.5-groovy-4.0'
     testImplementation "org.apache.groovy:groovy-ant:$pluginGroovyVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     groovyCompiler "org.apache.groovy:groovy:$pluginGroovyVersion"
