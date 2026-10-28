@@ -36,7 +36,7 @@ project.version.with {
 }
 def badassJlinkPluginTag = pluginReleaseBuild ? "v$project.version" : 'master'
 group = 'org.beryx'
-def pluginGroovyVersion = '3.0.25'
+def pluginGroovyVersion = '4.0.33'
 def runningOnMac = System.getProperty('os.name', '').toLowerCase().contains('mac')
 
 license {
@@ -62,12 +62,12 @@ repositories {
 
 dependencies {
     implementation 'org.ow2.asm:asm:9.11.1'
-    compileOnly "org.codehaus.groovy:groovy:$pluginGroovyVersion"
+    implementation "org.apache.groovy:groovy:$pluginGroovyVersion"
 
-    testImplementation 'org.spockframework:spock-core:2.4-groovy-3.0'
-    testImplementation "org.codehaus.groovy:groovy-ant:$pluginGroovyVersion"
+    testImplementation 'org.spockframework:spock-core:2.4-groovy-4.0'
+    testImplementation "org.apache.groovy:groovy-ant:$pluginGroovyVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    groovyCompiler "org.codehaus.groovy:groovy:$pluginGroovyVersion"
+    groovyCompiler "org.apache.groovy:groovy:$pluginGroovyVersion"
 
     asciidoctorExt 'com.bmuschko:asciidoctorj-tabbed-code-extension:0.3'
 }

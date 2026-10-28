@@ -53,7 +53,7 @@ abstract class CreateMergedModuleTask extends BaseTask {
     @Input
     String getMergedModuleJarName() {
         String jarName = extension.mergedModuleJarName.get()
-        if(jarName.endsWith('.jar')) jarName = jarName[0 .. -5]
+        if(jarName.endsWith('.jar')) jarName = jarName.substring(0, jarName.length() - 4)
         jarName
     }
 
