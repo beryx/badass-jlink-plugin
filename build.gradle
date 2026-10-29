@@ -34,7 +34,7 @@ project.version.with {
 }
 def badassJlinkPluginTag = pluginReleaseBuild ? "v$project.version" : 'master'
 group = 'org.beryx'
-def pluginGroovyVersion = '4.0.33'
+def pluginGroovyVersion = '6.0.0'
 def runningOnMac = System.getProperty('os.name', '').toLowerCase().contains('mac')
 
 license {
