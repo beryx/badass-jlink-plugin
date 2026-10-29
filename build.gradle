@@ -8,7 +8,6 @@ buildscript {
     }
     dependencies {
         classpath 'org.kohsuke:github-api:1.330'
-        classpath 'org.ysb33r.gradle:grolifant-herd:4.0.0'
     }
 }
 plugins {
