@@ -18,7 +18,6 @@ package org.beryx.jlink.impl
 import groovy.transform.CompileDynamic
 import groovy.transform.CompileStatic
 import org.beryx.jlink.data.PrepareMergedJarsDirTaskData
-import org.beryx.jlink.util.DependencyManager
 import org.beryx.jlink.util.Util
 import org.codehaus.groovy.tools.Utilities
 import org.gradle.api.file.ArchiveOperations
@@ -184,7 +183,7 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         if(!path.endsWith('.class')) return false
         String[] tokens = path.split('/')
         if(tokens.length > 0) {
-            tokens = ((tokens.length == 1) ? [] : tokens[0 .. -2]) as String[]
+            tokens = (tokens.length == 1) ? [] : Arrays.copyOf(tokens, tokens.length - 1)
         }
         def invalid = !tokens.every { String token -> Utilities.isJavaIdentifier(token) }
         if(invalid) {

@@ -8,16 +8,14 @@ buildscript {
     }
     dependencies {
         classpath 'org.kohsuke:github-api:1.330'
-        classpath 'org.ysb33r.gradle:grolifant-herd:4.0.0'
     }
 }
 plugins {
     id 'groovy'
     id 'com.gradleup.shadow' version '9.6.1'
-    id 'com.gradle.plugin-publish' version '2.1.1'
-    id 'org.gradle.plugin-compatibility' version '1.0.0'
+    id 'com.gradle.plugin-publish' version '2.2.1'
+    id 'org.gradle.plugin-compatibility' version '1.1.0'
     id 'com.github.ethankhall.semantic-versioning' version '1.1.0'
-    id 'com.github.ben-manes.versions' version '0.56.0'
     id 'com.github.hierynomus.license' version '0.16.1'
     id 'org.asciidoctor.jvm.convert' version '4.0.5'
     id 'org.ajoberstar.git-publish' version '6.0.0'
@@ -36,7 +34,7 @@ project.version.with {
 }
 def badassJlinkPluginTag = pluginReleaseBuild ? "v$project.version" : 'master'
 group = 'org.beryx'
-def pluginGroovyVersion = '3.0.25'
+def pluginGroovyVersion = '4.0.33'
 def runningOnMac = System.getProperty('os.name', '').toLowerCase().contains('mac')
 
 license {
@@ -61,13 +59,13 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.ow2.asm:asm:9.10.1'
-    compileOnly "org.codehaus.groovy:groovy:$pluginGroovyVersion"
+    implementation 'org.ow2.asm:asm:9.11.1'
+    implementation "org.apache.groovy:groovy:$pluginGroovyVersion"
 
-    testImplementation 'org.spockframework:spock-core:2.4-groovy-3.0'
-    testImplementation "org.codehaus.groovy:groovy-ant:$pluginGroovyVersion"
+    testImplementation 'org.spockframework:spock-core:2.5-groovy-4.0'
+    testImplementation "org.apache.groovy:groovy-ant:$pluginGroovyVersion"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    groovyCompiler "org.codehaus.groovy:groovy:$pluginGroovyVersion"
+    groovyCompiler "org.apache.groovy:groovy:$pluginGroovyVersion"
 
     asciidoctorExt 'com.bmuschko:asciidoctorj-tabbed-code-extension:0.3'
 }
