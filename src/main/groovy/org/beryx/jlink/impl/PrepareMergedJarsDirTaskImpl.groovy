@@ -153,10 +153,33 @@ class PrepareMergedJarsDirTaskImpl extends BaseTaskImpl<PrepareMergedJarsDirTask
         } else {
             LOGGER.info("Merging $path from ${jar.name} into the merged module.")
         }
-        if(targetText && !targetText.endsWith('\n') && !targetText.endsWith('\r')) {
+        String textToAppendTo = removeTerminalContinuationEscape(targetText)
+        if(textToAppendTo != targetText) {
+            target.setText(textToAppendTo, 'ISO-8859-1')
+        }
+        if(textToAppendTo && !textToAppendTo.endsWith('\n') && !textToAppendTo.endsWith('\r')) {
             target.append('\n', 'ISO-8859-1')
         }
         target.append(sourceText, 'ISO-8859-1')
+    }
+
+    /**
+     * A trailing odd number of backslashes escapes the following physical line. At EOF,
+     * {@link Properties} ignores that final escape, but appending another file would make
+     * its first line a continuation. Remove the final escape to preserve the original
+     * file's Properties semantics at the new file boundary.
+     */
+    private static String removeTerminalContinuationEscape(String text) {
+        int lastContentIndex = text.length() - 1
+        while(lastContentIndex >= 0 && (text.charAt(lastContentIndex) == '\n' || text.charAt(lastContentIndex) == '\r')) {
+            lastContentIndex--
+        }
+        int trailingBackslashes = 0
+        while(lastContentIndex - trailingBackslashes >= 0 && text.charAt(lastContentIndex - trailingBackslashes) == '\\') {
+            trailingBackslashes++
+        }
+        if(trailingBackslashes % 2 == 0) return text
+        text.substring(0, lastContentIndex) + text.substring(lastContentIndex + 1)
     }
 
     private static Properties loadProperties(String text) {

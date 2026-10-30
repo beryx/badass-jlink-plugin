@@ -31,11 +31,14 @@ class MergedPropertiesSpec extends AbstractJlinkPluginTest {
         // no trailing line break, to verify that the merged entries are not joined
         createJar(new File(libDir, 'props-a-1.0.jar'), 'props.a', [
                 'extension.properties': 'factory.a=A\nshared=from-a',
-                'identical.properties': 'key=value\n'
+                'identical.properties': 'key=value\n',
+                // A trailing escape is accepted by Properties.load(), where it is ignored at EOF.
+                'trailing-escape.properties': 'value=from-a\\'
         ])
         createJar(new File(libDir, 'props-b-1.0.jar'), 'props.b', [
                 'extension.properties': 'factory.b=B\nshared=from-b\n',
-                'identical.properties': 'key=value\n'
+                'identical.properties': 'key=value\n',
+                'trailing-escape.properties': 'next=from-b\n'
         ])
         BuildResult result = runGradleWithLockRetry(GradleRunner.create()
                 .withDebug(false)
@@ -48,6 +51,9 @@ class MergedPropertiesSpec extends AbstractJlinkPluginTest {
         checkOutput(result, 'propsHello', '{factory.a=A, factory.b=B, shared=from-b}')
         result.output.contains('Merging extension.properties from props-b-1.0.jar into the merged module: conflicting values for [shared], using the values from props-b-1.0.jar.')
         new File(testProjectDir.toFile(), 'build/jlinkbase/mergedjars/identical.properties').text == 'key=value\n'
+        def trailingEscapeProperties = loadProperties(new File(testProjectDir.toFile(), 'build/jlinkbase/mergedjars/trailing-escape.properties'))
+        trailingEscapeProperties.getProperty('value') == 'from-a'
+        trailingEscapeProperties.getProperty('next') == 'from-b'
     }
 
     private static void createJar(File jarFile, String automaticModuleName, Map<String, String> entries) {
@@ -62,5 +68,11 @@ class MergedPropertiesSpec extends AbstractJlinkPluginTest {
                 out.closeEntry()
             }
         }
+    }
+
+    private static Properties loadProperties(File file) {
+        def properties = new Properties()
+        file.withInputStream { properties.load(it) }
+        properties
     }
 }
