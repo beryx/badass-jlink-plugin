@@ -1,0 +1,23 @@
+plugins {
+    id 'org.beryx.jlink'
+}
+
+group = 'org.example'
+version = '1.0'
+
+dependencies {
+    // non-modular jars, created by the test, each containing an extension.properties file
+    implementation files('lib/props-a-1.0.jar', 'lib/props-b-1.0.jar')
+}
+
+application {
+    mainModule = 'org.example.props'
+    mainClass = 'org.example.props.Main'
+}
+
+jlink {
+    options = ['--strip-debug', '--no-header-files', '--no-man-pages']
+    launcher {
+        name = 'propsHello'
+    }
+}
